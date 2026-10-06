@@ -138,13 +138,22 @@ test('payment failure, retried success, reordered failure, and refund are transa
       (await db.query<{ status: string }>('select status from containers')).rows[0].status,
       'yard',
     );
+    await assert.rejects(
+      db.query('select prepare_invoice($1,$2) as invoice', [reservation.id, org]),
+      /scale ticket/i,
+    );
+    await db.query('select attach_scale_ticket($1,$2,$3)', [
+      reservation.id,
+      org,
+      '/api/proof/11111111-1111-1111-1111-111111111111',
+    ]);
     const bill = (
       await db.query<{ invoice: { amount_cents: number } }>(
         'select prepare_invoice($1,$2) as invoice',
         [reservation.id, org],
       )
     ).rows[0].invoice;
-    assert.equal(bill.amount_cents, 42075);
+    assert.equal(bill.amount_cents, 10200);
     await assert.rejects(
       db.query('select transition_job($1,$2,$3)', [reservation.id, org, { tons_actual: 0 }]),
       /locked/i,
@@ -152,8 +161,8 @@ test('payment failure, retried success, reordered failure, and refund are transa
     const final = {
       ...object,
       id: 'pi_test_invoice',
-      amount: 42075,
-      application_fee_amount: 421,
+      amount: 10200,
+      application_fee_amount: 300,
       metadata: { ...object.metadata, kind: 'invoice' },
     };
     await event('evt_final', 'payment_intent.succeeded', final);

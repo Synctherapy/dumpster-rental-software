@@ -28,7 +28,6 @@ export function Settings({
   const [name, setName] = useState(data.organization.name);
   const [slug, setSlug] = useState(data.organization.slug);
   const [phone, setPhone] = useState(data.organization.phone);
-  const [deposit, setDeposit] = useState(data.organization.pricing_config.deposit_percent);
   const [rules, setRules] = useState(data.pricing_rules);
   const [zips, setZips] = useState(data.pricing_rules[0]?.service_zips.join(', ') ?? '');
   const [busy, setBusy] = useState(false);
