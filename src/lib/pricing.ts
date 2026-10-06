@@ -16,7 +16,7 @@ export function quote(rule: PricingRule, delivery: string, pickup: string, depos
     extra: extraDays * rule.extra_day_cents,
     total,
     deposit: Math.round((total * depositPercent) / 100),
-    fee: Math.round(total * 0.01),
+    fee: platformFee(total),
   };
 }
 export function invoice(job: Job) {
@@ -25,7 +25,10 @@ export function invoice(job: Job) {
   const overage = Math.round(extraTons * job.pricing_snapshot.overage_per_ton_cents);
   return { ...pricing, extraTons, overage, total: pricing.total + overage };
 }
+/** 0.5% of the charge, with a $3 minimum. Zero-balance invoices have no fee. */
 export function platformFee(amount: number) {
   if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Invalid amount');
-  return Math.round(amount / 100);
+  if (amount === 0) return 0;
+  return Math.max(300, Math.round(amount * 0.005));
 }
+export const SUBSCRIPTION_CENTS = 4900;

@@ -26,7 +26,8 @@ test('extra days and fractional tons are charged from the retained pricing rule'
   assert.equal(result.extra, 2000);
   assert.equal(result.overage, 10200);
   assert.equal(result.total, 54700);
-  assert.equal(platformFee(43575), 436);
+  assert.equal(platformFee(43575), 300);
+  assert.equal(platformFee(200000), 1000);
 });
 test('no overweight charge applies under the included tonnage', () => {
   const job = seed().jobs[0];
