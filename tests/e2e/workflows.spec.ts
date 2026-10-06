@@ -61,6 +61,13 @@ test('customer booking → dispatch → mobile delivery proof → pickup → fin
     .setInputFiles({ name: 'proof.png', mimeType: 'image/png', buffer: png });
   await card.getByRole('button', { name: 'Mark delivered' }).click();
   await expect(card.getByRole('button', { name: 'Mark picked up' })).toBeVisible();
+  await card.getByLabel('Landfill scale ticket').setInputFiles({
+    name: 'ticket.png',
+    mimeType: 'image/png',
+    buffer: png,
+  });
+  await card.getByRole('button', { name: 'Save scale ticket' }).click();
+  await expect(route.getByRole('status')).toContainText('Scale ticket saved');
   await card.getByRole('button', { name: 'Mark picked up' }).click();
   await expect(card).toContainText('Picked up');
   await card.getByLabel('Actual disposal weight (tons)').fill('3.2');
