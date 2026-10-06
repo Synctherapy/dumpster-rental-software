@@ -1,0 +1,69 @@
+import { NextResponse } from 'next/server';
+import { isDemo, readDemo } from '@/lib/server/store';
+import { admin } from '@/lib/server/supabase';
+import { sendSms } from '@/lib/server/notifications';
+import { sendEmail } from '@/lib/server/email';
+import { addDays, type Job, type Organization } from '@/lib/types';
+export async function GET(request: Request) {
+  const demo = isDemo();
+  if (
+    !demo &&
+    (!process.env.CRON_SECRET ||
+      request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`)
+  )
+    return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
+  try {
+    let jobs: Job[];
+    let orgs: Organization[];
+    if (demo) {
+      const d = await readDemo();
+      jobs = d.jobs;
+      orgs = [d.organization];
+    } else {
+      const db = admin();
+      const [j, o] = await Promise.all([
+        db.from('jobs').select('*').in('status', ['booked', 'dispatched', 'delivered']),
+        db.from('organizations').select('*'),
+      ]);
+      if (j.error || o.error) throw new Error('Unable to load reminder queue');
+      jobs = j.data;
+      orgs = o.data;
+    }
+    let processed = 0;
+    for (const org of orgs) {
+      const localToday = new Intl.DateTimeFormat('en-CA', {
+        timeZone: org.timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+      const tomorrow = addDays(localToday, 1);
+      for (const job of jobs.filter((j) => j.org_id === org.id)) {
+        const template =
+          ['booked', 'dispatched'].includes(job.status) && job.delivery_date === tomorrow
+            ? 'delivery_reminder'
+            : job.status === 'delivered' && job.pickup_date === tomorrow
+              ? 'pickup_reminder'
+              : null;
+        if (!template) continue;
+        const text =
+          template === 'delivery_reminder'
+            ? `Your ${job.size_yards} yd dumpster from ${org.name} arrives tomorrow. Please keep the placement area clear.`
+            : `Your dumpster from ${org.name} is scheduled for pickup tomorrow. Please keep access clear.`;
+        await sendSms(org.id, job.id, job.customer_phone, template, text);
+        await sendEmail(
+          org.id,
+          job.id,
+          job.customer_email,
+          template,
+          `Tomorrow’s ${template === 'delivery_reminder' ? 'delivery' : 'pickup'} · ${org.name}`,
+          text,
+        );
+        processed++;
+      }
+    }
+    return NextResponse.json({ processed, demo });
+  } catch {
+    return NextResponse.json({ error: 'Reminder processing failed' }, { status: 500 });
+  }
+}
