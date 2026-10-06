@@ -3,7 +3,8 @@ import { isDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
-import { addDays, type Job, type Organization } from '@/lib/types';
+import { addDays, type Job, type Organization, type User } from '@/lib/types';
+import { driverToken } from '@/lib/server/tokens';
 export async function GET(request: Request) {
   const demo = isDemo();
   if (
@@ -15,19 +16,23 @@ export async function GET(request: Request) {
   try {
     let jobs: Job[];
     let orgs: Organization[];
+    let users: User[];
     if (demo) {
       const d = await readDemo();
       jobs = d.jobs;
       orgs = [d.organization];
+      users = d.users;
     } else {
       const db = admin();
-      const [j, o] = await Promise.all([
+      const [j, o, u] = await Promise.all([
         db.from('jobs').select('*').in('status', ['booked', 'dispatched', 'delivered']),
         db.from('organizations').select('*'),
+        db.from('users').select('*').eq('role', 'driver'),
       ]);
-      if (j.error || o.error) throw new Error('Unable to load reminder queue');
+      if (j.error || o.error || u.error) throw new Error('Unable to load reminder queue');
       jobs = j.data;
       orgs = o.data;
+      users = u.data;
     }
     let processed = 0;
     for (const org of orgs) {
@@ -59,6 +64,19 @@ export async function GET(request: Request) {
           `Tomorrow’s ${template === 'delivery_reminder' ? 'delivery' : 'pickup'} · ${org.name}`,
           text,
         );
+        if (template === 'pickup_reminder' && job.driver_id) {
+          const driver = users.find((u) => u.id === job.driver_id);
+          if (driver?.phone) {
+            const origin = new URL(request.url).origin;
+            await sendSms(
+              org.id,
+              job.id,
+              driver.phone,
+              'driver_pickup',
+              `Pickup tomorrow: ${job.delivery_address}. Open a fresh route link: ${origin}/driver/${driverToken(org.id, driver.id)}`,
+            );
+          }
+        }
         processed++;
       }
     }

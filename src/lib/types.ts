@@ -61,6 +61,7 @@ export interface Job {
   delivered_at: string | null;
   picked_up_at: string | null;
   proof_url: string | null;
+  scale_ticket_url?: string | null;
   stripe_checkout_session_id?: string | null;
   stripe_customer_id: string | null;
   stripe_payment_method_id: string | null;

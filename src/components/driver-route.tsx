@@ -101,13 +101,17 @@ export function DriverRoute({ token }: { token: string }) {
                       : 'Picked up'}
                 </span>
               </div>
+              {job.notes && (
+                <div className="booking-notice" style={{ margin: '12px 0' }}>
+                  Placement: {job.notes}
+                </div>
+              )}
               <h2>{job.customer_name}</h2>
               <p className="address">
                 {job.delivery_address} {job.zip}
               </p>
               <div style={{ fontSize: 12, color: '#95a087', lineHeight: 1.8 }}>
                 Delivery {dateLabel(job.delivery_date)} · Pickup {dateLabel(job.pickup_date)}
-                {job.notes && <p style={{ marginTop: 10 }}>{job.notes}</p>}
               </div>
               <Button asChild>
                 <a
@@ -171,6 +175,46 @@ export function DriverRoute({ token }: { token: string }) {
                 </>
               )}
               {job.status === 'delivered' && (
+                <>
+                  <label className="field">
+                    <span>
+                      <Camera size={15} style={{ display: 'inline', marginRight: 8 }} />
+                      Landfill scale ticket
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      capture="environment"
+                      onChange={(e) =>
+                        e.target.files?.[0] && setPhotos({ ...photos, ['ticket-' + job.id]: e.target.files[0] })
+                      }
+                    />
+                  </label>
+                  <Button
+                    disabled={!photos['ticket-' + job.id] || busy === job.id}
+                    onClick={async () => {
+                      setBusy(job.id);
+                      try {
+                        const form = new FormData();
+                        form.set('photo', photos['ticket-' + job.id]);
+                        form.set('job_id', job.id);
+                        form.set('token', token);
+                        const { url } = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
+                        await api(`/api/driver/${token}`, {
+                          method: 'POST',
+                          body: JSON.stringify({ job_id: job.id, scale_ticket_url: url }),
+                        });
+                        await reload();
+                        setMessage('Scale ticket saved.');
+                      } catch (e) {
+                        setError((e as Error).message);
+                      } finally {
+                        setBusy(null);
+                      }
+                    }}
+                  >
+                    Save scale ticket
+                  </Button>
                 <Button
                   variant="primary"
                   disabled={busy === job.id}
@@ -179,6 +223,7 @@ export function DriverRoute({ token }: { token: string }) {
                   {busy === job.id ? <Loader2 className="spin" size={18} /> : <Check size={18} />}
                   Mark picked up
                 </Button>
+                </>
               )}
               {['delivered', 'picked_up'].includes(job.status) && (
                 <div className="tons">

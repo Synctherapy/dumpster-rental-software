@@ -1,12 +1,12 @@
 # Dumpster Rental SaaS — Vibe-Coded Build Spec
 
 Product: booking-first dumpster rental platform. Wedge: "the booking page that never sleeps."
-Monetization: free to start, 1% platform fee on every transaction via Stripe Connect.
+Monetization: $49/month hauler plan. Card processing is optional. If the hauler uses RollOS checkout, the application fee is 0.5% with a $3 minimum. The customer pays the full base rental up front.
 Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 
 ## Locked decisions
 
-- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Connect (Express accounts, `application_fee_percent: 1`) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
+- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Billing ($49/month) + optional Stripe Connect (Express accounts, application fee 0.5% with a $3 minimum) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
 - **Start from a boilerplate**, not zero: a Next.js SaaS starter with Supabase auth + Stripe Connect already wired. This saves ~2 weeks and most of the dangerous code is pre-written.
 - **One repo, git from prompt one.** Phase boundary rule: commit + working build before switching tools. Never switch tools on a broken build.
 - **Stripe test mode** until Phase 4 acceptance criteria pass. Real money touches nothing before then.

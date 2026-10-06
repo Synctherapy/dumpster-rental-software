@@ -20,6 +20,8 @@ async function database() {
  `);
   const sql = await readFile('supabase/migrations/202610060001_foundation.sql', 'utf8');
   await db.exec(sql.replace('create extension if not exists pgcrypto;', ''));
+  await db.exec(await readFile('supabase/migrations/202610060002_full_rental.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610060003_subscription.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
@@ -74,11 +76,11 @@ test('payment failure, retried success, reordered failure, and refund are transa
         [input],
       )
     ).rows[0].job;
-    assert.equal(reservation.deposit_cents, 10625);
+    assert.equal(reservation.deposit_cents, 42500);
     const object = {
       id: 'pi_test_deposit',
-      amount: 10625,
-      application_fee_amount: 106,
+      amount: 42500,
+      application_fee_amount: 300,
       currency: 'usd',
       customer: 'cus_test',
       payment_method: 'pm_test',

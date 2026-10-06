@@ -18,12 +18,13 @@ export default function Terms() {
         Do not place hazardous waste, liquids, batteries, tires, or prohibited materials in the
         dumpster. Your hauler can confirm permitted debris.
       </p>
-      <h2>Deposits and final charges</h2>
+      <h2>Payment and extra charges</h2>
       <p>
-        Your deposit is applied to the final invoice. Extra rental days are charged at the rate
+        The base rental is paid in full at booking. Extra rental days are charged at the rate
         displayed during booking. Disposal over the included tonnage is charged at the displayed
-        per-ton rate using measured actual tonnage. By signing, you authorize the deposit and
-        remaining balance after pickup. Rates agreed at booking are retained for your invoice.
+        per-ton rate, and only after a landfill scale ticket is attached. By signing, you authorize
+        those later charges on the card you use today. Rates agreed at booking are retained for
+        your invoice.
       </p>
       <h2>Changes and cancellations</h2>
       <p>

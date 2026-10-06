@@ -46,7 +46,7 @@ export function Settings({
           name,
           slug,
           phone,
-          deposit_percent: deposit,
+          deposit_percent: 100,
           pricing_rules: rules.map(
             ({
               size_yards,
@@ -134,16 +134,9 @@ export function Settings({
                 <small>/book/{slug}</small>
               </label>
               <label className="field">
-                Deposit percentage
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  required
-                  value={deposit}
-                  onChange={(e) => setDeposit(Number(e.target.value))}
-                />
-                <small>Percent of rental total collected at booking.</small>
+                Collected at booking
+                <input type="number" value={100} readOnly />
+                <small>The full base rental is collected. Extra days and tonnage are billed after pickup.</small>
               </label>
             </div>
             <label className="field">
@@ -315,6 +308,22 @@ export function Settings({
                 ? 'Continue Stripe setup'
                 : 'Connect Stripe (test)'}
               <ExternalLink size={11} />
+            </Button>
+            <Button
+              style={{ width: '100%', marginTop: 8 }}
+              disabled={busy || data.demo}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const { url } = await api<{ url: string }>('/api/billing', { method: 'POST', body: '{}' });
+                  window.location.assign(url);
+                } catch (e) {
+                  notify((e as Error).message, true);
+                  setBusy(false);
+                }
+              }}
+            >
+              Start $49/month plan
             </Button>
           </div>
         </section>

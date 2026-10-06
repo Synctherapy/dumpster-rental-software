@@ -35,7 +35,7 @@ test('customer booking → dispatch → mobile delivery proof → pickup → fin
   await expect(page.getByRole('heading', { name: 'You’re all set, Avery.' })).toBeVisible();
   let data: Workspace = await (await request.get('/api/workspace')).json();
   const job = data.jobs.find((j) => j.customer_name === 'Avery Browser Test')!;
-  expect(job.deposit_cents).toBe(11125);
+  expect(job.deposit_cents).toBe(44500);
   expect(job.signature.name).toBe('Avery Browser Test');
   await page.goto('/dashboard');
   await page.getByLabel('Search jobs').fill('Avery Browser Test');

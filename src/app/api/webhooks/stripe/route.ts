@@ -29,6 +29,15 @@ export async function POST(request: Request) {
       p_object: event.data.object,
     });
     if (error) throw error;
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as { mode?: string; metadata?: { org_id?: string }; subscription?: string };
+      if (session.mode === 'subscription' && session.metadata?.org_id && session.subscription) {
+        await db.from('organizations').update({
+          stripe_subscription_id: session.subscription,
+          subscription_status: 'active',
+        }).eq('id', session.metadata.org_id);
+      }
+    }
     if (data?.notify && data.job) {
       const text = `Your dumpster rental ${data.template === 'booking_confirmation' ? 'booking is confirmed' : 'payment has been received'}. Reference ${data.job.id.slice(0, 8)}.`;
       await sendSms(data.job.org_id, data.job.id, data.job.customer_phone, data.template, text);

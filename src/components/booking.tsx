@@ -97,7 +97,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     );
   let price: ReturnType<typeof quote> | null = null;
   try {
-    price = quote(rule, delivery, pickup, data.organization.pricing_config.deposit_percent);
+    price = quote(rule, delivery, pickup, 100);
   } catch {}
   const changeDelivery = (date: string) => {
     setDelivery(date);
@@ -200,7 +200,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               <strong>{money(confirmed.price_cents)}</strong>
             </div>
             <div className="summary-line">
-              <span>{data.demo ? 'Simulated deposit' : 'Deposit'}</span>
+              <span>Paid today</span>
               <strong>{money(confirmed.deposit_cents)}</strong>
             </div>
           </div>
@@ -473,15 +473,15 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       <Link href="/terms" target="_blank" style={{ textDecoration: 'underline' }}>
                         rental terms
                       </Link>
-                      , including included tonnage, extra-day charges, and disposal overages. I
-                      consent to receiving service-related SMS updates and authorize the deposit and
-                      final rental balance.
+                      . I pay the full base rental today. Extra days and tonnage over the included
+                      weight can be charged later to this card, and I will receive the scale ticket
+                      with that charge. I consent to service-related SMS updates.
                     </span>
                   </label>
                   <div className="deposit-note">
                     {data.demo
-                      ? 'Demo checkout simulates your deposit. No card details are needed and no money moves.'
-                      : 'You’ll continue to Stripe’s secure test checkout to pay your deposit. Your card is saved for the final rental balance.'}
+                      ? 'Demo checkout simulates the full rental. No card details are needed and no money moves.'
+                      : 'You’ll pay the full base rental on Stripe. Your card is saved only for extra days and tonnage, and only if a scale ticket is attached.'}
                   </div>
                 </form>
               )}
@@ -515,7 +515,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     {busy ? <Loader2 size={14} className="spin" /> : <LockKeyhole size={13} />}{' '}
                     {data.demo
                       ? 'Confirm demo booking'
-                      : `Pay ${money(price?.deposit ?? 0)} deposit`}
+                      : `Pay ${money(price?.total ?? 0)}`}
                   </Button>
                 )}
               </div>
@@ -557,10 +557,11 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 <strong>{price ? money(price.total) : '—'}</strong>
               </div>
               <div className="deposit-note">
-                <b>{price ? money(price.deposit) : '—'} deposit today.</b>
+                <b>{price ? money(price.total) : '—'} due today.</b>
                 <br />
-                The remaining balance is due after pickup. Disposal above {rule.included_tons} tons
-                is {money(rule.overage_per_ton_cents)}/ton.
+                Extra days and disposal above {rule.included_tons} tons (
+                {money(rule.overage_per_ton_cents)}/ton) are charged after pickup, with the scale
+                ticket.
               </div>
               <div className="summary-trust">
                 <ShieldCheck size={13} />

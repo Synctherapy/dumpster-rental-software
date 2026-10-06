@@ -38,12 +38,7 @@ export async function book(input: unknown, ip: string, origin: string) {
   if (!rule) throw new Error('That size is unavailable.');
   if (!rule.service_zips.includes(body.zip))
     throw new Error('This ZIP code is outside our service area.');
-  const price = quote(
-    rule,
-    body.delivery_date,
-    body.pickup_date,
-    org.pricing_config.deposit_percent,
-  );
+  const price = quote(rule, body.delivery_date, body.pickup_date, 100);
   const job: Job = {
     id: randomUUID(),
     org_id: org.id,
@@ -57,7 +52,7 @@ export async function book(input: unknown, ip: string, origin: string) {
     pickup_date: body.pickup_date,
     status: demo ? 'booked' : 'quoted',
     price_cents: price.total,
-    deposit_cents: price.deposit,
+    deposit_cents: price.total,
     tons_included: rule.included_tons,
     tons_actual: null,
     extra_day_cents: rule.extra_day_cents,
@@ -84,7 +79,7 @@ export async function book(input: unknown, ip: string, origin: string) {
         org_id: org.id,
         job_id: job.id,
         stripe_payment_intent_id: null,
-        amount_cents: price.deposit,
+        amount_cents: price.total,
         application_fee_cents: platformFee(price.deposit),
         status: 'demo',
         idempotency_key: `deposit-${job.id}`,
@@ -137,14 +132,14 @@ export async function book(input: unknown, ip: string, origin: string) {
         {
           price_data: {
             currency: 'usd',
-            unit_amount: saved.deposit_cents,
-            product_data: { name: `${saved.size_yards} yd dumpster rental deposit` },
+            unit_amount: saved.price_cents,
+            product_data: { name: `${saved.size_yards} yd dumpster rental` },
           },
           quantity: 1,
         },
       ],
       payment_intent_data: {
-        application_fee_amount: platformFee(saved.deposit_cents),
+        application_fee_amount: platformFee(saved.price_cents),
         transfer_data: { destination: org.stripe_connect_account_id },
         setup_future_usage: 'off_session',
         metadata: { job_id: saved.id, org_id: org.id, kind: 'deposit' },
@@ -172,6 +167,7 @@ export const changeSchema = z
     notes: z.string().max(2000).optional(),
     tons_actual: z.number().min(0).max(100).optional(),
     proof_url: z.string().max(500).optional(),
+    scale_ticket_url: z.string().max(500).optional(),
   })
   .strict();
 export async function changeJob(
@@ -185,7 +181,7 @@ export async function changeJob(
   let job: Job;
   if (
     driverIdentity &&
-    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url'].includes(k)) ||
+    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url'].includes(k)) ||
       (patch.status && !['delivered', 'picked_up'].includes(patch.status)))
   )
     throw new Error('FORBIDDEN');
@@ -282,6 +278,15 @@ export async function changeJob(
     });
     if (result.error) throw new Error(result.error.message);
     job = result.data;
+    if (patch.scale_ticket_url) {
+      const attached = await db.rpc('attach_scale_ticket', {
+        p_id: id,
+        p_org: org,
+        p_url: patch.scale_ticket_url,
+      });
+      if (attached.error) throw new Error(attached.error.message);
+      job.scale_ticket_url = patch.scale_ticket_url;
+    }
   }
   if (patch.status === 'dispatched') {
     const d = demo ? await import('./store').then((m) => m.readDemo()) : null;
@@ -317,6 +322,8 @@ export async function chargeInvoice(id: string) {
         throw new Error('Pick up the container before invoicing.');
       if (job.tons_actual === null)
         throw new Error('Record actual tonnage before closing the job.');
+      if (invoice(job).overage > 0 && !job.scale_ticket_url)
+        throw new Error('Attach the landfill scale ticket before charging an overage.');
       const key = `invoice-${job.id}`;
       const existing = d.payments.find((p) => p.idempotency_key === key);
       if (existing) return existing;
@@ -343,6 +350,11 @@ export async function chargeInvoice(id: string) {
   const { db, member } = await identity();
   if (member.role !== 'owner') throw new Error('FORBIDDEN');
   const client = stripe();
+  const preview = await admin().from('jobs').select('scale_ticket_url,tons_actual,tons_included,pricing_snapshot').eq('id', id).single();
+  if (preview.error) throw new Error(preview.error.message);
+  const previewJob = preview.data as Job;
+  if (invoice(previewJob).overage > 0 && !previewJob.scale_ticket_url)
+    throw new Error('Attach the landfill scale ticket before charging an overage.');
   const locked = await admin().rpc('prepare_invoice', { p_job_id: id, p_org: member.org_id });
   if (locked.error) throw new Error(locked.error.message);
   const { job, amount_cents, account_id, attempt } = locked.data;
