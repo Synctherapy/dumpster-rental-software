@@ -173,11 +173,11 @@ test('payment failure, retried success, reordered failure, and refund are transa
     );
     await event('evt_refund', 'charge.refunded', {
       payment_intent: 'pi_test_invoice',
-      amount_refunded: 42075,
+      amount_refunded: 10200,
     });
     await event('evt_refund', 'charge.refunded', {
       payment_intent: 'pi_test_invoice',
-      amount_refunded: 42075,
+      amount_refunded: 10200,
     });
     const refunds = (
       await db.query<{ status: string; refunded_cents: number }>(
@@ -185,7 +185,7 @@ test('payment failure, retried success, reordered failure, and refund are transa
       )
     ).rows[0];
     assert.equal(refunds.status, 'refunded');
-    assert.equal(refunds.refunded_cents, 42075);
+    assert.equal(refunds.refunded_cents, 10200);
     // A processing exception rolls back the event claim, making a corrected replay possible.
     const bad = { ...object, id: 'pi_bad', amount: 1 };
     await assert.rejects(event('evt_bad', 'payment_intent.succeeded', bad), /amount/i);
