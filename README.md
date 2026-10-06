@@ -4,15 +4,20 @@ Booking-first dumpster rental software, built from the supplied [product spec](d
 
 ## Run the local demo
 
-Requires Node 22 or newer. The cloud machine has Node 24.
+Requires Node 22 or newer. No service keys are needed for the sample workspace. Clone this repository on your computer, then run:
 
 ```sh
-cd /workspace/dumpster-rental-software
+git clone https://github.com/Synctherapy/dumpster-rental-software.git
+cd dumpster-rental-software
 npm ci
-npm run dev -- --hostname 0.0.0.0
+npm run dev
 ```
 
-Open the app using your hosting platform’s normal app access. Routes:
+On your computer, open `http://localhost:3000` in your browser. Start at `/dashboard`, or make a sample booking at `/book/greenline` using ZIP `78704`. Demo signup does not create accounts; open the existing sample workspace directly.
+
+For cloud setup, see [the cloud startup instructions](docs/cloud-start.md); the cloud installation script uses a cloud-specific absolute path and is not the laptop setup command.
+
+Routes:
 
 | Route                       | What it does                                                                           |
 | --------------------------- | -------------------------------------------------------------------------------------- |
