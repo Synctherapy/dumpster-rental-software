@@ -23,10 +23,12 @@ import {
   Pencil,
   Phone,
   Plus,
+  Rocket,
   Search,
   Settings2,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
   Truck,
   Users,
   X,
@@ -40,6 +42,8 @@ import { Settings } from './settings';
 import { BulkContainerModal } from './bulk-container-modal';
 import { CalendarSubscribeModal } from './calendar-subscribe-modal';
 import { QuickOrderModal } from './quick-order-modal';
+import { ReportsHub } from './reports-hub';
+import { GrowthHub } from './growth-hub';
 import { api, initials } from '@/lib/client';
 import { money, dateLabel, today, type Workspace, type JobStatus } from '@/lib/types';
 const navigation = [
@@ -49,6 +53,8 @@ const navigation = [
   { id: 'inventory', href: '/inventory', title: 'Containers', icon: Box },
   { id: 'drivers', href: '/drivers', title: 'Drivers', icon: Users },
   { id: 'payments', href: '/payments', title: 'Payments', icon: CreditCard },
+  { id: 'reports', href: '/reports', title: 'Reports & ROI', icon: TrendingUp },
+  { id: 'growth', href: '/growth', title: 'Get more clients', icon: Rocket },
 ];
 const descriptions: Record<string, string> = {
   dashboard: 'A clear view of every job. Keep your day moving.',
@@ -57,6 +63,8 @@ const descriptions: Record<string, string> = {
   inventory: 'Your containers, accounted for and ready to roll.',
   drivers: 'Good people. Great work. One connected crew.',
   payments: 'Every transaction. Every fee. Nothing hidden.',
+  reports: 'Your real-time earnings, fleet utilization, and software fee savings.',
+  growth: 'Reputation engine, website widgets, and client acquisition accelerator.',
   settings: 'Build a business that runs the way you do.',
 };
 type Notify = (message: string, error?: boolean) => void;
@@ -380,6 +388,8 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
           )}
           {page === 'drivers' && <Drivers data={data} reload={reload} notify={notify} />}
           {page === 'payments' && <Payments data={data} openJob={(id) => setSelected(id)} />}
+          {page === 'reports' && <ReportsHub data={data} openJob={(id) => setSelected(id)} />}
+          {page === 'growth' && <GrowthHub data={data} notify={notify} />}
           {page === 'settings' && <Settings data={data} reload={reload} notify={notify} />}
           <footer className="content-footer">
             <span>
