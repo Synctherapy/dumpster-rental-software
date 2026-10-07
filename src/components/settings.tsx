@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
+  CalendarDays,
   CheckCircle2,
   Copy,
   CreditCard,
@@ -28,6 +29,12 @@ export function Settings({
   const [name, setName] = useState(data.organization.name);
   const [slug, setSlug] = useState(data.organization.slug);
   const [phone, setPhone] = useState(data.organization.phone);
+  const [customerFeeEnabled, setCustomerFeeEnabled] = useState(
+    data.organization.pricing_config?.customer_fee_enabled !== false,
+  );
+  const [googleReviewUrl, setGoogleReviewUrl] = useState(
+    data.organization.google_review_url || data.organization.pricing_config?.google_review_url || '',
+  );
   const [rules, setRules] = useState(data.pricing_rules);
   const [zips, setZips] = useState(data.pricing_rules[0]?.service_zips.join(', ') ?? '');
   const [busy, setBusy] = useState(false);
@@ -46,6 +53,8 @@ export function Settings({
           slug,
           phone,
           deposit_percent: 100,
+          customer_fee_enabled: customerFeeEnabled,
+          google_review_url: googleReviewUrl,
           pricing_rules: rules.map(
             ({
               size_yards,
@@ -85,6 +94,16 @@ export function Settings({
       notify(embed ? 'Embed snippet copied.' : 'Booking link copied.');
     } catch {
       notify('Clipboard is unavailable. Copy the link from the box below.', true);
+    }
+  };
+  const copyCalendar = async () => {
+    try {
+      const token = data.organization.calendar_token || data.organization.id;
+      const url = `${window.location.origin}/api/calendar?token=${token}`;
+      await navigator.clipboard.writeText(url);
+      notify('Calendar feed URL copied to clipboard.');
+    } catch {
+      notify('Clipboard is unavailable.', true);
     }
   };
   const connect = async () => {
@@ -136,6 +155,41 @@ export function Settings({
                 Collected at booking
                 <input type="number" value={100} readOnly />
                 <small>The full base rental is collected. Extra days and tonnage are billed after pickup.</small>
+              </label>
+            </div>
+            <div
+              style={{
+                padding: '14px 16px',
+                borderRadius: '8px',
+                border: '1px solid var(--border, #e2e8f0)',
+                background: 'var(--panel, #fff)',
+                marginBottom: '16px',
+              }}
+            >
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={customerFeeEnabled}
+                  onChange={(e) => setCustomerFeeEnabled(e.target.checked)}
+                />
+                Pass $11.95 Online Reservation Fee to customer at checkout
+              </label>
+              <p style={{ margin: '4px 0 0 24px', fontSize: '13px', color: 'var(--muted, #666)' }}>
+                When enabled, the customer pays the $11.95 priority dispatch fee as a line item at checkout, so you keep 100% of your rental price.
+              </p>
+            </div>
+            <div className="form-row">
+              <label className="field">
+                Google Business Review Link
+                <input
+                  type="url"
+                  value={googleReviewUrl}
+                  onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                  placeholder="https://g.page/r/your-business/review"
+                />
+                <small>
+                  Automatically texted to customers upon container pickup to boost your 5-star ratings.
+                </small>
               </label>
             </div>
             <label className="field">
@@ -352,6 +406,36 @@ export function Settings({
               <Copy size={12} />
               Copy website embed
             </Button>
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-heading">
+            <h3>Calendar feed (iCal).</h3>
+            <CalendarDays size={15} color="#96a380" />
+          </div>
+          <div className="settings-body" style={{ gap: 14 }}>
+            <p style={{ fontSize: 11, color: '#91a080', lineHeight: 1.8 }}>
+              Sync all deliveries and pickups directly with Apple Calendar, Google Calendar, or Outlook.
+            </p>
+            <div className="code-snippet" style={{ fontSize: 11, wordBreak: 'break-all' }}>
+              /api/calendar?token={data.organization.calendar_token || data.organization.id}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button onClick={() => void copyCalendar()}>
+                <Copy size={12} />
+                Copy feed URL
+              </Button>
+              <Button
+                asChild
+                variant="primary"
+              >
+                <a
+                  href={`webcal://${typeof window !== 'undefined' ? window.location.host : ''}/api/calendar?token=${data.organization.calendar_token || data.organization.id}`}
+                >
+                  Subscribe
+                </a>
+              </Button>
+            </div>
           </div>
         </section>
         <section className="panel" style={{ padding: 20 }}>

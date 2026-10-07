@@ -25,6 +25,7 @@ export const bookingSchema = z
     customer_email: z.email(),
     delivery_address: z.string().trim().min(8).max(300),
     notes: z.string().max(1000).default(''),
+    protective_boards: z.boolean().default(false).optional(),
     signature_name: z.string().trim().min(2).max(100),
     accepted_terms: z.literal(true),
     booking_key: z.uuid(),
@@ -38,7 +39,11 @@ export async function book(input: unknown, ip: string, origin: string) {
   if (!rule) throw new Error('That size is unavailable.');
   if (!rule.service_zips.includes(body.zip))
     throw new Error('This ZIP code is outside our service area.');
-  const price = quote(rule, body.delivery_date, body.pickup_date, 100);
+  const customerFee = org.pricing_config?.customer_fee_enabled !== false;
+  const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
+    customerFee,
+    boards: body.protective_boards,
+  });
   const job: Job = {
     id: randomUUID(),
     org_id: org.id,
@@ -64,6 +69,7 @@ export async function book(input: unknown, ip: string, origin: string) {
     delivered_at: null,
     picked_up_at: null,
     proof_url: null,
+    protective_boards: body.protective_boards ?? false,
     stripe_customer_id: null,
     stripe_payment_method_id: null,
     booking_key: body.booking_key,
@@ -132,15 +138,40 @@ export async function book(input: unknown, ip: string, origin: string) {
         {
           price_data: {
             currency: 'usd',
-            unit_amount: saved.price_cents,
+            unit_amount: price.baseRental,
             product_data: { name: `${saved.size_yards} yd dumpster rental` },
           },
           quantity: 1,
         },
+        ...(price.reservationFee > 0
+          ? [
+              {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: price.reservationFee,
+                  product_data: { name: 'Priority Dispatch & Online Reservation' },
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
+        ...(price.boardsFee > 0
+          ? [
+              {
+                price_data: {
+                  currency: 'usd',
+                  unit_amount: price.boardsFee,
+                  product_data: { name: 'Protective wood boards under rails' },
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
       ],
       payment_intent_data: {
-        application_fee_amount: platformFee(saved.price_cents),
+        application_fee_amount: price.fee,
         transfer_data: { destination: org.stripe_connect_account_id },
+        on_behalf_of: org.stripe_connect_account_id,
         setup_future_usage: 'off_session',
         metadata: { job_id: saved.id, org_id: org.id, kind: 'deposit' },
       },
@@ -302,7 +333,7 @@ export async function changeJob(
         `Your next delivery: ${job.delivery_address}. Open your route: ${origin}/driver/${driverToken(job.org_id, driver.id)}`,
       );
   }
-  if (patch.status === 'delivered' || patch.status === 'picked_up')
+  if (patch.status === 'delivered' || patch.status === 'picked_up') {
     await sendSms(
       job.org_id,
       job.id,
@@ -310,6 +341,17 @@ export async function changeJob(
       patch.status,
       `Your dumpster has been ${patch.status === 'delivered' ? 'delivered' : 'picked up'}. Thank you!`,
     );
+    if (patch.status === 'picked_up') {
+      const org = demo
+        ? (await import('./store').then((m) => m.readDemo())).organization
+        : (await admin().from('organizations').select('*').eq('id', job.org_id).single()).data;
+      const reviewUrl = org?.google_review_url || org?.pricing_config?.google_review_url;
+      if (reviewUrl) {
+        const reviewText = `Thank you for choosing ${org?.name || 'us'}! If you had a great experience, could you take 30 seconds to leave us a quick Google review? ${reviewUrl}`;
+        await sendSms(job.org_id, job.id, job.customer_phone, 'review_request', reviewText);
+      }
+    }
+  }
   return job;
 }
 export async function chargeInvoice(id: string) {

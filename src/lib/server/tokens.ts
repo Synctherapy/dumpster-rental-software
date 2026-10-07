@@ -7,8 +7,8 @@ function secret() {
   if (isDemo()) return 'local-demo-only-never-use-with-real-customer-data';
   throw new Error('DRIVER_TOKEN_SECRET must contain at least 32 characters.');
 }
-export function driverToken(org: string, driver: string) {
-  const payload = Buffer.from(JSON.stringify({ org, driver, exp: Date.now() + 86400000 })).toString(
+export function driverToken(org: string, driver: string, ttlMs: number = 30 * 86400000) {
+  const payload = Buffer.from(JSON.stringify({ org, driver, exp: Date.now() + ttlMs })).toString(
     'base64url',
   );
   return payload + '.' + createHmac('sha256', secret()).update(payload).digest('base64url');

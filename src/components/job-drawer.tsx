@@ -10,6 +10,7 @@ import {
   MapPin,
   Save,
   ShieldCheck,
+  Star,
 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
@@ -384,6 +385,21 @@ export function JobDrawer({
           >
             {busy ? <Loader2 size={14} className="spin" /> : <Check size={14} />}{' '}
             {data.demo ? 'Close demo invoice' : 'Charge final balance'}
+          </Button>
+        )}
+        {['delivered', 'picked_up', 'completed'].includes(job.status) && (
+          <Button
+            variant="ghost"
+            disabled={busy}
+            onClick={() =>
+              void perform(
+                () => api(`/api/jobs/${job.id}/review-request`, { method: 'POST', body: '{}' }),
+                'Google review request SMS sent to customer.',
+              )
+            }
+          >
+            <Star size={13} style={{ color: '#d9a74a' }} />
+            Send review request
           </Button>
         )}
         {['booked', 'dispatched', 'quoted'].includes(job.status) && (

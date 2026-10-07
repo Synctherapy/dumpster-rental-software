@@ -8,7 +8,14 @@ export interface Organization {
   phone: string;
   timezone: string;
   stripe_connect_account_id: string | null;
-  pricing_config: { deposit_percent: number };
+  pricing_config: {
+    deposit_percent: number;
+    customer_fee_enabled?: boolean;
+    google_review_url?: string;
+    calendar_token?: string;
+  };
+  google_review_url?: string;
+  calendar_token?: string;
 }
 export interface User {
   id: string;
@@ -61,6 +68,7 @@ export interface Job {
   delivered_at: string | null;
   picked_up_at: string | null;
   proof_url: string | null;
+  protective_boards?: boolean;
   scale_ticket_url?: string | null;
   stripe_checkout_session_id?: string | null;
   stripe_customer_id: string | null;

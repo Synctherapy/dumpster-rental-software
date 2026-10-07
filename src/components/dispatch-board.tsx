@@ -15,6 +15,7 @@ import {
   Activity,
   CircleCheck,
   Box,
+  Phone,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { initials } from '@/lib/client';
@@ -43,11 +44,15 @@ export function DispatchBoard({
   openJob,
   onMove,
   initialView = 'board',
+  onQuickOrder,
+  onSubscribeCalendar,
 }: {
   data: Workspace;
   openJob: (j: Job) => void;
   onMove: (id: string, status: JobStatus) => void;
   initialView?: string;
+  onQuickOrder?: () => void;
+  onSubscribeCalendar?: () => void;
 }) {
   const [view, setView] = useState(initialView);
   const [search, setSearch] = useState('');
@@ -120,6 +125,18 @@ export function DispatchBoard({
               <option value="today">Today</option>
               <option value="week">Next 7 days</option>
             </select>
+            {onSubscribeCalendar && view === 'calendar' && (
+              <Button onClick={onSubscribeCalendar}>
+                <CalendarDays size={13} />
+                Subscribe (iCal)
+              </Button>
+            )}
+            {onQuickOrder && (
+              <Button variant="primary" onClick={onQuickOrder}>
+                <Phone size={13} />
+                + Phone Order
+              </Button>
+            )}
           </div>
         </div>
         {view === 'board' && (

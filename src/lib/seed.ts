@@ -103,6 +103,8 @@ export function seed(): Workspace {
       timezone: 'America/Chicago',
       stripe_connect_account_id: null,
       pricing_config: { deposit_percent: 25 },
+      calendar_token: 'demo-calendar-token',
+      google_review_url: 'https://g.page/r/sample-google-review',
     },
     users,
     containers,

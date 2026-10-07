@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       null,
       driver.phone,
       'driver_invite',
-      `${data.organization.name} invited you to your driver route. Your secure link (valid for 24 hours): ${link}`,
+      `${data.organization.name} dispatched route link: ${link}`,
     );
     return NextResponse.json({ status, demo: data.demo });
   } catch (e) {

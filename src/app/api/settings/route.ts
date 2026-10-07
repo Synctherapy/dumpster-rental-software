@@ -27,6 +27,8 @@ export async function POST(request: Request) {
           .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
           .max(60),
         deposit_percent: z.number().int().min(1).max(100),
+        customer_fee_enabled: z.boolean().default(true).optional(),
+        google_review_url: z.string().trim().max(500).default('').optional(),
         pricing_rules: z.array(rule).min(1).max(4),
       })
       .strict()
@@ -39,7 +41,12 @@ export async function POST(request: Request) {
           name: input.name,
           phone: input.phone,
           slug: input.slug,
-          pricing_config: { deposit_percent: input.deposit_percent },
+          google_review_url: input.google_review_url || '',
+          pricing_config: {
+            deposit_percent: input.deposit_percent,
+            customer_fee_enabled: input.customer_fee_enabled ?? true,
+            google_review_url: input.google_review_url || '',
+          },
         });
         d.pricing_rules = input.pricing_rules.map((r) => ({
           ...r,

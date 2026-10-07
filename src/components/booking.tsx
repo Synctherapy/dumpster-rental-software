@@ -50,6 +50,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     customer_email: '',
     delivery_address: '',
     notes: '',
+    protective_boards: false,
     signature_name: '',
     accepted_terms: false,
   });
@@ -96,8 +97,12 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       </div>
     );
   let price: ReturnType<typeof quote> | null = null;
+  const customerFee = data.organization.pricing_config?.customer_fee_enabled !== false;
   try {
-    price = quote(rule, delivery, pickup, 100);
+    price = quote(rule, delivery, pickup, 100, {
+      customerFee,
+      boards: customer.protective_boards,
+    });
   } catch {}
   const changeDelivery = (date: string) => {
     setDelivery(date);
@@ -422,6 +427,35 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
                     />
                   </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'flex-start',
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border, #e2e8f0)',
+                      background: customer.protective_boards ? 'rgba(0, 0, 0, 0.03)' : 'transparent',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={customer.protective_boards}
+                      onChange={(e) =>
+                        setCustomer({ ...customer, protective_boards: e.target.checked })
+                      }
+                      style={{ marginTop: '3px' }}
+                    />
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '14px' }}>
+                        Protective wood boards under container rails (+{money(1900)})
+                      </strong>
+                      <span style={{ fontSize: '13px', color: 'var(--muted, #666)' }}>
+                        Driver places wood blocking under rollers during delivery.
+                      </span>
+                    </div>
+                  </label>
                 </form>
               )}
               {step === 4 && (
@@ -550,6 +584,18 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     {price.extraDays} extra day{price.extraDays > 1 ? 's' : ''}
                   </span>
                   <strong>{money(price.extra)}</strong>
+                </div>
+              )}
+              {price && price.reservationFee > 0 && (
+                <div className="summary-line">
+                  <span>Priority dispatch & reservation</span>
+                  <strong>{money(price.reservationFee)}</strong>
+                </div>
+              )}
+              {price && price.boardsFee > 0 && (
+                <div className="summary-line">
+                  <span>Protective wood boards</span>
+                  <strong>{money(price.boardsFee)}</strong>
                 </div>
               )}
               <div className="summary-total">

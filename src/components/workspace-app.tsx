@@ -19,10 +19,14 @@ import {
   Loader2,
   LogOut,
   Menu,
+  MessageSquare,
+  Pencil,
+  Phone,
   Plus,
   Search,
   Settings2,
   ShieldCheck,
+  Sparkles,
   Truck,
   Users,
   X,
@@ -33,6 +37,9 @@ import { Modal } from './ui/dialog';
 import { DispatchBoard } from './dispatch-board';
 import { JobDrawer } from './job-drawer';
 import { Settings } from './settings';
+import { BulkContainerModal } from './bulk-container-modal';
+import { CalendarSubscribeModal } from './calendar-subscribe-modal';
+import { QuickOrderModal } from './quick-order-modal';
 import { api, initials } from '@/lib/client';
 import { money, dateLabel, today, type Workspace, type JobStatus } from '@/lib/types';
 const navigation = [
@@ -61,6 +68,9 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
   const [mobile, setMobile] = useState(false);
   const [notifications, setNotifications] = useState(false);
   const [resource, setResource] = useState<'container' | 'driver' | null>(null);
+  const [bulkContainerModal, setBulkContainerModal] = useState(false);
+  const [calendarModal, setCalendarModal] = useState(false);
+  const [quickOrderModal, setQuickOrderModal] = useState(false);
   const [help, setHelp] = useState(false);
   const notify: Notify = useCallback((message, error = false) => setToast({ message, error }), []);
   const reload = useCallback(async () => {
@@ -289,26 +299,44 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
             <div className="heading-actions">
               {['dashboard', 'bookings', 'calendar'].includes(page) ? (
                 <>
+                  {page === 'calendar' && (
+                    <Button onClick={() => setCalendarModal(true)}>
+                      <CalendarDays size={13} />
+                      Subscribe (iCal)
+                    </Button>
+                  )}
                   <Button asChild>
                     <Link href={`/book/${data.organization.slug}`} target="_blank">
                       <Globe size={13} />
                       Booking page <ArrowUpRight size={12} />
                     </Link>
                   </Button>
-                  <Button asChild variant="primary">
-                    <Link href={`/book/${data.organization.slug}`}>
-                      <Plus size={14} />
-                      New booking
-                    </Link>
+                  <Button variant="primary" onClick={() => setQuickOrderModal(true)}>
+                    <Phone size={14} />
+                    + Phone order
                   </Button>
                 </>
-              ) : page === 'inventory' || page === 'drivers' ? (
+              ) : page === 'inventory' ? (
+                <>
+                  <Button onClick={() => setBulkContainerModal(true)}>
+                    <Sparkles size={13} />
+                    Bulk fleet / CSV
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => setResource('container')}
+                  >
+                    <Plus size={14} />
+                    Add container
+                  </Button>
+                </>
+              ) : page === 'drivers' ? (
                 <Button
                   variant="primary"
-                  onClick={() => setResource(page === 'inventory' ? 'container' : 'driver')}
+                  onClick={() => setResource('driver')}
                 >
                   <Plus size={14} />
-                  Add {page === 'inventory' ? 'container' : 'driver'}
+                  Add driver
                 </Button>
               ) : page === 'payments' ? (
                 <Button onClick={() => exportPayments(data)}>
@@ -336,6 +364,8 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                 initialView={
                   page === 'calendar' ? 'calendar' : page === 'bookings' ? 'list' : 'board'
                 }
+                onQuickOrder={() => setQuickOrderModal(true)}
+                onSubscribeCalendar={() => setCalendarModal(true)}
               />
             </>
           )}
@@ -345,9 +375,10 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               reload={reload}
               notify={notify}
               openJob={(id) => setSelected(id)}
+              onBulkAdd={() => setBulkContainerModal(true)}
             />
           )}
-          {page === 'drivers' && <Drivers data={data} notify={notify} />}
+          {page === 'drivers' && <Drivers data={data} reload={reload} notify={notify} />}
           {page === 'payments' && <Payments data={data} openJob={(id) => setSelected(id)} />}
           {page === 'settings' && <Settings data={data} reload={reload} notify={notify} />}
           <footer className="content-footer">
@@ -379,6 +410,27 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         close={() => setResource(null)}
         reload={reload}
         notify={notify}
+      />
+      <BulkContainerModal
+        open={bulkContainerModal}
+        onClose={() => setBulkContainerModal(false)}
+        data={data}
+        reload={reload}
+        notify={notify}
+      />
+      <CalendarSubscribeModal
+        open={calendarModal}
+        onClose={() => setCalendarModal(false)}
+        data={data}
+        notify={notify}
+      />
+      <QuickOrderModal
+        open={quickOrderModal}
+        onClose={() => setQuickOrderModal(false)}
+        data={data}
+        reload={reload}
+        notify={notify}
+        onCreated={(j) => setSelected(j.id)}
       />
       <Modal
         open={help}
@@ -498,11 +550,13 @@ function Inventory({
   reload,
   notify,
   openJob,
+  onBulkAdd,
 }: {
   data: Workspace;
   reload: () => Promise<void>;
   notify: Notify;
   openJob: (id: string) => void;
+  onBulkAdd?: () => void;
 }) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -541,6 +595,12 @@ function Inventory({
         <div className="table-top">
           <h3>Your fleet</h3>
           <div className="board-tools">
+            {onBulkAdd && (
+              <Button onClick={onBulkAdd}>
+                <Sparkles size={13} />
+                Bulk fleet / CSV
+              </Button>
+            )}
             <div className="search">
               <Search size={13} />
               <input
@@ -649,101 +709,202 @@ function Inventory({
     </>
   );
 }
-function Drivers({ data, notify }: { data: Workspace; notify: Notify }) {
+function Drivers({ data, reload, notify }: { data: Workspace; reload: () => Promise<void>; notify: Notify }) {
+  const [editingDriver, setEditingDriver] = useState<{ id: string; name: string; phone: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
   return (
-    <div className="driver-grid">
-      {data.users
-        .filter((u) => u.role === 'driver')
-        .map((u, i) => {
-          const jobs = data.jobs.filter((j) => j.driver_id === u.id);
-          return (
-            <section className="panel driver-card" key={u.id}>
-              <span className={`avatar ${i % 3 === 1 ? 'blue' : i % 3 === 2 ? 'lilac' : ''}`}>
-                {initials(u.name)}
-              </span>
-              <h3>{u.name}</h3>
-              <p className="muted">{u.phone || 'Demo driver · Add a real number for SMS'}</p>
-              <div className="driver-stats">
-                <div>
-                  <strong>
-                    {jobs.filter((j) => ['dispatched', 'delivered'].includes(j.status)).length}
-                  </strong>
-                  <span>Active jobs</span>
+    <>
+      <div className="driver-grid">
+        {data.users
+          .filter((u) => u.role === 'driver')
+          .map((u, i) => {
+            const jobs = data.jobs.filter((j) => j.driver_id === u.id);
+            return (
+              <section className="panel driver-card" key={u.id}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <span className={`avatar ${i % 3 === 1 ? 'blue' : i % 3 === 2 ? 'lilac' : ''}`} style={{ marginBottom: 0 }}>
+                    {initials(u.name)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    style={{ fontSize: 11, padding: '4px 8px', height: 'auto', gap: 4 }}
+                    onClick={() => {
+                      setError('');
+                      setEditingDriver({ id: u.id, name: u.name, phone: u.phone || '' });
+                    }}
+                  >
+                    <Pencil size={11} /> Edit details
+                  </Button>
                 </div>
-                <div>
-                  <strong>{jobs.filter((j) => j.delivery_date === today()).length}</strong>
-                  <span>Deliveries today</span>
+                <h3>{u.name}</h3>
+                <p className="muted" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Phone size={12} style={{ color: u.phone ? '#6e8f49' : '#b0b8a6' }} />
+                  {u.phone || 'No phone set · Click edit to add'}
+                </p>
+                <div className="driver-stats">
+                  <div>
+                    <strong>
+                      {jobs.filter((j) => ['dispatched', 'delivered'].includes(j.status)).length}
+                    </strong>
+                    <span>Active jobs</span>
+                  </div>
+                  <div>
+                    <strong>{jobs.filter((j) => j.delivery_date === today()).length}</strong>
+                    <span>Deliveries today</span>
+                  </div>
+                  <div>
+                    <strong>{jobs.filter((j) => j.status === 'completed').length}</strong>
+                    <span>Completed</span>
+                  </div>
                 </div>
-                <div>
-                  <strong>{jobs.filter((j) => j.status === 'completed').length}</strong>
-                  <span>Completed</span>
-                </div>
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    try {
+                      const result = await api<{ url: string }>('/api/driver-link', {
+                        method: 'POST',
+                        body: JSON.stringify({ driver_id: u.id }),
+                      });
+                      window.open(result.url, '_blank', 'noopener,noreferrer');
+                    } catch (e) {
+                      notify((e as Error).message, true);
+                    }
+                  }}
+                >
+                  <Truck size={13} />
+                  Open driver route <ArrowUpRight size={12} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  style={{ marginTop: 8 }}
+                  onClick={async () => {
+                    try {
+                      const result = await api<{ url: string }>('/api/driver-link', {
+                        method: 'POST',
+                        body: JSON.stringify({ driver_id: u.id }),
+                      });
+                      await navigator.clipboard.writeText(window.location.origin + result.url);
+                      notify('Driver link copied. Valid for 30 days.');
+                    } catch (e) {
+                      notify((e as Error).message, true);
+                    }
+                  }}
+                >
+                  Copy secure route link
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={async () => {
+                    if (!u.phone) {
+                      notify('Please add a phone number for this driver first.', true);
+                      setEditingDriver({ id: u.id, name: u.name, phone: '' });
+                      return;
+                    }
+                    try {
+                      const result = await api<{ status: string; demo: boolean }>(
+                        '/api/invite-driver',
+                        { method: 'POST', body: JSON.stringify({ driver_id: u.id }) },
+                      );
+                      notify(
+                        result.demo
+                          ? 'Demo invitation logged. No SMS sent.'
+                          : 'Driver invitation status: ' + result.status,
+                      );
+                    } catch (e) {
+                      notify((e as Error).message, true);
+                    }
+                  }}
+                >
+                  <MessageSquare size={12} />
+                  Send SMS route link
+                </Button>
+              </section>
+            );
+          })}
+        {!data.users.some((u) => u.role === 'driver') && (
+          <div className="panel empty">
+            <Users size={30} />
+            <p>Add your first driver to get your crew connected.</p>
+          </div>
+        )}
+      </div>
+
+      {editingDriver && (
+        <Modal
+          open={!!editingDriver}
+          onOpenChange={(o) => !o && setEditingDriver(null)}
+          title={`Edit ${editingDriver.name}`}
+          description="Update driver phone number for SMS dispatch and name details."
+        >
+          <form
+            className="form-stack"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusy(true);
+              setError('');
+              const formData = new FormData(e.currentTarget);
+              const name = String(formData.get('name') ?? '').trim();
+              const phone = String(formData.get('phone') ?? '').trim();
+              try {
+                await api('/api/resources', {
+                  method: 'PATCH',
+                  body: JSON.stringify({
+                    kind: 'driver',
+                    id: editingDriver.id,
+                    name,
+                    phone,
+                  }),
+                });
+                await reload();
+                notify('Driver details updated successfully.');
+                setEditingDriver(null);
+              } catch (err) {
+                setError((err as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <label className="field">
+              Driver Name
+              <input
+                name="name"
+                defaultValue={editingDriver.name}
+                required
+                minLength={2}
+                placeholder="First and last name"
+              />
+            </label>
+            <label className="field">
+              Phone Number
+              <input
+                name="phone"
+                type="tel"
+                defaultValue={editingDriver.phone}
+                required
+                placeholder="(512) 555-1234 or +15125551234"
+              />
+              <small>Accepts (512) 555-1234 or international +15125551234. Route SMS will be sent here.</small>
+            </label>
+            {error && (
+              <div className="error-box" role="alert">
+                {error}
               </div>
-              <Button
-                variant="primary"
-                onClick={async () => {
-                  try {
-                    const result = await api<{ url: string }>('/api/driver-link', {
-                      method: 'POST',
-                      body: JSON.stringify({ driver_id: u.id }),
-                    });
-                    window.open(result.url, '_blank', 'noopener,noreferrer');
-                  } catch (e) {
-                    notify((e as Error).message, true);
-                  }
-                }}
-              >
-                <Truck size={13} />
-                Open driver route <ArrowUpRight size={12} />
+            )}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
+              <Button type="button" variant="ghost" onClick={() => setEditingDriver(null)}>
+                Cancel
               </Button>
-              <Button
-                variant="ghost"
-                style={{ marginTop: 8 }}
-                onClick={async () => {
-                  try {
-                    const result = await api<{ url: string }>('/api/driver-link', {
-                      method: 'POST',
-                      body: JSON.stringify({ driver_id: u.id }),
-                    });
-                    await navigator.clipboard.writeText(window.location.origin + result.url);
-                    notify('Driver link copied. It expires in 24 hours.');
-                  } catch (e) {
-                    notify((e as Error).message, true);
-                  }
-                }}
-              >
-                Copy secure route link
+              <Button type="submit" variant="primary" disabled={busy}>
+                {busy ? <Loader2 size={14} className="spin" /> : 'Save Driver'}
               </Button>
-              <Button
-                variant="ghost"
-                onClick={async () => {
-                  try {
-                    const result = await api<{ status: string; demo: boolean }>(
-                      '/api/invite-driver',
-                      { method: 'POST', body: JSON.stringify({ driver_id: u.id }) },
-                    );
-                    notify(
-                      result.demo
-                        ? 'Demo invitation logged. No SMS sent.'
-                        : 'Driver invitation status: ' + result.status,
-                    );
-                  } catch (e) {
-                    notify((e as Error).message, true);
-                  }
-                }}
-              >
-                Send SMS invitation
-              </Button>
-            </section>
-          );
-        })}
-      {!data.users.some((u) => u.role === 'driver') && (
-        <div className="panel empty">
-          <Users size={30} />
-          <p>Add your first driver to get your crew connected.</p>
-        </div>
+            </div>
+          </form>
+        </Modal>
       )}
-    </div>
+    </>
   );
 }
 function Payments({ data, openJob }: { data: Workspace; openJob: (id: string) => void }) {

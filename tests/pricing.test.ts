@@ -41,3 +41,12 @@ test('invalid rental dates and invalid monetary amounts are rejected', () => {
   assert.throws(() => platformFee(-1));
   assert.throws(() => platformFee(3.2));
 });
+test('reservation fee and protective boards are added to quote when enabled', () => {
+  const rule = seed().pricing_rules.find((r) => r.size_yards === 20)!;
+  const q = quote(rule, '2026-10-07', '2026-10-14', 100, { customerFee: true, boards: true });
+  assert.equal(q.baseRental, 42500);
+  assert.equal(q.reservationFee, 1195);
+  assert.equal(q.boardsFee, 1900);
+  assert.equal(q.total, 42500 + 1195 + 1900);
+  assert.equal(q.fee, 1195 + 900);
+});
