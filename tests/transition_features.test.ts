@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { seed } from '../src/lib/seed';
 import { generateIcsCalendar } from '../src/lib/calendar';
 import { quote } from '../src/lib/pricing';
-import type { Job, Organization } from '../src/lib/types';
+import { normalizePhone, type Job, type Organization } from '../src/lib/types';
 
 test('iCal feed generates valid RFC 5545 format with delivery and pickup events', () => {
   const data = seed();
@@ -97,4 +97,14 @@ test('lead time buffer computes minimum advance notice days correctly', () => {
   assert.equal(Math.max(1, Math.ceil(48 / 24)), 2);
   // 12 hours notice = 1 day minimum lead
   assert.equal(Math.max(1, Math.ceil(12 / 24)), 1);
+});
+
+test('normalizePhone accepts raw 11-digit, 10-digit, and international phone numbers', () => {
+  // Test case specifically reported by user: 12508128698 (BC, Canada)
+  assert.equal(normalizePhone('12508128698'), '+12508128698');
+  assert.equal(normalizePhone('2508128698'), '+12508128698');
+  assert.equal(normalizePhone('(250) 812-8698'), '+12508128698');
+  assert.equal(normalizePhone('1-250-812-8698'), '+12508128698');
+  assert.equal(normalizePhone('+12508128698'), '+12508128698');
+  assert.equal(normalizePhone('+447911123456'), '+447911123456');
 });

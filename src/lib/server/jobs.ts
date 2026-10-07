@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from './store';
 import { admin, identity } from './supabase';
 import { quote, invoice, platformFee } from '../pricing';
-import { today, type Job } from '../types';
+import { today, normalizePhone, type Job } from '../types';
 import { publicOrganization } from './workspace';
 import { stripe } from './stripe';
 import { sendSms } from './notifications';
@@ -19,9 +19,7 @@ export const bookingSchema = z
     pickup_date: z.iso.date(),
     zip: z.string().regex(/^\d{5}$/),
     customer_name: z.string().trim().min(2).max(100),
-    customer_phone: z
-      .string()
-      .regex(/^\+[1-9]\d{7,14}$/, 'Use an international phone number, e.g. +15125551234'),
+    customer_phone: z.string().trim().min(7).max(25),
     customer_email: z.email(),
     delivery_address: z.string().trim().min(8).max(300),
     notes: z.string().max(1000).default(''),
@@ -32,7 +30,11 @@ export const bookingSchema = z
   })
   .strict();
 export async function book(input: unknown, ip: string, origin: string) {
-  const body = bookingSchema.parse(input);
+  const parsed = bookingSchema.parse(input);
+  const body = {
+    ...parsed,
+    customer_phone: normalizePhone(parsed.customer_phone),
+  };
   if (body.delivery_date < today()) throw new Error('Delivery cannot be in the past.');
   const { organization: org, pricing_rules, demo } = await publicOrganization(body.slug);
   const rule = pricing_rules.find((r) => r.size_yards === body.size_yards);

@@ -149,3 +149,11 @@ export function addDays(date: string, days: number) {
 export function today() {
   return new Date().toISOString().slice(0, 10);
 }
+
+export function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  if (raw.startsWith('+') && digits.length >= 8) return `+${digits}`;
+  return raw;
+}

@@ -21,6 +21,7 @@ import {
   dateLabel,
   money,
   today,
+  normalizePhone,
   type Organization,
   type PricingRule,
   type Job,
@@ -133,12 +134,20 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
         return;
       }
     }
+    if (step === 3) {
+      const normalized = normalizePhone(customer.customer_phone);
+      setCustomer((prev) => ({
+        ...prev,
+        customer_phone: normalized,
+      }));
+    }
     setStep(step + 1);
   };
   const submit = async () => {
     setBusy(true);
     setError('');
     try {
+      const normalizedPhone = normalizePhone(customer.customer_phone);
       const result = await api<{ job?: Job; url?: string; demo: boolean }>('/api/jobs', {
         method: 'POST',
         body: JSON.stringify({
@@ -148,6 +157,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
           pickup_date: pickup,
           zip,
           ...customer,
+          customer_phone: normalizedPhone,
           booking_key: key,
         }),
       });
@@ -408,14 +418,21 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                         type="tel"
                         autoComplete="tel"
                         required
-                        pattern="\+[1-9][0-9]{7,14}"
-                        placeholder="+15125551234"
+                        placeholder="(250) 812-8698"
                         value={customer.customer_phone}
                         onChange={(e) =>
                           setCustomer({ ...customer, customer_phone: e.target.value })
                         }
+                        onBlur={() => {
+                          if (customer.customer_phone.trim()) {
+                            setCustomer({
+                              ...customer,
+                              customer_phone: normalizePhone(customer.customer_phone),
+                            });
+                          }
+                        }}
                       />
-                      <small>Include your country code (+1 for US).</small>
+                      <small>We’ll text your delivery arrival & pickup updates here.</small>
                     </label>
                     <label className="field">
                       Email address
