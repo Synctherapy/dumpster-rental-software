@@ -13,9 +13,11 @@ export interface Organization {
     customer_fee_enabled?: boolean;
     google_review_url?: string;
     calendar_token?: string;
+    min_notice_hours?: number;
   };
   google_review_url?: string;
   calendar_token?: string;
+  min_notice_hours?: number;
 }
 export interface User {
   id: string;

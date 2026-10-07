@@ -180,7 +180,7 @@ export function JobDrawer({
             <select
               value={container}
               onChange={(e) => setContainer(e.target.value)}
-              disabled={job.status !== 'booked'}
+              disabled={['completed', 'cancelled'].includes(job.status)}
             >
               <option value="">Select a container</option>
               {data.containers
@@ -191,14 +191,14 @@ export function JobDrawer({
                     {c.current_job_id === job.id
                       ? 'Assigned to this job'
                       : c.status === 'yard'
-                        ? 'Available'
+                        ? 'Available in yard'
                         : c.status === 'on_site'
                           ? 'Already on site'
                           : 'Maintenance'}
                   </option>
                 ))}
             </select>
-            <small>On-site and maintenance containers cannot be dispatched.</small>
+            <small>Swap container if the wrong unit was dropped, or choose an available unit.</small>
           </label>
           <label className="field">
             Job notes

@@ -273,8 +273,23 @@ export async function changeJob(
         ['dispatched', 'delivered'].includes(j.status) &&
         patch.container_id &&
         patch.container_id !== j.container_id
-      )
-        throw new Error('An active container cannot be reassigned.');
+      ) {
+        // Fix for competitor complaint #4: "Wrong can, and no way to fix it"
+        // Allow operator to correct or swap the container number on active rental
+        const oldContainer = d.containers.find((c) => c.id === j.container_id);
+        if (oldContainer) {
+          oldContainer.status = 'yard';
+          oldContainer.current_job_id = null;
+        }
+        if (container) {
+          if (container.status !== 'yard' && container.current_job_id !== j.id) {
+            throw new Error('New container is already on site or in maintenance.');
+          }
+          container.status = 'on_site';
+          container.current_job_id = j.id;
+        }
+        j.notes = (j.notes ? j.notes + ' ' : '') + `[Container corrected from ${oldContainer?.label ?? 'unassigned'} to ${container?.label ?? patch.container_id}]`;
+      }
       if (patch.status === 'delivered' && !(patch.proof_url || j.proof_url))
         throw new Error('Upload a delivery photo first.');
       if (patch.status === 'delivered') j.delivered_at = new Date().toISOString();

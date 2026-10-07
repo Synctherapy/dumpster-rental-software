@@ -35,6 +35,9 @@ export function Settings({
   const [googleReviewUrl, setGoogleReviewUrl] = useState(
     data.organization.google_review_url || data.organization.pricing_config?.google_review_url || '',
   );
+  const [minNoticeHours, setMinNoticeHours] = useState<number>(
+    data.organization.min_notice_hours ?? data.organization.pricing_config?.min_notice_hours ?? 24,
+  );
   const [rules, setRules] = useState(data.pricing_rules);
   const [zips, setZips] = useState(data.pricing_rules[0]?.service_zips.join(', ') ?? '');
   const [busy, setBusy] = useState(false);
@@ -55,6 +58,7 @@ export function Settings({
           deposit_percent: 100,
           customer_fee_enabled: customerFeeEnabled,
           google_review_url: googleReviewUrl,
+          min_notice_hours: minNoticeHours,
           pricing_rules: rules.map(
             ({
               size_yards,
@@ -189,6 +193,21 @@ export function Settings({
                 />
                 <small>
                   Automatically texted to customers upon container pickup to boost your 5-star ratings.
+                </small>
+              </label>
+              <label className="field">
+                Minimum Online Booking Advance Notice
+                <select
+                  value={minNoticeHours}
+                  onChange={(e) => setMinNoticeHours(Number(e.target.value))}
+                >
+                  <option value={12}>12 hours</option>
+                  <option value={24}>24 hours (Recommended · 1 business day)</option>
+                  <option value={48}>48 hours (2 business days)</option>
+                  <option value={72}>72 hours (3 business days)</option>
+                </select>
+                <small>
+                  Prevents customers from booking bins overnight with zero warning. Emergency requests must call.
                 </small>
               </label>
             </div>

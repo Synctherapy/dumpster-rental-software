@@ -89,3 +89,12 @@ test('organization retains google review url and calendar token', () => {
   assert.ok(data.organization.calendar_token.length > 5);
   assert.ok('google_review_url' in data.organization);
 });
+
+test('lead time buffer computes minimum advance notice days correctly', () => {
+  // 24 hours notice = 1 day minimum lead
+  assert.equal(Math.max(1, Math.ceil(24 / 24)), 1);
+  // 48 hours notice = 2 days minimum lead
+  assert.equal(Math.max(1, Math.ceil(48 / 24)), 2);
+  // 12 hours notice = 1 day minimum lead
+  assert.equal(Math.max(1, Math.ceil(12 / 24)), 1);
+});

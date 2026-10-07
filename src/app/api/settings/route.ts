@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         deposit_percent: z.number().int().min(1).max(100),
         customer_fee_enabled: z.boolean().default(true).optional(),
         google_review_url: z.string().trim().max(500).default('').optional(),
+        min_notice_hours: z.number().int().min(0).max(168).default(24).optional(),
         pricing_rules: z.array(rule).min(1).max(4),
       })
       .strict()
@@ -42,10 +43,12 @@ export async function POST(request: Request) {
           phone: input.phone,
           slug: input.slug,
           google_review_url: input.google_review_url || '',
+          min_notice_hours: input.min_notice_hours ?? 24,
           pricing_config: {
             deposit_percent: input.deposit_percent,
             customer_fee_enabled: input.customer_fee_enabled ?? true,
             google_review_url: input.google_review_url || '',
+            min_notice_hours: input.min_notice_hours ?? 24,
           },
         });
         d.pricing_rules = input.pricing_rules.map((r) => ({

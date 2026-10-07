@@ -58,6 +58,14 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     api<PublicData>(`/api/public/${slug}`)
       .then((d) => {
         setData(d);
+        const noticeHours = d.organization.min_notice_hours ?? d.organization.pricing_config?.min_notice_hours ?? 24;
+        const minLeadDays = Math.max(1, Math.ceil(noticeHours / 24));
+        const earliest = addDays(today(), minLeadDays);
+        setDelivery(earliest);
+        const selectedRule = d.pricing_rules.find((r) => r.size_yards === 20) ?? d.pricing_rules[0];
+        if (selectedRule) {
+          setPickup(addDays(earliest, selectedRule.included_days));
+        }
         setSize(
           d.pricing_rules.some((r) => r.size_yards === 20)
             ? 20
@@ -116,9 +124,14 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       );
       return;
     }
-    if (step === 2 && (!price || delivery < today())) {
-      setError('Choose valid delivery and pickup dates.');
-      return;
+    if (step === 2) {
+      const noticeHours = data.organization.min_notice_hours ?? data.organization.pricing_config?.min_notice_hours ?? 24;
+      const minLeadDays = Math.max(1, Math.ceil(noticeHours / 24));
+      const earliest = addDays(today(), minLeadDays);
+      if (!price || delivery < earliest) {
+        setError(`Please choose a delivery date at least ${noticeHours} hours from now (${dateLabel(earliest)}).`);
+        return;
+      }
     }
     setStep(step + 1);
   };
@@ -309,40 +322,53 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   </p>
                 </>
               )}
-              {step === 2 && (
-                <>
-                  <h2>Pick your project days.</h2>
-                  <p className="intro">
-                    Your rental includes {rule.included_days} days. Extra days are{' '}
-                    {money(rule.extra_day_cents)} each.
-                  </p>
-                  <div className="form-row">
-                    <label className="field">
-                      Delivery date
-                      <input
-                        type="date"
-                        value={delivery}
-                        min={today()}
-                        onChange={(e) => e.target.value && changeDelivery(e.target.value)}
-                      />
-                    </label>
-                    <label className="field">
-                      Pickup date
-                      <input
-                        type="date"
-                        value={pickup}
-                        min={addDays(delivery, 1)}
-                        max={addDays(delivery, 365)}
-                        onChange={(e) => setPickup(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                  <div className="deposit-note" style={{ marginTop: 23 }}>
-                    Make sure there’s a clear, accessible spot for your container. Delivery times
-                    will be coordinated with your hauler.
-                  </div>
-                </>
-              )}
+              {step === 2 && (() => {
+                const noticeHours = data.organization.min_notice_hours ?? data.organization.pricing_config?.min_notice_hours ?? 24;
+                const minLeadDays = Math.max(1, Math.ceil(noticeHours / 24));
+                const earliestDelivery = addDays(today(), minLeadDays);
+
+                return (
+                  <>
+                    <h2>Pick your project days.</h2>
+                    <p className="intro">
+                      Your rental includes {rule.included_days} days. Extra days are{' '}
+                      {money(rule.extra_day_cents)} each. Need fewer days? We will pick it up early at no extra cost.
+                    </p>
+                    <div className="form-row">
+                      <label className="field">
+                        Delivery date
+                        <input
+                          type="date"
+                          value={delivery < earliestDelivery ? earliestDelivery : delivery}
+                          min={earliestDelivery}
+                          onChange={(e) => e.target.value && changeDelivery(e.target.value)}
+                        />
+                      </label>
+                      <label className="field">
+                        Pickup date
+                        <input
+                          type="date"
+                          value={pickup}
+                          min={addDays(delivery < earliestDelivery ? earliestDelivery : delivery, 1)}
+                          max={addDays(delivery < earliestDelivery ? earliestDelivery : delivery, 365)}
+                          onChange={(e) => setPickup(e.target.value)}
+                        />
+                      </label>
+                    </div>
+                    <div className="deposit-note" style={{ marginTop: 23 }}>
+                      Online bookings require at least {noticeHours} hours advance notice to schedule equipment.
+                      {data.organization.phone && (
+                        <span>
+                          {' '}Need same-day or emergency delivery? Call our dispatch desk at{' '}
+                          <a href={`tel:${data.organization.phone}`} style={{ textDecoration: 'underline', fontWeight: 600 }}>
+                            {data.organization.phone}
+                          </a>.
+                        </span>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
               {step === 3 && (
                 <form
                   id="customer-form"
