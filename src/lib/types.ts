@@ -7,9 +7,11 @@ export interface Organization {
   slug: string;
   phone: string;
   timezone: string;
+  currency?: string; // 'usd' | 'cad'
   stripe_connect_account_id: string | null;
   pricing_config: {
     deposit_percent: number;
+    currency?: string;
     customer_fee_enabled?: boolean;
     google_review_url?: string;
     calendar_token?: string;
@@ -127,10 +129,11 @@ export const statusLabels: Record<JobStatus, string> = {
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
-export function money(cents: number) {
+export function money(cents: number, currency: string = 'USD') {
+  const curr = currency.toUpperCase() === 'CAD' ? 'CAD' : 'USD';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: curr,
     maximumFractionDigits: cents % 100 ? 2 : 0,
   }).format(cents / 100);
 }
@@ -156,4 +159,21 @@ export function normalizePhone(raw: string): string {
   if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
   if (raw.startsWith('+') && digits.length >= 8) return `+${digits}`;
   return raw;
+}
+
+/**
+ * Normalizes both US 5-digit ZIPs ("78704") and Canadian postal codes ("v8w 1w4" -> "V8W 1W4").
+ */
+export function normalizePostalCode(raw: string): string {
+  const clean = raw.trim().toUpperCase().replace(/\s+/g, '');
+  if (/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(clean)) {
+    return `${clean.slice(0, 3)} ${clean.slice(3)}`;
+  }
+  return clean;
+}
+
+export function isValidPostalCode(raw: string): boolean {
+  const clean = raw.trim().toUpperCase().replace(/\s+/g, '');
+  // US 5-digit ZIP or Canadian 6-char Postal Code
+  return /^\d{5}$/.test(clean) || /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(clean);
 }

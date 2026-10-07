@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from './store';
 import { admin, identity } from './supabase';
 import { quote, invoice, platformFee } from '../pricing';
-import { today, normalizePhone, type Job } from '../types';
+import { today, normalizePhone, normalizePostalCode, isValidPostalCode, type Job } from '../types';
 import { publicOrganization } from './workspace';
 import { stripe } from './stripe';
 import { sendSms } from './notifications';
@@ -17,7 +17,7 @@ export const bookingSchema = z
     size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
     delivery_date: z.iso.date(),
     pickup_date: z.iso.date(),
-    zip: z.string().regex(/^\d{5}$/),
+    zip: z.string().refine(isValidPostalCode, { message: 'Enter a valid ZIP or postal code.' }),
     customer_name: z.string().trim().min(2).max(100),
     customer_phone: z.string().trim().min(7).max(25),
     customer_email: z.email(),
@@ -31,16 +31,21 @@ export const bookingSchema = z
   .strict();
 export async function book(input: unknown, ip: string, origin: string) {
   const parsed = bookingSchema.parse(input);
+  const normalizedZip = normalizePostalCode(parsed.zip);
   const body = {
     ...parsed,
+    zip: normalizedZip,
     customer_phone: normalizePhone(parsed.customer_phone),
   };
   if (body.delivery_date < today()) throw new Error('Delivery cannot be in the past.');
   const { organization: org, pricing_rules, demo } = await publicOrganization(body.slug);
   const rule = pricing_rules.find((r) => r.size_yards === body.size_yards);
   if (!rule) throw new Error('That size is unavailable.');
-  if (!rule.service_zips.includes(body.zip))
-    throw new Error('This ZIP code is outside our service area.');
+  const servesZip = rule.service_zips.some(
+    (z: string) => normalizePostalCode(z) === normalizedZip,
+  );
+  if (!servesZip)
+    throw new Error('This ZIP or postal code is outside our service area.');
   const customerFee = org.pricing_config?.customer_fee_enabled !== false;
   const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
     customerFee,
@@ -88,7 +93,7 @@ export async function book(input: unknown, ip: string, origin: string) {
         job_id: job.id,
         stripe_payment_intent_id: null,
         amount_cents: price.total,
-        application_fee_cents: platformFee(price.deposit),
+        application_fee_cents: price.fee,
         status: 'demo',
         idempotency_key: `deposit-${job.id}`,
         created_at: new Date().toISOString(),
@@ -130,6 +135,8 @@ export async function book(input: unknown, ip: string, origin: string) {
         : 'This checkout expired. Start a new booking.',
     );
   }
+  const pricingConfig = org.pricing_config as { currency?: string } | undefined;
+  const currencyCode = (pricingConfig?.currency || 'usd').toLowerCase();
   const checkout = await client.checkout.sessions.create(
     {
       mode: 'payment',
@@ -139,7 +146,7 @@ export async function book(input: unknown, ip: string, origin: string) {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: currencyCode,
             unit_amount: price.baseRental,
             product_data: { name: `${saved.size_yards} yd dumpster rental` },
           },
@@ -149,7 +156,7 @@ export async function book(input: unknown, ip: string, origin: string) {
           ? [
               {
                 price_data: {
-                  currency: 'usd',
+                  currency: currencyCode,
                   unit_amount: price.reservationFee,
                   product_data: { name: 'Priority Dispatch & Online Reservation' },
                 },
@@ -161,7 +168,7 @@ export async function book(input: unknown, ip: string, origin: string) {
           ? [
               {
                 price_data: {
-                  currency: 'usd',
+                  currency: currencyCode,
                   unit_amount: price.boardsFee,
                   product_data: { name: 'Protective wood boards under rails' },
                 },

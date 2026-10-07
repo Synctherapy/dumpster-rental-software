@@ -29,6 +29,9 @@ export function Settings({
   const [name, setName] = useState(data.organization.name);
   const [slug, setSlug] = useState(data.organization.slug);
   const [phone, setPhone] = useState(data.organization.phone);
+  const [currency, setCurrency] = useState(
+    data.organization.currency || data.organization.pricing_config?.currency || 'usd',
+  );
   const [customerFeeEnabled, setCustomerFeeEnabled] = useState(
     data.organization.pricing_config?.customer_fee_enabled !== false,
   );
@@ -55,6 +58,7 @@ export function Settings({
           name,
           slug,
           phone,
+          currency,
           deposit_percent: 100,
           customer_fee_enabled: customerFeeEnabled,
           google_review_url: googleReviewUrl,
@@ -210,16 +214,29 @@ export function Settings({
                   Prevents customers from booking bins overnight with zero warning. Emergency requests must call.
                 </small>
               </label>
+              <label className="field">
+                Billing Currency
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  <option value="usd">USD ($) · United States Dollar</option>
+                  <option value="cad">CAD ($) · Canadian Dollar</option>
+                </select>
+                <small>
+                  Sets your customer checkout currency and Stripe Connect payout denomination.
+                </small>
+              </label>
             </div>
             <label className="field">
-              Service ZIP codes
+              Service ZIP / Postal codes
               <textarea
                 required
                 value={zips}
                 onChange={(e) => setZips(e.target.value)}
-                placeholder="78701, 78702, 78704"
+                placeholder="78701, 78702, 78704 or V8W 1W4, V8W 2S8"
               />
-              <small>Separate five-digit ZIP codes with commas or spaces.</small>
+              <small>Separate US 5-digit ZIP codes or Canadian 6-character postal codes with commas or spaces.</small>
             </label>
             <div>
               <h3 style={{ fontSize: 13, marginBottom: 15 }}>Pricing by dumpster size</h3>

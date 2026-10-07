@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { seed } from '../src/lib/seed';
 import { generateIcsCalendar } from '../src/lib/calendar';
 import { quote } from '../src/lib/pricing';
-import { normalizePhone, type Job, type Organization } from '../src/lib/types';
+import {
+  normalizePhone,
+  normalizePostalCode,
+  isValidPostalCode,
+  money,
+  type Job,
+  type Organization,
+} from '../src/lib/types';
 
 test('iCal feed generates valid RFC 5545 format with delivery and pickup events', () => {
   const data = seed();
@@ -107,4 +114,29 @@ test('normalizePhone accepts raw 11-digit, 10-digit, and international phone num
   assert.equal(normalizePhone('1-250-812-8698'), '+12508128698');
   assert.equal(normalizePhone('+12508128698'), '+12508128698');
   assert.equal(normalizePhone('+447911123456'), '+447911123456');
+});
+
+test('postal code validator and normalizer handles US ZIPs and Canadian postal codes', () => {
+  // US ZIP
+  assert.equal(isValidPostalCode('78704'), true);
+  assert.equal(normalizePostalCode('78704'), '78704');
+  assert.equal(isValidPostalCode('90210'), true);
+
+  // Canadian Postal Codes (BC, Ontario, Alberta, etc.)
+  assert.equal(isValidPostalCode('V8W 1W4'), true);
+  assert.equal(isValidPostalCode('v8w1w4'), true);
+  assert.equal(normalizePostalCode('v8w1w4'), 'V8W 1W4');
+  assert.equal(normalizePostalCode('M5V 3L9'), 'M5V 3L9');
+  assert.equal(normalizePostalCode('t2p2m5'), 'T2P 2M5');
+
+  // Invalid formats
+  assert.equal(isValidPostalCode('123'), false);
+  assert.equal(isValidPostalCode('INVALID_CODE'), false);
+});
+
+test('money formatter supports both USD and CAD', () => {
+  const usd = money(42500, 'USD');
+  const cad = money(42500, 'CAD');
+  assert.ok(usd.includes('425'));
+  assert.ok(cad.includes('425'));
 });

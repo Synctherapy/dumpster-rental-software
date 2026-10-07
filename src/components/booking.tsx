@@ -22,6 +22,7 @@ import {
   money,
   today,
   normalizePhone,
+  normalizePostalCode,
   type Organization,
   type PricingRule,
   type Job,
@@ -106,6 +107,8 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       </div>
     );
   let price: ReturnType<typeof quote> | null = null;
+  const currency = (data.organization.currency || data.organization.pricing_config?.currency || 'usd').toUpperCase();
+  const formatMoney = (cents: number) => money(cents, currency);
   const customerFee = data.organization.pricing_config?.customer_fee_enabled !== false;
   try {
     price = quote(rule, delivery, pickup, 100, {
@@ -119,11 +122,18 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   };
   const next = () => {
     setError('');
-    if (step === 1 && !rule.service_zips.includes(zip)) {
-      setError(
-        'We don’t service that ZIP code yet. Please try another address or call the hauler.',
+    if (step === 1) {
+      const normalizedZip = normalizePostalCode(zip);
+      const isServed = rule.service_zips.some(
+        (z) => normalizePostalCode(z) === normalizedZip,
       );
-      return;
+      if (!isServed) {
+        setError(
+          'We don’t service that ZIP or postal code yet. Please try another address or call the hauler.',
+        );
+        return;
+      }
+      setZip(normalizedZip);
     }
     if (step === 2) {
       const noticeHours = data.organization.min_notice_hours ?? data.organization.pricing_config?.min_notice_hours ?? 24;
@@ -148,6 +158,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     setError('');
     try {
       const normalizedPhone = normalizePhone(customer.customer_phone);
+      const normalizedZip = normalizePostalCode(zip);
       const result = await api<{ job?: Job; url?: string; demo: boolean }>('/api/jobs', {
         method: 'POST',
         body: JSON.stringify({
@@ -155,7 +166,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
           size_yards: size,
           delivery_date: delivery,
           pickup_date: pickup,
-          zip,
+          zip: normalizedZip,
           ...customer,
           customer_phone: normalizedPhone,
           booking_key: key,
@@ -225,11 +236,11 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
             </div>
             <div className="summary-line">
               <span>Rental total</span>
-              <strong>{money(confirmed.price_cents)}</strong>
+              <strong>{formatMoney(confirmed.price_cents)}</strong>
             </div>
             <div className="summary-line">
               <span>Paid today</span>
-              <strong>{money(confirmed.deposit_cents)}</strong>
+              <strong>{formatMoney(confirmed.deposit_cents)}</strong>
             </div>
           </div>
           <Link href="/dashboard" className="btn btn-primary">
@@ -297,29 +308,38 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               {step === 1 && (
                 <>
                   <h2>Let’s make sure we can reach you.</h2>
-                  <p className="intro">Enter the ZIP code where you need your dumpster.</p>
+                  <p className="intro">Enter the ZIP or postal code where you need your dumpster.</p>
                   <label className="field">
-                    Delivery ZIP code
+                    Delivery ZIP / Postal Code
                     <input
-                      inputMode="numeric"
-                      maxLength={5}
-                      placeholder="e.g. 78704"
+                      autoCapitalize="characters"
+                      maxLength={7}
+                      placeholder="e.g. 78704 or V8W 1W4"
                       value={zip}
                       onChange={(e) => {
-                        setZip(e.target.value.replace(/\D/g, ''));
+                        setZip(e.target.value.toUpperCase());
                         setError('');
+                      }}
+                      onBlur={() => {
+                        if (zip.trim()) setZip(normalizePostalCode(zip));
                       }}
                     />
                   </label>
-                  {zip.length === 5 && rule.service_zips.includes(zip) && (
-                    <div
-                      className="success-box"
-                      style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}
-                    >
-                      <CheckCircle2 size={15} />
-                      Good news — you’re in our service area.
-                    </div>
-                  )}
+                  {(() => {
+                    const normalizedZip = normalizePostalCode(zip);
+                    const isServed = rule.service_zips.some(
+                      (z) => normalizePostalCode(z) === normalizedZip,
+                    );
+                    return isServed ? (
+                      <div
+                        className="success-box"
+                        style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}
+                      >
+                        <CheckCircle2 size={15} />
+                        Good news — you’re in our service area.
+                      </div>
+                    ) : null;
+                  })()}
                   <p className="intro" style={{ marginTop: 24 }}>
                     Outside our service area?{' '}
                     <a
@@ -492,7 +512,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     />
                     <div>
                       <strong style={{ display: 'block', fontSize: '14px' }}>
-                        Protective wood boards under container rails (+{money(1900)})
+                        Protective wood boards under container rails (+{formatMoney(1900)})
                       </strong>
                       <span style={{ fontSize: '13px', color: 'var(--muted, #666)' }}>
                         Driver places wood blocking under rollers during delivery.
@@ -592,7 +612,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     {busy ? <Loader2 size={14} className="spin" /> : <LockKeyhole size={13} />}{' '}
                     {data.demo
                       ? 'Confirm demo booking'
-                      : `Pay ${money(price?.total ?? 0)}`}
+                      : `Pay ${formatMoney(price?.total ?? 0)}`}
                   </Button>
                 )}
               </div>
@@ -603,7 +623,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               <h3>{size} yard dumpster</h3>
               <div className="summary-line">
                 <span>Base rental · {rule.included_days} days</span>
-                <strong>{money(rule.base_price_cents)}</strong>
+                <strong>{formatMoney(rule.base_price_cents)}</strong>
               </div>
               <div className="summary-line">
                 <span>Included disposal</span>
@@ -626,24 +646,24 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   <span>
                     {price.extraDays} extra day{price.extraDays > 1 ? 's' : ''}
                   </span>
-                  <strong>{money(price.extra)}</strong>
+                  <strong>{formatMoney(price.extra)}</strong>
                 </div>
               )}
               {price && price.reservationFee > 0 && (
                 <div className="summary-line">
                   <span>Priority dispatch & reservation</span>
-                  <strong>{money(price.reservationFee)}</strong>
+                  <strong>{formatMoney(price.reservationFee)}</strong>
                 </div>
               )}
               {price && price.boardsFee > 0 && (
                 <div className="summary-line">
                   <span>Protective wood boards</span>
-                  <strong>{money(price.boardsFee)}</strong>
+                  <strong>{formatMoney(price.boardsFee)}</strong>
                 </div>
               )}
               <div className="summary-total">
                 <span>Rental total</span>
-                <strong>{price ? money(price.total) : '—'}</strong>
+                <strong>{price ? formatMoney(price.total) : '—'}</strong>
               </div>
               <div className="deposit-note">
                 <b>{price ? money(price.total) : '—'} due today.</b>

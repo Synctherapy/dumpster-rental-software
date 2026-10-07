@@ -5,7 +5,7 @@ import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, identity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { quote, platformFee } from '@/lib/pricing';
-import { today, type Job } from '@/lib/types';
+import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
 
 function normalizePhone(raw: string): string {
@@ -21,7 +21,7 @@ const quickOrderSchema = z.object({
   customer_phone: z.string().trim().min(7).max(25),
   customer_email: z.string().trim().email().or(z.literal('')).optional(),
   delivery_address: z.string().trim().min(5).max(300),
-  zip: z.string().regex(/^\d{5}$/),
+  zip: z.string().refine(isValidPostalCode, { message: 'Enter a valid ZIP or postal code.' }),
   size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
   delivery_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   pickup_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     assertSameOrigin(request);
     const body = quickOrderSchema.parse(await request.json());
     const formattedPhone = normalizePhone(body.customer_phone);
+    const formattedZip = normalizePostalCode(body.zip);
 
     if (body.delivery_date < today()) {
       throw new Error('Delivery date cannot be in the past.');
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
           customer_phone: formattedPhone,
           customer_email: email,
           delivery_address: body.delivery_address,
-          zip: body.zip,
+          zip: formattedZip,
           size_yards: body.size_yards,
           delivery_date: body.delivery_date,
           pickup_date: body.pickup_date,
@@ -173,7 +174,7 @@ export async function POST(request: Request) {
         customer_phone: formattedPhone,
         customer_email: email,
         delivery_address: body.delivery_address,
-        zip: body.zip,
+        zip: formattedZip,
         size_yards: body.size_yards,
         delivery_date: body.delivery_date,
         pickup_date: body.pickup_date,
