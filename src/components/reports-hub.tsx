@@ -8,6 +8,10 @@ import {
   Clock,
   Layers,
   Award,
+  MapPin,
+  Receipt,
+  Scale,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { money, type Workspace } from '@/lib/types';
@@ -37,6 +41,48 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
   const signedJobs = data.jobs.filter((j) => j.signature && j.signature.name);
   const photoProofJobs = data.jobs.filter((j) => j.proof_url);
   const boardAddonJobs = data.jobs.filter((j) => j.protective_boards);
+
+  // 1. Container Size Profitability Breakdown
+  const sizeMap: Record<number, { count: number; revenueCents: number }> = {
+    10: { count: 0, revenueCents: 0 },
+    20: { count: 0, revenueCents: 0 },
+    30: { count: 0, revenueCents: 0 },
+    40: { count: 0, revenueCents: 0 },
+  };
+  data.jobs.forEach((job) => {
+    if (sizeMap[job.size_yards]) {
+      sizeMap[job.size_yards].count += 1;
+      sizeMap[job.size_yards].revenueCents += job.price_cents;
+    }
+  });
+
+  // 2. Sales Tax Collected Calculation
+  const taxRate = data.organization.tax_rate_percent ?? data.organization.pricing_config?.tax_rate_percent ?? 0;
+  const estimatedTaxCollectedCents = Math.round(
+    data.jobs.reduce((sum, job) => {
+      const subtotal = job.price_cents + (job.protective_boards ? 1900 : 0);
+      return sum + Math.round((subtotal * taxRate) / 100);
+    }, 0),
+  );
+
+  // 3. Tonnage Overages & Landfill Recovery
+  const overageJobs = data.jobs.filter(
+    (j) => j.tons_actual != null && j.tons_actual > j.tons_included,
+  );
+  const overageBilledCents = overageJobs.reduce((sum, j) => {
+    const extraTons = Math.max(0, (j.tons_actual ?? 0) - j.tons_included);
+    const rate = j.pricing_snapshot?.overage_per_ton_cents ?? 8500;
+    return sum + Math.round(extraTons * rate);
+  }, 0);
+
+  // 4. Top Service ZIP Code Counts
+  const zipMap: Record<string, number> = {};
+  data.jobs.forEach((j) => {
+    if (j.zip) zipMap[j.zip] = (zipMap[j.zip] || 0) + 1;
+  });
+  const topZips = Object.entries(zipMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
 
   return (
     <div className="reports-container" style={{ display: 'grid', gap: '24px' }}>
@@ -153,6 +199,112 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
             Average rental duration before re-deployment
           </div>
         </div>
+      </div>
+
+      {/* Operational & Financial Deep Dive */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        {/* Metric 1: Profitability by Container Size */}
+        <section className="panel" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <BarChart3 size={18} style={{ color: '#059669' }} />
+            <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 600 }}>Revenue by Container Size</h3>
+          </div>
+          <div style={{ display: 'grid', gap: '10px' }}>
+            {[10, 20, 30, 40].map((s) => {
+              const info = sizeMap[s] || { count: 0, revenueCents: 0 };
+              const percent = totalRevenueCents > 0 ? Math.round((info.revenueCents / totalRevenueCents) * 100) : 0;
+              return (
+                <div key={s} style={{ padding: '10px 14px', background: '#fafafa', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '13px' }}>{s} Yard Dumpster</span>
+                    <strong style={{ fontSize: '13px', color: '#0f172a' }}>{money(info.revenueCents)}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b' }}>
+                    <span>{info.count} rentals completed</span>
+                    <span>{percent}% of gross rental volume</span>
+                  </div>
+                  <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '4px', marginTop: '6px', overflow: 'hidden' }}>
+                    <div style={{ width: `${percent}%`, height: '100%', background: s === 20 ? '#10b981' : '#3b82f6', borderRadius: '4px' }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: '14px', fontSize: '11px', color: '#64748b' }}>
+            💡 Use this data to decide which dumpster sizes to order for your next fleet expansion.
+          </div>
+        </section>
+
+        {/* Metric 2: Tax Remittance & Scale Overages */}
+        <section className="panel" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <Receipt size={18} style={{ color: '#d97706' }} />
+            <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 600 }}>Taxes & Landfill Cost Recovery</h3>
+          </div>
+          <div style={{ display: 'grid', gap: '12px' }}>
+            {/* Sales Tax Box */}
+            <div style={{ padding: '12px 14px', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fef3c7' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: '#92400e', fontWeight: 600 }}>
+                  Sales Tax Collected ({taxRate > 0 ? `${taxRate}%` : 'Not configured'})
+                </span>
+                <strong style={{ fontSize: '16px', color: '#b45309' }}>
+                  {money(estimatedTaxCollectedCents)}
+                </strong>
+              </div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#b45309', lineHeight: 1.5 }}>
+                {taxRate > 0
+                  ? 'Ready for your quarterly state/local sales tax remittance.'
+                  : 'Configure your state/local tax rate in Settings to collect automatically.'}
+              </p>
+            </div>
+
+            {/* Landfill Tonnage Overage Recovery */}
+            <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Scale size={14} color="#2563eb" />
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>Scale Overage Recovery</span>
+                </div>
+                <strong style={{ fontSize: '15px', color: '#2563eb' }}>
+                  {money(overageBilledCents)}
+                </strong>
+              </div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748b' }}>
+                {overageJobs.length} overweight job{overageJobs.length === 1 ? '' : 's'} billed with attached landfill dump tickets.
+              </p>
+            </div>
+
+            {/* Top ZIP Codes */}
+            <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                <MapPin size={14} color="#059669" />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>Top Delivery ZIP Codes</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {topZips.length > 0 ? (
+                  topZips.map(([z, count]) => (
+                    <span
+                      key={z}
+                      style={{
+                        background: '#fff',
+                        border: '1px solid #cbd5e1',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        color: '#334155',
+                      }}
+                    >
+                      <strong>{z}</strong>: {count} job{count === 1 ? '' : 's'}
+                    </span>
+                  ))
+                ) : (
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>No completed delivery ZIPs yet.</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Comparison Breakdown: RollOS vs Legacy Competitors */}
