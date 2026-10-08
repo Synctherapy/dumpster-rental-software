@@ -203,6 +203,20 @@ export function DispatchBoard({
                         {status === 'picked_up' || status === 'completed' ? 'Pickup' : 'Delivery'}
                       </div>
                       {job.notes && <span className="job-tag">{job.notes}</span>}
+                      {job.driver_notes && (
+                        <span
+                          className="job-tag"
+                          style={{
+                            background: '#fef3c7',
+                            color: '#92400e',
+                            border: '1px solid #fde68a',
+                            fontWeight: 600,
+                          }}
+                          title={`Driver Note: ${job.driver_notes}`}
+                        >
+                          ⚠️ Driver: {job.driver_notes.length > 25 ? `${job.driver_notes.slice(0, 25)}…` : job.driver_notes}
+                        </span>
+                      )}
                       <div className="job-card-bottom">
                         <strong>{money(job.price_cents)}</strong>
                         {job.driver_id ? (
