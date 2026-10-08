@@ -13,12 +13,19 @@ import {
   Filter,
   Lock,
   Edit3,
+  WifiOff,
+  Search,
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
 import { dateLabel, today, type Job } from '@/lib/types';
-type RouteData = { driver: { name: string }; jobs: Job[]; demo: boolean };
+type RouteData = {
+  driver: { name: string };
+  jobs: Job[];
+  organization?: { name: string; subscription_status: string; is_paid_plan: boolean };
+  demo: boolean;
+};
 export function DriverRoute({ token }: { token: string }) {
   const [data, setData] = useState<RouteData | null>(null);
   const [error, setError] = useState('');
@@ -31,9 +38,19 @@ export function DriverRoute({ token }: { token: string }) {
   const [unlockWeight, setUnlockWeight] = useState<Record<string, boolean>>({});
   const [filterTab, setFilterTab] = useState<'active' | 'all' | 'dispatched' | 'delivered' | 'picked_up'>('active');
   const [sortBy, setSortBy] = useState<'delivery' | 'pickup' | 'customer'>('delivery');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isOnline, setIsOnline] = useState(true);
   const reload = useCallback(() => api<RouteData>(`/api/driver/${token}`).then(setData), [token]);
   useEffect(() => {
     reload().catch((e) => setError(e.message));
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, [reload]);
   const action = async (job: Job, patch: Record<string, unknown>) => {
     setBusy(job.id);
@@ -108,7 +125,39 @@ export function DriverRoute({ token }: { token: string }) {
             </div>
           )}
 
-          {/* Route Filter & Sort Toolbar */}
+          {/* Offline indicator banner */}
+          {!isOnline && (
+            <div
+              style={{
+                background: data.organization?.is_paid_plan ? '#2e4334' : '#fff3cd',
+                color: data.organization?.is_paid_plan ? 'white' : '#856404',
+                padding: '10px 14px',
+                borderRadius: 8,
+                marginBottom: 16,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 12,
+                border: data.organization?.is_paid_plan ? '1px solid #415a49' : '1px solid #ffeeba',
+              }}
+            >
+              <WifiOff size={16} />
+              <div>
+                <strong>Offline Mode:</strong>{' '}
+                {data.organization?.is_paid_plan ? (
+                  <span>
+                    Your active route is cached locally on your device. Actions will sync once cellular connectivity returns.
+                  </span>
+                ) : (
+                  <span>
+                    No internet connection detected. Upgrade to RollOS Pro for full offline route synchronization at remote landfills.
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Route Filter, Search & Sort Toolbar */}
           <section style={{ background: 'white', padding: '14px 16px', borderRadius: 12, border: '1px solid #dbe5d4', marginBottom: 20, boxShadow: '0 2px 6px #00000008' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#334839' }}>
@@ -134,6 +183,25 @@ export function DriverRoute({ token }: { token: string }) {
                   <option value="customer">Customer Name</option>
                 </select>
               </div>
+            </div>
+
+            {/* Mobile Search Input */}
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: '#7f927b' }} />
+              <input
+                type="text"
+                placeholder="Search by customer, street address, or ZIP..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '7px 10px 7px 32px',
+                  fontSize: 12,
+                  borderRadius: 6,
+                  border: '1px solid #ccd8c5',
+                  background: '#fbfcf9',
+                }}
+              />
             </div>
 
             {/* Segmented Filter Pills */}
@@ -187,6 +255,14 @@ export function DriverRoute({ token }: { token: string }) {
 
           {data.jobs
             .filter((j) => {
+              if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matches =
+                  j.customer_name.toLowerCase().includes(q) ||
+                  j.delivery_address.toLowerCase().includes(q) ||
+                  j.zip.toLowerCase().includes(q);
+                if (!matches) return false;
+              }
               if (filterTab === 'active') return j.status !== 'picked_up';
               if (filterTab === 'dispatched') return j.status === 'dispatched';
               if (filterTab === 'delivered') return j.status === 'delivered';
@@ -561,6 +637,26 @@ export function DriverRoute({ token }: { token: string }) {
                       </Button>
                     )}
                   </div>
+                  {((Number(weights[job.id] ?? job.tons_actual ?? 0) > job.tons_included)) && (
+                    <div
+                      style={{
+                        marginTop: 8,
+                        padding: '6px 10px',
+                        background: '#fef3c7',
+                        border: '1px solid #fde68a',
+                        borderRadius: 6,
+                        fontSize: 11,
+                        color: '#92400e',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      <AlertTriangle size={13} />
+                      Exceeds {job.tons_included} included tons by {(Number(weights[job.id] ?? job.tons_actual ?? 0) - job.tons_included).toFixed(2)} tons. Please attach scale ticket above for automated overage billing.
+                    </div>
+                  )}
                   <small style={{ color: '#7a8e74', fontSize: 10, marginTop: 4, display: 'block' }}>
                     {job.tons_actual !== null
                       ? `Weight is locked to prevent accidental changes. Tap 'Edit' to update.`

@@ -15,6 +15,9 @@ import {
   FileText,
   Lock,
   Edit2,
+  MessageSquare,
+  CreditCard,
+  Clock,
 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
@@ -164,7 +167,39 @@ export function JobDrawer({
             </label>
           </div>
           <label className="field">
-            Driver
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Driver assignment & workload</span>
+              {driver && (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  style={{ fontSize: 11, padding: '2px 6px', height: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}
+                  onClick={async () => {
+                    const u = data.users.find((user) => user.id === driver);
+                    if (!u?.phone) {
+                      notify('Please add a phone number for this driver in the Drivers tab first.', true);
+                      return;
+                    }
+                    try {
+                      const result = await api<{ status: string; demo: boolean }>(
+                        '/api/invite-driver',
+                        { method: 'POST', body: JSON.stringify({ driver_id: u.id }) },
+                      );
+                      notify(
+                        result.demo
+                          ? `Demo SMS route link logged for ${u.name}.`
+                          : `Route link sent to ${u.name} via SMS.`,
+                      );
+                    } catch (e) {
+                      notify((e as Error).message, true);
+                    }
+                  }}
+                >
+                  <MessageSquare size={11} />
+                  SMS route link
+                </button>
+              )}
+            </div>
             <select
               value={driver}
               onChange={(e) => setDriver(e.target.value)}
@@ -173,12 +208,18 @@ export function JobDrawer({
               <option value="">Select a driver</option>
               {data.users
                 .filter((u) => u.role === 'driver')
-                .map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
+                .map((u) => {
+                  const activeCount = data.jobs.filter(
+                    (j) => j.driver_id === u.id && ['dispatched', 'delivered'].includes(j.status),
+                  ).length;
+                  return (
+                    <option key={u.id} value={u.id}>
+                      {u.name} · {activeCount} active jobs
+                    </option>
+                  );
+                })}
             </select>
+            <small>Shows current active truck load to help balance daily routes.</small>
           </label>
           <label className="field">
             Container
@@ -338,6 +379,32 @@ export function JobDrawer({
           <span>Balance</span>
           <b>{money(Math.max(0, total.total - paid))}</b>
         </div>
+        {Math.max(0, total.total - paid) > 0 && job.status !== 'cancelled' && (
+          <Button
+            variant="primary"
+            disabled={busy}
+            style={{ width: '100%', marginTop: 10, fontSize: 12, minHeight: 40 }}
+            onClick={() =>
+              void perform(
+                async () => {
+                  if (tons !== '' && Number(tons) !== job.tons_actual) {
+                    await api(`/api/jobs/${job.id}`, {
+                      method: 'PATCH',
+                      body: JSON.stringify({ tons_actual: Number(tons) }),
+                    });
+                  }
+                  return api(`/api/jobs/${job.id}/invoice`, { method: 'POST', body: '{}' });
+                },
+                data.demo
+                  ? 'Demo payment charged successfully. Balance settled.'
+                  : 'Customer card on file charged for outstanding balance.',
+              )
+            }
+          >
+            {busy ? <Loader2 size={13} className="spin" /> : <CreditCard size={13} />}
+            Charge card on file ({money(Math.max(0, total.total - paid))})
+          </Button>
+        )}
         <Button variant="ghost" onClick={download} style={{ padding: '10px 0', marginTop: 5 }}>
           <Download size={13} />
           Download invoice
@@ -352,6 +419,83 @@ export function JobDrawer({
             </span>
           </div>
         ))}
+      </section>
+
+      {/* Timestamped Job Activity Timeline */}
+      <section className="drawer-section">
+        <h3>
+          <Clock size={13} style={{ display: 'inline', marginRight: 5, color: '#627c54' }} />
+          Job activity timeline
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+          <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+            <span className="dot" style={{ background: '#3b523f', marginTop: 4 }} />
+            <div>
+              <b style={{ color: '#263b2c' }}>Job booked online</b>
+              <div style={{ color: '#889886', fontSize: 10 }}>
+                {new Date(job.created_at).toLocaleString()} · Initial reservation
+              </div>
+            </div>
+          </div>
+          {job.driver_id && (
+            <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+              <span className="dot" style={{ background: '#3b523f', marginTop: 4 }} />
+              <div>
+                <b style={{ color: '#263b2c' }}>Assigned to {data.users.find((u) => u.id === job.driver_id)?.name ?? 'Driver'}</b>
+                <div style={{ color: '#889886', fontSize: 10 }}>
+                  Scheduled for delivery on {dateLabel(job.delivery_date)}
+                </div>
+              </div>
+            </div>
+          )}
+          {job.delivered_at && (
+            <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+              <span className="dot" style={{ background: '#45793b', marginTop: 4 }} />
+              <div>
+                <b style={{ color: '#263b2c' }}>Container delivered</b>
+                <div style={{ color: '#889886', fontSize: 10 }}>
+                  {new Date(job.delivered_at).toLocaleString()}
+                  {job.proof_url ? ' · Photo proof captured' : ''}
+                </div>
+              </div>
+            </div>
+          )}
+          {job.picked_up_at && (
+            <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+              <span className="dot" style={{ background: '#45793b', marginTop: 4 }} />
+              <div>
+                <b style={{ color: '#263b2c' }}>Container picked up</b>
+                <div style={{ color: '#889886', fontSize: 10 }}>
+                  {new Date(job.picked_up_at).toLocaleString()} · Returned to yard
+                </div>
+              </div>
+            </div>
+          )}
+          {job.tons_actual !== null && (
+            <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+              <span className="dot" style={{ background: '#698741', marginTop: 4 }} />
+              <div>
+                <b style={{ color: '#263b2c' }}>Landfill scale weight logged: {job.tons_actual} tons</b>
+                <div style={{ color: '#889886', fontSize: 10 }}>
+                  {job.tons_actual > job.tons_included
+                    ? `Disposal overage: ${(job.tons_actual - job.tons_included).toFixed(2)} tons billed`
+                    : 'Within included tonnage'}
+                </div>
+              </div>
+            </div>
+          )}
+          {job.status === 'completed' && (
+            <div style={{ display: 'flex', gap: 10, fontSize: 11 }}>
+              <span className="dot" style={{ background: '#253a2b', marginTop: 4 }} />
+              <div>
+                <b style={{ color: '#263b2c' }}>Rental completed & closed</b>
+                <div style={{ color: '#889886', fontSize: 10 }}>
+                  Invoice finalized · Account settled
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
       <section className="drawer-section">
         <h3>Signed rental agreement</h3>

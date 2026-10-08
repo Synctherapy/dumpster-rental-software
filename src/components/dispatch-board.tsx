@@ -346,9 +346,30 @@ export function DispatchBoard({
                         <span>
                           {j.size_yards} yd · {j.pickup_date === date ? 'Pickup' : 'Delivery'}
                         </span>
-                        <small>
-                          {data.users.find((u) => u.id === j.driver_id)?.name ?? 'Unassigned'}
-                        </small>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3 }}>
+                          <small style={{ margin: 0 }}>
+                            {data.users.find((u) => u.id === j.driver_id)?.name ?? 'Unassigned'}
+                          </small>
+                          {j.driver_id && (
+                            <span
+                              style={{
+                                width: 16,
+                                height: 16,
+                                borderRadius: '50%',
+                                background: '#3b523f',
+                                color: 'white',
+                                fontSize: 9,
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                              title={data.users.find((u) => u.id === j.driver_id)?.name}
+                            >
+                              {initials(data.users.find((u) => u.id === j.driver_id)?.name ?? 'D')}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     ))}
                 </div>

@@ -12,6 +12,7 @@ import {
   Receipt,
   Scale,
   BarChart3,
+  CheckCircle2,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { money, type Workspace } from '@/lib/types';
@@ -83,6 +84,32 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
   const topZips = Object.entries(zipMap)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
+
+  // 5. Driver Performance & Proof Compliance Metrics
+  const driverPerformance = data.users
+    .filter((u) => u.role === 'driver')
+    .map((d) => {
+      const driverJobs = data.jobs.filter((j) => j.driver_id === d.id);
+      const deliveredCount = driverJobs.filter((j) => ['delivered', 'picked_up', 'completed'].includes(j.status)).length;
+      const photoProofsCount = driverJobs.filter((j) => !!j.proof_url).length;
+      const scaleTicketsCount = driverJobs.filter((j) => !!j.scale_ticket_url).length;
+      const proofRate = deliveredCount > 0 ? Math.round((photoProofsCount / deliveredCount) * 100) : 100;
+      return {
+        id: d.id,
+        name: d.name,
+        assignedCount: driverJobs.length,
+        deliveredCount,
+        photoProofsCount,
+        scaleTicketsCount,
+        proofRate,
+      };
+    });
+
+  // 6. Landfill Disposal Margin Recovery
+  const totalTonsDisposed = data.jobs
+    .filter((j) => j.tons_actual != null)
+    .reduce((sum, j) => sum + (j.tons_actual ?? 0), 0);
+  const grossDisposalCollectedCents = overageBilledCents;
 
   return (
     <div className="reports-container" style={{ display: 'grid', gap: '24px' }}>
@@ -303,6 +330,86 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
                 )}
               </div>
             </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Driver Performance Leaderboard & Proof Quality */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <section className="panel" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <CheckCircle2 size={18} style={{ color: '#2563eb' }} />
+            <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 600 }}>Driver Performance & Proof Compliance</h3>
+          </div>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 14px 0', lineHeight: 1.5 }}>
+            Tracks delivery drop-off photo capture rate and scale tickets submitted per driver.
+          </p>
+          <div style={{ display: 'grid', gap: '10px' }}>
+            {driverPerformance.map((d) => (
+              <div
+                key={d.id}
+                style={{
+                  padding: '12px 14px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: '13px', color: '#1e293b' }}>{d.name}</strong>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                    {d.deliveredCount} delivered · {d.photoProofsCount} photos · {d.scaleTicketsCount} scale tickets
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      padding: '3px 8px',
+                      borderRadius: '12px',
+                      background: d.proofRate >= 90 ? '#dcfce7' : '#fef3c7',
+                      color: d.proofRate >= 90 ? '#166534' : '#92400e',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {d.proofRate}% proof rate
+                  </span>
+                </div>
+              </div>
+            ))}
+            {!driverPerformance.length && (
+              <span style={{ fontSize: '11px', color: '#94a3b8' }}>No driver accounts active yet.</span>
+            )}
+          </div>
+        </section>
+
+        {/* Landfill Cost vs Overage Recovery Margin */}
+        <section className="panel" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <Scale size={18} style={{ color: '#059669' }} />
+            <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 600 }}>Disposal Scale Margin & Overage Recovery</h3>
+          </div>
+          <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12px' }}>
+              <div>
+                <strong>Total Landfill Scale Weight Logged</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>Across all completed and active dumpsters</p>
+              </div>
+              <strong style={{ fontSize: '14px', color: '#0f172a' }}>{totalTonsDisposed.toFixed(2)} tons</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: '#ecfdf5', borderRadius: '8px', fontSize: '12px', border: '1px solid #a7f3d0' }}>
+              <div>
+                <strong style={{ color: '#065f46' }}>Customer Overage Revenue Captured</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#047857' }}>Auto-billed from scale ticket uploads</p>
+              </div>
+              <strong style={{ fontSize: '14px', color: '#059669' }}>+{money(grossDisposalCollectedCents)}</strong>
+            </div>
+          </div>
+          <div style={{ marginTop: '14px', fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>
+            🛡️ <strong>Zero-loss disposal:</strong> Scale ticket verification ensures overweight fees are automatically shifted from your business to the customer.
           </div>
         </section>
       </div>

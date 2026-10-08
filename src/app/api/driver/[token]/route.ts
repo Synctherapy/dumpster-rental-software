@@ -17,6 +17,11 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
             j.driver_id === t.driver &&
             ['dispatched', 'delivered', 'picked_up'].includes(j.status),
         ),
+        organization: {
+          name: d.organization.name,
+          subscription_status: d.organization.subscription_status ?? 'paid',
+          is_paid_plan: (d.organization.subscription_status ?? 'paid') === 'paid',
+        },
         demo: true,
       });
     }
@@ -34,7 +39,21 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
       .eq('id', t.driver)
       .eq('org_id', t.org)
       .single();
-    return NextResponse.json({ jobs, driver, demo: false });
+    const { data: org } = await db
+      .from('organizations')
+      .select('name,subscription_status')
+      .eq('id', t.org)
+      .single();
+    return NextResponse.json({
+      jobs,
+      driver,
+      organization: {
+        name: org?.name ?? 'RollOS',
+        subscription_status: org?.subscription_status ?? 'free',
+        is_paid_plan: org?.subscription_status === 'paid',
+      },
+      demo: false,
+    });
   } catch (e) {
     return failure(e);
   }
