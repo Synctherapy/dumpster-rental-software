@@ -126,7 +126,11 @@ export async function book(input: unknown, ip: string, origin: string) {
   if (saved.status !== 'quoted')
     throw new Error('This reservation is already booked. Do not pay again.');
   if (saved.stripe_checkout_session_id) {
-    const previous = await client.checkout.sessions.retrieve(saved.stripe_checkout_session_id);
+    const previous = await client.checkout.sessions.retrieve(
+      saved.stripe_checkout_session_id,
+      {},
+      { stripeAccount: org.stripe_connect_account_id },
+    );
     if (previous.status === 'open' && previous.payment_status !== 'paid')
       return { url: previous.url, demo: false };
     throw new Error(
@@ -179,8 +183,6 @@ export async function book(input: unknown, ip: string, origin: string) {
       ],
       payment_intent_data: {
         application_fee_amount: price.fee,
-        transfer_data: { destination: org.stripe_connect_account_id },
-        on_behalf_of: org.stripe_connect_account_id,
         setup_future_usage: 'off_session',
         metadata: { job_id: saved.id, org_id: org.id, kind: 'deposit' },
       },
@@ -188,7 +190,10 @@ export async function book(input: unknown, ip: string, origin: string) {
       success_url: `${origin}/book/${org.slug}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/book/${org.slug}?cancelled=true`,
     },
-    { idempotencyKey: `checkout-${saved.id}` },
+    {
+      stripeAccount: org.stripe_connect_account_id,
+      idempotencyKey: `checkout-${saved.id}`,
+    },
   );
   const { error: sessionError } = await db
     .from('jobs')
@@ -429,7 +434,11 @@ export async function chargeInvoice(id: string) {
     throw new Error('No saved payment method. Customer action is required.');
   if (amount_cents <= 0) throw new Error('No balance to charge.');
   if (attempt.stripe_payment_intent_id) {
-    const existing = await client.paymentIntents.retrieve(attempt.stripe_payment_intent_id);
+    const existing = await client.paymentIntents.retrieve(
+      attempt.stripe_payment_intent_id,
+      {},
+      { stripeAccount: account_id },
+    );
     if (['requires_payment_method', 'requires_action'].includes(existing.status))
       throw new Error(
         'This payment needs customer action. Resolve it in Stripe before retrying; no new charge was created.',
@@ -438,21 +447,25 @@ export async function chargeInvoice(id: string) {
   }
   if (Date.now() - Date.parse(attempt.created_at) > 23 * 3600000)
     throw new Error('Reconcile this invoice in Stripe before retrying an older attempt.');
+  const orgCurrency =
+    (job.pricing_snapshot?.currency || (member as { currency?: string }).currency || 'usd').toLowerCase();
   let pi;
   try {
     pi = await client.paymentIntents.create(
       {
         amount: amount_cents,
-        currency: 'usd',
+        currency: orgCurrency,
         customer: job.stripe_customer_id,
         payment_method: job.stripe_payment_method_id,
         off_session: true,
         confirm: true,
-        application_fee_amount: platformFee(amount_cents),
-        transfer_data: { destination: account_id },
+        application_fee_amount: 0,
         metadata: { job_id: id, org_id: member.org_id, kind: 'invoice' },
       },
-      { idempotencyKey: `invoice-${id}` },
+      {
+        stripeAccount: account_id,
+        idempotencyKey: `invoice-${id}`,
+      },
     );
   } catch (error) {
     const failed = (error as { payment_intent?: { id: string } }).payment_intent;

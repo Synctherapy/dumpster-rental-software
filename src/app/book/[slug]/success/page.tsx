@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CheckCircle2, Clock3 } from 'lucide-react';
 import { stripe } from '@/lib/server/stripe';
+import { publicOrganization } from '@/lib/server/workspace';
 export const dynamic = 'force-dynamic';
 export default async function Success({
   params,
@@ -15,7 +16,15 @@ export default async function Success({
   let reference = '';
   try {
     if (session_id) {
-      const session = await stripe().checkout.sessions.retrieve(session_id);
+      const orgData = await publicOrganization(slug).catch(() => null);
+      const requestOptions = orgData?.organization?.stripe_connect_account_id
+        ? { stripeAccount: orgData.organization.stripe_connect_account_id }
+        : undefined;
+      const session = await stripe().checkout.sessions.retrieve(
+        session_id,
+        {},
+        requestOptions,
+      );
       paid = session.payment_status === 'paid';
       reference = session.metadata?.job_id?.slice(0, 8) ?? '';
     }

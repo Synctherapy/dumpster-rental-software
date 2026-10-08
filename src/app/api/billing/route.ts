@@ -5,8 +5,15 @@ import { failure } from '@/lib/server/http';
 import { SUBSCRIPTION_CENTS } from '@/lib/pricing';
 export async function POST(request: Request) {
   try {
-    const { member } = await identity();
+    const { member, db } = await identity();
     if (member.role !== 'owner') throw new Error('FORBIDDEN');
+    const { data: org } = await db
+      .from('organizations')
+      .select('pricing_config')
+      .eq('id', member.org_id)
+      .single();
+    const pricingConfig = org?.pricing_config as { currency?: string } | undefined;
+    const currency = (pricingConfig?.currency || 'usd').toLowerCase();
     const origin = new URL(request.url).origin;
     const session = await stripe().checkout.sessions.create({
       mode: 'subscription',
@@ -14,7 +21,7 @@ export async function POST(request: Request) {
         {
           quantity: 1,
           price_data: {
-            currency: 'usd',
+            currency,
             unit_amount: SUBSCRIPTION_CENTS,
             recurring: { interval: 'month' },
             product_data: { name: 'RollOS hauler plan' },

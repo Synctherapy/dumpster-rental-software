@@ -84,7 +84,6 @@ test('payment failure, retried success, reordered failure, and refund are transa
       currency: 'usd',
       customer: 'cus_test',
       payment_method: 'pm_test',
-      transfer_data: { destination: 'acct_test' },
       metadata: { job_id: reservation.id, org_id: org, kind: 'deposit' },
     };
     const event = async (id: string, type: string, o: unknown) =>
@@ -162,7 +161,7 @@ test('payment failure, retried success, reordered failure, and refund are transa
       ...object,
       id: 'pi_test_invoice',
       amount: 10200,
-      application_fee_amount: 300,
+      application_fee_amount: 0,
       metadata: { ...object.metadata, kind: 'invoice' },
     };
     await event('evt_final', 'payment_intent.succeeded', final);

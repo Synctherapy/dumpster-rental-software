@@ -66,9 +66,9 @@ begin
  if kind='deposit' then expected:=j.deposit_cents;
  elsif kind='invoice' then select amount_cents into expected from public.invoice_attempts where job_id=j.id;
  else raise exception 'Unknown payment kind'; end if;
- fee:=public.platform_fee(expected);
- if expected is null or (p_object->>'amount')::int is distinct from expected or (p_object->>'application_fee_amount')::int is distinct from fee or (p_object->>'currency') is distinct from 'usd' then raise exception 'Payment amount or fee does not match invoice'; end if;
- if (p_object->'transfer_data'->>'destination') is distinct from (select stripe_connect_account_id from public.organizations where id=j.org_id) then raise exception 'Payment destination does not match hauler'; end if;
+ fee:=case when kind='deposit' then public.platform_fee(expected) else 0 end;
+ if expected is null or (p_object->>'amount')::int is distinct from expected or (p_object->>'application_fee_amount')::int is distinct from fee or lower(coalesce(p_object->>'currency','')) not in ('usd','cad') then raise exception 'Payment amount or fee does not match invoice'; end if;
+ if (p_object->'transfer_data'->>'destination') is not null and (p_object->'transfer_data'->>'destination') is distinct from (select stripe_connect_account_id from public.organizations where id=j.org_id) then raise exception 'Payment destination does not match hauler'; end if;
  received_status:=case when p_type='payment_intent.succeeded' then 'succeeded' else 'failed' end;
  intent_id:=p_object->>'id';key:=kind||'-'||j.id;
  select not exists(select 1 from public.payments where stripe_payment_intent_id=intent_id and status in ('succeeded','refunded')) into notify;
