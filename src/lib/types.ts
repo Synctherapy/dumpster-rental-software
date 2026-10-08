@@ -9,6 +9,8 @@ export interface Organization {
   timezone: string;
   currency?: string; // 'usd' | 'cad'
   stripe_connect_account_id: string | null;
+  subscription_status?: string;
+  stripe_subscription_id?: string | null;
   pricing_config: {
     deposit_percent: number;
     currency?: string;
@@ -16,10 +18,16 @@ export interface Organization {
     google_review_url?: string;
     calendar_token?: string;
     min_notice_hours?: number;
+    prohibited_items?: string[];
+    operating_days?: number[]; // 0 = Sun, 1 = Mon, ..., 6 = Sat
+    tax_rate_percent?: number;
   };
   google_review_url?: string;
   calendar_token?: string;
   min_notice_hours?: number;
+  prohibited_items?: string[];
+  operating_days?: number[];
+  tax_rate_percent?: number;
 }
 export interface User {
   id: string;

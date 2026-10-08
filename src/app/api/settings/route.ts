@@ -36,6 +36,9 @@ export async function POST(request: Request) {
         customer_fee_enabled: z.boolean().default(true).optional(),
         google_review_url: z.string().trim().max(500).default('').optional(),
         min_notice_hours: z.number().int().min(0).max(168).default(24).optional(),
+        prohibited_items: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
+        operating_days: z.array(z.number().int().min(0).max(6)).max(7).optional(),
+        tax_rate_percent: z.number().min(0).max(30).default(0).optional(),
         pricing_rules: z.array(rule).min(1).max(4),
       })
       .strict()
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
 
     if (isDemo()) {
       await mutateDemo((d) => {
+        const isPaidPlan = d.organization.subscription_status === 'active';
+        const feeEnabled = input.customer_fee_enabled === false && !isPaidPlan ? true : (input.customer_fee_enabled ?? true);
         Object.assign(d.organization, {
           name: input.name,
           phone: input.phone,
@@ -58,12 +63,18 @@ export async function POST(request: Request) {
           currency: input.currency ?? d.organization.currency ?? 'usd',
           google_review_url: input.google_review_url || '',
           min_notice_hours: input.min_notice_hours ?? 24,
+          prohibited_items: input.prohibited_items,
+          operating_days: input.operating_days,
+          tax_rate_percent: input.tax_rate_percent ?? 0,
           pricing_config: {
             deposit_percent: input.deposit_percent,
             currency: input.currency ?? d.organization.currency ?? 'usd',
-            customer_fee_enabled: input.customer_fee_enabled ?? true,
+            customer_fee_enabled: feeEnabled,
             google_review_url: input.google_review_url || '',
             min_notice_hours: input.min_notice_hours ?? 24,
+            prohibited_items: input.prohibited_items,
+            operating_days: input.operating_days,
+            tax_rate_percent: input.tax_rate_percent ?? 0,
           },
         });
         d.pricing_rules = normalizedRules.map((r) => ({
@@ -73,11 +84,24 @@ export async function POST(request: Request) {
         }));
       });
     } else {
-      const { member } = await identity();
+      const { member, db } = await identity();
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
+
+      // Check if organization has an active paid subscription to remove the $11.95 fee
+      const { data: orgData } = await db
+        .from('organizations')
+        .select('subscription_status')
+        .eq('id', member.org_id)
+        .single();
+      const isPaid = orgData?.subscription_status === 'active';
+      const sanitizedInput = {
+        ...input,
+        customer_fee_enabled: input.customer_fee_enabled === false && !isPaid ? true : (input.customer_fee_enabled ?? true),
+      };
+
       const { error } = await admin().rpc('save_settings', {
         p_org: member.org_id,
-        p_input: input,
+        p_input: sanitizedInput,
       });
       if (error) throw new Error(error.message);
     }

@@ -41,6 +41,24 @@ export function Settings({
   const [minNoticeHours, setMinNoticeHours] = useState<number>(
     data.organization.min_notice_hours ?? data.organization.pricing_config?.min_notice_hours ?? 24,
   );
+  const [prohibitedItems, setProhibitedItems] = useState<string[]>(
+    data.organization.prohibited_items ??
+      data.organization.pricing_config?.prohibited_items ?? [
+        'Tires & automotive batteries',
+        'Wet paint, oils & hazardous chemicals',
+        'Refrigerators, AC units & Freon appliances',
+        'Mattresses & box springs',
+        'Asbestos & medical waste',
+      ],
+  );
+  const [newProhibitedItem, setNewProhibitedItem] = useState('');
+  const [operatingDays, setOperatingDays] = useState<number[]>(
+    data.organization.operating_days ??
+      data.organization.pricing_config?.operating_days ?? [1, 2, 3, 4, 5, 6], // default Mon-Sat
+  );
+  const [taxRatePercent, setTaxRatePercent] = useState<number>(
+    data.organization.tax_rate_percent ?? data.organization.pricing_config?.tax_rate_percent ?? 0,
+  );
   const [rules, setRules] = useState(data.pricing_rules);
   const [zips, setZips] = useState(data.pricing_rules[0]?.service_zips.join(', ') ?? '');
   const [busy, setBusy] = useState(false);
@@ -63,6 +81,9 @@ export function Settings({
           customer_fee_enabled: customerFeeEnabled,
           google_review_url: googleReviewUrl,
           min_notice_hours: minNoticeHours,
+          prohibited_items: prohibitedItems,
+          operating_days: operatingDays,
+          tax_rate_percent: taxRatePercent,
           pricing_rules: rules.map(
             ({
               size_yards,
@@ -174,16 +195,30 @@ export function Settings({
                 marginBottom: '16px',
               }}
             >
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: data.organization.subscription_status === 'active' ? 'pointer' : 'not-allowed', fontWeight: 600, fontSize: '14px' }}>
                 <input
                   type="checkbox"
                   checked={customerFeeEnabled}
-                  onChange={(e) => setCustomerFeeEnabled(e.target.checked)}
+                  disabled={data.organization.subscription_status !== 'active'}
+                  onChange={(e) => {
+                    if (data.organization.subscription_status !== 'active' && !e.target.checked) {
+                      notify('Upgrading to a paid plan is required to remove the $11.95 customer fee.', true);
+                      return;
+                    }
+                    setCustomerFeeEnabled(e.target.checked);
+                  }}
                 />
                 Pass $11.95 Online Reservation Fee to customer at checkout
+                {data.organization.subscription_status !== 'active' && (
+                  <span style={{ fontSize: '11px', background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                    Paid Plan Required to Disable
+                  </span>
+                )}
               </label>
               <p style={{ margin: '4px 0 0 24px', fontSize: '13px', color: 'var(--muted, #666)' }}>
-                When enabled, the customer pays the $11.95 priority dispatch fee as a line item at checkout, so you keep 100% of your rental price.
+                {data.organization.subscription_status === 'active'
+                  ? 'On your paid plan, you can disable this fee if you prefer absorbing customer checkout charges or keeping prices flat.'
+                  : 'On the free plan, the $11.95 reservation fee covers your hosting, booking engine, and driver links. Upgrade to a paid plan to remove this fee.'}
               </p>
             </div>
             <div className="form-row">
@@ -227,7 +262,162 @@ export function Settings({
                   Sets your customer checkout currency and Stripe Connect payout denomination.
                 </small>
               </label>
+              <label className="field">
+                Sales Tax Rate (%)
+                <input
+                  type="number"
+                  min="0"
+                  max="30"
+                  step="0.01"
+                  value={taxRatePercent}
+                  onChange={(e) => setTaxRatePercent(Number(e.target.value))}
+                  placeholder="e.g. 8.25"
+                />
+                <small>
+                  Calculated automatically on base rentals and addons. Set 0 if prices include tax.
+                </small>
+              </label>
             </div>
+            <div className="form-row">
+              <div className="field">
+                <span style={{ fontWeight: 600, fontSize: '13px' }}>Allowed Delivery Days</span>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                  {[
+                    { label: 'Sun', day: 0 },
+                    { label: 'Mon', day: 1 },
+                    { label: 'Tue', day: 2 },
+                    { label: 'Wed', day: 3 },
+                    { label: 'Thu', day: 4 },
+                    { label: 'Fri', day: 5 },
+                    { label: 'Sat', day: 6 },
+                  ].map(({ label, day }) => {
+                    const checked = operatingDays.includes(day);
+                    return (
+                      <label
+                        key={day}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          border: checked ? '1px solid #166534' : '1px solid var(--border, #cbd5e1)',
+                          background: checked ? '#f0fdf4' : '#fff',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: checked ? 600 : 400,
+                          color: checked ? '#166534' : '#64748b',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setOperatingDays([...operatingDays, day].sort());
+                            } else {
+                              if (operatingDays.length <= 1) {
+                                notify('You must allow at least one delivery day.', true);
+                                return;
+                              }
+                              setOperatingDays(operatingDays.filter((d) => d !== day));
+                            }
+                          }}
+                        />
+                        {label}
+                      </label>
+                    );
+                  })}
+                </div>
+                <small>Unchecked days will be blocked from customer delivery selection on the booking calendar.</small>
+              </div>
+            </div>
+
+            {/* Prohibited Items Manager */}
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1px solid var(--border, #e2e8f0)',
+                background: 'var(--panel, #fff)',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Prohibited Materials & Landfill Rules</h4>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Displayed & signed at checkout</span>
+              </div>
+              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#64748b' }}>
+                Customers must review and agree to these prohibited items before paying. This protects your business against landfill surcharges and hazardous waste fines.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                {prohibitedItems.map((item, idx) => (
+                  <span
+                    key={idx}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      color: '#991b1b',
+                      padding: '4px 10px',
+                      borderRadius: '16px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    🚫 {item}
+                    <button
+                      type="button"
+                      onClick={() => setProhibitedItems(prohibitedItems.filter((_, i) => i !== idx))}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#991b1b',
+                        cursor: 'pointer',
+                        padding: '0 2px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        lineHeight: 1,
+                      }}
+                      title="Remove item"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  placeholder="Add item (e.g. Dirt / Concrete, Propane tanks, Paint cans)..."
+                  value={newProhibitedItem}
+                  onChange={(e) => setNewProhibitedItem(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (newProhibitedItem.trim()) {
+                        setProhibitedItems([...prohibitedItems, newProhibitedItem.trim()]);
+                        setNewProhibitedItem('');
+                      }
+                    }
+                  }}
+                  style={{ flex: 1, fontSize: '13px' }}
+                />
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (newProhibitedItem.trim()) {
+                      setProhibitedItems([...prohibitedItems, newProhibitedItem.trim()]);
+                      setNewProhibitedItem('');
+                    }
+                  }}
+                >
+                  Add Item
+                </Button>
+              </div>
+            </div>
+
             <label className="field">
               Service ZIP / Postal codes
               <textarea

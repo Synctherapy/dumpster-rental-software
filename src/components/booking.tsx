@@ -12,6 +12,10 @@ import {
   MapPin,
   ShieldCheck,
   FlaskConical,
+  Truck,
+  Clock,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { Dumpster } from './brand';
 import { Button } from './ui/button';
@@ -29,11 +33,27 @@ import {
 } from '@/lib/types';
 import { quote } from '@/lib/pricing';
 type PublicData = { organization: Organization; pricing_rules: PricingRule[]; demo: boolean };
-const guidance: Record<number, string> = {
-  10: 'Garage cleanouts, small remodels, and yard debris.',
-  20: 'Kitchen remodels, roofing, and home cleanouts.',
-  30: 'Major renovations and construction projects.',
-  40: 'Large demolitions and commercial cleanouts.',
+const guidance: Record<number, { text: string; beds: string; dimensions: string }> = {
+  10: {
+    text: 'Attic/garage cleanouts, bathroom remodels, and yard debris.',
+    beds: '~3 to 4 pickup truck loads',
+    dimensions: '12 ft long × 8 ft wide × 3.5 ft high',
+  },
+  20: {
+    text: 'Kitchen remodels, shingle roofing, and full basement cleanouts.',
+    beds: '~6 to 8 pickup truck loads',
+    dimensions: '22 ft long × 8 ft wide × 4.5 ft high',
+  },
+  30: {
+    text: 'Major renovations, whole-house decluttering, and construction debris.',
+    beds: '~9 to 12 pickup truck loads',
+    dimensions: '22 ft long × 8 ft wide × 6 ft high',
+  },
+  40: {
+    text: 'Large residential demolitions and full commercial building cleanouts.',
+    beds: '~12 to 16 pickup truck loads',
+    dimensions: '22 ft long × 8 ft wide × 8 ft high',
+  },
 };
 export function Booking({ slug, embed = false }: { slug: string; embed?: boolean }) {
   const [data, setData] = useState<PublicData | null>(null);
@@ -110,10 +130,12 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const currency = (data.organization.currency || data.organization.pricing_config?.currency || 'usd').toUpperCase();
   const formatMoney = (cents: number) => money(cents, currency);
   const customerFee = data.organization.pricing_config?.customer_fee_enabled !== false;
+  const taxPercent = data.organization.tax_rate_percent ?? data.organization.pricing_config?.tax_rate_percent ?? 0;
   try {
     price = quote(rule, delivery, pickup, 100, {
       customerFee,
       boards: customer.protective_boards,
+      taxPercent,
     });
   } catch {}
   const changeDelivery = (date: string) => {
@@ -141,6 +163,13 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       const earliest = addDays(today(), minLeadDays);
       if (!price || delivery < earliest) {
         setError(`Please choose a delivery date at least ${noticeHours} hours from now (${dateLabel(earliest)}).`);
+        return;
+      }
+      const allowedDays = data.organization.operating_days ?? data.organization.pricing_config?.operating_days ?? [0, 1, 2, 3, 4, 5, 6];
+      const deliveryDayOfWeek = new Date(delivery + 'T12:00:00Z').getUTCDay();
+      if (!allowedDays.includes(deliveryDayOfWeek)) {
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        setError(`We do not schedule container deliveries on ${dayNames[deliveryDayOfWeek]}s. Please select an available weekday.`);
         return;
       }
     }
@@ -275,33 +304,55 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               </div>
               {step === 0 && (
                 <>
-                  <h2>Find your fit.</h2>
-                  <p className="intro">
-                    Every rental includes delivery, pickup, and responsible disposal.
-                  </p>
-                  <div className="size-cards">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <div>
+                      <h2>Find your fit.</h2>
+                      <p className="intro" style={{ marginBottom: 0 }}>
+                        Every rental includes delivery, pickup, and responsible disposal.
+                      </p>
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>
+                      <Sparkles size={13} />
+                      High demand: Lock in dates early for guaranteed delivery
+                    </div>
+                  </div>
+                  <div className="size-cards" style={{ marginTop: '16px' }}>
                     {data.pricing_rules
                       .sort((a, b) => a.size_yards - b.size_yards)
-                      .map((r) => (
-                        <button
-                          key={r.id}
-                          className={`size-card ${size === r.size_yards ? 'selected' : ''}`}
-                          onClick={() => {
-                            setSize(r.size_yards);
-                            setPickup(addDays(delivery, r.included_days));
-                          }}
-                          aria-pressed={size === r.size_yards}
-                        >
-                          <span className="selection-check">
-                            {size === r.size_yards && <Check size={11} />}
-                          </span>
-                          <Dumpster size={r.size_yards} />
-                          <h3>{r.size_yards} yard dumpster</h3>
-                          <p>{guidance[r.size_yards]}</p>
-                          <strong>From {money(r.base_price_cents)}</strong>
-                          {r.size_yards === 20 && <span className="popular">Most popular</span>}
-                        </button>
-                      ))}
+                      .map((r) => {
+                        const guide = guidance[r.size_yards];
+                        return (
+                          <button
+                            key={r.id}
+                            className={`size-card ${size === r.size_yards ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSize(r.size_yards);
+                              setPickup(addDays(delivery, r.included_days));
+                            }}
+                            aria-pressed={size === r.size_yards}
+                          >
+                            <span className="selection-check">
+                              {size === r.size_yards && <Check size={11} />}
+                            </span>
+                            <Dumpster size={r.size_yards} />
+                            <h3>{r.size_yards} yard dumpster</h3>
+                            {guide && (
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', color: '#334155', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, margin: '4px 0 6px 0' }}>
+                                <Truck size={12} />
+                                {guide.beds}
+                              </div>
+                            )}
+                            <p style={{ fontSize: '12px', lineHeight: 1.5, margin: '2px 0 6px 0' }}>{guide ? guide.text : ''}</p>
+                            {guide && (
+                              <small style={{ display: 'block', fontSize: '10px', color: '#64748b', marginBottom: '8px' }}>
+                                Approx: {guide.dimensions}
+                              </small>
+                            )}
+                            <strong>From {money(r.base_price_cents)}</strong>
+                            {r.size_yards === 20 && <span className="popular">Most popular</span>}
+                          </button>
+                        );
+                      })}
                   </div>
                 </>
               )}
@@ -317,28 +368,71 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       placeholder="e.g. 78704 or V8W 1W4"
                       value={zip}
                       onChange={(e) => {
-                        setZip(e.target.value.toUpperCase());
+                        const val = e.target.value.toUpperCase();
+                        setZip(val);
                         setError('');
                       }}
                       onBlur={() => {
                         if (zip.trim()) setZip(normalizePostalCode(zip));
                       }}
+                      style={{ fontSize: '16px', letterSpacing: '1px' }}
                     />
                   </label>
                   {(() => {
                     const normalizedZip = normalizePostalCode(zip);
+                    const clean = normalizedZip.replace(/\s+/g, '');
+                    const isPotentiallyValid = clean.length === 5 || clean.length === 6;
                     const isServed = rule.service_zips.some(
                       (z) => normalizePostalCode(z) === normalizedZip,
                     );
-                    return isServed ? (
-                      <div
-                        className="success-box"
-                        style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}
-                      >
-                        <CheckCircle2 size={15} />
-                        Good news — you’re in our service area.
-                      </div>
-                    ) : null;
+                    if (isServed) {
+                      return (
+                        <div
+                          className="success-box"
+                          style={{
+                            marginTop: 16,
+                            display: 'flex',
+                            gap: 8,
+                            alignItems: 'center',
+                            background: '#f0fdf4',
+                            border: '1px solid #bbf7d0',
+                            color: '#166534',
+                            padding: '12px 14px',
+                            borderRadius: '8px',
+                            fontWeight: 500,
+                          }}
+                        >
+                          <CheckCircle2 size={18} color="#16a34a" />
+                          <span>
+                            <strong>Area confirmed!</strong> We deliver to {normalizedZip} with fast turnaround.
+                          </span>
+                        </div>
+                      );
+                    }
+                    if (isPotentiallyValid && !isServed) {
+                      return (
+                        <div
+                          style={{
+                            marginTop: 16,
+                            display: 'flex',
+                            gap: 8,
+                            alignItems: 'center',
+                            background: '#fffbeb',
+                            border: '1px solid #fde68a',
+                            color: '#92400e',
+                            padding: '12px 14px',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                          }}
+                        >
+                          <Clock size={16} />
+                          <span>
+                            {normalizedZip} is outside our instant online delivery boundary.
+                          </span>
+                        </div>
+                      );
+                    }
+                    return null;
                   })()}
                   <p className="intro" style={{ marginTop: 24 }}>
                     Outside our service area?{' '}
@@ -546,6 +640,61 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       {customer.customer_email}
                     </p>
                   </div>
+                  {/* Prohibited Materials Acknowledgement */}
+                  {(() => {
+                    const items =
+                      data.organization.prohibited_items ??
+                      data.organization.pricing_config?.prohibited_items ?? [
+                        'Tires & automotive batteries',
+                        'Wet paint, oils & hazardous chemicals',
+                        'Refrigerators, AC units & Freon appliances',
+                        'Mattresses & box springs',
+                        'Asbestos & medical waste',
+                      ];
+                    return (
+                      <div
+                        style={{
+                          background: '#fff5f5',
+                          border: '1px solid #fed7d7',
+                          borderRadius: '8px',
+                          padding: '14px 16px',
+                        }}
+                      >
+                        <h4
+                          style={{
+                            margin: '0 0 6px 0',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#c53030',
+                          }}
+                        >
+                          ⚠️ Strictly Prohibited Materials (Landfill Surcharges Apply)
+                        </h4>
+                        <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#742a2a' }}>
+                          Placing prohibited items in the dumpster will result in landfill return trip fees or contamination fines:
+                        </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {items.map((item, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                background: '#fff',
+                                border: '1px solid #feb2b2',
+                                color: '#9b2c2c',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              🚫 {item}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <label className="field">
                     Your electronic signature
                     <input
@@ -569,8 +718,8 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       I agree to the{' '}
                       <Link href="/terms" target="_blank" style={{ textDecoration: 'underline' }}>
                         rental terms
-                      </Link>
-                      . I pay the full base rental today. Extra days and tonnage over the included
+                      </Link>{' '}
+                      and certify that <b>no hazardous or prohibited materials</b> will be placed in the container. I pay the full base rental today. Extra days and tonnage over the included
                       weight can be charged later to this card, and I will receive the scale ticket
                       with that charge. I consent to service-related SMS updates.
                     </span>
@@ -661,20 +810,108 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   <strong>{formatMoney(price.boardsFee)}</strong>
                 </div>
               )}
+              {price && price.taxCents > 0 && (
+                <div className="summary-line">
+                  <span>Sales Tax ({price.taxPercent}%)</span>
+                  <strong>{formatMoney(price.taxCents)}</strong>
+                </div>
+              )}
               <div className="summary-total">
                 <span>Rental total</span>
                 <strong>{price ? formatMoney(price.total) : '—'}</strong>
               </div>
-              <div className="deposit-note">
+
+              {/* Psychological Cost Reframing Banner */}
+              {price && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    marginTop: '10px',
+                    fontSize: '11px',
+                    color: '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span>
+                    Just <strong>{formatMoney(Math.round(price.total / Math.max(1, price.days)))}/day</strong> over {price.days} days
+                  </span>
+                  <span style={{ fontSize: '10px', background: '#dcfce7', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                    All-Inclusive
+                  </span>
+                </div>
+              )}
+
+              <div className="deposit-note" style={{ marginTop: '10px' }}>
                 <b>{price ? money(price.total) : '—'} due today.</b>
                 <br />
-                Extra days and disposal above {rule.included_tons} tons (
-                {money(rule.overage_per_ton_cents)}/ton) are charged after pickup, with the scale
-                ticket.
+                Covers delivery, container rental, pickup, and up to {rule.included_tons} tons ({rule.included_tons * 2000} lbs) disposal.
+                Extra days and overage above {rule.included_tons} tons (
+                {money(rule.overage_per_ton_cents)}/ton) are billed only after pickup with a certified scale ticket.
               </div>
-              <div className="summary-trust">
+
+              {/* Competitor Cost Comparison Pill */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  border: '1px dashed #cbd5e1',
+                  borderRadius: '8px',
+                  padding: '10px 12px',
+                  marginTop: '12px',
+                  fontSize: '11px',
+                  color: '#475569',
+                  lineHeight: 1.5,
+                }}
+              >
+                <div style={{ fontWeight: 600, color: '#0f172a', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span>⚖️</span> Why our pricing is upfront:
+                </div>
+                <div>
+                  No hidden drop-off fees, fuel surcharges, or surprise scale markups at the dump. You get the container, the drop, the pick, and the dump included.
+                </div>
+              </div>
+
+              {/* CRO Conversion Trust Matrix */}
+              <div
+                style={{
+                  marginTop: 18,
+                  padding: '14px',
+                  borderRadius: '10px',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  display: 'grid',
+                  gap: '10px',
+                  fontSize: '11px',
+                  color: '#475569',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <ShieldCheck size={16} color="#16a34a" />
+                  <span>
+                    <strong>Driveway-Safe Placement:</strong> Wood protection option & precise placement instructions.
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Zap size={16} color="#2563eb" />
+                  <span>
+                    <strong>On-Time Delivery Guarantee:</strong> Track driver arrival via SMS updates.
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <LockKeyhole size={16} color="#475569" />
+                  <span>
+                    <strong>Bank-Grade 256-Bit SSL:</strong> Encrypted Stripe checkout with instant receipt.
+                  </span>
+                </div>
+              </div>
+
+              <div className="summary-trust" style={{ marginTop: 12 }}>
                 <ShieldCheck size={13} />
-                Transparent prices. No surprise software fees.
+                Clear, upfront rates · Zero hidden processing fees
               </div>
             </aside>
           </div>

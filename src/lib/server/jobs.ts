@@ -39,6 +39,31 @@ export async function book(input: unknown, ip: string, origin: string) {
   };
   if (body.delivery_date < today()) throw new Error('Delivery cannot be in the past.');
   const { organization: org, pricing_rules, demo } = await publicOrganization(body.slug);
+
+  // Validate operating days
+  const pricingConfig = org.pricing_config as {
+    operating_days?: number[];
+    min_notice_hours?: number;
+    customer_fee_enabled?: boolean;
+    currency?: string;
+    tax_rate_percent?: number;
+  } | undefined;
+  const allowedDays = pricingConfig?.operating_days ?? [0, 1, 2, 3, 4, 5, 6];
+  const dayOfWeek = new Date(body.delivery_date + 'T12:00:00Z').getUTCDay();
+  if (!allowedDays.includes(dayOfWeek)) {
+    throw new Error('Deliveries are not available on the selected day of the week.');
+  }
+
+  // Validate advance notice buffer
+  const noticeHours = pricingConfig?.min_notice_hours ?? 24;
+  const minLeadDays = Math.max(1, Math.ceil(noticeHours / 24));
+  const earliestAllowed = new Date();
+  earliestAllowed.setUTCDate(earliestAllowed.getUTCDate() + minLeadDays);
+  const earliestStr = earliestAllowed.toISOString().slice(0, 10);
+  if (body.delivery_date < earliestStr) {
+    throw new Error(`Deliveries require at least ${noticeHours} hours advance notice.`);
+  }
+
   const rule = pricing_rules.find((r) => r.size_yards === body.size_yards);
   if (!rule) throw new Error('That size is unavailable.');
   const servesZip = rule.service_zips.some(
@@ -46,10 +71,12 @@ export async function book(input: unknown, ip: string, origin: string) {
   );
   if (!servesZip)
     throw new Error('This ZIP or postal code is outside our service area.');
-  const customerFee = org.pricing_config?.customer_fee_enabled !== false;
+  const customerFee = pricingConfig?.customer_fee_enabled !== false;
+  const taxPercent = pricingConfig?.tax_rate_percent ?? 0;
   const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
     customerFee,
     boards: body.protective_boards,
+    taxPercent,
   });
   const job: Job = {
     id: randomUUID(),
@@ -139,7 +166,6 @@ export async function book(input: unknown, ip: string, origin: string) {
         : 'This checkout expired. Start a new booking.',
     );
   }
-  const pricingConfig = org.pricing_config as { currency?: string } | undefined;
   const currencyCode = (pricingConfig?.currency || 'usd').toLowerCase();
   const checkout = await client.checkout.sessions.create(
     {

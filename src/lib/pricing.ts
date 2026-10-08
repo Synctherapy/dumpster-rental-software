@@ -17,14 +17,17 @@ export function quote(
   delivery: string,
   pickup: string,
   depositPercent: number,
-  options?: { customerFee?: boolean; boards?: boolean },
+  options?: { customerFee?: boolean; boards?: boolean; taxPercent?: number },
 ) {
   const days = rentalDays(delivery, pickup);
   const extraDays = Math.max(0, days - rule.included_days);
   const baseRental = rule.base_price_cents + extraDays * rule.extra_day_cents;
   const reservationFee = options?.customerFee ? RESERVATION_FEE_CENTS : 0;
   const boardsFee = options?.boards ? BOARDS_ADDON_CENTS : 0;
-  const total = baseRental + reservationFee + boardsFee;
+  const subtotal = baseRental + boardsFee;
+  const taxPercent = options?.taxPercent && options.taxPercent > 0 ? options.taxPercent : 0;
+  const taxCents = Math.round((subtotal * taxPercent) / 100);
+  const total = subtotal + reservationFee + taxCents;
   return {
     base: rule.base_price_cents,
     days,
@@ -33,6 +36,8 @@ export function quote(
     baseRental,
     reservationFee,
     boardsFee,
+    taxPercent,
+    taxCents,
     total,
     deposit: Math.round((total * depositPercent) / 100),
     fee:
