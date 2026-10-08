@@ -1,6 +1,16 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { Camera, Check, CheckCircle2, Loader2, Navigation, Truck } from 'lucide-react';
+import {
+  Camera,
+  Check,
+  CheckCircle2,
+  Loader2,
+  Truck,
+  Phone,
+  MessageSquare,
+  Compass,
+  AlertTriangle,
+} from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
@@ -12,6 +22,8 @@ export function DriverRoute({ token }: { token: string }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [photos, setPhotos] = useState<Record<string, File>>({});
+  const [photoPreviews, setPhotoPreviews] = useState<Record<string, string>>({});
+  const [driverNotes, setDriverNotes] = useState<Record<string, string>>({});
   const [weights, setWeights] = useState<Record<string, string>>({});
   const reload = useCallback(() => api<RouteData>(`/api/driver/${token}`).then(setData), [token]);
   useEffect(() => {
@@ -110,19 +122,139 @@ export function DriverRoute({ token }: { token: string }) {
               <p className="address">
                 {job.delivery_address} {job.zip}
               </p>
-              <div style={{ fontSize: 12, color: '#95a087', lineHeight: 1.8 }}>
+              <div style={{ fontSize: 12, color: '#95a087', lineHeight: 1.8, marginBottom: 12 }}>
                 Delivery {dateLabel(job.delivery_date)} · Pickup {dateLabel(job.pickup_date)}
               </div>
-              <Button asChild>
+
+              {/* 1-Tap Customer Contact Bar */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                 <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.delivery_address + ' ' + job.zip)}`}
-                  target="_blank"
-                  rel="noreferrer"
+                  href={`tel:${job.customer_phone}`}
+                  className="btn"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    minHeight: 46,
+                    fontSize: 13,
+                    background: '#edf3e5',
+                    color: '#2d4734',
+                    border: '1px solid #c9ddb5',
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    margin: 0,
+                  }}
                 >
-                  <Navigation size={18} />
-                  Navigate to job
+                  <Phone size={15} />
+                  Call Customer
                 </a>
-              </Button>
+                <a
+                  href={`sms:${job.customer_phone}`}
+                  className="btn"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    minHeight: 46,
+                    fontSize: 13,
+                    background: '#edf3e5',
+                    color: '#2d4734',
+                    border: '1px solid #c9ddb5',
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    margin: 0,
+                  }}
+                >
+                  <MessageSquare size={15} />
+                  Text Customer
+                </a>
+              </div>
+
+              {/* Multi-App Navigation Bar */}
+              <div style={{ background: '#f4f7ee', padding: 12, borderRadius: 10, marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#687959', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Compass size={13} /> Open Navigation In:
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.delivery_address + ' ' + job.zip)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '8px 4px',
+                      fontSize: 11,
+                      minHeight: 44,
+                      background: 'white',
+                      border: '1px solid #d4dfc9',
+                      borderRadius: 6,
+                      color: '#243b2a',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      margin: 0,
+                    }}
+                  >
+                    Google Maps
+                  </a>
+                  <a
+                    href={`maps://?daddr=${encodeURIComponent(job.delivery_address + ' ' + job.zip)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '8px 4px',
+                      fontSize: 11,
+                      minHeight: 44,
+                      background: 'white',
+                      border: '1px solid #d4dfc9',
+                      borderRadius: 6,
+                      color: '#243b2a',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      margin: 0,
+                    }}
+                  >
+                    Apple Maps
+                  </a>
+                  <a
+                    href={`https://waze.com/ul?q=${encodeURIComponent(job.delivery_address + ' ' + job.zip)}&navigate=yes`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '8px 4px',
+                      fontSize: 11,
+                      minHeight: 44,
+                      background: 'white',
+                      border: '1px solid #d4dfc9',
+                      borderRadius: 6,
+                      color: '#243b2a',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      margin: 0,
+                    }}
+                  >
+                    Waze
+                  </a>
+                </div>
+              </div>
+
               {job.status === 'dispatched' && (
                 <>
                   <Button
@@ -159,11 +291,28 @@ export function DriverRoute({ token }: { token: string }) {
                       type="file"
                       accept="image/jpeg,image/png"
                       capture="environment"
-                      onChange={(e) =>
-                        e.target.files?.[0] && setPhotos({ ...photos, [job.id]: e.target.files[0] })
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setPhotos({ ...photos, [job.id]: file });
+                          setPhotoPreviews({ ...photoPreviews, [job.id]: URL.createObjectURL(file) });
+                        }
+                      }}
                     />
                   </label>
+                  {photoPreviews[job.id] && (
+                    <div style={{ marginTop: 8, marginBottom: 12, borderRadius: 8, overflow: 'hidden', border: '2px solid #7c9842', position: 'relative' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoPreviews[job.id]}
+                        alt="Delivery proof preview"
+                        style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{ background: '#7c9842', color: 'white', padding: '4px 8px', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Check size={12} /> Ready to submit with delivery
+                      </div>
+                    </div>
+                  )}
                   <Button
                     variant="primary"
                     disabled={!photos[job.id] || busy === job.id}
@@ -185,11 +334,28 @@ export function DriverRoute({ token }: { token: string }) {
                       type="file"
                       accept="image/jpeg,image/png"
                       capture="environment"
-                      onChange={(e) =>
-                        e.target.files?.[0] && setPhotos({ ...photos, ['ticket-' + job.id]: e.target.files[0] })
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setPhotos({ ...photos, ['ticket-' + job.id]: file });
+                          setPhotoPreviews({ ...photoPreviews, ['ticket-' + job.id]: URL.createObjectURL(file) });
+                        }
+                      }}
                     />
                   </label>
+                  {photoPreviews['ticket-' + job.id] && (
+                    <div style={{ marginTop: 8, marginBottom: 12, borderRadius: 8, overflow: 'hidden', border: '2px solid #3c5440', position: 'relative' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoPreviews['ticket-' + job.id]}
+                        alt="Scale ticket preview"
+                        style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{ background: '#3c5440', color: 'white', padding: '4px 8px', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Check size={12} /> Scale ticket ready to upload
+                      </div>
+                    </div>
+                  )}
                   <Button
                     disabled={!photos['ticket-' + job.id] || busy === job.id}
                     onClick={async () => {
@@ -226,7 +392,7 @@ export function DriverRoute({ token }: { token: string }) {
                 </>
               )}
               {['delivered', 'picked_up'].includes(job.status) && (
-                <div className="tons">
+                <div className="tons" style={{ marginTop: 15 }}>
                   <label className="field">
                     Actual disposal weight (tons)
                     <input
@@ -250,6 +416,84 @@ export function DriverRoute({ token }: { token: string }) {
                   </Button>
                 </div>
               )}
+
+              {/* Driver Field Notes & Obstacle Presets */}
+              <div style={{ marginTop: 22, paddingTop: 16, borderTop: '1px solid #e1e9d8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#445b3f', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <AlertTriangle size={13} style={{ color: '#c4892c' }} />
+                    Driver field note / site obstacles
+                  </label>
+                  {job.driver_notes && (
+                    <span style={{ fontSize: 10, color: '#7e9072', fontWeight: 500 }}>Saved</span>
+                  )}
+                </div>
+                <p style={{ fontSize: 11, color: '#7a8c6e', marginBottom: 8 }}>
+                  Notify dispatch about driveway obstructions, damage, or container placement notes.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
+                  {[
+                    'Driveway blocked by cars',
+                    'Container placed on wood boards',
+                    'Overfilled past water level',
+                    'Gate locked upon arrival',
+                    'Low hanging tree branches',
+                    'Drop-off approved by homeowner',
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        const current = driverNotes[job.id] ?? job.driver_notes ?? '';
+                        const next = current ? `${current}. ${preset}` : preset;
+                        setDriverNotes({ ...driverNotes, [job.id]: next });
+                      }}
+                      style={{
+                        fontSize: 10,
+                        padding: '4px 8px',
+                        background: '#eaf1e3',
+                        border: '1px solid #c7d8be',
+                        borderRadius: 4,
+                        color: '#2e4933',
+                        cursor: 'pointer',
+                        fontWeight: 500,
+                      }}
+                    >
+                      + {preset}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <textarea
+                    rows={2}
+                    value={driverNotes[job.id] ?? job.driver_notes ?? ''}
+                    onChange={(e) => setDriverNotes({ ...driverNotes, [job.id]: e.target.value })}
+                    placeholder="Enter notes for dispatch (e.g., parked behind white SUV)..."
+                    style={{
+                      flex: 1,
+                      fontSize: 12,
+                      padding: 8,
+                      borderRadius: 6,
+                      border: '1px solid #c7d8be',
+                      background: 'white',
+                    }}
+                  />
+                  <Button
+                    disabled={
+                      busy === job.id ||
+                      (driverNotes[job.id] ?? job.driver_notes ?? '') === (job.driver_notes ?? '')
+                    }
+                    onClick={() =>
+                      void action(job, {
+                        driver_notes: (driverNotes[job.id] ?? job.driver_notes ?? '').trim(),
+                      })
+                    }
+                    style={{ minHeight: 46, fontSize: 12, alignSelf: 'stretch', padding: '0 14px' }}
+                  >
+                    Save Note
+                  </Button>
+                </div>
+              </div>
             </article>
           ))}
           {!data.jobs.length && (

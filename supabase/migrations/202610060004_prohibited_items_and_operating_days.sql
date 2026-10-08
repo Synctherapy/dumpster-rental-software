@@ -1,5 +1,7 @@
 -- Migration 202610060004_prohibited_items_and_operating_days.sql
--- Store prohibited items, operating days, and complete pricing config on organizations.
+-- Store prohibited items, operating days, complete pricing config on organizations, and driver notes on jobs.
+
+alter table public.jobs add column if not exists driver_notes text;
 
 create or replace function public.save_settings(p_org uuid, p_input jsonb) returns void language plpgsql security definer set search_path=public as $$
 declare r jsonb;

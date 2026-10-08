@@ -239,6 +239,7 @@ export const changeSchema = z
     tons_actual: z.number().min(0).max(100).optional(),
     proof_url: z.string().max(500).optional(),
     scale_ticket_url: z.string().max(500).optional(),
+    driver_notes: z.string().max(1000).nullable().optional(),
   })
   .strict();
 export async function changeJob(
@@ -252,7 +253,7 @@ export async function changeJob(
   let job: Job;
   if (
     driverIdentity &&
-    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url'].includes(k)) ||
+    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url', 'driver_notes'].includes(k)) ||
       (patch.status && !['delivered', 'picked_up'].includes(patch.status)))
   )
     throw new Error('FORBIDDEN');

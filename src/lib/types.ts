@@ -82,6 +82,7 @@ export interface Job {
   proof_url: string | null;
   protective_boards?: boolean;
   scale_ticket_url?: string | null;
+  driver_notes?: string | null;
   stripe_checkout_session_id?: string | null;
   stripe_customer_id: string | null;
   stripe_payment_method_id: string | null;

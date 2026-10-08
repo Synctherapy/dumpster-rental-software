@@ -11,6 +11,8 @@ import {
   Save,
   ShieldCheck,
   Star,
+  AlertTriangle,
+  FileText,
 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
@@ -209,6 +211,35 @@ export function JobDrawer({
               disabled={['completed', 'cancelled'].includes(job.status)}
             />
           </label>
+          {job.driver_notes && (
+            <div
+              style={{
+                marginTop: 10,
+                padding: '10px 12px',
+                background: '#fff9e6',
+                border: '1px solid #fedf89',
+                borderRadius: 8,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#93530e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  marginBottom: 4,
+                }}
+              >
+                <AlertTriangle size={13} />
+                Driver field alert / site note
+              </div>
+              <p style={{ fontSize: 12, color: '#7a3e07', margin: 0, lineHeight: 1.5 }}>
+                {job.driver_notes}
+              </p>
+            </div>
+          )}
         </div>
       </section>
       <section className="drawer-section">
@@ -324,9 +355,47 @@ export function JobDrawer({
       )}
       {job.proof_url && job.status !== 'dispatched' && (
         <section className="drawer-section">
-          <a href={job.proof_url} target="_blank" rel="noreferrer" className="btn">
-            <Camera size={13} />
-            View delivery proof
+          <h3>Delivery proof photo</h3>
+          <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={job.proof_url}
+              alt="Drop-off proof"
+              style={{ width: '100%', maxHeight: 180, objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+          <a
+            href={job.proof_url}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost"
+            style={{ marginTop: 8, fontSize: 11, padding: '6px 0' }}
+          >
+            <Camera size={12} />
+            Open full resolution photo <ExternalLink size={10} />
+          </a>
+        </section>
+      )}
+      {job.scale_ticket_url && (
+        <section className="drawer-section">
+          <h3>Landfill scale ticket</h3>
+          <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={job.scale_ticket_url}
+              alt="Landfill scale ticket"
+              style={{ width: '100%', maxHeight: 180, objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+          <a
+            href={job.scale_ticket_url}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost"
+            style={{ marginTop: 8, fontSize: 11, padding: '6px 0' }}
+          >
+            <FileText size={12} />
+            Open scale ticket <ExternalLink size={10} />
           </a>
         </section>
       )}
