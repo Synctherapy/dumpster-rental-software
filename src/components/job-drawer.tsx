@@ -13,6 +13,8 @@ import {
   Star,
   AlertTriangle,
   FileText,
+  Lock,
+  Edit2,
 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
@@ -39,6 +41,7 @@ export function JobDrawer({
   const [pickup, setPickup] = useState(job.pickup_date);
   const [notes, setNotes] = useState(job.notes);
   const [tons, setTons] = useState(job.tons_actual === null ? '' : String(job.tons_actual));
+  const [unlockTons, setUnlockTons] = useState(false);
   const [proof, setProof] = useState(job.proof_url ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -256,19 +259,69 @@ export function JobDrawer({
           <span>Included tonnage</span>
           <b>{job.tons_included} tons</b>
         </div>
-        <label className="field" style={{ marginTop: 17 }}>
-          Actual tonnage
+        <div style={{ marginTop: 17, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#334839' }}>Actual landfill weight</span>
+          {job.tons_actual !== null && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                fontSize: 11,
+                color: '#3d6d45',
+                background: '#eef6ea',
+                padding: '2px 8px',
+                borderRadius: 4,
+                fontWeight: 600,
+              }}
+            >
+              <Check size={12} /> Logged & locked: {job.tons_actual} tons
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input
             type="number"
             step="0.01"
             min="0"
             max="100"
-            placeholder="Weight after disposal"
+            placeholder="Weight after disposal (e.g. 2.5)"
             value={tons}
             onChange={(e) => setTons(e.target.value)}
-            disabled={job.status === 'completed'}
+            disabled={job.status === 'completed' || (job.tons_actual !== null && !unlockTons)}
+            style={{
+              flex: 1,
+              background: job.tons_actual !== null && !unlockTons ? '#f4f6f4' : 'white',
+              color: job.tons_actual !== null && !unlockTons ? '#566657' : '#1e2d24',
+              cursor: job.tons_actual !== null && !unlockTons ? 'not-allowed' : 'text',
+            }}
           />
-        </label>
+          {job.tons_actual !== null && job.status !== 'completed' && (
+            <button
+              type="button"
+              onClick={() => setUnlockTons(!unlockTons)}
+              className="btn btn-ghost"
+              style={{
+                fontSize: 11,
+                padding: '6px 10px',
+                minHeight: 38,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                border: '1px solid #d0dcd1',
+              }}
+              title="Unlock to adjust weight"
+            >
+              {unlockTons ? <Lock size={12} /> : <Edit2 size={12} />}
+              {unlockTons ? 'Lock' : 'Edit'}
+            </button>
+          )}
+        </div>
+        <small style={{ color: '#889886', fontSize: 11, marginTop: 4, display: 'block' }}>
+          {job.tons_actual !== null
+            ? `Protected from accidental edits. Click 'Edit' to make corrections.`
+            : `Driver or landfill scale weight in tons.`}
+        </small>
         <div className="detail-line">
           <span>Disposal overage</span>
           <b>{money(total.overage)}</b>

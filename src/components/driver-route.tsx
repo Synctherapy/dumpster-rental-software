@@ -10,6 +10,9 @@ import {
   MessageSquare,
   Compass,
   AlertTriangle,
+  Filter,
+  Lock,
+  Edit3,
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
@@ -25,6 +28,9 @@ export function DriverRoute({ token }: { token: string }) {
   const [photoPreviews, setPhotoPreviews] = useState<Record<string, string>>({});
   const [driverNotes, setDriverNotes] = useState<Record<string, string>>({});
   const [weights, setWeights] = useState<Record<string, string>>({});
+  const [unlockWeight, setUnlockWeight] = useState<Record<string, boolean>>({});
+  const [filterTab, setFilterTab] = useState<'active' | 'all' | 'dispatched' | 'delivered' | 'picked_up'>('active');
+  const [sortBy, setSortBy] = useState<'delivery' | 'pickup' | 'customer'>('delivery');
   const reload = useCallback(() => api<RouteData>(`/api/driver/${token}`).then(setData), [token]);
   useEffect(() => {
     reload().catch((e) => setError(e.message));
@@ -101,7 +107,98 @@ export function DriverRoute({ token }: { token: string }) {
               {message}
             </div>
           )}
-          {data.jobs.map((job) => (
+
+          {/* Route Filter & Sort Toolbar */}
+          <section style={{ background: 'white', padding: '14px 16px', borderRadius: 12, border: '1px solid #dbe5d4', marginBottom: 20, boxShadow: '0 2px 6px #00000008' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#334839' }}>
+                <Filter size={15} style={{ color: '#687e59' }} /> Filter Route:
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: '#74866f', fontWeight: 600 }}>Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'delivery' | 'pickup' | 'customer')}
+                  style={{
+                    fontSize: 11,
+                    padding: '5px 8px',
+                    borderRadius: 6,
+                    border: '1px solid #ccd8c5',
+                    background: '#fcfdfb',
+                    color: '#2b3f30',
+                    fontWeight: 600,
+                  }}
+                >
+                  <option value="delivery">Delivery Date</option>
+                  <option value="pickup">Pickup Date</option>
+                  <option value="customer">Customer Name</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Segmented Filter Pills */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {[
+                { id: 'active', label: 'Active Tasks', count: data.jobs.filter((j) => j.status !== 'picked_up').length },
+                { id: 'dispatched', label: 'To Deliver', count: data.jobs.filter((j) => j.status === 'dispatched').length },
+                { id: 'delivered', label: 'On Site', count: data.jobs.filter((j) => j.status === 'delivered').length },
+                { id: 'picked_up', label: 'Picked Up', count: data.jobs.filter((j) => j.status === 'picked_up').length },
+                { id: 'all', label: 'All Jobs', count: data.jobs.length },
+              ].map((tab) => {
+                const isActive = filterTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setFilterTab(tab.id as typeof filterTab)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      fontSize: 12,
+                      padding: '6px 11px',
+                      borderRadius: 20,
+                      border: isActive ? '1px solid #2d4533' : '1px solid #d4dfce',
+                      background: isActive ? '#2d4533' : '#f7faf4',
+                      color: isActive ? 'white' : '#495d4e',
+                      fontWeight: isActive ? 700 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span>{tab.label}</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        padding: '1px 5px',
+                        borderRadius: 10,
+                        background: isActive ? '#415e49' : '#e4ece0',
+                        color: isActive ? 'white' : '#576a5b',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {data.jobs
+            .filter((j) => {
+              if (filterTab === 'active') return j.status !== 'picked_up';
+              if (filterTab === 'dispatched') return j.status === 'dispatched';
+              if (filterTab === 'delivered') return j.status === 'delivered';
+              if (filterTab === 'picked_up') return j.status === 'picked_up';
+              return true;
+            })
+            .sort((a, b) => {
+              if (sortBy === 'pickup') return a.pickup_date.localeCompare(b.pickup_date);
+              if (sortBy === 'customer') return a.customer_name.localeCompare(b.customer_name);
+              return a.delivery_date.localeCompare(b.delivery_date);
+            })
+            .map((job) => (
             <article className="panel driver-job" key={job.id}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd dumpster</span>
@@ -392,9 +489,25 @@ export function DriverRoute({ token }: { token: string }) {
                 </>
               )}
               {['delivered', 'picked_up'].includes(job.status) && (
-                <div className="tons" style={{ marginTop: 15 }}>
-                  <label className="field">
-                    Actual disposal weight (tons)
+                <div style={{ marginTop: 15, background: '#f5f8f0', padding: 12, borderRadius: 8, border: '1px solid #d9e4d1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#314736' }}>Actual Disposal Weight (tons)</span>
+                    {job.tons_actual !== null && (
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: 11,
+                          color: '#34663e',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Check size={12} /> Saved: {job.tons_actual} tons
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
                     <input
                       type="number"
                       inputMode="decimal"
@@ -404,16 +517,55 @@ export function DriverRoute({ token }: { token: string }) {
                       value={weights[job.id] ?? job.tons_actual ?? ''}
                       onChange={(e) => setWeights({ ...weights, [job.id]: e.target.value })}
                       placeholder="e.g. 2.5"
+                      disabled={job.tons_actual !== null && !unlockWeight[job.id]}
+                      style={{
+                        flex: 1,
+                        fontSize: 13,
+                        padding: '8px 10px',
+                        borderRadius: 6,
+                        border: '1px solid #c9d8bf',
+                        background: job.tons_actual !== null && !unlockWeight[job.id] ? '#e8ece3' : 'white',
+                      }}
                     />
-                  </label>
-                  <Button
-                    disabled={busy === job.id || (weights[job.id] ?? job.tons_actual ?? '') === ''}
-                    onClick={() =>
-                      void action(job, { tons_actual: Number(weights[job.id] ?? job.tons_actual) })
-                    }
-                  >
-                    Save weight
-                  </Button>
+                    {job.tons_actual !== null && (
+                      <button
+                        type="button"
+                        onClick={() => setUnlockWeight({ ...unlockWeight, [job.id]: !unlockWeight[job.id] })}
+                        style={{
+                          fontSize: 11,
+                          padding: '0 10px',
+                          borderRadius: 6,
+                          border: '1px solid #c9d8bf',
+                          background: 'white',
+                          color: '#2e4533',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {unlockWeight[job.id] ? <Lock size={12} /> : <Edit3 size={12} />}
+                        {unlockWeight[job.id] ? 'Lock' : 'Edit'}
+                      </button>
+                    )}
+                    {(job.tons_actual === null || unlockWeight[job.id]) && (
+                      <Button
+                        disabled={busy === job.id || (weights[job.id] ?? job.tons_actual ?? '') === ''}
+                        onClick={() =>
+                          void action(job, { tons_actual: Number(weights[job.id] ?? job.tons_actual) })
+                        }
+                        style={{ minHeight: 40, fontSize: 12, padding: '0 14px' }}
+                      >
+                        Save weight
+                      </Button>
+                    )}
+                  </div>
+                  <small style={{ color: '#7a8e74', fontSize: 10, marginTop: 4, display: 'block' }}>
+                    {job.tons_actual !== null
+                      ? `Weight is locked to prevent accidental changes. Tap 'Edit' to update.`
+                      : `Enter weight recorded from landfill scale.`}
+                  </small>
                 </div>
               )}
 
