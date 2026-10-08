@@ -253,7 +253,7 @@ export async function changeJob(
   let job: Job;
   if (
     driverIdentity &&
-    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url', 'driver_notes'].includes(k)) ||
+    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url', 'driver_notes', 'container_id'].includes(k)) ||
       (patch.status && !['delivered', 'picked_up'].includes(patch.status)))
   )
     throw new Error('FORBIDDEN');

@@ -17,6 +17,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
             j.driver_id === t.driver &&
             ['dispatched', 'delivered', 'picked_up'].includes(j.status),
         ),
+        containers: d.containers.filter((c) => c.org_id === t.org),
         organization: {
           name: d.organization.name,
           subscription_status: d.organization.subscription_status ?? 'paid',
@@ -33,6 +34,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
       .eq('driver_id', t.driver)
       .in('status', ['dispatched', 'delivered', 'picked_up']);
     if (error) throw error;
+    const { data: containers } = await db
+      .from('containers')
+      .select('*')
+      .eq('org_id', t.org);
     const { data: driver } = await db
       .from('users')
       .select('name')
@@ -46,6 +51,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
       .single();
     return NextResponse.json({
       jobs,
+      containers: containers ?? [],
       driver,
       organization: {
         name: org?.name ?? 'RollOS',

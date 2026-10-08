@@ -15,14 +15,17 @@ import {
   Edit3,
   WifiOff,
   Search,
+  Box,
+  ShieldCheck,
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { dateLabel, today, type Job } from '@/lib/types';
+import { dateLabel, today, type Job, type Container } from '@/lib/types';
 type RouteData = {
   driver: { name: string };
   jobs: Job[];
+  containers: Container[];
   organization?: { name: string; subscription_status: string; is_paid_plan: boolean };
   demo: boolean;
 };
@@ -286,11 +289,84 @@ export function DriverRoute({ token }: { token: string }) {
                       : 'Picked up'}
                 </span>
               </div>
+
+              {/* Specific Container Unit ID & Yard Stencil Selector */}
+              <div style={{ marginTop: 12, marginBottom: 12, padding: 12, background: '#f5f8ef', borderRadius: 8, border: '1px solid #d4dfc7' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#314936', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <Box size={13} style={{ color: '#4a673d' }} />
+                    Assigned Container Unit
+                  </label>
+                  {job.container_id && (
+                    <span style={{ fontSize: 10, color: '#2b5735', fontWeight: 700, background: '#e1ecd6', padding: '1px 6px', borderRadius: 4 }}>
+                      Verified Can
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={job.container_id ?? ''}
+                    disabled={job.status === 'picked_up'}
+                    onChange={(e) => {
+                      const newCanId = e.target.value || null;
+                      void action(job, { container_id: newCanId });
+                    }}
+                    style={{
+                      flex: 1,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      padding: '8px 10px',
+                      borderRadius: 6,
+                      border: '1px solid #bccdb0',
+                      background: 'white',
+                      color: '#1a3022',
+                    }}
+                  >
+                    <option value="">⚠️ Select container hooked up in yard...</option>
+                    {(data.containers || [])
+                      .filter((c) => c.size_yards === job.size_yards)
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.label} ({c.size_yards} yd) — {c.current_job_id === job.id ? 'Hooked to this job' : c.status === 'yard' ? 'Available in Yard' : 'On Site'}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <small style={{ fontSize: 10, color: '#6e806c', marginTop: 4, display: 'block' }}>
+                  {job.container_id
+                    ? `Grab Unit #${(data.containers || []).find((c) => c.id === job.container_id)?.label ?? job.container_id} from yard. Tap to swap if blocked.`
+                    : `Check container stencil number before pulling out of the yard.`}
+                </small>
+              </div>
+
+              {/* Pre-Trip Yard Checklist (Wood Boards & Placement Target) */}
+              <div style={{ marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                {job.protective_boards ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fef3c7', padding: '9px 12px', borderRadius: 8, border: '1px solid #fde68a', color: '#92400e', fontSize: 12, fontWeight: 600 }}>
+                    <ShieldCheck size={16} style={{ color: '#b45309', flexShrink: 0 }} />
+                    <div>
+                      <span>Customer paid for Wood Boards Add-on</span>
+                      <small style={{ display: 'block', fontWeight: 500, fontSize: 10, color: '#78350f' }}>
+                        Load 2x8 wood boards onto truck now to place under steel rollers upon delivery.
+                      </small>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f4f6f1', padding: '6px 10px', borderRadius: 6, border: '1px solid #e1e8db', color: '#687764', fontSize: 11 }}>
+                    <Check size={12} /> Standard delivery · No protective boards requested
+                  </div>
+                )}
+              </div>
+
               {job.notes && (
-                <div className="booking-notice" style={{ margin: '12px 0' }}>
-                  Placement: {job.notes}
+                <div style={{ margin: '0 0 14px 0', padding: '10px 12px', background: '#eef6ea', border: '1px solid #c9dec1', borderRadius: 8, color: '#274b2f', fontSize: 12 }}>
+                  <strong style={{ display: 'block', marginBottom: 2, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#446e4d' }}>
+                    📍 Homeowner Placement Instructions:
+                  </strong>
+                  {job.notes}
                 </div>
               )}
+
               <h2>{job.customer_name}</h2>
               <p className="address">
                 {job.delivery_address} {job.zip}
