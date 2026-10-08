@@ -1,0 +1,55 @@
+name: Strix AI Penetration Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'LLM model to use with Strix'
+        required: true
+        default: 'openai/gpt-4o'
+        type: string
+
+jobs:
+  strix-scan:
+    name: Run Strix Autonomous Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Check out codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Verify Docker is running
+        run: docker version
+
+      - name: Install Strix Agent
+        run: |
+          python -m pip install --upgrade pip
+          pip install strix-agent
+
+      - name: Run Strix Security Scan
+        env:
+          STRIX_LLM: ${{ inputs.model }}
+          LLM_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p strix-results
+          strix -n --target . | tee strix-results/scan-output.log
+
+      - name: Upload Scan Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: strix-scan-results
+          path: |
+            strix-results/
+            *.log
+            strix_report*
+          if-no-files-found: ignore
