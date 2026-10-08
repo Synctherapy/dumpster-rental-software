@@ -18,7 +18,10 @@ export function CalendarSubscribeModal({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const token = data.organization.calendar_token || data.organization.id;
+  const token =
+    data.organization.calendar_token ||
+    (data.organization.pricing_config as { calendar_token?: string })?.calendar_token ||
+    '';
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const host = typeof window !== 'undefined' ? window.location.host : '';
 

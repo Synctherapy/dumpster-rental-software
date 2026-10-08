@@ -14,16 +14,25 @@ export async function GET(request: Request) {
 
     if (isDemo()) {
       const demoData = await readDemo();
+      const expectedToken =
+        demoData.organization.calendar_token ||
+        (demoData.organization.pricing_config as { calendar_token?: string })?.calendar_token;
+      if (token && (!expectedToken || token !== expectedToken)) {
+        return new NextResponse('Calendar not found or invalid token', { status: 404 });
+      }
       org = demoData.organization;
       jobs = demoData.jobs;
     } else {
       if (token) {
-        // Unauthenticated external calendar subscription via secure token
+        // Unauthenticated external calendar subscription via dedicated secure token only
+        if (!/^[a-zA-Z0-9_-]{8,128}$/.test(token)) {
+          return new NextResponse('Calendar not found or invalid token', { status: 404 });
+        }
         const db = admin();
         const { data: orgData, error: orgError } = await db
           .from('organizations')
           .select('*')
-          .or(`id.eq.${token},pricing_config->>calendar_token.eq.${token}`)
+          .eq('pricing_config->>calendar_token', token)
           .single();
 
         if (orgError || !orgData) {

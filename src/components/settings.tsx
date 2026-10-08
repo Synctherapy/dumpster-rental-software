@@ -127,7 +127,10 @@ export function Settings({
   };
   const copyCalendar = async () => {
     try {
-      const token = data.organization.calendar_token || data.organization.id;
+      const token =
+        data.organization.calendar_token ||
+        (data.organization.pricing_config as { calendar_token?: string })?.calendar_token ||
+        '';
       const url = `${window.location.origin}/api/calendar?token=${token}`;
       await navigator.clipboard.writeText(url);
       notify('Calendar feed URL copied to clipboard.');
@@ -644,7 +647,10 @@ export function Settings({
               Sync all deliveries and pickups directly with Apple Calendar, Google Calendar, or Outlook.
             </p>
             <div className="code-snippet" style={{ fontSize: 11, wordBreak: 'break-all' }}>
-              /api/calendar?token={data.organization.calendar_token || data.organization.id}
+              /api/calendar?token=
+              {data.organization.calendar_token ||
+                (data.organization.pricing_config as { calendar_token?: string })?.calendar_token ||
+                ''}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <Button onClick={() => void copyCalendar()}>
@@ -656,7 +662,7 @@ export function Settings({
                 variant="primary"
               >
                 <a
-                  href={`webcal://${typeof window !== 'undefined' ? window.location.host : ''}/api/calendar?token=${data.organization.calendar_token || data.organization.id}`}
+                  href={`webcal://${typeof window !== 'undefined' ? window.location.host : ''}/api/calendar?token=${data.organization.calendar_token || (data.organization.pricing_config as { calendar_token?: string })?.calendar_token || ''}`}
                 >
                   Subscribe
                 </a>

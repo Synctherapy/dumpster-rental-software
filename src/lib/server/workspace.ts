@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import { isDemo, readDemo } from './store';
 import { admin, identity } from './supabase';
 import type { Workspace } from '../types';
@@ -24,8 +25,21 @@ export async function workspace(): Promise<Workspace> {
     ),
   );
   for (const r of results) if (r.error) throw new Error(r.error.message);
+  const organization = results[0].data![0];
+  const config = (organization.pricing_config || {}) as Record<string, unknown>;
+  if (!organization.calendar_token && !config.calendar_token) {
+    const generatedToken = randomUUID().replace(/-/g, '');
+    config.calendar_token = generatedToken;
+    organization.calendar_token = generatedToken;
+    await admin()
+      .from('organizations')
+      .update({ pricing_config: config })
+      .eq('id', organization.id);
+  } else if (!organization.calendar_token && config.calendar_token) {
+    organization.calendar_token = config.calendar_token;
+  }
   return {
-    organization: results[0].data![0],
+    organization,
     users: results[1].data,
     containers: results[2].data,
     jobs: results[3].data,

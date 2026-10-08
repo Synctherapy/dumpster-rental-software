@@ -1,17 +1,26 @@
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import { isDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
 import { addDays, type Job, type Organization, type User } from '@/lib/types';
 import { driverToken } from '@/lib/server/tokens';
+
+function verifyCronAuth(request: Request): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const auth = request.headers.get('authorization') ?? '';
+  const expected = `Bearer ${secret}`;
+  const authBuf = Buffer.from(auth);
+  const expBuf = Buffer.from(expected);
+  if (authBuf.length !== expBuf.length) return false;
+  return timingSafeEqual(authBuf, expBuf);
+}
+
 export async function GET(request: Request) {
   const demo = isDemo();
-  if (
-    !demo &&
-    (!process.env.CRON_SECRET ||
-      request.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`)
-  )
+  if (!demo && !verifyCronAuth(request))
     return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
   try {
     let jobs: Job[];

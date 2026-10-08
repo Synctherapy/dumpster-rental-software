@@ -272,9 +272,16 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               <strong>{formatMoney(confirmed.deposit_cents)}</strong>
             </div>
           </div>
-          <Link href="/dashboard" className="btn btn-primary">
-            View the dispatch board <ArrowRight size={14} />
-          </Link>
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: '#738069', lineHeight: 1.6, marginBottom: 16 }}>
+              A confirmation receipt and placement instructions have been sent to your email and phone.
+            </p>
+            {!embed && (
+              <Link href="/" className="btn btn-primary">
+                Return to home
+              </Link>
+            )}
+          </div>
         </section>
       ) : (
         <>
