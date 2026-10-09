@@ -55,6 +55,20 @@ const guidance: Record<number, { text: string; beds: string; dimensions: string 
     dimensions: '22 ft long × 8 ft wide × 8 ft high',
   },
 };
+
+function getGuidance(size: number): { text: string; beds: string; dimensions: string } {
+  if (guidance[size]) return guidance[size];
+  const minBeds = Math.max(1, Math.round(size / 3.5));
+  const maxBeds = Math.max(minBeds + 1, Math.round(size / 2.5));
+  const lengthFt = size <= 15 ? 14 : 22;
+  const widthFt = 8;
+  const heightFt = (size / (lengthFt * widthFt / 27)).toFixed(1);
+  return {
+    text: 'General cleanouts, debris removal, and renovation waste.',
+    beds: `~${minBeds} to ${maxBeds} pickup truck loads`,
+    dimensions: `${lengthFt} ft long × ${widthFt} ft wide × ~${heightFt} ft high`,
+  };
+}
 export function Booking({ slug, embed = false }: { slug: string; embed?: boolean }) {
   const [data, setData] = useState<PublicData | null>(null);
   const [error, setError] = useState('');
@@ -327,7 +341,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     {data.pricing_rules
                       .sort((a, b) => a.size_yards - b.size_yards)
                       .map((r) => {
-                        const guide = guidance[r.size_yards];
+                        const guide = getGuidance(r.size_yards);
                         return (
                           <button
                             key={r.id}

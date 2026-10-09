@@ -2,9 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: { default: 'RollOS — A better way to roll', template: '%s | RollOS' },
+  metadataBase: new URL('https://rolloffdumpstersoftware.com'),
+  title: {
+    default: 'Roll Off Dumpster Software — $0/Mo Dispatch & Online Booking',
+    template: '%s | Roll Off Dumpster Software',
+  },
   description:
-    'Booking-first dumpster rental software. Manage your fleet, dispatch drivers, and keep your business moving. Free to start, 1% per transaction.',
+    'Free roll off dumpster software for haulers. Zero monthly fee, automated 24/7 online booking, visual dispatch board, and mobile driver routes.',
 };
 
 export default function RootLayout({

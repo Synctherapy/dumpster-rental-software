@@ -179,7 +179,28 @@ export function DispatchBoard({
                       aria-label={`Open ${job.customer_name} job`}
                     >
                       <div className="job-card-top">
-                        <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd</span>
+                          {job.is_swap && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#ecfdf5',
+                                color: '#065f46',
+                                border: '1px solid #a7f3d0',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              🔄 SWAP
+                            </span>
+                          )}
+                        </div>
                         <span className="job-ref">
                           #
                           {job.id.startsWith('job-')
@@ -266,7 +287,28 @@ export function DispatchBoard({
                       <small>{j.delivery_address}</small>
                     </td>
                     <td>
-                      <span className={`size-tag s${j.size_yards}`}>{j.size_yards} yd</span>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span className={`size-tag s${j.size_yards}`}>{j.size_yards} yd</span>
+                        {j.is_swap && (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              background: '#ecfdf5',
+                              color: '#065f46',
+                              border: '1px solid #a7f3d0',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              letterSpacing: '0.02em',
+                            }}
+                          >
+                            🔄 SWAP
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       {dateLabel(j.delivery_date)} — {dateLabel(j.pickup_date)}
@@ -342,7 +384,24 @@ export function DispatchBoard({
                         key={j.id}
                         onClick={() => openJob(j)}
                       >
-                        <b>{j.customer_name}</b>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                          <b>{j.customer_name}</b>
+                          {j.is_swap && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 700,
+                                background: '#ecfdf5',
+                                color: '#065f46',
+                                border: '1px solid #a7f3d0',
+                                padding: '1px 4px',
+                                borderRadius: 3,
+                              }}
+                            >
+                              🔄 SWAP
+                            </span>
+                          )}
+                        </div>
                         <span>
                           {j.size_yards} yd · {j.pickup_date === date ? 'Pickup' : 'Delivery'}
                         </span>

@@ -45,5 +45,6 @@ next-env.d.ts
 artifacts/
 test-results/
 playwright-report/
+scratch/
 
 !.env.example

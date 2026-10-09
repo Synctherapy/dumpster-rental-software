@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ArrowRight,
   Camera,
@@ -18,11 +18,13 @@ import {
   MessageSquare,
   CreditCard,
   Clock,
+  RefreshCw,
 } from 'lucide-react';
+import Link from 'next/link';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { money, dateLabel, statusLabels, type Workspace, type Job } from '@/lib/types';
+import { money, dateLabel, statusLabels, today, type Workspace, type Job } from '@/lib/types';
 import { invoice } from '@/lib/pricing';
 import { statusColors } from './dispatch-board';
 export function JobDrawer({
@@ -48,6 +50,21 @@ export function JobDrawer({
   const [proof, setProof] = useState(job.proof_url ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const isPaid =
+    data.organization.subscription_status === 'active' || Boolean(data.organization.is_paid_plan);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const swapSizes: number[] = useMemo(() => {
+    const fromRules = data.pricing_rules.map((r) => r.size_yards);
+    const fromContainers = data.containers.map((c) => c.size_yards);
+    return Array.from(new Set([...fromRules, ...fromContainers, 10, 20, 30, 40])).sort((a, b) => a - b);
+  }, [data.pricing_rules, data.containers]);
+  const [swapSize, setSwapSize] = useState<number>(job.size_yards || 20);
+  const [swapDeliveryDate, setSwapDeliveryDate] = useState(today());
+  const [swapDriverId, setSwapDriverId] = useState(job.driver_id ?? '');
+  const [swapNotes, setSwapNotes] = useState('');
+  const [swapBusy, setSwapBusy] = useState(false);
+  const [swapError, setSwapError] = useState('');
   const total = invoice({ ...job, tons_actual: tons === '' ? null : Number(tons) });
   const payments = data.payments.filter((p) => p.job_id === job.id);
   const paid = payments
@@ -115,6 +132,24 @@ export function JobDrawer({
           <span className="dot" />
           {statusLabels[job.status]}
         </span>
+        {job.is_swap && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 700,
+              background: '#ecfdf5',
+              color: '#065f46',
+              border: '1px solid #a7f3d0',
+              padding: '2px 8px',
+              borderRadius: 4,
+            }}
+          >
+            🔄 SWAP
+          </span>
+        )}
         <strong style={{ fontSize: 19 }}>{money(job.price_cents)}</strong>
       </div>
       <section className="drawer-section">
@@ -668,12 +703,176 @@ export function JobDrawer({
             Send review request
           </Button>
         )}
+        {['delivered', 'dispatched'].includes(job.status) && (
+          <Button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              if (!isPaid) {
+                setShowUpgradeModal(true);
+              } else {
+                setShowSwapModal(true);
+              }
+            }}
+          >
+            {isPaid ? <RefreshCw size={13} /> : <Lock size={13} />}
+            Dump & Return (Swap Can)
+          </Button>
+        )}
         {['booked', 'dispatched', 'quoted'].includes(job.status) && (
           <Button variant="danger" disabled={busy} onClick={() => void save('cancelled')}>
             Cancel job
           </Button>
         )}
       </div>
+
+      {showUpgradeModal && (
+        <Modal
+          open={showUpgradeModal}
+          onOpenChange={(o) => setShowUpgradeModal(o)}
+          title="Unlock 1-Click Contractor Swaps"
+          description="Instant dump & return container swaps are exclusive to paid RollOS plans."
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 14px',
+                borderRadius: 8,
+                background: '#fef3c7',
+                border: '1px solid #fde68a',
+                color: '#92400e',
+              }}
+            >
+              <Lock size={20} style={{ flexShrink: 0 }} />
+              <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+                1-click contractor swaps require an active <strong>Starter ($29/mo)</strong> or{' '}
+                <strong>Growth Fleet ($149/mo)</strong> plan.
+              </div>
+            </div>
+            <p style={{ fontSize: 13, color: '#566657', margin: 0, lineHeight: 1.6 }}>
+              Quickly haul off full containers and dispatch replacements for ongoing contractor jobs without re-entering addresses, billing details, or customer info.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+              <Button variant="ghost" onClick={() => setShowUpgradeModal(false)}>
+                Cancel
+              </Button>
+              <Button asChild variant="primary">
+                <Link href="/settings">
+                  Upgrade in Settings
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showSwapModal && (
+        <Modal
+          open={showSwapModal}
+          onOpenChange={(o) => setShowSwapModal(o)}
+          title="Dump & Return (Swap Can)"
+          description={`Schedule a pickup of current container and dispatch a replacement to ${job.customer_name}.`}
+        >
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setSwapBusy(true);
+              setSwapError('');
+              try {
+                await api(`/api/jobs/${job.id}/swap`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    target_size: Number(swapSize),
+                    delivery_date: swapDeliveryDate,
+                    driver_id: swapDriverId || null,
+                    notes: swapNotes || undefined,
+                  }),
+                });
+                setShowSwapModal(false);
+                onClose();
+                await onUpdate();
+                notify('Container swap booked! Replacement job dispatched.');
+              } catch (err) {
+                setSwapError((err as Error).message);
+              } finally {
+                setSwapBusy(false);
+              }
+            }}
+            className="form-stack"
+          >
+            <div className="form-row">
+              <label className="field">
+                Replacement container size
+                <select
+                  value={swapSize}
+                  onChange={(e) => setSwapSize(Number(e.target.value))}
+                >
+                  {swapSizes.map((s) => (
+                    <option key={s} value={s}>{s} Yard</option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                Target delivery date
+                <input
+                  type="date"
+                  required
+                  min={today()}
+                  value={swapDeliveryDate}
+                  onChange={(e) => setSwapDeliveryDate(e.target.value)}
+                />
+              </label>
+            </div>
+            <label className="field">
+              Assign driver (optional)
+              <select
+                value={swapDriverId}
+                onChange={(e) => setSwapDriverId(e.target.value)}
+              >
+                <option value="">Keep current driver or assign later</option>
+                {data.users
+                  .filter((u) => u.role === 'driver')
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="field">
+              Swap instructions & notes
+              <textarea
+                rows={2}
+                value={swapNotes}
+                onChange={(e) => setSwapNotes(e.target.value)}
+                placeholder="e.g. Drop empty 20yd on left side, haul off full 20yd."
+              />
+            </label>
+            {swapError && (
+              <div className="error-box" role="alert">
+                {swapError}
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+              <Button
+                variant="ghost"
+                type="button"
+                disabled={swapBusy}
+                onClick={() => setShowSwapModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" disabled={swapBusy}>
+                {swapBusy ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />}
+                Confirm Container Swap
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </Modal>
   );
 }

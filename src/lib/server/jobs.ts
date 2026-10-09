@@ -1,10 +1,10 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { isDemo, mutateDemo } from './store';
+import { isDemo, mutateDemo, readDemo } from './store';
 import { admin, identity } from './supabase';
 import { quote, invoice, platformFee } from '../pricing';
-import { today, normalizePhone, normalizePostalCode, isValidPostalCode, type Job } from '../types';
+import { today, addDays, normalizePhone, normalizePostalCode, isValidPostalCode, type Job, type JobStatus, type Payment } from '../types';
 import { publicOrganization } from './workspace';
 import { stripe } from './stripe';
 import { sendSms } from './notifications';
@@ -14,7 +14,7 @@ import { validateProof } from './proofs';
 export const bookingSchema = z
   .object({
     slug: z.string().min(1).max(80),
-    size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
+    size_yards: z.number().int().min(1).max(100),
     delivery_date: z.iso.date(),
     pickup_date: z.iso.date(),
     zip: z.string().refine(isValidPostalCode, { message: 'Enter a valid ZIP or postal code.' }),
@@ -228,6 +228,9 @@ export async function book(input: unknown, ip: string, origin: string) {
   if (sessionError) throw new Error('Unable to save checkout. Retry this same booking safely.');
   return { url: checkout.url, demo: false };
 }
+export const OFFLINE_PAYMENT_TYPES = ['cash', 'check', 'net_30', 'in_person_card'] as const;
+export type OfflinePaymentType = (typeof OFFLINE_PAYMENT_TYPES)[number];
+
 export const changeSchema = z
   .object({
     status: z.enum(['dispatched', 'delivered', 'picked_up', 'completed', 'cancelled']).optional(),
@@ -240,6 +243,9 @@ export const changeSchema = z
     proof_url: z.string().max(500).optional(),
     scale_ticket_url: z.string().max(500).optional(),
     driver_notes: z.string().max(1000).nullable().optional(),
+    payment_type: z.string().optional(),
+    payment_method: z.string().optional(),
+    payment_amount_cents: z.number().int().optional(),
   })
   .strict();
 export async function changeJob(
@@ -250,6 +256,33 @@ export async function changeJob(
 ) {
   const patch = changeSchema.parse(input);
   const demo = isDemo();
+  const rawPaymentType = (patch.payment_type || patch.payment_method)?.replace('-', '_').toLowerCase();
+  const isOfflinePayment = rawPaymentType && (OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawPaymentType);
+
+  if (isOfflinePayment) {
+    if (demo) {
+      const demoData = await readDemo();
+      if (demoData.organization.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
+    } else {
+      const { member, db } = await identity();
+      if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
+      const { data: orgData } = await db
+        .from('organizations')
+        .select('subscription_status')
+        .eq('id', member.org_id)
+        .single();
+      if (orgData?.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
+    }
+  }
+
   let job: Job;
   if (
     driverIdentity &&
@@ -342,6 +375,33 @@ export async function changeJob(
           c.current_job_id = null;
         }
       }
+      if (isOfflinePayment) {
+        if (d.organization.subscription_status !== 'active') {
+          throw new Error(
+            'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          );
+        }
+        j.payment_type = rawPaymentType;
+        const key = `offline-${rawPaymentType}-${j.id}`;
+        if (!d.payments.some((p) => p.idempotency_key === key)) {
+          const paid = d.payments
+            .filter((p) => p.job_id === j.id && ['demo', 'succeeded'].includes(p.status))
+            .reduce((s, p) => s + p.amount_cents - p.refunded_cents, 0);
+          const amount = patch.payment_amount_cents ?? Math.max(0, j.price_cents - paid);
+          d.payments.push({
+            id: randomUUID(),
+            org_id: j.org_id,
+            job_id: j.id,
+            stripe_payment_intent_id: null,
+            amount_cents: amount,
+            application_fee_cents: 0,
+            status: 'demo',
+            idempotency_key: key,
+            created_at: new Date().toISOString(),
+            refunded_cents: 0,
+          });
+        }
+      }
       Object.assign(j, patch);
       j.price_cents = quote(j.pricing_snapshot, j.delivery_date, j.pickup_date, 100).total;
       return j;
@@ -356,15 +416,45 @@ export async function changeJob(
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
       org = member.org_id;
     }
-    if (patch.proof_url) await validateProof(patch.proof_url, id, org);
+    const rpcPatch = { ...patch };
+    delete rpcPatch.payment_type;
+    delete rpcPatch.payment_method;
+    delete rpcPatch.payment_amount_cents;
     const result = await db.rpc('transition_job', {
       p_id: id,
       p_org: org,
-      p_patch: patch,
+      p_patch: rpcPatch,
       p_driver: driverIdentity?.driver ?? null,
     });
     if (result.error) throw new Error(result.error.message);
     job = result.data;
+    if (isOfflinePayment) {
+      try {
+        await admin()
+          .from('jobs')
+          .update({ payment_type: rawPaymentType })
+          .eq('id', id);
+      } catch {}
+      job.payment_type = rawPaymentType;
+      if (patch.payment_amount_cents) {
+        try {
+          await admin()
+            .from('payments')
+            .insert({
+              id: randomUUID(),
+              org_id: org,
+              job_id: id,
+              stripe_payment_intent_id: `offline_${rawPaymentType}_${randomUUID().slice(0, 8)}`,
+              amount_cents: patch.payment_amount_cents,
+              application_fee_cents: 0,
+              status: 'succeeded',
+              idempotency_key: `offline-${rawPaymentType}-${id}-${Date.now()}`,
+              created_at: new Date().toISOString(),
+              refunded_cents: 0,
+            });
+        } catch {}
+      }
+    }
     if (patch.scale_ticket_url) {
       const attached = await db.rpc('attach_scale_ticket', {
         p_id: id,
@@ -514,4 +604,320 @@ export async function chargeInvoice(id: string) {
   const { error } = await db.from('payments').select('id').eq('job_id', id);
   if (error) throw error;
   return { stripe_payment_intent_id: pi.id, status: pi.status };
+}
+
+export async function recordOfflinePayment(
+  id: string,
+  input: {
+    type?: string;
+    payment_type?: string;
+    payment_method?: string;
+    amount_cents?: number;
+    notes?: string;
+  },
+) {
+  const rawType = (input.type || input.payment_type || input.payment_method)
+    ?.replace('-', '_')
+    .toLowerCase();
+  if (!rawType || !(OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawType)) {
+    throw new Error('Invalid offline payment type.');
+  }
+
+  if (isDemo()) {
+    const demoData = await readDemo();
+    if (demoData.organization.subscription_status !== 'active') {
+      throw new Error(
+        'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+      );
+    }
+    return mutateDemo((d) => {
+      if (d.organization.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
+      const job = d.jobs.find((j) => j.id === id);
+      if (!job) throw new Error('Job not found');
+      job.payment_type = rawType;
+      const key = `offline-${rawType}-${job.id}-${Date.now()}`;
+      const amount = input.amount_cents ?? job.price_cents;
+      const payment: Payment = {
+        id: randomUUID(),
+        org_id: job.org_id,
+        job_id: job.id,
+        stripe_payment_intent_id: null,
+        amount_cents: amount,
+        application_fee_cents: 0,
+        status: 'demo',
+        idempotency_key: key,
+        created_at: new Date().toISOString(),
+        refunded_cents: 0,
+      };
+      d.payments.push(payment);
+      return { ok: true, job, payment };
+    });
+  }
+
+  const { member, db } = await identity();
+  const { data: orgData } = await db
+    .from('organizations')
+    .select('subscription_status')
+    .eq('id', member.org_id)
+    .single();
+
+  if (orgData?.subscription_status !== 'active') {
+    throw new Error(
+      'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+    );
+  }
+
+  const { data: job, error: jobErr } = await admin()
+    .from('jobs')
+    .select('*')
+    .eq('id', id)
+    .eq('org_id', member.org_id)
+    .single();
+  if (jobErr || !job) throw new Error('Job not found');
+
+  try {
+    await admin()
+      .from('jobs')
+      .update({ payment_type: rawType })
+      .eq('id', id);
+  } catch {}
+
+  const amount = input.amount_cents ?? job.price_cents;
+  const paymentRow = {
+    id: randomUUID(),
+    org_id: member.org_id,
+    job_id: id,
+    stripe_payment_intent_id: `offline_${rawType}_${randomUUID().slice(0, 8)}`,
+    amount_cents: amount,
+    application_fee_cents: 0,
+    status: 'succeeded' as const,
+    idempotency_key: `offline-${rawType}-${id}-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    refunded_cents: 0,
+  };
+  try {
+    await admin().from('payments').insert(paymentRow);
+  } catch {}
+
+  return { ok: true, job: { ...job, payment_type: rawType }, payment: paymentRow };
+}
+
+export const swapSchema = z
+  .object({
+    target_size: z.number().int().min(1).max(100).optional(),
+    delivery_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    driver_id: z.string().nullable().optional(),
+    notes: z.string().max(1000).optional(),
+  })
+  .strict();
+
+export type SwapInput = z.infer<typeof swapSchema>;
+
+export async function swapContainer(id: string, input: unknown, origin?: string) {
+  void origin;
+  const body = swapSchema.parse(input ?? {});
+  const demo = isDemo();
+
+  if (demo) {
+    const demoData = await readDemo();
+    if (demoData.organization.subscription_status !== 'active') {
+      throw new Error(
+        'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+      );
+    }
+
+    return mutateDemo(async (d) => {
+      if (d.organization.subscription_status !== 'active') {
+        throw new Error(
+          'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
+      const prevJob = d.jobs.find((j) => j.id === id);
+      if (!prevJob) throw new Error('Job not found');
+      if (!['delivered', 'dispatched'].includes(prevJob.status)) {
+        throw new Error('Job must be delivered or dispatched to execute a container swap.');
+      }
+
+      const targetSize = body.target_size ?? prevJob.size_yards;
+      const rule =
+        d.pricing_rules.find((r) => r.size_yards === targetSize) ?? prevJob.pricing_snapshot;
+      const deliveryDate = body.delivery_date ?? today();
+      const pickupDate = addDays(deliveryDate, rule.included_days || 7);
+      const customerFee = d.organization.pricing_config?.customer_fee_enabled !== false;
+      const price = quote(rule, deliveryDate, pickupDate, 100, { customerFee });
+
+      const prevContainer = d.containers.find((c) => c.id === prevJob.container_id);
+      const containerLabel =
+        prevContainer?.label ?? prevJob.container_id ?? `${prevJob.size_yards}yd container`;
+      const swapNotesPrefix = `Swap replacement for container ${containerLabel}`;
+      const swapNotes = body.notes ? `${swapNotesPrefix}. ${body.notes}` : swapNotesPrefix;
+
+      const assignedDriverId = body.driver_id !== undefined ? body.driver_id : prevJob.driver_id;
+      const initialStatus: JobStatus = assignedDriverId ? 'dispatched' : 'booked';
+
+      const swapJob: Job = {
+        id: randomUUID(),
+        org_id: prevJob.org_id,
+        customer_name: prevJob.customer_name,
+        customer_phone: prevJob.customer_phone,
+        customer_email: prevJob.customer_email,
+        delivery_address: prevJob.delivery_address,
+        zip: prevJob.zip,
+        size_yards: targetSize,
+        delivery_date: deliveryDate,
+        pickup_date: pickupDate,
+        status: initialStatus,
+        price_cents: price.total,
+        deposit_cents: price.total,
+        tons_included: rule.included_tons,
+        tons_actual: null,
+        extra_day_cents: rule.extra_day_cents,
+        driver_id: assignedDriverId ?? null,
+        container_id: null,
+        notes: swapNotes,
+        signature: {
+          name: `${prevJob.customer_name} (Container Swap)`,
+          timestamp: new Date().toISOString(),
+          ip: 'swap',
+        },
+        created_at: new Date().toISOString(),
+        delivered_at: null,
+        picked_up_at: null,
+        proof_url: null,
+        protective_boards: prevJob.protective_boards ?? false,
+        stripe_customer_id: prevJob.stripe_customer_id ?? null,
+        stripe_payment_method_id: prevJob.stripe_payment_method_id ?? null,
+        booking_key: randomUUID(),
+        pricing_snapshot: rule,
+        is_swap: true,
+      };
+
+      d.jobs.unshift(swapJob);
+      d.payments.unshift({
+        id: randomUUID(),
+        org_id: prevJob.org_id,
+        job_id: swapJob.id,
+        stripe_payment_intent_id: null,
+        amount_cents: price.total,
+        application_fee_cents: price.fee,
+        status: 'demo',
+        idempotency_key: `swap-${swapJob.id}`,
+        created_at: new Date().toISOString(),
+        refunded_cents: 0,
+      });
+
+      return { swap_job: swapJob, previous_job: prevJob };
+    });
+  }
+
+  const { member, db } = await identity();
+  if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
+
+  const { data: orgData, error: orgErr } = await db
+    .from('organizations')
+    .select('id, name, subscription_status, pricing_config')
+    .eq('id', member.org_id)
+    .single();
+  if (orgErr || !orgData) throw new Error('Organization not found');
+
+  if (orgData.subscription_status !== 'active') {
+    throw new Error(
+      'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+    );
+  }
+
+  const { data: prevJob, error: prevErr } = await admin()
+    .from('jobs')
+    .select('*')
+    .eq('id', id)
+    .eq('org_id', member.org_id)
+    .single();
+  if (prevErr || !prevJob) throw new Error('Job not found');
+  if (!['delivered', 'dispatched'].includes(prevJob.status)) {
+    throw new Error('Job must be delivered or dispatched to execute a container swap.');
+  }
+
+  const targetSize = body.target_size ?? prevJob.size_yards;
+  const { data: rules } = await db
+    .from('pricing_rules')
+    .select('*')
+    .eq('org_id', member.org_id);
+  const rule = rules?.find((r) => r.size_yards === targetSize) ?? prevJob.pricing_snapshot;
+  const deliveryDate = body.delivery_date ?? today();
+  const pickupDate = addDays(deliveryDate, rule.included_days || 7);
+  const customerFee = orgData.pricing_config?.customer_fee_enabled !== false;
+  const price = quote(rule, deliveryDate, pickupDate, 100, { customerFee });
+
+  let containerLabel = prevJob.container_id ? `${prevJob.size_yards}yd container` : 'container';
+  if (prevJob.container_id) {
+    const { data: cData } = await admin()
+      .from('containers')
+      .select('label')
+      .eq('id', prevJob.container_id)
+      .single();
+    if (cData?.label) containerLabel = cData.label;
+  }
+  const swapNotesPrefix = `Swap replacement for container ${containerLabel}`;
+  const swapNotes = body.notes ? `${swapNotesPrefix}. ${body.notes}` : swapNotesPrefix;
+
+  const assignedDriverId = body.driver_id !== undefined ? body.driver_id : prevJob.driver_id;
+  const initialStatus: JobStatus = assignedDriverId ? 'dispatched' : 'booked';
+
+  const swapJobRow: Record<string, unknown> = {
+    id: randomUUID(),
+    org_id: member.org_id,
+    customer_name: prevJob.customer_name,
+    customer_phone: prevJob.customer_phone,
+    customer_email: prevJob.customer_email,
+    delivery_address: prevJob.delivery_address,
+    zip: prevJob.zip,
+    size_yards: targetSize,
+    delivery_date: deliveryDate,
+    pickup_date: pickupDate,
+    status: initialStatus,
+    price_cents: price.total,
+    deposit_cents: price.total,
+    tons_included: rule.included_tons,
+    tons_actual: null,
+    extra_day_cents: rule.extra_day_cents,
+    driver_id: assignedDriverId ?? null,
+    container_id: null,
+    notes: swapNotes,
+    signature: {
+      name: `${prevJob.customer_name} (Container Swap)`,
+      timestamp: new Date().toISOString(),
+      ip: 'swap',
+    },
+    pricing_snapshot: rule,
+    booking_key: randomUUID(),
+    created_at: new Date().toISOString(),
+    is_swap: true,
+  };
+
+  let inserted: Job;
+  const insertAttempt = await admin()
+    .from('jobs')
+    .insert(swapJobRow)
+    .select('*')
+    .single();
+
+  if (insertAttempt.error) {
+    const fallbackRow = { ...swapJobRow };
+    delete fallbackRow.is_swap;
+    const retry = await admin()
+      .from('jobs')
+      .insert(fallbackRow)
+      .select('*')
+      .single();
+    if (retry.error) throw new Error(retry.error.message);
+    inserted = { ...(retry.data as Job), is_swap: true };
+  } else {
+    inserted = insertAttempt.data as Job;
+  }
+
+  return { swap_job: inserted, previous_job: prevJob };
 }

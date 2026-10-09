@@ -22,13 +22,14 @@ const quickOrderSchema = z.object({
   customer_email: z.string().trim().email().or(z.literal('')).optional(),
   delivery_address: z.string().trim().min(5).max(300),
   zip: z.string().refine(isValidPostalCode, { message: 'Enter a valid ZIP or postal code.' }),
-  size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
+  size_yards: z.number().int().min(1).max(100),
   delivery_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   pickup_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   notes: z.string().max(1000).default(''),
   driver_id: z.string().nullable().optional(),
   container_id: z.string().nullable().optional(),
   protective_boards: z.boolean().default(false).optional(),
+  payment_type: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -56,6 +57,14 @@ export async function POST(request: Request) {
       const org = demoData.organization;
       const rule = demoData.pricing_rules.find((r) => r.size_yards === body.size_yards);
       if (!rule) throw new Error('Selected dumpster size pricing rule not found.');
+      const isOfflinePayment =
+        body.payment_type &&
+        ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
+      if (isOfflinePayment && org.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
 
       const customerFee = org.pricing_config?.customer_fee_enabled !== false;
       const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
@@ -113,6 +122,7 @@ export async function POST(request: Request) {
           stripe_payment_method_id: null,
           booking_key: randomUUID(),
           pricing_snapshot: rule,
+          payment_type: body.payment_type ?? null,
         };
 
         if (assignedContainer) {
@@ -158,6 +168,15 @@ export async function POST(request: Request) {
       const rule = rules?.find((r) => r.size_yards === body.size_yards);
       if (!rule) throw new Error('Selected dumpster size pricing rule not found.');
 
+      const isOfflinePayment =
+        body.payment_type &&
+        ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
+      if (isOfflinePayment && org.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        );
+      }
+
       const customerFee = org.pricing_config?.customer_fee_enabled !== false;
       const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
         customerFee,
@@ -194,6 +213,7 @@ export async function POST(request: Request) {
         },
         pricing_snapshot: rule,
         booking_key: randomUUID(),
+        payment_type: body.payment_type ?? null,
         created_at: new Date().toISOString(),
       };
 

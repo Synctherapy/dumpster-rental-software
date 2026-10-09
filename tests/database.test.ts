@@ -22,6 +22,9 @@ async function database() {
   await db.exec(sql.replace('create extension if not exists pgcrypto;', ''));
   await db.exec(await readFile('supabase/migrations/202610060002_full_rental.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610060003_subscription.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610060004_prohibited_items_and_operating_days.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610080001_swap_and_offline_payments.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610090001_custom_dumpster_sizes.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {

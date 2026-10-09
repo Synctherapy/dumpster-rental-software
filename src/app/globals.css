@@ -21,7 +21,7 @@ body {
   background: #f7f8fa;
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
 }
 button,
@@ -53,10 +53,11 @@ textarea {
   width: 100%;
   border: 1px solid #dfe4e6;
   border-radius: 8px;
-  padding: 11px 12px;
+  padding: 12px 14px;
+  font-size: 14.5px;
   background: white;
   color: var(--ink);
-  min-height: 42px;
+  min-height: 44px;
 }
 input:focus,
 select:focus,
@@ -71,7 +72,7 @@ textarea {
 label.field {
   display: grid;
   gap: 7px;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 600;
 }
 label.field small {
@@ -90,16 +91,20 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 27px;
+  font-size: 28px;
   font-weight: 650;
   letter-spacing: -1px;
 }
 h2 {
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 650;
   letter-spacing: -0.5px;
 }
 h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+h4 {
   font-size: 15px;
   font-weight: 600;
 }
@@ -107,7 +112,7 @@ h3 {
   color: var(--muted);
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.8px;
@@ -120,11 +125,11 @@ h3 {
   border: 1px solid #dde2e4;
   background: white;
   border-radius: 8px;
-  padding: 10px 15px;
-  font-size: 12px;
+  padding: 11px 16px;
+  font-size: 14.5px;
   font-weight: 600;
   white-space: nowrap;
-  min-height: 38px;
+  min-height: 42px;
   transition:
     background 0.15s,
     transform 0.15s;
@@ -142,6 +147,22 @@ h3 {
 }
 .btn-primary:hover {
   background: #c7e363;
+}
+.btn-orange {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.28);
+}
+.btn-orange:hover {
+  background: #c2410c;
+  border-color: #c2410c;
+  color: #ffffff;
+}
+.btn-orange:focus-visible {
+  outline: 3px solid rgba(234, 88, 12, 0.45);
+  outline-offset: 2px;
 }
 .btn-dark {
   background: #20302a;
@@ -170,7 +191,7 @@ h3 {
   gap: 5px;
   border-radius: 5px;
   padding: 4px 7px;
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 600;
   background: #f1f3f4;
   white-space: nowrap;
@@ -191,7 +212,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #546247;
   flex-shrink: 0;
@@ -320,16 +341,16 @@ h3 {
   border-radius: 6px;
 }
 .org-switch strong {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #e9edeb;
 }
 .org-switch p {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #85958d;
   margin-top: 4px;
 }
 .nav-label {
-  font-size: 9px;
+  font-size: 12.5px;
   letter-spacing: 1.5px;
   color: #6e8179;
   margin: 0 14px 10px;
@@ -358,7 +379,7 @@ h3 {
 }
 .nav-link .count {
   margin-left: auto;
-  font-size: 9px;
+  font-size: 12.5px;
   padding: 2px 5px;
   border-radius: 4px;
   background: #fff5;
@@ -380,17 +401,17 @@ h3 {
   margin-bottom: 10px;
 }
 .booking-callout h4 {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #dce6da;
   margin-bottom: 6px;
 }
 .booking-callout p {
-  font-size: 10px;
+  font-size: 12.5px;
   line-height: 1.7;
   color: #9caa9c;
 }
 .booking-callout a {
-  font-size: 10px;
+  font-size: 12.5px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -405,11 +426,11 @@ h3 {
   border-top: 1px solid #35403b;
 }
 .user-profile strong {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #e1e8e2;
 }
 .user-profile p {
-  font-size: 10px;
+  font-size: 12.5px;
   margin-top: 3px;
   color: #86968c;
 }
@@ -444,7 +465,7 @@ h3 {
   gap: 14px;
 }
 .mode-label {
-  font-size: 10px;
+  font-size: 12.5px;
   border-radius: 5px;
   background: #f0f4e9;
   padding: 5px 8px;
@@ -454,7 +475,7 @@ h3 {
   width: 32px;
   height: 32px;
   background: #e6ecdf;
-  font-size: 10px;
+  font-size: 12.5px;
 }
 .content {
   padding: 30px 31px 26px;
@@ -495,7 +516,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 12.5px;
   color: #7b8586;
 }
 .stat-icon {
@@ -515,7 +536,7 @@ h3 {
   font-weight: 600;
 }
 .stat-foot {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #939a9b;
   margin-top: 11px;
   display: flex;
@@ -552,7 +573,7 @@ h3 {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 11px;
+  font-size: 12.5px;
   padding: 7px 11px;
   border: 0;
   background: transparent;
@@ -583,12 +604,12 @@ h3 {
 .search input:not([type]) {
   padding: 9px 10px 9px 32px;
   min-height: 35px;
-  font-size: 11px;
+  font-size: 12.5px;
   background: #fafbfc;
   border-color: #e8ebed;
 }
 .board-tools select {
-  font-size: 11px;
+  font-size: 12.5px;
   min-height: 35px;
   padding: 8px;
   max-width: 135px;
@@ -614,11 +635,11 @@ h3 {
   align-items: center;
   gap: 7px;
   margin: 0 2px 14px;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 .column-head .badge {
-  font-size: 9px;
+  font-size: 12.5px;
   background: #e9edef;
   color: #7f8b8c;
   min-width: 17px;
@@ -661,11 +682,11 @@ h3 {
   align-items: center;
 }
 .job-ref {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #a0a7aa;
 }
 .size-tag {
-  font-size: 9px;
+  font-size: 12.5px;
   padding: 3px 5px;
   border-radius: 4px;
   background: #edf2e5;
@@ -685,7 +706,7 @@ h3 {
   color: #6992af;
 }
 .job-card h4 {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
   margin: 13px 0 7px;
 }
@@ -694,7 +715,7 @@ h3 {
   align-items: flex-start;
   gap: 4px;
   color: #8d969a;
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.6;
   min-height: 29px;
 }
@@ -703,7 +724,7 @@ h3 {
   flex-shrink: 0;
 }
 .job-date {
-  font-size: 9px;
+  font-size: 12.5px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -711,7 +732,7 @@ h3 {
   color: #707c82;
 }
 .job-tag {
-  font-size: 8px;
+  font-size: 12.5px;
   display: inline-block;
   border-radius: 3px;
   background: #f3f4f5;
@@ -732,33 +753,33 @@ h3 {
   min-height: 32px;
 }
 .job-card-bottom strong {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 .unassigned {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 8px;
+  font-size: 12.5px;
   color: #a3aaac;
 }
 .job-card-bottom .avatar {
   width: 23px;
   height: 23px;
-  font-size: 8px;
+  font-size: 12.5px;
 }
 .column-empty {
   border: 1px dashed #dce2e5;
   border-radius: 6px;
   padding: 20px 5px;
-  font-size: 10px;
+  font-size: 12.5px;
   text-align: center;
   color: #a3acad;
 }
 .board-footer {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 12.5px;
   color: #9ca4a7;
   padding: 14px 20px;
   border-top: 1px solid var(--line);
@@ -779,7 +800,7 @@ h3 {
   color: #879581;
 }
 .panel-heading .btn {
-  font-size: 10px;
+  font-size: 12.5px;
   min-height: 24px;
   padding: 3px 0;
   color: #7e8b75;
@@ -804,16 +825,16 @@ h3 {
   place-items: center;
 }
 .activity-row strong {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 500;
 }
 .activity-row p {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #949c9f;
   margin-top: 5px;
 }
 .activity-row time {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #adb4b6;
   margin-left: auto;
 }
@@ -837,7 +858,7 @@ h3 {
   gap: 8px;
 }
 .fleet-legend p {
-  font-size: 9px;
+  font-size: 12.5px;
   display: flex;
   gap: 5px;
   align-items: center;
@@ -853,7 +874,7 @@ h3 {
   background: #f6f8f3;
   border-radius: 6px;
   padding: 10px;
-  font-size: 9px;
+  font-size: 12.5px;
   color: #839372;
   display: flex;
   gap: 7px;
@@ -863,7 +884,7 @@ h3 {
 .content-footer {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 12.5px;
   color: #abb2b4;
   margin-top: 23px;
 }
@@ -877,7 +898,7 @@ table {
   white-space: nowrap;
 }
 th {
-  font-size: 10px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #899396;
   padding: 15px 19px;
@@ -895,7 +916,7 @@ tr:last-child td {
 td small {
   display: block;
   color: #99a2a5;
-  font-size: 10px;
+  font-size: 12.5px;
   margin-top: 6px;
 }
 .table-top {
@@ -923,7 +944,7 @@ td small {
   margin-bottom: 7px;
 }
 .driver-card .muted {
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .driver-card .driver-stats {
   display: flex;
@@ -939,7 +960,7 @@ td small {
   margin-bottom: 6px;
 }
 .driver-stats span {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #949ea0;
 }
 .driver-card .btn {
@@ -965,7 +986,7 @@ td small {
   border-left: 0;
 }
 .calendar-date {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #899394;
   text-align: center;
   padding: 10px 0 20px;
@@ -990,14 +1011,14 @@ td small {
   text-align: left;
   width: 100%;
   margin-bottom: 8px;
-  font-size: 10px;
+  font-size: 12.5px;
 }
 .calendar-event.pickup {
   background: #eef0f8;
   border-color: #dde1ef;
 }
 .calendar-event small {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #85927b;
 }
 .overlay {
@@ -1150,7 +1171,7 @@ td small {
   gap: 7px;
 }
 .pricing-editor .field {
-  font-size: 10px;
+  font-size: 12.5px;
 }
 .settings-side {
   display: grid;
@@ -1168,11 +1189,11 @@ td small {
   border-bottom: 0;
 }
 .setup-step h4 {
-  font-size: 11px;
+  font-size: 12.5px;
   margin-bottom: 6px;
 }
 .setup-step p {
-  font-size: 10px;
+  font-size: 12.5px;
   line-height: 1.6;
   color: #949ea0;
 }
@@ -1182,7 +1203,7 @@ td small {
 }
 .code-snippet {
   font-family: monospace;
-  font-size: 11px;
+  font-size: 12.5px;
   white-space: pre-wrap;
   word-break: break-all;
   background: #f2f5f1;
@@ -1276,7 +1297,7 @@ td small {
   margin: 28px 0 18px;
 }
 .hero small {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #8c988f;
 }
 .hero-visual {
@@ -1310,7 +1331,7 @@ td small {
   margin-bottom: 8px;
 }
 .hero-mini p {
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .hero-mini-sizes {
   display: flex;
@@ -1323,7 +1344,7 @@ td small {
   text-align: center;
   border-radius: 8px;
   flex: 1;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .hero-mini-sizes .selected {
   background: #eef5df;
@@ -1358,7 +1379,7 @@ td small {
   box-shadow: 0 10px 25px #31552815;
 }
 .hero-floating p {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #b6cab5;
   margin-top: 5px;
 }
@@ -1424,29 +1445,83 @@ td small {
   margin-top: 24px;
 }
 .faq {
-  max-width: 850px;
+  max-width: 960px;
   margin: auto;
-  padding: 50px 36px 80px;
+  padding: 60px 36px 90px;
 }
 .faq h2 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 12px;
   font-size: 30px;
 }
-.faq details {
-  padding: 19px 0;
-  border-bottom: 1px solid #dce5d4;
-}
-.faq summary {
+.faq .faq-subhead {
+  text-align: center;
+  color: #647466;
   font-size: 14px;
-  cursor: pointer;
-  font-weight: 500;
+  max-width: 620px;
+  margin: 0 auto 36px;
 }
-.faq p {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #7c8a78;
-  margin-top: 13px;
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.faq-card {
+  background: white;
+  border: 1px solid #dfe6d6;
+  border-radius: 12px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+.faq-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2b24;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.faq-card p {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #556658;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #dfe6d6;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  margin: 28px 0;
+}
+.compare-table th,
+.compare-table td {
+  padding: 14px 18px;
+  font-size: 13.5px;
+  text-align: left;
+  border-bottom: 1px solid #eef2ea;
+}
+.compare-table th {
+  background: #f3f6ee;
+  font-weight: 700;
+  color: #243329;
+}
+.compare-table th.highlight-col,
+.compare-table td.highlight-col {
+  background: #f7faf0;
+  font-weight: 600;
+}
+.compare-table tr:last-child td {
+  border-bottom: 0;
 }
 .marketing-footer {
   border-top: 1px solid #dfe6d6;
@@ -1456,7 +1531,7 @@ td small {
   display: flex;
   justify-content: space-between;
   color: #8a9883;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .booking-page {
   min-height: 100vh;
@@ -1486,7 +1561,7 @@ td small {
   height: 36px;
 }
 .booking-powered {
-  font-size: 10px;
+  font-size: 12.5px;
   color: #8c9984;
 }
 .booking-header {
@@ -1529,7 +1604,7 @@ td small {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: 12.5px;
   color: #a5ada0;
   white-space: nowrap;
 }
@@ -1540,7 +1615,7 @@ td small {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 10px;
+  font-size: 12.5px;
 }
 .step.active {
   color: #51672f;
@@ -1602,7 +1677,7 @@ td small {
   letter-spacing: -0.5px;
 }
 .size-card p {
-  font-size: 10px;
+  font-size: 12.5px;
   line-height: 1.7;
   color: #8e9985;
   margin-top: 7px;
@@ -1624,7 +1699,7 @@ td small {
   display: grid;
   place-items: center;
   color: #647b3e;
-  font-size: 10px;
+  font-size: 12.5px;
 }
 .size-card.selected .selection-check {
   background: var(--lime);
@@ -1634,7 +1709,7 @@ td small {
   position: absolute;
   right: 14px;
   bottom: 19px;
-  font-size: 8px;
+  font-size: 12.5px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: #819b59;
@@ -1656,7 +1731,7 @@ td small {
   top: 25px;
 }
 .booking-summary .eyebrow {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #96a487;
   margin-bottom: 18px;
 }
@@ -1674,7 +1749,7 @@ td small {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 11px;
+  font-size: 12.5px;
   padding: 10px 0;
   color: #8a9681;
 }
@@ -1689,7 +1764,7 @@ td small {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .summary-total strong {
   font-size: 23px;
@@ -1700,7 +1775,7 @@ td small {
   border-radius: 7px;
   padding: 12px;
   margin-top: 18px;
-  font-size: 10px;
+  font-size: 12.5px;
   line-height: 1.8;
   color: #7d925d;
 }
@@ -1708,7 +1783,7 @@ td small {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 9px;
+  font-size: 12.5px;
   color: #98a18f;
   margin-top: 17px;
 }
@@ -1716,7 +1791,7 @@ td small {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.8;
   color: #819073;
 }
@@ -1733,7 +1808,7 @@ td small {
   border: 1px solid #ece0bd;
   border-radius: 7px;
   padding: 10px 13px;
-  font-size: 10px;
+  font-size: 12.5px;
   color: #9c884f;
   display: flex;
   align-items: center;

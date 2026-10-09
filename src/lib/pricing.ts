@@ -4,7 +4,9 @@ export const RESERVATION_FEE_CENTS = 1195;
 export const BOARDS_ADDON_CENTS = 1900;
 export const BOARDS_HAULER_SHARE_CENTS = 1000;
 export const BOARDS_PLATFORM_SHARE_CENTS = 900;
-export const SUBSCRIPTION_CENTS = 4900;
+export const STARTER_SUBSCRIPTION_CENTS = 2900;
+export const GROWTH_SUBSCRIPTION_CENTS = 14900;
+export const SUBSCRIPTION_CENTS = STARTER_SUBSCRIPTION_CENTS;
 
 export function rentalDays(delivery: string, pickup: string) {
   const days = (Date.parse(pickup + 'T00:00:00Z') - Date.parse(delivery + 'T00:00:00Z')) / 86400000;

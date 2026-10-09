@@ -11,7 +11,7 @@ const bulkSchema = z.object({
     .array(
       z.object({
         label: z.string().trim().min(1).max(30),
-        size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
+        size_yards: z.number().int().min(1).max(100),
       }),
     )
     .min(1)

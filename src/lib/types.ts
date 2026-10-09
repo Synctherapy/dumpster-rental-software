@@ -11,6 +11,7 @@ export interface Organization {
   stripe_connect_account_id: string | null;
   subscription_status?: string;
   stripe_subscription_id?: string | null;
+  is_paid_plan?: boolean;
   pricing_config: {
     deposit_percent: number;
     currency?: string;
@@ -88,6 +89,8 @@ export interface Job {
   stripe_payment_method_id: string | null;
   booking_key: string;
   pricing_snapshot: PricingRule;
+  is_swap?: boolean;
+  payment_type?: string | null;
 }
 export interface Payment {
   id: string;

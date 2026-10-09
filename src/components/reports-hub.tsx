@@ -1,3 +1,5 @@
+'use client';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import {
   DollarSign,
@@ -44,18 +46,31 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
   const boardAddonJobs = data.jobs.filter((j) => j.protective_boards);
 
   // 1. Container Size Profitability Breakdown
-  const sizeMap: Record<number, { count: number; revenueCents: number }> = {
-    10: { count: 0, revenueCents: 0 },
-    20: { count: 0, revenueCents: 0 },
-    30: { count: 0, revenueCents: 0 },
-    40: { count: 0, revenueCents: 0 },
-  };
-  data.jobs.forEach((job) => {
-    if (sizeMap[job.size_yards]) {
-      sizeMap[job.size_yards].count += 1;
-      sizeMap[job.size_yards].revenueCents += job.price_cents;
-    }
-  });
+  const availableReportSizes: number[] = useMemo(() => {
+    return Array.from(
+      new Set([
+        ...data.pricing_rules.map((r) => r.size_yards),
+        ...data.jobs.map((j) => j.size_yards),
+        ...data.containers.map((c) => c.size_yards),
+        10, 20, 30, 40,
+      ]),
+    ).sort((a, b) => a - b);
+  }, [data.pricing_rules, data.jobs, data.containers]);
+
+  const sizeMap: Record<number, { count: number; revenueCents: number }> = useMemo(() => {
+    const map: Record<number, { count: number; revenueCents: number }> = {};
+    availableReportSizes.forEach((s) => {
+      map[s] = { count: 0, revenueCents: 0 };
+    });
+    data.jobs.forEach((job) => {
+      if (!map[job.size_yards]) {
+        map[job.size_yards] = { count: 0, revenueCents: 0 };
+      }
+      map[job.size_yards].count += 1;
+      map[job.size_yards].revenueCents += job.price_cents;
+    });
+    return map;
+  }, [availableReportSizes, data.jobs]);
 
   // 2. Sales Tax Collected Calculation
   const taxRate = data.organization.tax_rate_percent ?? data.organization.pricing_config?.tax_rate_percent ?? 0;
@@ -237,7 +252,7 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
             <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 600 }}>Revenue by Container Size</h3>
           </div>
           <div style={{ display: 'grid', gap: '10px' }}>
-            {[10, 20, 30, 40].map((s) => {
+            {availableReportSizes.map((s) => {
               const info = sizeMap[s] || { count: 0, revenueCents: 0 };
               const percent = totalRevenueCents > 0 ? Math.round((info.revenueCents / totalRevenueCents) * 100) : 0;
               return (

@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Loader2, Phone } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, Phone, Lock } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
@@ -27,7 +28,13 @@ export function QuickOrderModal({
   const [customerEmail, setCustomerEmail] = useState('');
   const [address, setAddress] = useState('');
   const [zip, setZip] = useState(data.pricing_rules[0]?.service_zips[0] || '78704');
-  const [sizeYards, setSizeYards] = useState<10 | 20 | 30 | 40>(20);
+  const availableSizes = useMemo(() => {
+    const fromRules = data.pricing_rules.map((r) => r.size_yards);
+    const fromContainers = data.containers.map((c) => c.size_yards);
+    return Array.from(new Set([...fromRules, ...fromContainers, 10, 20, 30, 40])).sort((a, b) => a - b);
+  }, [data.pricing_rules, data.containers]);
+
+  const [sizeYards, setSizeYards] = useState<number>(() => data.pricing_rules[0]?.size_yards ?? 20);
   const [deliveryDate, setDeliveryDate] = useState(today());
 
   const rule = useMemo(
@@ -47,9 +54,14 @@ export function QuickOrderModal({
   const [boards, setBoards] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const isPaidPlan =
+    data.organization.subscription_status === 'active' || Boolean(data.organization.is_paid_plan);
+  const [paymentType, setPaymentType] = useState<'card' | 'cash' | 'check' | 'net_30'>('card');
+  const isOffline = ['cash', 'check', 'net_30'].includes(paymentType);
+  const isBlockedByPlan = isOffline && !isPaidPlan;
 
   // When size changes, re-sync pickup date to included days
-  const handleSizeChange = (newSize: 10 | 20 | 30 | 40) => {
+  const handleSizeChange = (newSize: number) => {
     setSizeYards(newSize);
     const newRule = data.pricing_rules.find((r) => r.size_yards === newSize);
     if (newRule) {
@@ -88,6 +100,11 @@ export function QuickOrderModal({
     setBusy(true);
     setError('');
 
+    if (isBlockedByPlan) {
+      setError('Offline payments (Cash, Check, Net 30) require an active Starter or Growth plan.');
+      return;
+    }
+
     try {
       const res = await api<{ ok: boolean; job: Job }>('/api/jobs/quick', {
         method: 'POST',
@@ -104,6 +121,7 @@ export function QuickOrderModal({
           driver_id: driverId || null,
           container_id: containerId || null,
           protective_boards: boards,
+          payment_type: paymentType,
         }),
       });
 
@@ -187,9 +205,9 @@ export function QuickOrderModal({
             Dumpster size *
             <select
               value={sizeYards}
-              onChange={(e) => handleSizeChange(Number(e.target.value) as 10 | 20 | 30 | 40)}
+              onChange={(e) => handleSizeChange(Number(e.target.value))}
             >
-              {[10, 20, 30, 40].map((s) => (
+              {availableSizes.map((s) => (
                 <option key={s} value={s}>
                   {s} Yard ({data.pricing_rules.find((r) => r.size_yards === s)?.included_tons ?? 2} tons, {data.pricing_rules.find((r) => r.size_yards === s)?.included_days ?? 7} days)
                 </option>
@@ -267,6 +285,68 @@ export function QuickOrderModal({
           />
         </label>
 
+        <div className="form-row">
+          <label className="field" style={{ flex: 1 }}>
+            Payment method *
+            <select
+              value={paymentType}
+              onChange={(e) =>
+                setPaymentType(e.target.value as 'card' | 'cash' | 'check' | 'net_30')
+              }
+            >
+              <option value="card">💳 Credit / Debit Card (Stripe)</option>
+              <option value="cash">💵 Cash on Delivery (Offline)</option>
+              <option value="check">📝 Check (Offline)</option>
+              <option value="net_30">📑 Net 30 Terms (Contractor Invoice)</option>
+            </select>
+            <small>
+              {paymentType === 'card'
+                ? 'Card charge processed or checkout link sent via Stripe.'
+                : 'Offline balance collected by driver or invoiced.'}
+            </small>
+          </label>
+        </div>
+
+        {isBlockedByPlan && (
+          <div
+            style={{
+              padding: '12px 14px',
+              borderRadius: 8,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                color: '#92400e',
+                fontWeight: 600,
+                fontSize: 13,
+              }}
+            >
+              <Lock size={15} />
+              Offline Payments Require a Paid Plan
+            </div>
+            <p style={{ margin: 0, fontSize: 12, color: '#78350f', lineHeight: 1.5 }}>
+              Accepting offline payments (Cash, Check, Net 30) requires an active{' '}
+              <strong>Starter ($29/mo)</strong> or <strong>Growth ($149/mo)</strong> plan. Please
+              select <strong>Credit / Debit Card (Stripe)</strong> or{' '}
+              <Link
+                href="/settings"
+                style={{ color: '#b45309', textDecoration: 'underline', fontWeight: 600 }}
+              >
+                upgrade your plan in Settings
+              </Link>
+              .
+            </p>
+          </div>
+        )}
+
         {calculatedQuote && (
           <div
             style={{
@@ -301,9 +381,20 @@ export function QuickOrderModal({
           <Button variant="ghost" type="button" onClick={onClose} disabled={busy}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit" disabled={busy}>
-            {busy ? <Loader2 size={14} className="spin" /> : <Phone size={14} />}
-            Book Phone Order
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={busy || isBlockedByPlan}
+            title={isBlockedByPlan ? 'Offline payments require an active paid plan' : undefined}
+          >
+            {busy ? (
+              <Loader2 size={14} className="spin" />
+            ) : isBlockedByPlan ? (
+              <Lock size={14} />
+            ) : (
+              <Phone size={14} />
+            )}
+            {isBlockedByPlan ? 'Upgrade Plan to Book Offline' : 'Book Phone Order'}
           </Button>
         </div>
       </form>

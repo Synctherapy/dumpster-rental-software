@@ -8,7 +8,7 @@ import type { Workspace } from '@/lib/types';
 
 interface BulkContainerItem {
   label: string;
-  size_yards: 10 | 20 | 30 | 40;
+  size_yards: number;
 }
 
 export function BulkContainerModal({
@@ -28,18 +28,32 @@ export function BulkContainerModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // Available sizes offered by hauler (sorted)
+  const availableSizes = useMemo(() => {
+    const fromRules = data.pricing_rules.map((r) => r.size_yards);
+    const set = new Set(fromRules.length > 0 ? fromRules : [10, 20, 30, 40]);
+    return Array.from(set).sort((a, b) => a - b);
+  }, [data.pricing_rules]);
+
   // Generator State
   const [prefix, setPrefix] = useState('C-');
   const [startNum, setStartNum] = useState(1);
   const [digits, setDigits] = useState(3);
-  const [count10, setCount10] = useState(2);
-  const [count20, setCount20] = useState(6);
-  const [count30, setCount30] = useState(4);
-  const [count40, setCount40] = useState(2);
+  const [quantitiesBySize, setQuantitiesBySize] = useState<Record<number, number>>(() => {
+    const initial: Record<number, number> = {};
+    const fromRules = data.pricing_rules.map((r) => r.size_yards);
+    const sizes = fromRules.length > 0 ? fromRules : [10, 20, 30, 40];
+    for (const s of sizes) {
+      if (s === 20) initial[s] = 6;
+      else if (s === 30) initial[s] = 4;
+      else initial[s] = 2;
+    }
+    return initial;
+  });
 
   // CSV / Paste State
   const [csvText, setCsvText] = useState('');
-  const [defaultSize, setDefaultSize] = useState<10 | 20 | 30 | 40>(20);
+  const [defaultSize, setDefaultSize] = useState<number>(availableSizes[0] ?? 20);
 
   const existingLabels = useMemo(
     () => new Set(data.containers.map((c) => c.label.toLowerCase())),
@@ -51,7 +65,8 @@ export function BulkContainerModal({
       const items: BulkContainerItem[] = [];
       let current = startNum;
 
-      const addGroup = (count: number, size: 10 | 20 | 30 | 40) => {
+      for (const size of availableSizes) {
+        const count = quantitiesBySize[size] ?? 0;
         for (let i = 0; i < count; i++) {
           const numStr = String(current).padStart(digits, '0');
           items.push({
@@ -60,12 +75,7 @@ export function BulkContainerModal({
           });
           current++;
         }
-      };
-
-      addGroup(count10, 10);
-      addGroup(count20, 20);
-      addGroup(count30, 30);
-      addGroup(count40, 40);
+      }
       return items;
     } else {
       // Parse CSV / paste lines
@@ -77,18 +87,18 @@ export function BulkContainerModal({
         const parts = line.split(/[,\t]+/).map((p) => p.trim());
         if (!parts[0]) continue;
         const label = parts[0];
-        let size: 10 | 20 | 30 | 40 = defaultSize;
+        let size: number = defaultSize;
         if (parts[1]) {
           const parsed = parseInt(parts[1], 10);
-          if ([10, 20, 30, 40].includes(parsed)) {
-            size = parsed as 10 | 20 | 30 | 40;
+          if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {
+            size = parsed;
           }
         }
         items.push({ label, size_yards: size });
       }
       return items;
     }
-  }, [tab, prefix, startNum, digits, count10, count20, count30, count40, csvText, defaultSize]);
+  }, [tab, prefix, startNum, digits, availableSizes, quantitiesBySize, csvText, defaultSize]);
 
   const conflicts = useMemo(() => {
     return generatedItems.filter((item) => existingLabels.has(item.label.toLowerCase()));
@@ -204,43 +214,21 @@ export function BulkContainerModal({
           <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground, #222)' }}>
             Quantity by Dumpster Size
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            <label className="field">
-              10 Yard
-              <input
-                type="number"
-                min="0"
-                value={count10}
-                onChange={(e) => setCount10(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              />
-            </label>
-            <label className="field">
-              20 Yard
-              <input
-                type="number"
-                min="0"
-                value={count20}
-                onChange={(e) => setCount20(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              />
-            </label>
-            <label className="field">
-              30 Yard
-              <input
-                type="number"
-                min="0"
-                value={count30}
-                onChange={(e) => setCount30(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              />
-            </label>
-            <label className="field">
-              40 Yard
-              <input
-                type="number"
-                min="0"
-                value={count40}
-                onChange={(e) => setCount40(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              />
-            </label>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(availableSizes.length, 4)}, 1fr)`, gap: 10 }}>
+            {availableSizes.map((s) => (
+              <label className="field" key={s}>
+                {s} Yard
+                <input
+                  type="number"
+                  min="0"
+                  value={quantitiesBySize[s] ?? 0}
+                  onChange={(e) => {
+                    const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                    setQuantitiesBySize((prev) => ({ ...prev, [s]: val }));
+                  }}
+                />
+              </label>
+            ))}
           </div>
         </div>
       ) : (
@@ -250,9 +238,9 @@ export function BulkContainerModal({
               Default Size (if not in CSV)
               <select
                 value={defaultSize}
-                onChange={(e) => setDefaultSize(Number(e.target.value) as 10 | 20 | 30 | 40)}
+                onChange={(e) => setDefaultSize(Number(e.target.value))}
               >
-                {[10, 20, 30, 40].map((s) => (
+                {availableSizes.map((s) => (
                   <option key={s} value={s}>
                     {s} Yard
                   </option>

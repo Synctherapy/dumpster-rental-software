@@ -5,7 +5,7 @@ import { identity, admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { isValidPostalCode, normalizePostalCode } from '@/lib/types';
 const rule = z.object({
-  size_yards: z.union([z.literal(10), z.literal(20), z.literal(30), z.literal(40)]),
+  size_yards: z.number().int().min(1).max(100),
   base_price_cents: z.number().int().min(100).max(10000000),
   included_days: z.number().int().min(1).max(90),
   extra_day_cents: z.number().int().min(0).max(100000),
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         prohibited_items: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
         operating_days: z.array(z.number().int().min(0).max(6)).max(7).optional(),
         tax_rate_percent: z.number().min(0).max(30).default(0).optional(),
-        pricing_rules: z.array(rule).min(1).max(4),
+        pricing_rules: z.array(rule).min(1).max(12),
       })
       .strict()
       .parse(await request.json());
@@ -55,7 +55,10 @@ export async function POST(request: Request) {
     if (isDemo()) {
       await mutateDemo((d) => {
         const isPaidPlan = d.organization.subscription_status === 'active';
-        const feeEnabled = input.customer_fee_enabled === false && !isPaidPlan ? true : (input.customer_fee_enabled ?? true);
+        if (input.customer_fee_enabled === false && !isPaidPlan) {
+          throw new Error('Disabling the $11.95 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+        }
+        const feeEnabled = input.customer_fee_enabled ?? true;
         Object.assign(d.organization, {
           name: input.name,
           phone: input.phone,
@@ -94,9 +97,12 @@ export async function POST(request: Request) {
         .eq('id', member.org_id)
         .single();
       const isPaid = orgData?.subscription_status === 'active';
+      if (input.customer_fee_enabled === false && !isPaid) {
+        throw new Error('Disabling the $11.95 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+      }
       const sanitizedInput = {
         ...input,
-        customer_fee_enabled: input.customer_fee_enabled === false && !isPaid ? true : (input.customer_fee_enabled ?? true),
+        customer_fee_enabled: input.customer_fee_enabled ?? true,
       };
 
       const { error } = await admin().rpc('save_settings', {

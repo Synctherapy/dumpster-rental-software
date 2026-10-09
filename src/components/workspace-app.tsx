@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowDownToLine,
@@ -333,9 +333,10 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                   <Button
                     variant="primary"
                     onClick={() => setResource('container')}
+                    style={{ background: '#166534', color: '#fff', fontWeight: 600 }}
                   >
                     <Plus size={14} />
-                    Add container
+                    + Add Dumpster / Container
                   </Button>
                 </>
               ) : page === 'drivers' ? (
@@ -383,6 +384,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               reload={reload}
               notify={notify}
               openJob={(id) => setSelected(id)}
+              onAddContainer={() => setResource('container')}
               onBulkAdd={() => setBulkContainerModal(true)}
             />
           )}
@@ -417,6 +419,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
       <ResourceDialog
         key={resource}
         kind={resource}
+        data={data}
         close={() => setResource(null)}
         reload={reload}
         notify={notify}
@@ -560,12 +563,14 @@ function Inventory({
   reload,
   notify,
   openJob,
+  onAddContainer,
   onBulkAdd,
 }: {
   data: Workspace;
   reload: () => Promise<void>;
   notify: Notify;
   openJob: (id: string) => void;
+  onAddContainer?: () => void;
   onBulkAdd?: () => void;
 }) {
   const [search, setSearch] = useState('');
@@ -578,6 +583,50 @@ function Inventory({
   const colors = { yard: '#7f9d57', on_site: '#81a1bb', maintenance: '#bda16c' };
   return (
     <>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          padding: '12px 18px',
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          borderRadius: '8px',
+          marginBottom: '16px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Box size={20} style={{ color: '#166534' }} />
+          <div>
+            <strong style={{ fontSize: '14px', color: '#166534', display: 'block' }}>
+              Custom Dumpster Sizes Supported
+            </strong>
+            <span style={{ fontSize: '12px', color: '#15803d' }}>
+              Track any size container (10, 12, 14, 15, 20, 25, 30, 40+ yard). Add individual cans or import in bulk.
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {onAddContainer && (
+            <Button
+              variant="primary"
+              onClick={onAddContainer}
+              style={{ background: '#166534', color: '#fff', fontWeight: 600, fontSize: '13px' }}
+            >
+              <Plus size={14} />
+              + Add Dumpster
+            </Button>
+          )}
+          <Button asChild variant="ghost" style={{ fontSize: '13px', color: '#166534' }}>
+            <Link href="/settings">
+              Manage Pricing & Sizes →
+            </Link>
+          </Button>
+        </div>
+      </div>
+
       <div className="stats">
         {[
           { label: 'Total containers', value: data.containers.length },
@@ -605,6 +654,16 @@ function Inventory({
         <div className="table-top">
           <h3>Your fleet</h3>
           <div className="board-tools">
+            {onAddContainer && (
+              <Button
+                variant="primary"
+                onClick={onAddContainer}
+                style={{ background: '#166534', color: '#fff', fontWeight: 600 }}
+              >
+                <Plus size={14} />
+                + Add Dumpster
+              </Button>
+            )}
             {onBulkAdd && (
               <Button onClick={onBulkAdd}>
                 <Sparkles size={13} />
@@ -1071,25 +1130,34 @@ function exportPayments(data: Workspace) {
 }
 function ResourceDialog({
   kind,
+  data,
   close,
   reload,
   notify,
 }: {
   kind: 'container' | 'driver' | null;
+  data?: Workspace;
   close: () => void;
   reload: () => Promise<void>;
   notify: Notify;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [containerSize, setContainerSize] = useState<number>(20);
+
+  const sizePresets: number[] = useMemo(() => {
+    const fromRules = data?.pricing_rules.map((r) => r.size_yards) || [];
+    return Array.from(new Set([...fromRules, 10, 12, 14, 15, 20, 25, 30, 40])).sort((a, b) => a - b);
+  }, [data?.pricing_rules]);
+
   return (
     <Modal
       open={!!kind}
       onOpenChange={(o) => !o && close()}
-      title={`Add ${kind === 'container' ? 'a container' : 'a driver'}`}
+      title={kind === 'container' ? 'Add a Dumpster / Container' : 'Add a driver'}
       description={
         kind === 'container'
-          ? 'Give your container a number and pick its size.'
+          ? 'Assign a container number and specify its size in yards (1 to 100 yards).'
           : 'Add a driver to your crew. They can work from a secure mobile link.'
       }
     >
@@ -1105,12 +1173,12 @@ function ResourceDialog({
               method: 'POST',
               body: JSON.stringify(
                 kind === 'container'
-                  ? { kind, label: fields.get('label'), size_yards: Number(fields.get('size')) }
+                  ? { kind, label: fields.get('label'), size_yards: containerSize }
                   : { kind, name: fields.get('name'), phone: fields.get('phone') },
               ),
             });
             await reload();
-            notify(`${kind === 'container' ? 'Container' : 'Driver'} added to your workspace.`);
+            notify(`${kind === 'container' ? 'Dumpster container' : 'Driver'} added to your workspace.`);
             close();
           } catch (e) {
             setError((e as Error).message);
@@ -1122,19 +1190,47 @@ function ResourceDialog({
         {kind === 'container' ? (
           <>
             <label className="field">
-              Container number
-              <input name="label" required placeholder="e.g. GL-019" maxLength={30} />
+              Container number / ID
+              <input name="label" required placeholder="e.g. GL-019 or BIN-15" maxLength={30} />
             </label>
-            <label className="field">
-              Container size
-              <select name="size" defaultValue="20">
-                {[10, 20, 30, 40].map((s) => (
-                  <option key={s} value={s}>
-                    {s} yard
-                  </option>
+            <div className="field">
+              <span style={{ fontWeight: 600, fontSize: '13.5px' }}>Container size (yards)</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                required
+                value={containerSize}
+                onChange={(e) =>
+                  setContainerSize(Math.max(1, Math.min(100, parseInt(e.target.value, 10) || 1)))
+                }
+                style={{ marginTop: '4px' }}
+              />
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
+                {sizePresets.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setContainerSize(s)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      border: containerSize === s ? '1px solid #166534' : '1px solid #cbd5e1',
+                      background: containerSize === s ? '#166534' : '#fff',
+                      color: containerSize === s ? '#fff' : '#334155',
+                      fontWeight: containerSize === s ? 600 : 400,
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {s} Yard
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+              <small style={{ marginTop: '8px', display: 'block', color: '#64748b' }}>
+                💡 Tip: To customize customer booking rates or ton limits for {containerSize}-yard dumpsters, visit Settings → Dumpster Sizes.
+              </small>
+            </div>
           </>
         ) : (
           <>
@@ -1161,7 +1257,8 @@ function ResourceDialog({
           </div>
         )}
         <Button variant="primary" type="submit" disabled={busy}>
-          {busy ? <Loader2 size={14} className="spin" /> : <Plus size={14} />}Add {kind}
+          {busy ? <Loader2 size={14} className="spin" /> : <Plus size={14} />}
+          {kind === 'container' ? 'Add Dumpster to Fleet' : 'Add driver'}
         </Button>
       </form>
     </Modal>

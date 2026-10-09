@@ -102,6 +102,7 @@ export function seed(): Workspace {
       phone: '+15125550100',
       timezone: 'America/Chicago',
       stripe_connect_account_id: null,
+      subscription_status: 'inactive',
       pricing_config: { deposit_percent: 25, tax_rate_percent: 8.25 },
       tax_rate_percent: 8.25,
       calendar_token: 'demo-calendar-token',
