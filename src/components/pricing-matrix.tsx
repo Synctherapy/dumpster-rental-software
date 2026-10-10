@@ -178,22 +178,30 @@ export function PricingMatrix() {
     );
   };
 
+  const [mobilePlan, setMobilePlan] = React.useState<'free' | 'starter' | 'growth'>('free');
+
   return (
     <div className="w-full my-8">
-      {/* Plan Header Cards on Desktop */}
-      <div className="overflow-x-auto rounded-2xl border border-[#dde4d4] bg-white shadow-sm">
-        <table className="w-full text-left border-collapse min-w-[680px]">
+      {/* 1. Desktop & Tablet View (Never Scrolls Horizontally) */}
+      <div className="hidden md:block rounded-2xl border border-[#dde4d4] bg-white shadow-sm overflow-hidden">
+        <table className="w-full text-left border-collapse table-fixed">
+          <colgroup>
+            <col style={{ width: '40%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '20%' }} />
+          </colgroup>
           <thead>
             <tr className="border-b border-[#dde4d4] bg-[#f8faf6]">
-              <th className="p-4 md:p-6 text-sm md:text-base font-bold text-[#1f2d26] w-[34%] min-w-[220px] sticky left-0 bg-[#f8faf6] z-20 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
+              <th className="p-5 text-base font-bold text-[#1f2d26]">
                 Plan Overview
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px] bg-white border-x border-[#dde4d4] relative">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#ea580c] mb-1">
+              <th className="p-5 text-center bg-white border-x border-[#dde4d4] relative">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">
                   Most Popular
                 </div>
-                <div className="text-lg md:text-xl font-extrabold text-[#1f2d26]">Free Plan</div>
-                <div className="text-2xl md:text-3xl font-black text-[#1f2d26] my-1">
+                <div className="text-lg font-extrabold text-[#1f2d26]">Free Plan</div>
+                <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $0<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
                 <p className="text-[11px] text-[#64748b] mb-3">Get bookings while you sleep</p>
@@ -204,12 +212,12 @@ export function PricingMatrix() {
                   Start Free in 3 Mins
                 </Link>
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px] border-r border-[#dde4d4]">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1">
+              <th className="p-5 text-center border-r border-[#dde4d4]">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
                   Contractors
                 </div>
-                <div className="text-lg md:text-xl font-extrabold text-[#1f2d26]">Starter Plan</div>
-                <div className="text-2xl md:text-3xl font-black text-[#1f2d26] my-1">
+                <div className="text-lg font-extrabold text-[#1f2d26]">Starter Plan</div>
+                <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $29<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
                 <p className="text-[11px] text-[#64748b] mb-3">Cash/check & calendar sync</p>
@@ -220,12 +228,12 @@ export function PricingMatrix() {
                   Choose Starter
                 </Link>
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px]">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1">
+              <th className="p-5 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
                   Fleets
                 </div>
-                <div className="text-lg md:text-xl font-extrabold text-[#1f2d26]">Growth Fleet</div>
-                <div className="text-2xl md:text-3xl font-black text-[#1f2d26] my-1">
+                <div className="text-lg font-extrabold text-[#1f2d26]">Growth Fleet</div>
+                <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $149<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
                 <p className="text-[11px] text-[#64748b] mb-3">Multi-truck operations</p>
@@ -244,7 +252,7 @@ export function PricingMatrix() {
                 <tr className="bg-[#f1f5ee] border-y border-[#dde4d4]">
                   <td
                     colSpan={4}
-                    className="px-4 md:px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#4a6344] sticky left-0 z-10 bg-[#f1f5ee]"
+                    className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#4a6344]"
                   >
                     {section.category}
                   </td>
@@ -256,24 +264,139 @@ export function PricingMatrix() {
                       idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
                     }`}
                   >
-                    <td
-                      className={`px-4 md:px-6 py-3.5 text-xs md:text-sm font-semibold text-[#2d3a31] sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.04)] ${
-                        idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
-                      }`}
-                    >
+                    <td className="px-5 py-3 text-xs md:text-sm font-semibold text-[#2d3a31]">
                       {feat.name}
                     </td>
-                    <td className="px-3 md:px-4 py-3.5 text-center border-x border-[#edf2e7] bg-[#fefefe]">
+                    <td className="px-3 py-3 text-center border-x border-[#edf2e7] bg-[#fefefe]">
                       {renderVal(feat.free, feat.bold, feat.highlight)}
                     </td>
-                    <td className="px-3 md:px-4 py-3.5 text-center border-r border-[#edf2e7]">
+                    <td className="px-3 py-3 text-center border-r border-[#edf2e7]">
                       {renderVal(feat.starter, feat.bold)}
                     </td>
-                    <td className="px-3 md:px-4 py-3.5 text-center">
+                    <td className="px-3 py-3 text-center">
                       {renderVal(feat.growth, feat.bold)}
                     </td>
                   </tr>
                 ))}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 2. Mobile Smartphone View (Segmented Tab - Zero Horizontal Scroll) */}
+      <div className="block md:hidden rounded-2xl border border-[#dde4d4] bg-white shadow-sm overflow-hidden p-4">
+        {/* Plan Switcher Tabs */}
+        <div className="grid grid-cols-3 gap-1 p-1 bg-[#f1f5ee] rounded-xl mb-4">
+          <button
+            type="button"
+            onClick={() => setMobilePlan('free')}
+            className={`py-2 px-1 text-center rounded-lg text-xs font-bold transition-all ${
+              mobilePlan === 'free'
+                ? 'bg-[#ea580c] text-white shadow-sm'
+                : 'text-[#475569]'
+            }`}
+          >
+            Free ($0)
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobilePlan('starter')}
+            className={`py-2 px-1 text-center rounded-lg text-xs font-bold transition-all ${
+              mobilePlan === 'starter'
+                ? 'bg-[#1f2d26] text-white shadow-sm'
+                : 'text-[#475569]'
+            }`}
+          >
+            Starter ($29)
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobilePlan('growth')}
+            className={`py-2 px-1 text-center rounded-lg text-xs font-bold transition-all ${
+              mobilePlan === 'growth'
+                ? 'bg-[#1f2d26] text-white shadow-sm'
+                : 'text-[#475569]'
+            }`}
+          >
+            Growth ($149)
+          </button>
+        </div>
+
+        {/* Selected Plan Header Card */}
+        <div className="p-4 rounded-xl border border-[#dde4d4] bg-[#f8faf6] text-center mb-4">
+          <div className="text-xs font-bold uppercase tracking-wider text-[#ea580c] mb-1">
+            {mobilePlan === 'free'
+              ? 'Most Popular · Free Plan'
+              : mobilePlan === 'starter'
+              ? 'Contractors · Starter Plan'
+              : 'Multi-Truck Fleet Plan'}
+          </div>
+          <div className="text-3xl font-black text-[#1f2d26]">
+            {mobilePlan === 'free' ? '$0' : mobilePlan === 'starter' ? '$29' : '$149'}
+            <span className="text-xs font-normal text-[#64748b]">/month</span>
+          </div>
+          <p className="text-xs text-[#64748b] my-2">
+            {mobilePlan === 'free'
+              ? 'Get bookings and revenue while you sleep'
+              : mobilePlan === 'starter'
+              ? 'Cash/check logging & two-way calendar sync'
+              : 'Dedicated fleet scheduling for multi-truck operations'}
+          </p>
+          <Link
+            href="/signup"
+            className={`btn w-full justify-center text-xs py-2.5 mt-2 ${
+              mobilePlan === 'free' ? 'btn-orange' : 'btn-dark'
+            }`}
+          >
+            {mobilePlan === 'free'
+              ? 'Start Free in 3 Mins'
+              : mobilePlan === 'starter'
+              ? 'Choose Starter ($29/mo)'
+              : 'Choose Growth ($149/mo)'}
+          </Link>
+        </div>
+
+        {/* Mobile 2-Column Clean Table (Zero Horizontal Scroll) */}
+        <table className="w-full text-left border-collapse table-fixed">
+          <colgroup>
+            <col style={{ width: '62%' }} />
+            <col style={{ width: '38%' }} />
+          </colgroup>
+          <tbody>
+            {rows.map((section) => (
+              <React.Fragment key={section.category}>
+                <tr className="bg-[#f1f5ee] border-y border-[#dde4d4]">
+                  <td
+                    colSpan={2}
+                    className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[#4a6344]"
+                  >
+                    {section.category}
+                  </td>
+                </tr>
+                {section.features.map((feat, idx) => {
+                  const val =
+                    mobilePlan === 'free'
+                      ? feat.free
+                      : mobilePlan === 'starter'
+                      ? feat.starter
+                      : feat.growth;
+                  return (
+                    <tr
+                      key={feat.name}
+                      className={`border-b border-[#edf2e7] ${
+                        idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
+                      }`}
+                    >
+                      <td className="px-3 py-2.5 text-xs font-semibold text-[#2d3a31]">
+                        {feat.name}
+                      </td>
+                      <td className="px-2 py-2.5 text-center">
+                        {renderVal(val, feat.bold, feat.highlight)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </React.Fragment>
             ))}
           </tbody>

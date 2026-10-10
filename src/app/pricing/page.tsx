@@ -60,7 +60,7 @@ export default function PricingPage() {
             Legacy software providers charge independent haulers hundreds of dollars every month before you haul your first bin. Here is how the annual math breaks down:
           </p>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden">
             <table className="compare-table" style={{ margin: '0' }}>
               <thead>
                 <tr>

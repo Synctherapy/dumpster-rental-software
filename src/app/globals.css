@@ -16,8 +16,12 @@
 * {
   box-sizing: border-box;
 }
+html,
 body {
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
   background: #f7f8fa;
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
@@ -1238,6 +1242,8 @@ td small {
 .marketing {
   background: #f8faf4;
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
 }
 .marketing-nav {
   max-width: 1180px;

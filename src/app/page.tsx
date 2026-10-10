@@ -275,7 +275,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-hidden">
           <table className="compare-table">
             <thead>
               <tr>
