@@ -27,7 +27,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
             do.
           </p>
         </div>
-        <p style={{ fontSize: 11 }}>Free for haulers. $0/month. Keep 100% of your dumpster revenue.</p>
+        <p style={{ fontSize: 11 }}>Free to start. $0/month, or upgrade to $29 or $149. The free plan includes an $11.95 customer reservation fee.</p>
       </section>
       <section className="auth-form-area">
         <div className="auth-form">

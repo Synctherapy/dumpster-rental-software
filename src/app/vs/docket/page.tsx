@@ -49,14 +49,14 @@ export default function DocketComparisonPage() {
         </div>
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
-          UNBIASED SOFTWARE COMPARISON · 2026 EDITION
+          VENDOR COMPARISON · PUBLISHED BY ROLLOS
         </div>
         <h1 className="text-3xl md:text-5xl font-extrabold text-[#20302a] leading-tight mb-6">
           RollOS vs. Docket: Which roll off dumpster software is right for your hauling business?
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8">
-          Choosing between <strong>RollOS</strong> and <strong>Docket</strong> comes down to your operating philosophy: do you want an expensive, heavyweight enterprise platform that requires driver app downloads and mandatory sales demos, or a lean, high-speed system where homeowners pay a modest $12 booking fee and drivers manage drops via instant SMS web links?
+          Choosing between <strong>RollOS</strong> and <strong>Docket</strong> comes down to your operating philosophy: do you want an expensive, heavyweight enterprise platform that requires driver app downloads and mandatory sales demos, or a smaller tool with a free plan, a $29 Starter plan, and a $149 Growth plan. Drivers open an SMS link. They do not install an app.
         </p>
 
         {/* Executive Summary Cards */}
@@ -67,14 +67,14 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-xs text-[#556658] mb-4 leading-relaxed">
-              Built specifically for independent and expanding roll-off haulers (1–15 trucks). Transparent pricing with Starter ($29/mo) and Growth Fleet ($149/mo). Customers pay a simple $12 online booking fee at checkout so haulers keep 100% of their dumpster revenue.
+              Built specifically for independent and expanding roll-off haulers (1–15 trucks). Free at $0/month, Starter at $29/month, Growth at $149/month. The free plan adds an $11.95 customer reservation fee. Paid plans can turn that fee off.
             </p>
             <ul className="space-y-2 text-xs text-[#334155]">
               <li className="flex items-center gap-2">
                 <Check size={14} className="text-[#ea580c]" /> Starter $29/mo · Growth Fleet $149/mo
               </li>
               <li className="flex items-center gap-2">
-                <Check size={14} className="text-[#ea580c]" /> Hauler keeps 100% of dumpster rental fees
+                <Check size={14} className="text-[#ea580c]" /> Free plan, then $29 or $149
               </li>
               <li className="flex items-center gap-2">
                 <Check size={14} className="text-[#ea580c]" /> Driver SMS magic links (zero app downloads)
@@ -137,14 +137,14 @@ export default function DocketComparisonPage() {
                 <tr>
                   <td>Hauler Rental Commission</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    0% hauler fee (keep 100% of price)
+                    Free, or $29 / $149 a month
                   </td>
                   <td>0% hauler fee (fixed overhead)</td>
                 </tr>
                 <tr>
                   <td>Platform Funding Model</td>
                   <td className="highlight-col font-semibold">
-                    Customer pays $12 online booking fee
+                    $11.95 fee on the free plan only
                   </td>
                   <td>Hauler absorbs 100% software overhead</td>
                 </tr>
@@ -170,7 +170,7 @@ export default function DocketComparisonPage() {
                   <td>Available inside mobile app</td>
                 </tr>
                 <tr>
-                  <td>Landfill Scale Ticket OCR</td>
+                  <td>Scale weight on the invoice</td>
                   <td className="highlight-col font-semibold">
                     1-click photo upload & auto overage billing
                   </td>
@@ -179,26 +179,26 @@ export default function DocketComparisonPage() {
                 <tr>
                   <td>Contractor 1-Click Swaps</td>
                   <td className="highlight-col font-semibold">
-                    Included in Growth Fleet ($149/mo)
+                    Not available yet
                   </td>
                   <td>Supported across higher tiers</td>
                 </tr>
                 <tr>
-                  <td>Missed-Call Auto Text-Back</td>
+                  <td>Missed-call text-back</td>
                   <td className="highlight-col font-semibold">
-                    Included in Growth Fleet ($149/mo)
+                    Not available yet
                   </td>
                   <td>Not natively integrated</td>
                 </tr>
                 <tr>
                   <td>White-Label Custom Domain</td>
                   <td className="highlight-col font-semibold">
-                    CNAME support (rentals.yourbrand.com)
+                    Custom booking domain
                   </td>
                   <td>Custom portal available</td>
                 </tr>
                 <tr>
-                  <td>Review Gatekeeper (Google 5★)</td>
+                  <td>Review request SMS</td>
                   <td className="highlight-col font-semibold">
                     Automated post-pickup SMS review invite
                   </td>
@@ -221,7 +221,7 @@ export default function DocketComparisonPage() {
           <div className="flex items-center gap-3 mb-4">
             <DollarSign className="text-[#ea580c]" size={24} />
             <h3 className="text-xl font-bold text-[#1f2d26]">
-              The Real Cost Math: How $12 Customer Fees Save Haulers $2,600+ Every Year
+              How the free plan is paid for
             </h3>
           </div>
           <p className="text-sm text-[#556658] leading-relaxed mb-4">
@@ -240,8 +240,8 @@ export default function DocketComparisonPage() {
               <strong className="text-[#2e7d32] text-sm block mb-1">With RollOS Starter:</strong>
               <p className="text-[#47603c]">
                 Monthly subscription: $29/mo ($348/yr)<br />
-                Homeowner pays: $12 reservation fee at checkout<br />
-                Hauler keeps: <strong>100% of the $450 rental ($13,500/mo)</strong><br />
+                Homeowner pays: $11.95 reservation fee on the free plan<br />
+                Software cost on Free: <strong>$0/month</strong><br />
                 Annual software savings: <strong>$2,652+ back in your pocket</strong>.
               </p>
             </div>
@@ -321,7 +321,7 @@ export default function DocketComparisonPage() {
               <strong className="text-[#ea580c] text-sm block mb-2">Choose RollOS if:</strong>
               <ul className="space-y-2 list-disc pl-4 text-white">
                 <li>You are an independent or growth-focused roll-off hauler running 1–15 trucks.</li>
-                <li>You want to keep 100% of your rental money and stop paying bloated $300/month software bills.</li>
+                <li>You want to start at $0/month and upgrade to $29 or $149 only if you need the customer fee off.</li>
                 <li>You want your customers to book and pay online in 60 seconds.</li>
                 <li>You want drivers to use fast SMS links with zero app downloads or login headaches.</li>
                 <li>You want to be up and running today in 3 minutes without a sales demo.</li>
