@@ -6,7 +6,7 @@ import { Brand } from '@/components/brand';
 export const metadata = {
   title: 'Online Booking for Dumpster Rentals',
   description:
-    'Add a dumpster booking link or embed to your existing website. ZIP check, dates, deposit, and the $11.95 free-plan reservation fee shown at checkout.',
+    'Add a dumpster booking link or embed to your existing website. ZIP check, dates, deposit, and the $12 free-plan reservation fee shown at checkout.',
 };
 
 export default function BookingSystemPage() {
@@ -68,7 +68,7 @@ export default function BookingSystemPage() {
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl">
             <h3 className="text-base font-bold text-[#1f2d26] mb-2">Free plan, paid plans optional</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              Start at $0/month. Online bookings on the free plan include an $11.95 customer reservation fee at checkout. You keep 100% of your rental price. Starter ($29) adds cash/check logging and calendar sync.
+              Start at $0/month. Online bookings on the free plan include a $12 customer reservation fee at checkout. You keep 100% of your rental price. Starter ($29) adds cash/check logging and calendar sync.
             </p>
           </div>
         </div>

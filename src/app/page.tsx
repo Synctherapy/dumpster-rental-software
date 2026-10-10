@@ -19,7 +19,7 @@ import { SavingsCalculator } from '@/components/savings-calculator';
 export const metadata = {
   title: 'Roll Off Dumpster Software — Free Online Booking & Dispatch',
   description:
-    'Get dumpster clients and revenue while you sleep with free roll off dumpster software. 24/7 online booking widget, visual dispatch board, and SMS driver links. $0/mo free plan.',
+    'Book dumpster jobs and collect payments while you sleep with free roll off dumpster software. 24/7 online booking widget, visual dispatch board, and SMS driver links. $0/mo free plan.',
 };
 
 export default function Home() {
@@ -49,10 +49,10 @@ export default function Home() {
             <span className="dot" /> Built for Independent Haulers · 24/7 Booking Engine
           </div>
           <h1>
-            Roll off dumpster software that gets you bookings and revenue <em>while you sleep.</em>
+            Roll off dumpster software that books jobs and collects payments <em>while you sleep.</em>
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: '#4a5d4e' }}>
-            Stop playing phone tag while steering a 15-ton truck. RollOS gives independent haulers
+            Stop losing $450 jobs to voicemail. Over 40% of dumpster searches happen after 7 PM—if you don’t have online booking, homeowners hire the next hauler on Google. RollOS gives independent haulers
             free <strong>roll off dumpster software</strong> with an embeddable 24/7 booking widget
             for your website, visual drag-and-drop dispatching, and 1-tap SMS driver routes with
             zero app downloads. Setup takes 3 minutes, customers pay upfront, and you keep 100% of
@@ -107,7 +107,7 @@ export default function Home() {
               <div>
                 <span style={{ fontSize: 14, fontWeight: 700 }}>20 yard · 7 days included · 2 tons</span>
                 <p style={{ fontSize: 12, color: '#687864', margin: '2px 0 0' }}>
-                  Sample rental $425 · Customer reservation fee: $11.95 · Hauler keeps 100%
+                  Sample rental $425 · Customer reservation fee: $12 · Hauler keeps 100%
                 </p>
               </div>
               <strong style={{ fontSize: 28 }}>$425</strong>
@@ -240,19 +240,20 @@ export default function Home() {
           </h2>
           <p style={{ fontSize: 16, color: '#4a5d4e', lineHeight: 1.7 }}>
             Why pay Docket, DumpsterSoft, or Jobber hundreds of dollars every month before you haul your first bin?
-            With RollOS, your customers pay an $11.95 online reservation fee at checkout to guarantee their delivery date.
+            With RollOS, your customers pay a standard $12 online reservation fee at checkout to guarantee their delivery date.
             You keep 100% of your base rental rate, extra day charges, and weight overages.
           </p>
 
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left">
             <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
               <ShieldCheck size={20} className="text-[#ea580c]" />
-              Worried your customer won’t pay it?
+              Worried your customer won’t pay a $12 reservation fee?
             </h4>
+            <p className="text-sm text-[#475569] leading-relaxed mb-3">
+              Does Airbnb pay your guest’s booking fee? Does Ticketmaster pay yours? No. On a <strong>$450 dumpster rental</strong>, a homeowner won’t blink at a <strong>$12 reservation fee</strong> (less than 3%) to lock in guaranteed delivery for their project. They get instant peace of mind, and you save $3,600/year in software subscriptions.
+            </p>
             <p className="text-sm text-[#475569] leading-relaxed">
-              On a <strong>$450 dumpster rental</strong>, a homeowner won’t blink at an{' '}
-              <strong>$11.95 reservation fee</strong> to lock in guaranteed Saturday delivery. You keep 100% of your
-              hard-earned dumpster revenue. No $150–$300/mo software bills. More money in your pocket.
+              <strong>More money in your pocket:</strong> You keep 100% of your hard-earned dumpster revenue. No $150–$350/mo monthly software bills. No percentage taken out of your haul.
             </p>
           </div>
         </div>
@@ -300,7 +301,7 @@ export default function Home() {
               <tr>
                 <td>Software Overhead Model</td>
                 <td className="highlight-col font-semibold">
-                  Customer pays $11.95 booking fee
+                  Customer pays $12 booking fee
                 </td>
                 <td>Hauler absorbs 100% overhead</td>
               </tr>
@@ -358,17 +359,17 @@ export default function Home() {
               How does the free plan work?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              The Free Plan gives you our full 24/7 online booking widget, visual drag-and-drop dispatch board, driver SMS magic links, and delivery photo proof with $0 monthly software bills. Your customer pays an $11.95 online reservation fee at checkout to guarantee their container delivery. You keep 100% of your rental money.
+              The Free Plan gives you our full 24/7 online booking widget, visual drag-and-drop dispatch board, driver SMS magic links, and delivery photo proof with $0 monthly software bills. Your customer pays a standard $12 online reservation fee at checkout to guarantee their container delivery. You keep 100% of your rental money.
             </p>
           </div>
 
           <div className="faq-card">
             <h3>
               <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
-              Will my customers complain about an $11.95 booking fee?
+              Will my customers complain about a $12 booking fee?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              No. When a customer orders a $450 roll off container, an $11.95 reservation fee to guarantee their delivery date is completely routine—just like an airline seat or hotel reservation fee. They get instant online confirmation instead of playing phone tag.
+              No. When a customer orders a $450 roll off container, a $12 reservation fee to guarantee their delivery date is completely routine—just like an Airbnb, hotel, or flight booking fee. They get instant online confirmation instead of playing phone tag, and you save thousands every year.
             </p>
           </div>
 

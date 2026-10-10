@@ -447,13 +447,13 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: '#f0fdf4', borderRadius: '8px', fontSize: '12px', border: '1px solid #bbf7d0' }}>
               <div>
                 <strong style={{ color: '#166534' }}>Your RollOS Software Model</strong>
-                <p style={{ margin: '4px 0 0 0', color: '#15803d' }}>Homeowners pay the $11.95 booking fee. You keep 100% of your rental rate.</p>
+                <p style={{ margin: '4px 0 0 0', color: '#15803d' }}>Homeowners pay the $12 booking fee. You keep 100% of your rental rate.</p>
               </div>
               <span style={{ color: '#16a34a', fontWeight: 700, fontSize: '13px' }}>$0 Out of Pocket</span>
             </div>
           </div>
           <div style={{ marginTop: '16px', fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>
-            💡 <strong>Homeowner psychology:</strong> A homeowner paying $450 for a 20-yard dumpster gladly pays $11.95 for guaranteed priority dispatch. You keep full profit margins.
+            💡 <strong>Homeowner psychology:</strong> A homeowner paying $450 for a 20-yard dumpster gladly pays $12 for guaranteed priority dispatch. You keep full profit margins.
           </div>
         </section>
 

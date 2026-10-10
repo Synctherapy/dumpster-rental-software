@@ -266,7 +266,7 @@ test('POST /api/settings rejects disabling customer fee when plan is inactive', 
   const json = (await res.json()) as { error: string };
   assert.equal(
     json.error,
-    'Disabling the $11.95 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.',
+    'Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.',
   );
 });
 

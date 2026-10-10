@@ -19,7 +19,7 @@ export default function SaasTerms() {
       </p>
       <h2>Plans</h2>
       <p>
-        Free is $0 a month and includes an $11.95 customer reservation fee on online bookings.
+        Free is $0 a month and includes a $12 customer reservation fee on online bookings.
         Starter is $29 a month. Growth is $149 a month. Paid plans can turn the customer fee off.
         Stripe processing fees are charged by Stripe, not included in these prices. There is no
         annual contract.

@@ -74,7 +74,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
   }
 
   // RollOS Annual Cost
-  // Free: $0/mo (homeowner pays $11.95 booking fee)
+  // Free: $0/mo (homeowner pays $12 booking fee)
   // Starter: $29/mo ($348/yr)
   const rollosAnnualCost = rollosPlan === 'free' ? 0 : 29 * 12;
 

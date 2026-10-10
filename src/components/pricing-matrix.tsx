@@ -56,7 +56,7 @@ export function PricingMatrix() {
         },
         {
           name: 'Customer Online Reservation Fee',
-          free: '$11.95 paid by customer',
+          free: '$12 paid by customer',
           starter: 'Option to disable or absorb',
           growth: 'Option to disable or absorb',
         },

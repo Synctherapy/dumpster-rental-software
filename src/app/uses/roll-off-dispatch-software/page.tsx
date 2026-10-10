@@ -68,7 +68,7 @@ export default function DispatchSoftwarePage() {
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl">
             <h3 className="text-base font-bold text-[#1f2d26] mb-2">Included on the free plan</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              The dispatch board is on the $0 plan. Online bookings on that plan include an $11.95 customer reservation fee. There is no route-optimization engine and no live driver GPS.
+              The dispatch board is on the $0 plan. Online bookings on that plan include a $12 customer reservation fee. There is no route-optimization engine and no live driver GPS.
             </p>
           </div>
         </div>

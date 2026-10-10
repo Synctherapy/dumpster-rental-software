@@ -35,7 +35,7 @@ const screenshots: ScreenshotItem[] = [
     src: '/images/screenshots/dumpster-rental-online-booking-system.png',
     alt: 'Online dumpster booking system checkout widget showing 10 to 40 yard roll off dumpster sizes, delivery dates, and transparent pricing',
     iconName: 'calendar',
-    description: 'Stop playing phone tag while driving your roll off truck. Homeowners select their dumpster size (10, 15, 20, 30, 40 yard), choose their delivery date, enter drop-off placement notes, and pay securely online. On the free plan, the customer pays an $11.95 reservation fee at checkout. Paid plans can turn that fee off.',
+    description: 'Stop playing phone tag while driving your roll off truck. Homeowners select their dumpster size (10, 15, 20, 30, 40 yard), choose their delivery date, enter drop-off placement notes, and pay securely online. On the free plan, the customer pays a $12 reservation fee at checkout. Paid plans can turn that fee off.',
   },
   {
     id: 'invoice-scale-tickets',

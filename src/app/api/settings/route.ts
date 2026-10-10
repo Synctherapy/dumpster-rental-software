@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       await mutateDemo((d) => {
         const isPaidPlan = d.organization.subscription_status === 'active';
         if (input.customer_fee_enabled === false && !isPaidPlan) {
-          throw new Error('Disabling the $11.95 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+          throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
         }
         const feeEnabled = input.customer_fee_enabled ?? true;
         Object.assign(d.organization, {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       const { member, db } = await identity();
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
 
-      // Check if organization has an active paid subscription to remove the $11.95 fee
+      // Check if organization has an active paid subscription to remove the $12 fee
       const { data: orgData } = await db
         .from('organizations')
         .select('subscription_status')
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
         .single();
       const isPaid = orgData?.subscription_status === 'active';
       if (input.customer_fee_enabled === false && !isPaid) {
-        throw new Error('Disabling the $11.95 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+        throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
       }
       const sanitizedInput = {
         ...input,

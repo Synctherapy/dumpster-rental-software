@@ -72,7 +72,7 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built specifically for independent roll-off haulers (1–15 trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Free plan includes 24/7 online booking and SMS driver links (customer pays an $11.95 reservation fee at checkout). You keep 100% of your rental revenue.
+              Built specifically for independent roll-off haulers (1–15 trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Free plan includes 24/7 online booking and SMS driver links (customer pays a $12 reservation fee at checkout). You keep 100% of your rental revenue.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export default function DocketComparisonPage() {
               <strong className="text-[#2e7d32] text-sm block mb-1">With RollOS Free / Starter:</strong>
               <p className="text-[#47603c] leading-relaxed">
                 Monthly subscription: $0/mo (Free) or $29/mo (Starter)<br />
-                Homeowner pays: $11.95 reservation fee at checkout<br />
+                Homeowner pays: $12 reservation fee at checkout<br />
                 Hauler keeps: <strong>100% of the $450 rental ($13,500/mo)</strong><br />
                 Annual software savings: <strong>$3,500 to $4,500+ back in your pocket</strong>.
               </p>

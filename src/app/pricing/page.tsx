@@ -20,7 +20,7 @@ const plans = [
       'Driver SMS Magic Links (0 app install required)',
       'Driveway delivery photo proof capture',
       'Attach scale ticket & manual tonnage overages',
-      'Customer pays standard $11.95 booking fee at checkout',
+      'Customer pays standard $12 booking fee at checkout',
       'Keep 100% of base rental rates and overages',
       'No annual contract · Cancel anytime',
     ],
@@ -172,7 +172,7 @@ export default function PricingPage() {
               <strong className="text-[#16a34a] text-sm block mb-1">RollOS Free Plan</strong>
               <div className="text-2xl font-bold text-[#166534] my-1">$0 / yr</div>
               <p className="text-[#14532d] leading-relaxed">
-                Zero software bills. Customer pays an $11.95 booking fee at checkout. You keep 100% of your rental money ($4,200/yr saved).
+                Zero software bills. Customer pays a $12 booking fee at checkout. You keep 100% of your rental money ($4,200/yr saved).
               </p>
             </div>
 

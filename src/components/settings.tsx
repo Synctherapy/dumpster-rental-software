@@ -261,7 +261,7 @@ export function Settings({
                     setCustomerFeeEnabled(e.target.checked);
                   }}
                 />
-                Pass $11.95 Online Reservation Fee to customer at checkout
+                Pass $12 Online Reservation Fee to customer at checkout
                 {data.organization.subscription_status !== 'active' && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: '#fef3c7', color: '#b45309', padding: '3px 8px', borderRadius: '12px', fontWeight: 600, border: '1px solid #fde68a' }}>
                     <Lock size={12} />
@@ -272,7 +272,7 @@ export function Settings({
               <p style={{ margin: '6px 0 0 24px', fontSize: '13px', color: 'var(--muted, #666)', lineHeight: 1.5 }}>
                 {data.organization.subscription_status === 'active'
                   ? 'On your paid plan, you can disable this fee if you prefer absorbing customer checkout charges or keeping prices flat.'
-                  : 'On the free plan, the $11.95 reservation fee covers your hosting, booking engine, and driver links. Upgrading to Starter ($29/mo) or Growth ($149/mo) is required to disable this fee.'}
+                  : 'On the free plan, the $12 reservation fee covers your hosting, booking engine, and driver links. Upgrading to Starter ($29/mo) or Growth ($149/mo) is required to disable this fee.'}
               </p>
             </div>
             <div className="form-row">
