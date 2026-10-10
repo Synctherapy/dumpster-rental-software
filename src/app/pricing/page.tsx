@@ -70,9 +70,10 @@ export default function PricingPage() {
           <Link href="/">Home</Link>
           <Link href="/uses/dumpster-booking-system">Online Booking</Link>
           <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/vs/docket">RollOS vs Docket</Link>
+          <Link href="/calculator">Savings Calculator</Link>
+          <Link href="/vs">Compare</Link>
           <Link href="/signup" className="btn btn-orange">
-            Start Free <ArrowRight size={14} />
+            Try Free Demo <ArrowRight size={14} />
           </Link>
         </div>
       </nav>
