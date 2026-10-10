@@ -28,7 +28,7 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
   const deliveredJobs = data.jobs.filter((j) => ['delivered', 'picked_up', 'completed'].includes(j.status));
 
   // Legacy competitor cost comparison
-  // Competitors charge $300-$500/mo flat ($3,600-$6,000/yr) + $1,500 setup fees + 1% payment penalty fees
+  // Competitors charge $300-$500/mo flat ($3,600-$6,000/yr) + $1,500 setup fees + credit card penalty fees
   const competitorBaseMonthly = 350; // $350/mo industry average (Docket/ServiceCore)
   const monthsActive = Math.max(1, Math.min(12, Math.ceil(data.jobs.length / 3)));
   const competitorCost = competitorBaseMonthly * monthsActive;
@@ -440,7 +440,7 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: '#f8fafc', borderRadius: '8px', fontSize: '12px' }}>
               <div>
                 <strong>Legacy Platforms (Docket / ServiceCore / DRS)</strong>
-                <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>$350–$500/mo flat fees + $1,500 setup + 1% penalty on outside cards</p>
+                <p style={{ margin: '4px 0 0 0', color: '#64748b' }}>$350–$500/mo flat fees + $1,500 setup + credit card penalty fees</p>
               </div>
               <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '13px' }}>-$4,200+/yr</span>
             </div>

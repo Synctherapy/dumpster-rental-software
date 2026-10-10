@@ -54,9 +54,8 @@ export function invoice(job: Job) {
   const overage = Math.round(extraTons * job.pricing_snapshot.overage_per_ton_cents);
   return { ...pricing, extraTons, overage, total: pricing.total + overage };
 }
-/** 0.5% of the charge, with a $3 minimum. Zero-balance invoices have no fee. */
+/** Haulers keep 100% of rental revenue. Zero platform fee on dumpster rentals. */
 export function platformFee(amount: number) {
   if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('Invalid amount');
-  if (amount === 0) return 0;
-  return Math.max(300, Math.round(amount * 0.005));
+  return 0;
 }

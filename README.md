@@ -72,7 +72,7 @@ Booking dates remain the rental dates used for invoicing. If pickup is delayed, 
 - Final invoices freeze their amount in `invoice_attempts`. Each Stripe operation has a stable idempotency key, and the returned PaymentIntent ID is retained. Older attempts with an unknown Stripe result require reconciliation before another charge is allowed. Declined or authentication-required cards need customer action through Stripe; no automatic new payment is created.
 - Webhook claims and ledger updates happen in one transaction. Event IDs, PaymentIntent IDs, and logical payment keys are unique. Replays cannot double-record. Out-of-order failures cannot downgrade a successful payment. Amount, currency, fee, and Connect destination are checked before posting.
 - Fully paid jobs can close with zero remaining balance. Refunds update the existing Stripe-linked ledger entry; refund initiation is through Stripe, not an unverified local button.
-- `/payments` displays collected volume, the 1% platform fee, and the amount after that fee. **Actual Stripe processing fees and bank payouts must be reconciled in Stripe.** No estimated fee is presented as an actual payout.
+- `/payments` displays collected volume, the customer-paid booking fee ($12), and the hauler's 100% rental revenue. **Actual Stripe processing fees and bank payouts must be reconciled in Stripe.** No estimated fee is presented as an actual payout.
 - Notification sends are claimed before sending and logged; reminder replays do not duplicate the same day’s message. A failed/uncertain send requires operator investigation rather than silently resending. Email supports provider idempotency. Actual provider receipt/delivery remains an integration acceptance check.
 
 ## Validate

@@ -1,12 +1,12 @@
 # Dumpster Rental SaaS — Vibe-Coded Build Spec
 
 Product: booking-first dumpster rental platform. Wedge: "the booking page that never sleeps."
-Monetization: $49/month hauler plan. Card processing is optional. If the hauler uses RollOS checkout, the application fee is 0.5% with a $3 minimum. The customer pays the full base rental up front.
+Monetization: 2 plans — Starter ($29/mo) and Growth Fleet ($149/mo). Customer pays $12 reservation fee at checkout. Hauler keeps 100% of dumpster rental revenue with 0% platform commission. The customer pays the base rental up front.
 Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 
 ## Locked decisions
 
-- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Billing ($49/month) + optional Stripe Connect (Express accounts, application fee 0.5% with a $3 minimum) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
+- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Billing ($29/mo Starter, $149/mo Growth) + optional Stripe Connect (Express accounts, $12 customer reservation fee, 0% hauler commission) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
 - **Start from a boilerplate**, not zero: a Next.js SaaS starter with Supabase auth + Stripe Connect already wired. This saves ~2 weeks and most of the dangerous code is pre-written.
 - **One repo, git from prompt one.** Phase boundary rule: commit + working build before switching tools. Never switch tools on a broken build.
 - **Stripe test mode** until Phase 4 acceptance criteria pass. Real money touches nothing before then.
@@ -33,7 +33,7 @@ Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 **Prompt:**
 > Build the public booking page at /book/[orgSlug]: step 1 — dumpster size selector (10/20/30/40 yd cards with "best for" debris guidance); step 2 — zip code checker against the org's service_zips (reject politely outside area); step 3 — delivery + pickup date pickers (pickup defaults to delivery + included days); instant price calculation from pricing_rules, shown live; step 4 — customer details (name, phone, email, address); step 5 — Stripe Checkout for the deposit amount (test mode), e-signature checkbox (typed name + timestamp stored on the job). On success: job created with status=booked, confirmation page with order summary, SMS confirmation via Twilio. Also build an embeddable iframe widget version of this flow for haulers' existing websites.
 
-**Acceptance:** complete a full test booking in the browser (use the browser agent to click through): correct price math for 2 sizes, out-of-area zip rejected, deposit appears in Stripe test dashboard WITH the 1% application fee attached, SMS received. **Commit.**
+**Acceptance:** complete a full test booking in the browser (use the browser agent to click through): correct price math for 2 sizes, out-of-area zip rejected, deposit appears in Stripe test dashboard WITH the customer booking fee attached, SMS received. **Commit.**
 
 ## Phase 2 — Dispatch board (Antigravity)
 
@@ -52,7 +52,7 @@ Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 ## Phase 4 — Invoicing + take-rate money code (Claude Code — the careful slice)
 
 **Prompt:**
-> Build the money engine, server-side only. On job close (picked_up): auto-generate invoice = base price + extra days beyond included (extra_day_cents × days) + tonnage overage (max(0, tons_actual − tons_included) × overage_per_ton_cents). Charge the customer's card on file via Stripe. Every charge creates a payments row with stripe_payment_intent_id, amount_cents, application_fee_cents (1%), and a unique idempotency_key. Webhook handlers for payment_intent.succeeded / payment_intent.failed / charge.refunded — all must be retry-safe (a retried webhook must never double-charge or double-record; check idempotency_key before writing). Build a hauler payout dashboard: gross volume, Stripe fees, our 1% take, net payout, per-job breakdown. NEVER accept amounts from the client — recompute from pricing_rules + job data on every charge.
+> Build the money engine, server-side only. On job close (picked_up): auto-generate invoice = base price + extra days beyond included (extra_day_cents × days) + tonnage overage (max(0, tons_actual − tons_included) × overage_per_ton_cents). Charge the customer's card on file via Stripe. Every charge creates a payments row with stripe_payment_intent_id, amount_cents, application_fee_cents, and a unique idempotency_key. Webhook handlers for payment_intent.succeeded / payment_intent.failed / charge.refunded — all must be retry-safe (a retried webhook must never double-charge or double-record; check idempotency_key before writing). Build a hauler payout dashboard: gross volume, Stripe fees, customer booking fee, hauler net payout (100% of rental revenue), per-job breakdown. NEVER accept amounts from the client — recompute from pricing_rules + job data on every charge.
 
 **The 5 money-code rules (non-negotiable):**
 1. Amounts computed server-side only. Client sends job_id, never a price.
@@ -73,7 +73,7 @@ Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 ## Phase 6 — Hauler onboarding + launch (Antigravity)
 
 **Prompt:**
-> Self-serve onboarding a non-technical hauler completes in under 30 minutes: sign up → Stripe Connect Express onboarding → set pricing rules (guided form: sizes offered, base prices, included days/tons, overage rates, service zips) → add containers (count by size) → invite drivers (SMS invite) → get booking link + embed snippet with copy button. Build the marketing landing page (the money page): headline targeting "dumpster rental software", live demo booking widget embedded, pricing section (Free forever + 1% per transaction — weaponize the transparency vs competitors' hidden fees), FAQ. Deploy to production on Vercel with custom domain. Pre-launch checklist: Stripe live keys, webhook endpoints registered, Twilio live number, env vars, error tracking (Sentry).
+> Self-serve onboarding a non-technical hauler completes in under 30 minutes: sign up → Stripe Connect Express onboarding → set pricing rules (guided form: sizes offered, base prices, included days/tons, overage rates, service zips) → add containers (count by size) → invite drivers (SMS invite) → get booking link + embed snippet with copy button. Build the marketing landing page (the money page): headline targeting "dumpster rental software", live demo booking widget embedded, pricing section (Starter $29/mo or Growth $149/mo + $12 customer booking fee — weaponize 100% rental retention vs competitors' hidden fees), FAQ. Deploy to production on Vercel with custom domain. Pre-launch checklist: Stripe live keys, webhook endpoints registered, Twilio live number, env vars, error tracking (Sentry).
 
 **Acceptance:** a stranger can sign up, configure, and take a real booking without talking to you. **Launch.**
 

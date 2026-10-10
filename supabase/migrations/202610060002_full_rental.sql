@@ -1,10 +1,10 @@
--- Full base rental up front, 0.5% platform fee with a $3 minimum, scale ticket required for overage.
+-- Full base rental up front, zero platform fee on rentals, scale ticket required for overage.
 alter table public.organizations alter column pricing_config set default '{"deposit_percent":100}';
 update public.organizations set pricing_config = jsonb_set(pricing_config, '{deposit_percent}', '100');
 alter table public.jobs add column if not exists scale_ticket_url text;
 
 create or replace function public.platform_fee(amount int) returns int language sql immutable as $$
-  select case when amount is null or amount <= 0 then 0 else greatest(300, round(amount * 0.005)::int) end
+  select 0
 $$;
 
 create or replace function public.reserve_booking(p_job jsonb) returns jsonb language plpgsql security definer set search_path=public as $$

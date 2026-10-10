@@ -83,7 +83,7 @@ test('payment failure, retried success, reordered failure, and refund are transa
     const object = {
       id: 'pi_test_deposit',
       amount: 42500,
-      application_fee_amount: 300,
+      application_fee_amount: 0,
       currency: 'usd',
       customer: 'cus_test',
       payment_method: 'pm_test',

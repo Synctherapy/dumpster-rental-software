@@ -990,11 +990,11 @@ function Payments({ data, openJob }: { data: Workspace; openJob: (id: string) =>
             value: money(gross),
             note: 'Deposits and final balances',
           },
-          { label: 'Platform fee · 1%', value: money(fees), note: 'Computed on each transaction' },
+          { label: 'Customer booking fees', value: money(fees), note: '$12 paid by customer at checkout' },
           {
-            label: 'After platform fee',
+            label: 'Hauler rental revenue',
             value: money(gross - fees),
-            note: 'Before Stripe processing fees',
+            note: '100% kept by hauler',
           },
           {
             label: 'Reconciliation',
