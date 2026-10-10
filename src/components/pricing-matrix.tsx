@@ -182,13 +182,13 @@ export function PricingMatrix() {
     <div className="w-full my-8">
       {/* Plan Header Cards on Desktop */}
       <div className="overflow-x-auto rounded-2xl border border-[#dde4d4] bg-white shadow-sm">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse min-w-[680px]">
           <thead>
             <tr className="border-b border-[#dde4d4] bg-[#f8faf6]">
-              <th className="p-4 md:p-6 text-sm md:text-base font-bold text-[#1f2d26] w-[34%]">
+              <th className="p-4 md:p-6 text-sm md:text-base font-bold text-[#1f2d26] w-[34%] min-w-[220px] sticky left-0 bg-[#f8faf6] z-20 shadow-[2px_0_5px_rgba(0,0,0,0.04)]">
                 Plan Overview
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%] bg-white border-x border-[#dde4d4] relative">
+              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px] bg-white border-x border-[#dde4d4] relative">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#ea580c] mb-1">
                   Most Popular
                 </div>
@@ -204,7 +204,7 @@ export function PricingMatrix() {
                   Start Free in 3 Mins
                 </Link>
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%] border-r border-[#dde4d4]">
+              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px] border-r border-[#dde4d4]">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1">
                   Contractors
                 </div>
@@ -220,7 +220,7 @@ export function PricingMatrix() {
                   Choose Starter
                 </Link>
               </th>
-              <th className="p-4 md:p-6 text-center w-[22%]">
+              <th className="p-4 md:p-6 text-center w-[22%] min-w-[150px]">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1">
                   Fleets
                 </div>
@@ -244,7 +244,7 @@ export function PricingMatrix() {
                 <tr className="bg-[#f1f5ee] border-y border-[#dde4d4]">
                   <td
                     colSpan={4}
-                    className="px-4 md:px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#4a6344]"
+                    className="px-4 md:px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#4a6344] sticky left-0 z-10 bg-[#f1f5ee]"
                   >
                     {section.category}
                   </td>
@@ -256,7 +256,11 @@ export function PricingMatrix() {
                       idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
                     }`}
                   >
-                    <td className="px-4 md:px-6 py-3.5 text-xs md:text-sm font-semibold text-[#2d3a31]">
+                    <td
+                      className={`px-4 md:px-6 py-3.5 text-xs md:text-sm font-semibold text-[#2d3a31] sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.04)] ${
+                        idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
+                      }`}
+                    >
                       {feat.name}
                     </td>
                     <td className="px-3 md:px-4 py-3.5 text-center border-x border-[#edf2e7] bg-[#fefefe]">

@@ -243,23 +243,24 @@ export default function Home() {
             With RollOS, your customers pay a standard $12 online reservation fee at checkout to guarantee their delivery date.
             You keep 100% of your base rental rate, extra day charges, and weight overages.
           </p>
-
-          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left">
-            <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
-              <ShieldCheck size={20} className="text-[#ea580c]" />
-              Worried your customer won’t pay a $12 reservation fee?
-            </h4>
-            <p className="text-sm text-[#475569] leading-relaxed mb-3">
-              Does Airbnb pay your guest’s booking fee? Does Ticketmaster pay yours? No. On a <strong>$450 dumpster rental</strong>, a homeowner won’t blink at a <strong>$12 reservation fee</strong> (less than 3%) to lock in guaranteed delivery for their project. They get instant peace of mind, and you save $3,600/year in software subscriptions.
-            </p>
-            <p className="text-sm text-[#475569] leading-relaxed">
-              <strong>More money in your pocket:</strong> You keep 100% of your hard-earned dumpster revenue. No $150–$350/mo monthly software bills. No percentage taken out of your haul.
-            </p>
-          </div>
         </div>
 
         {/* Clean Column & Checkbox Pricing Matrix */}
         <PricingMatrix />
+
+        {/* Objection Callout Reassurance */}
+        <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
+            <ShieldCheck size={20} className="text-[#ea580c]" />
+            Worried your customer won’t pay a $12 reservation fee?
+          </h4>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            Does Airbnb pay your guest’s booking fee? Does Ticketmaster pay yours? No. On a <strong>$450 dumpster rental</strong>, a homeowner won’t blink at a <strong>$12 reservation fee</strong> (less than 3%) to lock in guaranteed delivery for their project. They get instant peace of mind, and you save $3,600/year in software subscriptions.
+          </p>
+          <p className="text-sm text-[#475569] leading-relaxed">
+            <strong>More money in your pocket:</strong> You keep 100% of your hard-earned dumpster revenue. No $150–$350/mo monthly software bills. No percentage taken out of your haul.
+          </p>
+        </div>
       </section>
 
       {/* 8. Competitor Contrast Table (RollOS vs Traditional Software) */}

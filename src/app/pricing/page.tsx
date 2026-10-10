@@ -1,65 +1,13 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, ShieldCheck, DollarSign } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, DollarSign } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { PricingMatrix } from '@/components/pricing-matrix';
 
 export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
   description:
     'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for cash/check & calendar sync, or $149/mo Growth.',
 };
-
-const plans = [
-  {
-    name: 'Free Plan',
-    price: '$0',
-    badge: 'Most Popular for Independent Haulers',
-    note: 'Get dumpster bookings while you sleep. Everything you need to eliminate phone tag and run daily operations.',
-    items: [
-      '24/7 Website Booking Widget & direct link',
-      'Visual Drag-and-Drop Dispatch Board',
-      'Driver SMS Magic Links (0 app install required)',
-      'Driveway delivery photo proof capture',
-      'Attach scale ticket & manual tonnage overages',
-      'Customer pays standard $12 booking fee at checkout',
-      'Keep 100% of base rental rates and overages',
-      'No annual contract · Cancel anytime',
-    ],
-    cta: 'Start Free in 3 Minutes',
-    popular: true,
-  },
-  {
-    name: 'Starter Plan',
-    price: '$29',
-    badge: 'Full Operational Command',
-    note: 'For active haulers managing contractor accounts on terms and requiring two-way calendar synchronization.',
-    items: [
-      'Everything included on the Free Plan',
-      'Log offline Cash & Check payments (for contractor accounts)',
-      '2-Way Google Calendar & Apple iCal sync feed',
-      'Option to disable customer reservation fee',
-      'Export financial logs & dispatch records',
-      'No annual contract · Cancel anytime',
-    ],
-    cta: 'Choose Starter ($29/mo)',
-    popular: false,
-  },
-  {
-    name: 'Growth Fleet',
-    price: '$149',
-    badge: 'Multi-Truck Scale',
-    note: 'Built for larger, expanding operations running multiple trucks and high-volume container inventory.',
-    items: [
-      'Everything included on the Starter Plan',
-      'Multi-truck fleet scheduling and priority support',
-      'Option to disable customer reservation fee',
-      'Scale across dozens of active containers',
-      'No per-user or per-driver seat fees',
-      'No annual contract · Cancel anytime',
-    ],
-    cta: 'Choose Growth ($149/mo)',
-    popular: false,
-  },
-];
 
 export default function PricingPage() {
   return (
@@ -92,97 +40,61 @@ export default function PricingPage() {
         <h1 className="text-3xl md:text-5xl font-extrabold text-[#20302a] mb-4">
           Dumpster rental software pricing that puts money in your pocket.
         </h1>
-        <p className="text-lg text-[#556658] leading-relaxed mb-10 max-w-3xl">
+        <p className="text-lg text-[#556658] leading-relaxed mb-6 max-w-3xl">
           Get client bookings while you sleep with our free online booking software. No more phone tag,
           no lost jobs while driving, and zero bloated software bills. Start 100% free with no credit card required.
         </p>
 
-        {/* 3 Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`p-6 bg-white border rounded-2xl flex flex-col justify-between shadow-sm ${
-                plan.popular ? 'border-[#ea580c] ring-2 ring-[#ea580c]/20 relative' : 'border-[#dde4d4]'
-              }`}
-            >
-              <div>
-                {plan.popular && (
-                  <div className="inline-block px-2.5 py-1 rounded-full bg-[#ffedd5] text-[#c2410c] text-[11px] font-bold mb-3">
-                    {plan.badge}
-                  </div>
-                )}
-                {!plan.popular && (
-                  <div className="text-xs font-bold text-[#8a9d73] mb-3">{plan.badge}</div>
-                )}
-                <div className="text-xl font-bold text-[#1f2d26]">{plan.name}</div>
-                <div className="text-4xl font-extrabold text-[#20302a] my-3">
-                  {plan.price}
-                  <span className="text-sm font-normal text-[#687864]"> / month</span>
-                </div>
-                <p className="text-xs text-[#556658] leading-relaxed mb-5 min-h-[48px]">{plan.note}</p>
-                <div className="border-t border-[#edf2e7] pt-4 mb-6">
-                  <ul className="text-xs text-[#334155] space-y-2.5">
-                    {plan.items.map((item) => (
-                      <li key={item} className="flex items-start gap-2">
-                        <Check size={14} className="mt-0.5 text-[#ea580c] flex-shrink-0" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+        {/* Feature & Plan Comparison Table */}
+        <PricingMatrix />
 
-              <div>
-                <Link
-                  href="/signup"
-                  className={`btn w-full ${plan.popular ? 'btn-orange' : 'btn-dark'}`}
-                  style={{ width: '100%' }}
-                >
-                  {plan.cta} <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Hormozi Cost Comparison Box */}
-        <div className="mt-12 p-8 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
+        {/* Real Hard Cost Comparison Table */}
+        <div className="mt-12 p-6 md:p-8 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
             <DollarSign className="text-[#ea580c]" size={24} />
-            <h2 className="text-xl font-bold text-[#1f2d26]">
-              How RollOS Compares to Legacy Competitor Software Costs
+            <h2 className="text-xl md:text-2xl font-bold text-[#1f2d26]">
+              Real Software Overhead: RollOS vs Legacy Competitors
             </h2>
           </div>
           <p className="text-sm text-[#556658] leading-relaxed mb-6">
-            Legacy software companies charge independent haulers hundreds of dollars each month before you haul your first bin.
-            Here is the real financial math:
+            Legacy software providers charge independent haulers hundreds of dollars every month before you haul your first bin. Here is how the annual math breaks down:
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="p-4 bg-[#fef2f2] border border-[#fecaca] rounded-xl">
-              <strong className="text-[#dc2626] text-sm block mb-1">Docket / ServiceCore</strong>
-              <div className="text-2xl font-bold text-[#991b1b] my-1">$4,200+ / yr</div>
-              <p className="text-[#7f1d1d] leading-relaxed">
-                $350/mo base + $1,500 setup fees + mandatory sales calls. Hauler pays 100% of the cost out of margin.
-              </p>
-            </div>
-
-            <div className="p-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl">
-              <strong className="text-[#16a34a] text-sm block mb-1">RollOS Free Plan</strong>
-              <div className="text-2xl font-bold text-[#166534] my-1">$0 / yr</div>
-              <p className="text-[#14532d] leading-relaxed">
-                Zero software bills. Customer pays a $12 booking fee at checkout. You keep 100% of your rental money ($4,200/yr saved).
-              </p>
-            </div>
-
-            <div className="p-4 bg-[#f8faf6] border border-[#dce6d3] rounded-xl">
-              <strong className="text-[#2e7d32] text-sm block mb-1">RollOS Starter Plan</strong>
-              <div className="text-2xl font-bold text-[#1f2d26] my-1">$348 / yr</div>
-              <p className="text-[#47603c] leading-relaxed">
-                $29/mo flat. Includes offline cash/check logging and calendar sync. Over $3,850 in annual software savings.
-              </p>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="compare-table" style={{ margin: '0' }}>
+              <thead>
+                <tr>
+                  <th>Software Platform</th>
+                  <th>Monthly Cost</th>
+                  <th>Setup & Onboarding</th>
+                  <th>Annual Software Bill</th>
+                  <th>Who Pays Software Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="font-bold text-[#dc2626]">Docket / ServiceCore</td>
+                  <td className="text-[#dc2626] font-mono">$350+ / mo</td>
+                  <td className="text-[#dc2626] font-mono">$1,200 – $1,500</td>
+                  <td className="text-[#dc2626] font-bold font-mono">$5,400 – $5,700 / yr</td>
+                  <td>Hauler absorbs 100% out of profit</td>
+                </tr>
+                <tr className="bg-[#f0fdf4]">
+                  <td className="font-bold text-[#166534] highlight-col">RollOS Free Plan</td>
+                  <td className="text-[#166534] font-bold font-mono highlight-col">$0 / mo</td>
+                  <td className="text-[#166534] font-bold highlight-col">$0 (Instant self-serve)</td>
+                  <td className="text-[#166534] font-black font-mono highlight-col">$0 / yr ($5,400+ saved)</td>
+                  <td className="highlight-col font-semibold">Customer pays $12 booking fee</td>
+                </tr>
+                <tr>
+                  <td className="font-bold text-[#1f2d26]">RollOS Starter Plan</td>
+                  <td className="font-mono font-bold">$29 / mo</td>
+                  <td className="font-bold">$0 (Instant self-serve)</td>
+                  <td className="font-bold font-mono text-[#166534]">$348 / yr ($5,000+ saved)</td>
+                  <td>Option to absorb or keep $12 fee</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
