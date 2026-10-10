@@ -4,9 +4,9 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Brand } from '@/components/brand';
 
 export const metadata = {
-  title: 'Dumpster Rental Online Booking System — 24/7 Self-Service Checkout',
+  title: 'Online Booking for Dumpster Rentals',
   description:
-    'Convert website visitors into paying dumpster rentals 24/7. Address validation, calendar selection, and upfront card payment with 0% hauler fee.',
+    'Add a dumpster booking link or embed to your existing website. ZIP check, dates, deposit, and the $11.95 free-plan reservation fee shown at checkout.',
 };
 
 export default function BookingSystemPage() {
@@ -66,9 +66,9 @@ export default function BookingSystemPage() {
             </p>
           </div>
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl">
-            <h3 className="text-base font-bold text-[#1f2d26] mb-2">You Keep 100% of Base Revenue</h3>
+            <h3 className="text-base font-bold text-[#1f2d26] mb-2">Free plan, paid plans optional</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              No monthly software subscriptions. Customers pay a simple $12 reservation fee at checkout. You keep 100% of your $450 bin price.
+              Start at $0/month. Online bookings on the free plan add an $11.95 customer reservation fee. Starter ($29) and Growth ($149) can turn that fee off.
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function BookingSystemPage() {
             Looking for complete dumpster business management?
           </h3>
           <p className="text-xs text-[#556658] max-w-xl mx-auto mb-4">
-            RollOS combines online booking, dispatching, fleet tracking, and driver links in one zero-monthly-fee platform.
+            RollOS is dumpster rental software: booking, dispatch, driver links, and billing. Free to start.
           </p>
           <Link href="/" className="inline-flex items-center gap-2 font-bold text-sm text-[#ea580c] hover:underline">
             Explore the complete roll off dumpster software platform <ArrowRight size={14} />

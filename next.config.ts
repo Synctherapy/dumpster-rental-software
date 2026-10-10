@@ -39,6 +39,14 @@ const nextConfig: NextConfig = {
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
         ],
       },
+      {
+        source: '/:path(dashboard|bookings|calendar|inventory|drivers|payments|settings|growth|reports|login|signup|auth|book|embed)/:rest*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+      {
+        source: '/:path(dashboard|bookings|calendar|inventory|drivers|payments|settings|growth|reports|login|signup)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
     ];
   },
 };

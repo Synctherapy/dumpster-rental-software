@@ -64,7 +64,7 @@ export default function ContractTemplatePage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-6">
-          Protecting your hauling company from cracked concrete driveways, hidden toxic chemicals, and surprise landfill overweight fines starts with an ironclad legal agreement. Below is our complete, lawyer-reviewed <strong>dumpster rental contract template</strong>—free to copy, customize, and print for your roll-off business.
+          This is a starter dumpster rental contract template you can copy, customize, and print. It is not legal advice and has not been reviewed for your state or province. Have a lawyer adapt it before you use it on a real booking.
         </p>
 
         {/* Above-the-fold Quick Highlights */}

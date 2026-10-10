@@ -1,12 +1,18 @@
 import Link from 'next/link';
 import { Brand } from '@/components/brand';
+export const metadata = {
+  title: 'Customer rental terms',
+  robots: { index: false, follow: false },
+};
+
 export default function Terms() {
   return (
     <main className="terms-page">
       <div style={{ background: '#23392b', padding: '20px 0', borderRadius: 10 }}>
         <Brand />
       </div>
-      <h1>Rental terms</h1>
+      <h1>Customer rental terms</h1>
+      <p>These are starter rental terms for a hauler’s customer. They are not the RollOS software terms. See the terms of service for the software subscription.</p>
       <p>
         This test application provides the following standard booking terms. Your hauler must review
         these terms and adapt them to local requirements before accepting real rentals.

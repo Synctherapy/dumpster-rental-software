@@ -4,11 +4,11 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://rolloffdumpstersoftware.com'),
   title: {
-    default: 'Roll Off Dumpster Software — $0/Mo Dispatch & Online Booking',
-    template: '%s | Roll Off Dumpster Software',
+    default: 'Dumpster Rental Software for Roll-Off Haulers | RollOS',
+    template: '%s | RollOS',
   },
   description:
-    'Free roll off dumpster software for haulers. Zero monthly fee, automated 24/7 online booking, visual dispatch board, and mobile driver routes.',
+    'Dumpster rental software for roll-off haulers. Free to start, then $29 or $149 a month. Online booking, dispatch, driver links, and tonnage billing. Stripe fees are separate.',
 };
 
 export default function RootLayout({

@@ -4,9 +4,9 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Brand } from '@/components/brand';
 
 export const metadata = {
-  title: 'Roll Off Dispatch Software — Real-Time Container & Driver Board',
+  title: 'Roll-Off Dispatch Board',
   description:
-    'Visual drag-and-drop dispatch board for roll off dumpster haulers. Assign drivers, track deliveries and pickups, and verify drops with photos.',
+    'Dispatch deliveries, swaps, and pickups for a roll-off fleet. Assign a container and a driver, then send a phone link for navigation and a delivery photo.',
 };
 
 export default function DispatchSoftwarePage() {
@@ -43,7 +43,7 @@ export default function DispatchSoftwarePage() {
         </p>
 
         <div className="panel p-6 bg-white border border-[#dde4d4] rounded-xl mb-10 shadow-sm">
-          <h2 className="text-xl font-bold text-[#1f2d26] mb-3">Live Dispatch Board</h2>
+          <h2 className="text-xl font-bold text-[#1f2d26] mb-3">Sample dispatch board</h2>
           <p className="text-sm text-[#687864] mb-4">
             See active dumpster jobs across Booked, Dispatched, On-Site, and Picked Up with real-time driver status.
           </p>
@@ -66,9 +66,9 @@ export default function DispatchSoftwarePage() {
             </p>
           </div>
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl">
-            <h3 className="text-base font-bold text-[#1f2d26] mb-2">Zero Software Rent</h3>
+            <h3 className="text-base font-bold text-[#1f2d26] mb-2">Included on the free plan</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              Never pay $250/mo for dispatch features. RollOS provides full dispatch capabilities for $0/mo by collecting a simple $12 fee from the online customer.
+              The dispatch board is on the $0 plan. Online bookings on that plan include an $11.95 customer reservation fee. There is no route-optimization engine and no live driver GPS.
             </p>
           </div>
         </div>
