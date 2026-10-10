@@ -5,7 +5,7 @@ import { Brand } from '@/components/brand';
 export const metadata = {
   title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill Format',
   description:
-    'Free dumpster rental invoice template for haulers. Automatically calculate base bin rental, extra rental days, and tonnage overages from landfill tickets.',
+    'A dumpster rental invoice outline for haulers: base rental, extra days, included tons, actual weight, and the overage. Weight is entered by hand.',
 };
 
 export default function InvoiceTemplatePage() {

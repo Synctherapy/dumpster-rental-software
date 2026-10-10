@@ -1105,13 +1105,13 @@ export function Settings({
                 </div>
               </div>
               <p style={{ fontSize: 11, color: '#047857', margin: '0 0 10px' }}>
-                VIP contractor automation and multi-truck fleet operations.
+                Fleet plan. Same operating tools as Starter, for a larger operation.
               </p>
               <ul style={{ margin: '0 0 14px', paddingLeft: 18, fontSize: 12, color: '#065f46', lineHeight: 1.8 }}>
-                <li>Contractor VIP 1-click Swaps</li>
-                <li>Missed-Call Auto Text-Back</li>
-                <li>White-label CNAME</li>
-                <li>Review Gatekeeper</li>
+                <li>Everything in Starter</li>
+                <li>Customer reservation fee can be turned off</li>
+                <li>Priced for more than one truck</li>
+                <li>No annual contract</li>
               </ul>
               <Button
                 variant="primary"
