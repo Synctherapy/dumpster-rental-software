@@ -67,7 +67,7 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-xs text-[#556658] mb-4 leading-relaxed">
-              Built specifically for independent and expanding roll-off haulers (1–15 trucks). Free at $0/month, Starter at $29/month, Growth at $149/month. The free plan adds an $11.95 customer reservation fee. Paid plans can turn that fee off.
+              Built specifically for independent and expanding roll-off haulers (1–15 trucks). Free at $0/month, Starter at $29/month, Growth at $149/month. Free plan includes 24/7 online booking and SMS driver links (customer pays an $11.95 booking fee at checkout). You keep 100% of your rental money.
             </p>
             <ul className="space-y-2 text-xs text-[#334155]">
               <li className="flex items-center gap-2">

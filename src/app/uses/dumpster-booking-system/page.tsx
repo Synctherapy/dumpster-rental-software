@@ -68,7 +68,7 @@ export default function BookingSystemPage() {
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl">
             <h3 className="text-base font-bold text-[#1f2d26] mb-2">Free plan, paid plans optional</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              Start at $0/month. Online bookings on the free plan add an $11.95 customer reservation fee. Starter ($29) and Growth ($149) can turn that fee off.
+              Start at $0/month. Online bookings on the free plan include an $11.95 customer reservation fee at checkout. You keep 100% of your rental price. Starter ($29) adds cash/check logging and calendar sync.
             </p>
           </div>
         </div>
