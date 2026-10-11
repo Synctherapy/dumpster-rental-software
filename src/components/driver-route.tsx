@@ -68,6 +68,14 @@ export function DriverRoute({ token }: { token: string }) {
         const { url } = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
         patch.proof_url = url;
       }
+      if (patch.status === 'picked_up' && photos['pickup-' + job.id]) {
+        const form = new FormData();
+        form.set('photo', photos['pickup-' + job.id]);
+        form.set('job_id', job.id);
+        form.set('token', token);
+        const { url } = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
+        patch.pickup_proof_url = url;
+      }
       await api(`/api/driver/${token}`, {
         method: 'POST',
         body: JSON.stringify({ job_id: job.id, ...patch }),
@@ -630,6 +638,38 @@ export function DriverRoute({ token }: { token: string }) {
                   >
                     Save scale ticket
                   </Button>
+                  <label className="field" style={{ marginTop: 12 }}>
+                    <span>
+                      <Camera size={15} style={{ display: 'inline', marginRight: 8 }} />
+                      Pickup driveway photo (Driveway condition upon exit)
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      capture="environment"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setPhotos({ ...photos, ['pickup-' + job.id]: file });
+                          setPhotoPreviews({ ...photoPreviews, ['pickup-' + job.id]: URL.createObjectURL(file) });
+                        }
+                      }}
+                    />
+                    <small>Snap driveway surface immediately after pulling container to prove no damage.</small>
+                  </label>
+                  {photoPreviews['pickup-' + job.id] && (
+                    <div style={{ marginTop: 8, marginBottom: 12, borderRadius: 8, overflow: 'hidden', border: '2px solid #7c9842', position: 'relative' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoPreviews['pickup-' + job.id]}
+                        alt="Pickup driveway preview"
+                        style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{ background: '#7c9842', color: 'white', padding: '4px 8px', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <Check size={12} /> Driveway retrieval photo ready
+                      </div>
+                    </div>
+                  )}
                 <Button
                   variant="primary"
                   disabled={busy === job.id}

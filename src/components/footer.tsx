@@ -9,10 +9,10 @@ export function Footer() {
     <footer className="w-full bg-[#0c1410] text-[#cbd5cc] border-t border-[#1a2920] mt-auto">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-14 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
           
           {/* Column 1: Brand & Mission */}
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="sm:col-span-2 md:col-span-3 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2.5 text-white font-extrabold text-xl tracking-tight mb-4 hover:opacity-90 transition-opacity">
               <span className="p-1.5 rounded-lg bg-[#18281d] text-[#22c55e] border border-[#2b4232]">
                 <Dumpster size={22} />
@@ -40,83 +40,83 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Software & Core Features */}
+          {/* Column 2: Software */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
               Software
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/uses/dumpster-booking-system" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Dumpster Booking System
+                <Link href="/features" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Features Overview
                 </Link>
               </li>
               <li>
-                <Link href="/uses/roll-off-dispatch-software" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Roll Off Dispatch Software
+                <Link href="/features/online-booking" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Online Booking Widget
+                </Link>
+              </li>
+              <li>
+                <Link href="/features/dispatch-board" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Visual Dispatch Board
+                </Link>
+              </li>
+              <li>
+                <Link href="/features/driver-routes" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Driver SMS Routes
+                </Link>
+              </li>
+              <li>
+                <Link href="/features/tonnage-billing" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Scale Tickets & Invoicing
                 </Link>
               </li>
               <li>
                 <Link href="/pricing" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Dumpster Software Pricing
-                </Link>
-              </li>
-              <li>
-                <Link href="/calculator" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Software Savings Calculator
-                </Link>
-              </li>
-              <li>
-                <Link href="/book/greenline" className="text-[#cbd5cc] hover:text-[#ea580c] transition-colors inline-flex items-center gap-1.5 font-medium">
-                  Live Checkout Demo <ArrowRight size={13} />
+                  Software Pricing
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Compare Platforms (SEO Silos) */}
+          {/* Column 3: Compare Platforms */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
               Compare Platforms
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/vs" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  All Software Comparisons
+                <Link href="/compare" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  All Comparisons
                 </Link>
               </li>
               <li>
                 <Link href="/vs/docket" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  RollOS vs Docket
+                  vs. Docket
                 </Link>
               </li>
               <li>
                 <Link href="/vs/dumpster-rental-systems" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  RollOS vs DRS
+                  vs. DRS
                 </Link>
               </li>
               <li>
                 <Link href="/vs/servicecore" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  RollOS vs ServiceCore
+                  vs. ServiceCore
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: Free Hauler Tools */}
+          {/* Column 4: Hauler Free Tools */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
               Hauler Free Tools
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/templates/dumpster-rental-contract" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Dumpster Rental Contract Template
-                </Link>
-              </li>
-              <li>
-                <Link href="/templates/dumpster-invoice" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Dumpster Rental Invoice Template
+                <Link href="/tools" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  View All Free Tools
                 </Link>
               </li>
               <li>
@@ -125,14 +125,38 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/calculator" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Competitor Cost Comparison
+                <Link href="/tools/savings-calculator" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Software Savings Calculator
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 5: Portals & Legal */}
+          {/* Column 5: Business Templates */}
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
+              Business Templates
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link href="/templates" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  View All Templates
+                </Link>
+              </li>
+              <li>
+                <Link href="/templates/dumpster-rental-contract" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Dumpster Rental Contract
+                </Link>
+              </li>
+              <li>
+                <Link href="/templates/dumpster-invoice" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Dumpster Invoice Template
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 6: Account & Legal */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
               Account & Legal

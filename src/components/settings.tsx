@@ -56,6 +56,21 @@ export function Settings({
       ],
   );
   const [newProhibitedItem, setNewProhibitedItem] = useState('');
+  const existingSurcharges =
+    data.organization.landfill_surcharges ??
+    data.organization.pricing_config?.landfill_surcharges ?? {};
+  const [tireFee, setTireFee] = useState<number>(
+    existingSurcharges.tire_cents !== undefined ? existingSurcharges.tire_cents / 100 : 25,
+  );
+  const [mattressFee, setMattressFee] = useState<number>(
+    existingSurcharges.mattress_cents !== undefined ? existingSurcharges.mattress_cents / 100 : 50,
+  );
+  const [freonFee, setFreonFee] = useState<number>(
+    existingSurcharges.freon_cents !== undefined ? existingSurcharges.freon_cents / 100 : 75,
+  );
+  const [propaneFee, setPropaneFee] = useState<number>(
+    existingSurcharges.propane_cents !== undefined ? existingSurcharges.propane_cents / 100 : 35,
+  );
   const [operatingDays, setOperatingDays] = useState<number[]>(
     data.organization.operating_days ??
       data.organization.pricing_config?.operating_days ?? [1, 2, 3, 4, 5, 6], // default Mon-Sat
@@ -134,6 +149,12 @@ export function Settings({
           prohibited_items: prohibitedItems,
           operating_days: operatingDays,
           tax_rate_percent: taxRatePercent,
+          landfill_surcharges: {
+            tire_cents: Math.round(Number(tireFee) * 100),
+            mattress_cents: Math.round(Number(mattressFee) * 100),
+            freon_cents: Math.round(Number(freonFee) * 100),
+            propane_cents: Math.round(Number(propaneFee) * 100),
+          },
           pricing_rules: rules.map(
             ({
               size_yards,
@@ -469,6 +490,75 @@ export function Settings({
                 >
                   Add Item
                 </Button>
+              </div>
+            </div>
+
+            {/* Standard Landfill Surcharges */}
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1px solid var(--border, #e2e8f0)',
+                background: 'var(--panel, #fff)',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Landfill Item Surcharges (Customizable Rates)</h4>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Authorized in digital contract</span>
+              </div>
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#64748b' }}>
+                Transfer stations charge flat extra fees for items like tires and mattresses. These rates are automatically listed in your customer rental contract, giving you card-on-file auto-charge rights when found in the dumpster.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+                <label className="field" style={{ margin: 0 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600 }}>Tire Fee ($)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5"
+                    value={tireFee}
+                    onChange={(e) => setTireFee(Math.max(0, Number(e.target.value)))}
+                    style={{ fontSize: '13px', padding: '6px 8px' }}
+                  />
+                  <small>Default: $25</small>
+                </label>
+                <label className="field" style={{ margin: 0 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600 }}>Mattress Fee ($)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5"
+                    value={mattressFee}
+                    onChange={(e) => setMattressFee(Math.max(0, Number(e.target.value)))}
+                    style={{ fontSize: '13px', padding: '6px 8px' }}
+                  />
+                  <small>Default: $50</small>
+                </label>
+                <label className="field" style={{ margin: 0 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600 }}>Freon Appliance ($)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5"
+                    value={freonFee}
+                    onChange={(e) => setFreonFee(Math.max(0, Number(e.target.value)))}
+                    style={{ fontSize: '13px', padding: '6px 8px' }}
+                  />
+                  <small>Default: $75</small>
+                </label>
+                <label className="field" style={{ margin: 0 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600 }}>Propane Tank ($)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5"
+                    value={propaneFee}
+                    onChange={(e) => setPropaneFee(Math.max(0, Number(e.target.value)))}
+                    style={{ fontSize: '13px', padding: '6px 8px' }}
+                  />
+                  <small>Default: $35</small>
+                </label>
               </div>
             </div>
 

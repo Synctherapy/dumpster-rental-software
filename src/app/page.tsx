@@ -11,11 +11,13 @@ import {
   Sparkles,
   Calculator,
 } from 'lucide-react';
-import { Brand, Dumpster } from '@/components/brand';
+import { Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
 import { PricingMatrix } from '@/components/pricing-matrix';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
+import { SoftwareApplicationSchema, FAQPageSchema } from '@/components/schema-org';
 
 export const metadata = {
   title: 'Roll Off Dumpster Software — Free Online Booking & Dispatch',
@@ -26,22 +28,43 @@ export const metadata = {
 export default function Home() {
   return (
     <main className="marketing">
-      {/* 1. Header & Navigation (Optimized Menu) */}
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/calculator">Savings Calculator</Link>
-          <Link href="/vs/docket">Compare</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/templates/dumpster-rental-contract">Free Contract</Link>
-          <Link href="/login">Log in</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Try Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <SoftwareApplicationSchema />
+      <FAQPageSchema
+        faqs={[
+          {
+            question: 'How does the free plan work?',
+            answer:
+              'The Free Plan gives you our full 24/7 online booking widget, visual drag-and-drop dispatch board, driver SMS magic links, and delivery photo proof with $0 monthly software bills. Your customer pays a standard $12 online reservation fee at checkout to guarantee their container delivery. You keep 100% of your rental money.',
+          },
+          {
+            question: 'Will my customers complain about a $12 booking fee?',
+            answer:
+              'No. When a customer orders a $450 roll off container, a $12 reservation fee to guarantee their delivery date is completely routine—just like an Airbnb, hotel, or flight booking fee. They get instant online confirmation instead of playing phone tag, and you save thousands every year.',
+          },
+          {
+            question: 'Do my drivers need to download an app from the App Store?',
+            answer:
+              'No. RollOS sends your driver an encrypted SMS link. Drivers open it directly in their mobile browser to view job addresses, click for turn-by-turn navigation, snap driveway drop photos, and submit scale tickets. Works on any phone with zero installation headaches.',
+          },
+          {
+            question: 'Can I embed the booking widget on my existing website?',
+            answer:
+              'Yes. You can copy a one-line embed code into WordPress, Squarespace, Wix, or custom HTML. You can also share your direct booking link on Google Business Profile, Facebook, and Instagram.',
+          },
+          {
+            question: 'What do the Starter ($29/mo) and Growth ($149/mo) plans include?',
+            answer:
+              'The Starter Plan ($29/mo) unlocks offline cash/check logging (for contractors who pay on invoice terms) and two-way Google Calendar/Apple iCal sync. The Growth Fleet Plan ($149/mo) is designed for expanding operations with multiple trucks managing high container volumes.',
+          },
+          {
+            question: 'How do I get paid for dumpster rentals?',
+            answer:
+              'RollOS connects directly to your own Stripe account. When a customer books online, rental payments and deposits flow straight into your bank account. RollOS never holds your money.',
+          },
+        ]}
+      />
+      {/* 1. Unified Navigation */}
+      <MarketingNav />
 
       {/* 2. Edward Sturm ATF Engine & Hormozi Hook */}
       <section className="hero">

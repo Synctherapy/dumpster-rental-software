@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CheckCircle2, Clock3 } from 'lucide-react';
+import { CheckCircle2, Clock3, ShieldCheck } from 'lucide-react';
 import { stripe } from '@/lib/server/stripe';
 import { publicOrganization } from '@/lib/server/workspace';
 export const dynamic = 'force-dynamic';
@@ -14,6 +14,7 @@ export default async function Success({
   const { session_id } = await searchParams;
   let paid = false;
   let reference = '';
+  let jobId = '';
   try {
     if (session_id) {
       const orgData = await publicOrganization(slug).catch(() => null);
@@ -26,7 +27,8 @@ export default async function Success({
         requestOptions,
       );
       paid = session.payment_status === 'paid';
-      reference = session.metadata?.job_id?.slice(0, 8) ?? '';
+      jobId = session.metadata?.job_id ?? '';
+      reference = jobId ? jobId.slice(0, 8) : '';
     }
   } catch {}
   return (
@@ -39,9 +41,21 @@ export default async function Success({
             ? `Reference ${reference.toUpperCase()}. Your reservation will appear on the hauler’s board once payment confirmation is processed.`
             : 'If you completed checkout, refresh this page in a moment. Do not submit another payment.'}
         </p>
-        <Link href={`/book/${slug}`} className="btn" style={{ marginTop: 24 }}>
-          Back to booking
-        </Link>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+          {paid && jobId && (
+            <Link
+              href={`/agreement/${jobId}`}
+              target="_blank"
+              className="btn btn-secondary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+            >
+              <ShieldCheck size={16} className="text-[#ea580c]" /> View & Print Signed Agreement
+            </Link>
+          )}
+          <Link href={`/book/${slug}`} className="btn">
+            Back to booking
+          </Link>
+        </div>
       </div>
     </main>
   );

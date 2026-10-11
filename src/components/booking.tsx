@@ -288,13 +288,23 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
           </div>
           <div style={{ marginTop: 24, textAlign: 'center' }}>
             <p style={{ fontSize: 13, color: '#738069', lineHeight: 1.6, marginBottom: 16 }}>
-              A confirmation receipt and placement instructions have been sent to your email and phone.
+              A confirmation receipt, signed liability waiver, and placement instructions have been recorded.
             </p>
-            {!embed && (
-              <Link href="/" className="btn btn-primary">
-                Return to home
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
+              <Link
+                href={`/agreement/${confirmed.id}`}
+                target="_blank"
+                className="btn btn-secondary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+              >
+                <ShieldCheck size={16} className="text-[#ea580c]" /> View & Print Signed Agreement
               </Link>
-            )}
+              {!embed && (
+                <Link href="/" className="btn btn-primary">
+                  Return to home
+                </Link>
+              )}
+            </div>
           </div>
         </section>
       ) : (

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck, Star } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { MarketingNav } from '@/components/marketing-nav';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -8,6 +8,9 @@ export const metadata = {
   title: 'Dumpster Rental Software Comparisons (2026 Reviews) — RollOS vs Competitors',
   description:
     'Compare RollOS against Docket, ServiceCore, and Dumpster Rental Systems (DRS). Transparent pricing from $0/month, driver SMS links, and 24/7 online booking.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/compare',
+  },
 };
 
 export default function ComparisonsHubPage() {
@@ -40,19 +43,7 @@ export default function ComparisonsHubPage() {
 
   return (
     <main className="marketing">
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/calculator">Savings Calculator</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Try Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/compare" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-4">

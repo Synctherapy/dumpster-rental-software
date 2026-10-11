@@ -19,6 +19,10 @@ import {
   CreditCard,
   Clock,
   RefreshCw,
+  Printer,
+  Smartphone,
+  Copy,
+  CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Modal } from './ui/dialog';
@@ -48,6 +52,8 @@ export function JobDrawer({
   const [tons, setTons] = useState(job.tons_actual === null ? '' : String(job.tons_actual));
   const [unlockTons, setUnlockTons] = useState(false);
   const [proof, setProof] = useState(job.proof_url ?? '');
+  const [pickupProof, setPickupProof] = useState(job.pickup_proof_url ?? '');
+  const [scaleTicket, setScaleTicket] = useState(job.scale_ticket_url ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const isPaid =
@@ -65,6 +71,33 @@ export function JobDrawer({
   const [swapNotes, setSwapNotes] = useState('');
   const [swapBusy, setSwapBusy] = useState(false);
   const [swapError, setSwapError] = useState('');
+  const [sendingWaiver, setSendingWaiver] = useState(false);
+  const [copiedWaiver, setCopiedWaiver] = useState(false);
+
+  const sendWaiver = async () => {
+    setSendingWaiver(true);
+    try {
+      await api(`/api/jobs/${job.id}/send-waiver`, { method: 'POST' });
+      notify(`Waiver link sent via SMS to ${job.customer_phone}`);
+    } catch (e) {
+      notify((e as Error).message, true);
+    } finally {
+      setSendingWaiver(false);
+    }
+  };
+
+  const copyWaiverLink = async () => {
+    try {
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      await navigator.clipboard.writeText(`${origin}/agreement/${job.id}`);
+      setCopiedWaiver(true);
+      notify('Waiver signing link copied to clipboard!');
+      setTimeout(() => setCopiedWaiver(false), 3000);
+    } catch {
+      notify('Could not copy link', true);
+    }
+  };
+
   const total = invoice({ ...job, tons_actual: tons === '' ? null : Number(tons) });
   const payments = data.payments.filter((p) => p.job_id === job.id);
   const paid = payments
@@ -96,19 +129,34 @@ export function JobDrawer({
             notes,
             ...(tons !== '' ? { tons_actual: Number(tons) } : {}),
             ...(proof ? { proof_url: proof } : {}),
+            ...(pickupProof ? { pickup_proof_url: pickupProof } : {}),
+            ...(scaleTicket ? { scale_ticket_url: scaleTicket } : {}),
             ...(status ? { status } : {}),
           }),
         }),
       status ? 'Job status updated.' : 'Job details saved.',
     );
-  const upload = async (file: File) => {
+  const upload = async (
+    file: File,
+    kind: 'delivery' | 'pickup' | 'scale_ticket' = 'delivery',
+  ) => {
     const form = new FormData();
     form.set('photo', file);
     form.set('job_id', job.id);
     await perform(async () => {
       const result = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
-      setProof(result.url);
-    }, 'Photo uploaded. Mark delivered to save it to the job.');
+      if (kind === 'delivery') {
+        setProof(result.url);
+      } else if (kind === 'pickup') {
+        setPickupProof(result.url);
+      } else {
+        setScaleTicket(result.url);
+        await api(`/api/jobs/${job.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ scale_ticket_url: result.url }),
+        });
+      }
+    }, kind === 'delivery' ? 'Delivery drop photo uploaded.' : kind === 'pickup' ? 'Pickup driveway photo uploaded.' : 'Landfill scale ticket uploaded.');
   };
   const download = () => {
     const text = `RollOS rental invoice\n${data.organization.name}\nJob ${job.id}\nCustomer: ${job.customer_name}\nAddress: ${job.delivery_address}\nRental: ${dateLabel(job.delivery_date)} - ${dateLabel(job.pickup_date)}\nBase: ${money(total.base)}\nExtra days: ${money(total.extra)}\nOverage: ${money(total.overage)}\nTotal: ${money(total.total)}\nPayments applied: ${money(paid)}\nBalance: ${money(Math.max(0, total.total - paid))}\n${data.demo ? 'DEMO ONLY — NO MONEY MOVED' : ''}`;
@@ -351,7 +399,7 @@ export function JobDrawer({
                 fontWeight: 600,
               }}
             >
-              <Check size={12} /> Logged & locked: {job.tons_actual} tons
+              <Check size={12} /> Logged: {job.tons_actual} tons
             </span>
           )}
         </div>
@@ -361,7 +409,7 @@ export function JobDrawer({
             step="0.01"
             min="0"
             max="100"
-            placeholder="Weight after disposal (e.g. 2.5)"
+            placeholder={`Enter scale weight (included: ${job.tons_included} tons)`}
             value={tons}
             onChange={(e) => setTons(e.target.value)}
             disabled={job.status === 'completed' || (job.tons_actual !== null && !unlockTons)}
@@ -396,9 +444,50 @@ export function JobDrawer({
         <small style={{ color: '#889886', fontSize: 11, marginTop: 4, display: 'block' }}>
           {job.tons_actual !== null
             ? `Protected from accidental edits. Click 'Edit' to make corrections.`
-            : `Driver or landfill scale weight in tons.`}
+            : `Enter the landfill scale ticket weight in tons. Overages calculate automatically.`}
         </small>
-        <div className="detail-line">
+        {tons !== '' && Number(tons) > job.tons_included && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '10px 12px',
+              background: '#fef3c7',
+              border: '1px solid #fde68a',
+              borderRadius: 8,
+              fontSize: 12,
+              color: '#92400e',
+            }}
+          >
+            <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
+              <AlertTriangle size={14} />
+              <span>Overage: +{(Number(tons) - job.tons_included).toFixed(2)} tons over included {job.tons_included} tons</span>
+            </div>
+            <span>
+              Overage fee: <b>{money(total.overage)}</b>.
+              {!scaleTicket && !job.scale_ticket_url ? ' Attach the landfill scale ticket below to charge the card on file.' : ' Scale ticket attached. Click below to charge the card on file.'}
+            </span>
+          </div>
+        )}
+        {tons !== '' && Number(tons) <= job.tons_included && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '8px 12px',
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: 8,
+              fontSize: 11,
+              color: '#166534',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
+            <span>Under weight allowance! {tons} tons is within the {job.tons_included}-ton allowance. No overage fee applies.</span>
+          </div>
+        )}
+        <div className="detail-line" style={{ marginTop: 12 }}>
           <span>Disposal overage</span>
           <b>{money(total.overage)}</b>
         </div>
@@ -412,8 +501,73 @@ export function JobDrawer({
         </div>
         <div className="detail-line">
           <span>Balance</span>
-          <b>{money(Math.max(0, total.total - paid))}</b>
+          <b style={{ color: Math.max(0, total.total - paid) > 0 ? '#ea580c' : '#1e2d24' }}>
+            {money(Math.max(0, total.total - paid))}
+          </b>
         </div>
+        {/* Card on File Authorization Status */}
+        <div
+          style={{
+            marginTop: 12,
+            padding: '8px 12px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 11,
+            color: '#334155',
+          }}
+        >
+          <CreditCard size={14} className="text-emerald-600 flex-shrink-0" />
+          <div>
+            <span style={{ fontWeight: 600 }}>Stripe Card on File: </span>
+            <span style={{ color: '#64748b' }}>
+              Authorized off-session for excess tonnage & extra days.
+            </span>
+          </div>
+        </div>
+        {total.overage > 0 && !scaleTicket && !job.scale_ticket_url && (
+          <div
+            style={{
+              marginTop: 8,
+              padding: '8px 12px',
+              background: '#fffbeb',
+              border: '1px solid #fef08a',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 11,
+              color: '#854d0e',
+            }}
+          >
+            <AlertTriangle size={14} className="flex-shrink-0" />
+            <span>
+              Attach scale ticket below to verify this overage before billing card on file.
+            </span>
+          </div>
+        )}
+        {Math.max(0, total.total - paid) === 0 && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: '8px 12px',
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: 8,
+              fontSize: 11,
+              color: '#166534',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
+            <span>Balance paid in full ($0.00). Entering disposal weight over {job.tons_included} tons calculates the overage and opens the charge button.</span>
+          </div>
+        )}
         {Math.max(0, total.total - paid) > 0 && job.status !== 'cancelled' && (
           <Button
             variant="primary"
@@ -533,104 +687,277 @@ export function JobDrawer({
         </div>
       </section>
       <section className="drawer-section">
-        <h3>Signed rental agreement</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ShieldCheck size={16} className="text-[#ea580c]" />
+            Signed Rental Agreement & Waiver
+          </h3>
+          {job.signed_by_customer !== false && job.signature.ip !== 'dispatch-phone' ? (
+            <span className="pill" style={{ background: '#ecfdf5', color: '#065f46', fontSize: 10, fontWeight: 700 }}>
+              <Check size={11} /> Legally Binding E-Sign
+            </span>
+          ) : (
+            <span className="pill" style={{ background: '#fff7ed', color: '#c2410c', fontSize: 10, fontWeight: 700 }}>
+              ⚠️ Signature Pending
+            </span>
+          )}
+        </div>
+
+        {job.signed_by_customer === false || job.signature.ip === 'dispatch-phone' ? (
+          <div style={{ padding: '10px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 8, margin: '8px 0' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9a3412', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <AlertTriangle size={13} className="text-[#ea580c]" /> Customer Remote Signature Needed
+            </div>
+            <p style={{ fontSize: 11, color: '#7c2d12', margin: '0 0 8px 0', lineHeight: 1.4 }}>
+              Order recorded over phone. Send signing link via SMS/email so customer can sign the property damage waiver from their mobile phone before drop-off.
+            </p>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                type="button"
+                onClick={sendWaiver}
+                disabled={sendingWaiver}
+                className="btn btn-primary"
+                style={{ fontSize: 11, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              >
+                <Smartphone size={12} /> {sendingWaiver ? 'Sending SMS…' : 'Text Waiver Link'}
+              </button>
+              <button
+                type="button"
+                onClick={copyWaiverLink}
+                className="btn btn-secondary"
+                style={{ fontSize: 11, padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+              >
+                <Copy size={12} /> {copiedWaiver ? 'Copied!' : 'Copy Link'}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         <div className="signature">{job.signature.name}</div>
-        <p style={{ fontSize: 10, color: '#8c9890', lineHeight: 1.8 }}>
-          Accepted {new Date(job.signature.timestamp).toLocaleString()}
+        <p style={{ fontSize: 11, color: '#687864', lineHeight: 1.6, marginTop: 6, marginBottom: 8 }}>
+          Signed: <b>{new Date(job.signature.timestamp).toLocaleString()}</b>
           <br />
-          IP record: {job.signature.ip}
+          Audit IP: <span style={{ fontFamily: 'monospace' }}>{job.signature.ip}</span>
         </p>
-        <div
-          style={{
-            display: 'flex',
-            gap: 6,
-            alignItems: 'center',
-            fontSize: 10,
-            color: '#81975f',
-            marginTop: 10,
-          }}
-        >
-          <ShieldCheck size={12} />
-          Electronic signature captured at booking
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', fontWeight: 600 }}>
+            ✓ Driveway Damage Waiver
+          </span>
+          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', fontWeight: 600 }}>
+            ✓ Prohibited Hazmat Terms ($150-$500 Fine)
+          </span>
+          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 4, background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', fontWeight: 600 }}>
+            ✓ Card on File Overage Rights
+          </span>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 10 }}>
+          <Link
+            href={`/agreement/${job.id}`}
+            target="_blank"
+            className="btn btn-secondary"
+            style={{ fontSize: 11, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+          >
+            <Printer size={13} className="text-[#ea580c]" /> View & Print Executed Agreement <ExternalLink size={10} />
+          </Link>
+          <Link
+            href="/templates/dumpster-rental-contract"
+            target="_blank"
+            className="btn btn-ghost"
+            style={{ fontSize: 11, padding: '4px 6px', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#687864' }}
+          >
+            <FileText size={12} /> Master Template <ExternalLink size={10} />
+          </Link>
         </div>
       </section>
-      {job.status === 'dispatched' && (
-        <section className="drawer-section">
-          <h3>Delivery proof</h3>
-          <label className="field">
-            <span>
-              <Camera size={13} style={{ display: 'inline', marginRight: 5 }} />
-              Upload a delivery photo
+
+      {/* Driveway Condition Photos (Drop & Pick) */}
+      <section className="drawer-section">
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <Camera size={16} className="text-[#ea580c]" />
+          Driveway Condition Photos (Drop & Pick)
+        </h3>
+        <p style={{ fontSize: 11, color: '#687864', marginBottom: 12, lineHeight: 1.5 }}>
+          Timestamped surface photos prior to placement and after retrieval to prove roll-off wheels didn’t cause driveway cracks.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+          {/* Drop Photo */}
+          <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: 10, background: '#fafcf9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e2d24' }}>1. Placement / Drop Photo</span>
+              {job.delivered_at && (
+                <span style={{ fontSize: 10, color: '#687864' }}>
+                  {new Date(job.delivered_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+            {proof || job.proof_url ? (
+              <>
+                <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid var(--line)', maxHeight: 130 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={proof || job.proof_url!}
+                    alt="Drop photo"
+                    style={{ width: '100%', height: 130, objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+                <a
+                  href={proof || job.proof_url!}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-ghost"
+                  style={{ marginTop: 6, fontSize: 11, padding: '4px 0', width: '100%', justifyContent: 'center' }}
+                >
+                  <Camera size={11} /> View full resolution <ExternalLink size={10} />
+                </a>
+              </>
+            ) : (
+              <div style={{ padding: '20px 10px', textAlign: 'center', background: '#f4f6f4', borderRadius: 6, border: '1px dashed #cbd5c4' }}>
+                <Camera size={20} style={{ margin: '0 auto 6px', color: '#94a778' }} />
+                <span style={{ fontSize: 11, color: '#738372', display: 'block' }}>Pending drop photo</span>
+              </div>
+            )}
+            <label style={{ display: 'block', marginTop: 8 }}>
+              <span style={{ fontSize: 10, color: '#566657', cursor: 'pointer', textDecoration: 'underline' }}>
+                {proof || job.proof_url ? 'Replace drop photo' : 'Upload drop photo'}
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                capture="environment"
+                disabled={busy}
+                style={{ display: 'none' }}
+                onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'delivery')}
+              />
+            </label>
+          </div>
+
+          {/* Pick Photo */}
+          <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: 10, background: '#fafcf9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#1e2d24' }}>2. Retrieval / Pick Photo</span>
+              {job.picked_up_at && (
+                <span style={{ fontSize: 10, color: '#687864' }}>
+                  {new Date(job.picked_up_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+            {pickupProof || job.pickup_proof_url ? (
+              <>
+                <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid var(--line)', maxHeight: 130 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={pickupProof || job.pickup_proof_url!}
+                    alt="Pick retrieval photo"
+                    style={{ width: '100%', height: 130, objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+                <a
+                  href={pickupProof || job.pickup_proof_url!}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-ghost"
+                  style={{ marginTop: 6, fontSize: 11, padding: '4px 0', width: '100%', justifyContent: 'center' }}
+                >
+                  <Camera size={11} /> View full resolution <ExternalLink size={10} />
+                </a>
+              </>
+            ) : (
+              <div style={{ padding: '20px 10px', textAlign: 'center', background: '#f4f6f4', borderRadius: 6, border: '1px dashed #cbd5c4' }}>
+                <Camera size={20} style={{ margin: '0 auto 6px', color: '#94a778' }} />
+                <span style={{ fontSize: 11, color: '#738372', display: 'block' }}>Pending retrieval photo</span>
+              </div>
+            )}
+            <label style={{ display: 'block', marginTop: 8 }}>
+              <span style={{ fontSize: 10, color: '#566657', cursor: 'pointer', textDecoration: 'underline' }}>
+                {pickupProof || job.pickup_proof_url ? 'Replace pick photo' : 'Upload pick photo'}
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                capture="environment"
+                disabled={busy}
+                style={{ display: 'none' }}
+                onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'pickup')}
+              />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      {/* Landfill Scale Ticket */}
+      <section className="drawer-section">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <FileText size={16} className="text-[#ea580c]" />
+            Landfill Scale Ticket & Weight Slip
+          </h3>
+          {scaleTicket || job.scale_ticket_url ? (
+            <span className="pill" style={{ background: '#ecfdf5', color: '#065f46', fontSize: 10, fontWeight: 700 }}>
+              <Check size={11} /> Verified Scale Slip
             </span>
-            <input
-              type="file"
-              accept="image/jpeg,image/png"
-              capture="environment"
-              disabled={busy}
-              onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0])}
-            />
-            <small>JPEG or PNG, up to 8 MB.</small>
-          </label>
-          {proof && (
-            <a
-              href={proof}
-              target="_blank"
-              rel="noreferrer"
-              className="btn"
-              style={{ marginTop: 12 }}
-            >
-              <Check size={13} />
-              View uploaded proof
-            </a>
+          ) : (
+            <span className="pill" style={{ background: '#fffbeb', color: '#92400e', fontSize: 10, fontWeight: 600 }}>
+              Slip Required for Overages
+            </span>
           )}
-        </section>
-      )}
-      {job.proof_url && job.status !== 'dispatched' && (
-        <section className="drawer-section">
-          <h3>Delivery proof photo</h3>
-          <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line)' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={job.proof_url}
-              alt="Drop-off proof"
-              style={{ width: '100%', maxHeight: 180, objectFit: 'cover', display: 'block' }}
-            />
+        </div>
+        {scaleTicket || job.scale_ticket_url ? (
+          <>
+            <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={scaleTicket || job.scale_ticket_url!}
+                alt="Landfill scale ticket"
+                style={{ width: '100%', maxHeight: 180, objectFit: 'cover', display: 'block' }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+              <a
+                href={scaleTicket || job.scale_ticket_url!}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-ghost"
+                style={{ fontSize: 11, padding: '4px 0' }}
+              >
+                <FileText size={12} />
+                Open full scale ticket <ExternalLink size={10} />
+              </a>
+              <label style={{ display: 'inline-block' }}>
+                <span style={{ fontSize: 11, color: '#566657', cursor: 'pointer', textDecoration: 'underline' }}>
+                  Replace scale ticket
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  capture="environment"
+                  disabled={busy}
+                  style={{ display: 'none' }}
+                  onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'scale_ticket')}
+                />
+              </label>
+            </div>
+          </>
+        ) : (
+          <div style={{ marginTop: 8, padding: '14px', background: '#fafcf9', border: '1px dashed #cbd5c4', borderRadius: 8, textAlign: 'center' }}>
+            <FileText size={22} style={{ margin: '0 auto 6px', color: '#94a778' }} />
+            <p style={{ fontSize: 11, color: '#687864', margin: '0 0 10px 0' }}>
+              Drivers can upload the scale slip directly from their route, or dispatch can upload it here from desktop.
+            </p>
+            <label className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer', margin: '0 auto' }}>
+              <Camera size={13} /> Upload Landfill Scale Ticket
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                capture="environment"
+                disabled={busy}
+                style={{ display: 'none' }}
+                onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'scale_ticket')}
+              />
+            </label>
           </div>
-          <a
-            href={job.proof_url}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost"
-            style={{ marginTop: 8, fontSize: 11, padding: '6px 0' }}
-          >
-            <Camera size={12} />
-            Open full resolution photo <ExternalLink size={10} />
-          </a>
-        </section>
-      )}
-      {job.scale_ticket_url && (
-        <section className="drawer-section">
-          <h3>Landfill scale ticket</h3>
-          <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line)' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={job.scale_ticket_url}
-              alt="Landfill scale ticket"
-              style={{ width: '100%', maxHeight: 180, objectFit: 'cover', display: 'block' }}
-            />
-          </div>
-          <a
-            href={job.scale_ticket_url}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost"
-            style={{ marginTop: 8, fontSize: 11, padding: '6px 0' }}
-          >
-            <FileText size={12} />
-            Open scale ticket <ExternalLink size={10} />
-          </a>
-        </section>
-      )}
+        )}
+      </section>
       {error && (
         <div role="alert" className="error-box" style={{ marginTop: 20 }}>
           {error}

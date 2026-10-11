@@ -99,6 +99,7 @@ export async function book(input: unknown, ip: string, origin: string) {
     container_id: null,
     notes: body.notes,
     signature: { name: body.signature_name, timestamp: new Date().toISOString(), ip },
+    signed_by_customer: true,
     created_at: new Date().toISOString(),
     delivered_at: null,
     picked_up_at: null,
@@ -129,7 +130,8 @@ export async function book(input: unknown, ip: string, origin: string) {
       return { job, reused: false };
     });
     if (!result.reused) {
-      const text = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Reference ${result.job.id.slice(0, 8)}.`;
+      const agreementUrl = `${origin}/agreement/${result.job.id}`;
+      const text = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Reference ${result.job.id.slice(0, 8)}. View signed agreement & waiver: ${agreementUrl}`;
       await sendSms(org.id, result.job.id, body.customer_phone, 'booking_confirmation', text);
       await sendEmail(
         org.id,
@@ -241,6 +243,7 @@ export const changeSchema = z
     notes: z.string().max(2000).optional(),
     tons_actual: z.number().min(0).max(100).optional(),
     proof_url: z.string().max(500).optional(),
+    pickup_proof_url: z.string().max(500).optional(),
     scale_ticket_url: z.string().max(500).optional(),
     driver_notes: z.string().max(1000).nullable().optional(),
     payment_type: z.string().optional(),

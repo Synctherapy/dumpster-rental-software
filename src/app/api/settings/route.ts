@@ -39,6 +39,14 @@ export async function POST(request: Request) {
         prohibited_items: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
         operating_days: z.array(z.number().int().min(0).max(6)).max(7).optional(),
         tax_rate_percent: z.number().min(0).max(30).default(0).optional(),
+        landfill_surcharges: z
+          .object({
+            tire_cents: z.number().int().min(0).max(100000).default(2500).optional(),
+            mattress_cents: z.number().int().min(0).max(100000).default(5000).optional(),
+            freon_cents: z.number().int().min(0).max(100000).default(7500).optional(),
+            propane_cents: z.number().int().min(0).max(100000).default(3500).optional(),
+          })
+          .optional(),
         pricing_rules: z.array(rule).min(1).max(12),
       })
       .strict()
@@ -69,6 +77,7 @@ export async function POST(request: Request) {
           prohibited_items: input.prohibited_items,
           operating_days: input.operating_days,
           tax_rate_percent: input.tax_rate_percent ?? 0,
+          landfill_surcharges: input.landfill_surcharges ?? d.organization.landfill_surcharges,
           pricing_config: {
             deposit_percent: input.deposit_percent,
             currency: input.currency ?? d.organization.currency ?? 'usd',
@@ -78,6 +87,7 @@ export async function POST(request: Request) {
             prohibited_items: input.prohibited_items,
             operating_days: input.operating_days,
             tax_rate_percent: input.tax_rate_percent ?? 0,
+            landfill_surcharges: input.landfill_surcharges ?? d.organization.landfill_surcharges,
           },
         });
         d.pricing_rules = normalizedRules.map((r) => ({

@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, ShieldCheck, Check } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { MarketingNav } from '@/components/marketing-nav';
 import { ContractTemplateView } from '@/components/contract-template-view';
 import { Footer } from '@/components/footer';
 
@@ -8,6 +8,9 @@ export const metadata = {
   title: 'Dumpster Rental Contract Template — Free Hauler Agreement & Property Waiver',
   description:
     'Free, copy-pasteable roll off dumpster rental contract agreement template. Complete with driveway damage waivers, prohibited hazardous waste clauses, and tonnage overage terms.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/templates/dumpster-rental-contract',
+  },
 };
 
 export default function ContractTemplatePage() {
@@ -34,18 +37,7 @@ export default function ContractTemplatePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
       />
 
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/vs/docket">RollOS vs Docket</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Start Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/templates" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-4">

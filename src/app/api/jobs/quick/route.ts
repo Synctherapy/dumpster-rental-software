@@ -7,6 +7,7 @@ import { assertSameOrigin, failure } from '@/lib/server/http';
 import { quote, platformFee } from '@/lib/pricing';
 import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
+import { sendEmail } from '@/lib/server/email';
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '');
@@ -123,6 +124,7 @@ export async function POST(request: Request) {
           booking_key: randomUUID(),
           pricing_snapshot: rule,
           payment_type: body.payment_type ?? null,
+          signed_by_customer: false,
         };
 
         if (assignedContainer) {
@@ -147,9 +149,21 @@ export async function POST(request: Request) {
         return job;
       });
 
-      // Send SMS booking confirmation
-      const smsText = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Ref: ${createdJob.id.slice(0, 8)}. Thanks for choosing ${org.name}!`;
+      // Send SMS & Email booking confirmation with mobile waiver signing link
+      const origin = process.env.APP_URL || new URL(request.url).origin;
+      const agreementUrl = `${origin}/agreement/${createdJob.id}`;
+      const smsText = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Ref: ${createdJob.id.slice(0, 8)}. Please review and sign your rental agreement & waiver: ${agreementUrl}`;
       await sendSms(org.id, createdJob.id, formattedPhone, 'booking_confirmation', smsText);
+      if (email && !email.endsWith('@phone.rollos')) {
+        await sendEmail(
+          org.id,
+          createdJob.id,
+          email,
+          'booking_confirmation',
+          `Booking Confirmed · Review & Sign Rental Agreement · ${org.name}`,
+          `Hi ${body.customer_name},\n\nYour ${body.size_yards} yard dumpster is scheduled for delivery on ${body.delivery_date}.\n\nPlease review and electronically sign your rental agreement and property damage waiver before drop-off:\n${agreementUrl}\n\nThank you,\n${org.name}`,
+        );
+      }
     } else {
       const { db, member } = await identity();
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
@@ -214,6 +228,7 @@ export async function POST(request: Request) {
         pricing_snapshot: rule,
         booking_key: randomUUID(),
         payment_type: body.payment_type ?? null,
+        signed_by_customer: false,
         created_at: new Date().toISOString(),
       };
 
@@ -232,13 +247,20 @@ export async function POST(request: Request) {
           .eq('id', body.container_id);
       }
 
-      await sendSms(
-        member.org_id,
-        createdJob.id,
-        formattedPhone,
-        'booking_confirmation',
-        `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Ref: ${createdJob.id.slice(0, 8)}. Thanks for choosing ${org.name}!`,
-      );
+      const origin = process.env.APP_URL || new URL(request.url).origin;
+      const agreementUrl = `${origin}/agreement/${createdJob.id}`;
+      const smsText = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Ref: ${createdJob.id.slice(0, 8)}. Please review and sign your rental agreement & waiver: ${agreementUrl}`;
+      await sendSms(member.org_id, createdJob.id, formattedPhone, 'booking_confirmation', smsText);
+      if (email && !email.endsWith('@phone.rollos')) {
+        await sendEmail(
+          member.org_id,
+          createdJob.id,
+          email,
+          'booking_confirmation',
+          `Booking Confirmed · Review & Sign Rental Agreement · ${org.name}`,
+          `Hi ${body.customer_name},\n\nYour ${body.size_yards} yard dumpster is scheduled for delivery on ${body.delivery_date}.\n\nPlease review and electronically sign your rental agreement and property damage waiver before drop-off:\n${agreementUrl}\n\nThank you,\n${org.name}`,
+        );
+      }
     }
 
     return NextResponse.json({ ok: true, job: createdJob });

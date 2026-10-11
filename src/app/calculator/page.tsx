@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, DollarSign, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { MarketingNav } from '@/components/marketing-nav';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -8,6 +8,9 @@ export const metadata = {
   title: 'Dumpster Rental Software Savings Calculator — Compare Costs & ROI',
   description:
     'Calculate how much money you save switching from Docket, ServiceCore, or DRS to RollOS. Compare monthly subscription costs, hidden fees, and bookings captured while you sleep.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/tools/savings-calculator',
+  },
 };
 
 export default function CalculatorPage() {
@@ -18,6 +21,7 @@ export default function CalculatorPage() {
     description:
       'Interactive cost comparison tool for roll-off dumpster haulers to calculate annual software savings against Docket, ServiceCore, and DRS.',
     applicationCategory: 'BusinessApplication',
+    url: 'https://rolloffdumpstersoftware.com/tools/savings-calculator',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -32,19 +36,7 @@ export default function CalculatorPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
       />
 
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/vs/docket">RollOS vs Docket</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Start Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/tools" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-4">

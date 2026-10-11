@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -13,17 +13,7 @@ export const metadata = {
 export default function DispatchSoftwarePage() {
   return (
     <main className="marketing">
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/vs/docket">RollOS vs Docket</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Start Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/features" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-4">

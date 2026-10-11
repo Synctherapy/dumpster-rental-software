@@ -1,28 +1,21 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill Format',
   description:
     'A dumpster rental invoice outline for haulers: base rental, extra days, included tons, actual weight, and the overage. Weight is entered by hand.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/templates/dumpster-invoice',
+  },
 };
 
 export default function InvoiceTemplatePage() {
   return (
     <main className="marketing">
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Start Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/templates" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-4">

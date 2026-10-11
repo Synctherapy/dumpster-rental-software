@@ -88,6 +88,7 @@ export function seed(): Workspace {
       delivered_at: status === 'delivered' ? new Date().toISOString() : null,
       picked_up_at: null,
       proof_url: null,
+      pickup_proof_url: null,
       stripe_customer_id: null,
       stripe_payment_method_id: null,
       booking_key: `seed-${i}`,

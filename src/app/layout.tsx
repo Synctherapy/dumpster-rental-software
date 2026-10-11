@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   },
   description:
     'Dumpster rental software for roll-off haulers. Free to start, then $29 or $149 a month. Online booking, dispatch, driver links, and tonnage billing. Stripe fees are separate.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({

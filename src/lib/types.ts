@@ -22,6 +22,12 @@ export interface Organization {
     prohibited_items?: string[];
     operating_days?: number[]; // 0 = Sun, 1 = Mon, ..., 6 = Sat
     tax_rate_percent?: number;
+    landfill_surcharges?: {
+      tire_cents?: number;
+      mattress_cents?: number;
+      freon_cents?: number;
+      propane_cents?: number;
+    };
   };
   google_review_url?: string;
   calendar_token?: string;
@@ -29,6 +35,12 @@ export interface Organization {
   prohibited_items?: string[];
   operating_days?: number[];
   tax_rate_percent?: number;
+  landfill_surcharges?: {
+    tire_cents?: number;
+    mattress_cents?: number;
+    freon_cents?: number;
+    propane_cents?: number;
+  };
 }
 export interface User {
   id: string;
@@ -81,6 +93,7 @@ export interface Job {
   delivered_at: string | null;
   picked_up_at: string | null;
   proof_url: string | null;
+  pickup_proof_url?: string | null;
   protective_boards?: boolean;
   scale_ticket_url?: string | null;
   driver_notes?: string | null;
@@ -91,6 +104,7 @@ export interface Job {
   pricing_snapshot: PricingRule;
   is_swap?: boolean;
   payment_type?: string | null;
+  signed_by_customer?: boolean;
 }
 export interface Payment {
   id: string;

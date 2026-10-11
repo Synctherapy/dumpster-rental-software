@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ShieldCheck, DollarSign } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { MarketingNav } from '@/components/marketing-nav';
 import { PricingMatrix } from '@/components/pricing-matrix';
 import { Footer } from '@/components/footer';
+import { BreadcrumbSchema } from '@/components/schema-org';
 
 export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
@@ -13,19 +14,13 @@ export const metadata = {
 export default function PricingPage() {
   return (
     <main className="marketing">
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/calculator">Savings Calculator</Link>
-          <Link href="/vs">Compare</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Try Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', item: '/' },
+          { name: 'Pricing', item: '/pricing' },
+        ]}
+      />
+      <MarketingNav currentPath="/pricing" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <Link

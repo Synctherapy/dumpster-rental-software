@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck, Box } from 'lucide-react';
-import { Brand } from '@/components/brand';
+import { MarketingNav } from '@/components/marketing-nav';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -27,19 +27,7 @@ export default function DRSComparisonPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
       />
 
-      <nav className="marketing-nav">
-        <Brand />
-        <div className="marketing-links">
-          <Link href="/">Home</Link>
-          <Link href="/uses/dumpster-booking-system">Online Booking</Link>
-          <Link href="/uses/roll-off-dispatch-software">Dispatch Board</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/calculator">Savings Calculator</Link>
-          <Link href="/signup" className="btn btn-orange">
-            Try Free Demo <ArrowRight size={14} />
-          </Link>
-        </div>
-      </nav>
+      <MarketingNav currentPath="/compare" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-4">
@@ -190,12 +178,12 @@ export default function DRSComparisonPage() {
           <div className="flex items-center gap-3 mb-4">
             <Box className="text-[#ea580c]" size={24} />
             <h3 className="text-xl font-bold text-[#1f2d26]">
-              The Container Cap Trap: Why You Shouldn't Pay More When You Buy Bins
+              The Container Cap Trap: Why You Shouldn&apos;t Pay More When You Buy Bins
             </h3>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
             When you invest thousands of dollars in new roll-off containers to grow your fleet, the last thing you should face is a software price hike.
-            Under DRS's pricing model:
+            Under DRS&apos;s pricing model:
           </p>
           <div className="p-4 bg-[#f8faf6] rounded-xl text-xs space-y-2 mb-4 text-[#334155]">
             <p>• If you own 18 dumpsters, you pay <strong>$195.95/month ($2,351/year)</strong>.</p>

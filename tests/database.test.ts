@@ -25,6 +25,7 @@ async function database() {
   await db.exec(await readFile('supabase/migrations/202610060004_prohibited_items_and_operating_days.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610080001_swap_and_offline_payments.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610090001_custom_dumpster_sizes.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610110001_pickup_proof.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
@@ -134,8 +135,10 @@ test('payment failure, retried success, reordered failure, and refund are transa
     await db.query('select transition_job($1,$2,$3)', [
       reservation.id,
       org,
-      { status: 'picked_up', tons_actual: 3.2 },
+      { status: 'picked_up', tons_actual: 3.2, pickup_proof_url: 'https://example.com/pickup.png' },
     ]);
+    const pickedUpJob = (await db.query<{ pickup_proof_url: string }>('select pickup_proof_url from jobs where id=$1', [reservation.id])).rows[0];
+    assert.equal(pickedUpJob.pickup_proof_url, 'https://example.com/pickup.png');
     assert.equal(
       (await db.query<{ status: string }>('select status from containers')).rows[0].status,
       'yard',
