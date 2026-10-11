@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck, Box } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'RollOS vs Dumpster Rental Systems (DRS Review 2026) — Pricing & Features',
@@ -224,6 +225,7 @@ export default function DRSComparisonPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

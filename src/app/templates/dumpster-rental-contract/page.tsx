@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ShieldCheck, Check } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { ContractTemplateView } from '@/components/contract-template-view';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Dumpster Rental Contract Template — Free Hauler Agreement & Property Waiver',
@@ -95,6 +96,7 @@ export default function ContractTemplatePage() {
         {/* The Full Interactive Contract */}
         <ContractTemplateView />
       </div>
+      <Footer />
     </main>
   );
 }

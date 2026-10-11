@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Zap, Truck, Star } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'RollOS vs Docket Dumpster Software (2026 In-Depth Review) — Pricing & Features',
@@ -309,6 +310,7 @@ export default function DocketComparisonPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

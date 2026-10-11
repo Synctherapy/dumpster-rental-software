@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill Format',
@@ -72,6 +73,7 @@ export default function InvoiceTemplatePage() {
           </Link>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

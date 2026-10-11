@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'RollOS vs ServiceCore (2026 Comparison) — Dumpster Software Review',
@@ -204,6 +205,7 @@ export default function ServiceCoreComparisonPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

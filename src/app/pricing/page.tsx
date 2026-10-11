@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ShieldCheck, DollarSign } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { PricingMatrix } from '@/components/pricing-matrix';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
@@ -132,6 +133,7 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

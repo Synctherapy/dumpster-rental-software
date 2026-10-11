@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Online Booking for Dumpster Rentals',
@@ -86,6 +87,7 @@ export default function BookingSystemPage() {
           </Link>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

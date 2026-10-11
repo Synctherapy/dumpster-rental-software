@@ -1529,16 +1529,6 @@ td small {
 .compare-table tr:last-child td {
   border-bottom: 0;
 }
-.marketing-footer {
-  border-top: 1px solid #dfe6d6;
-  max-width: 1108px;
-  margin: auto;
-  padding: 25px 0;
-  display: flex;
-  justify-content: space-between;
-  color: #8a9883;
-  font-size: 12.5px;
-}
 .booking-page {
   min-height: 100vh;
   background: #f6f8f3;
@@ -2046,8 +2036,7 @@ td small {
     grid-template-columns: 1fr 1fr;
   }
   .feature-strip,
-  .pricing-section,
-  .marketing-footer {
+  .pricing-section {
     margin-left: 36px;
     margin-right: 36px;
   }
@@ -2330,11 +2319,6 @@ td small {
   }
   .pricing-section h2 {
     font-size: 31px;
-  }
-  .marketing-footer {
-    margin: 0 24px;
-    gap: 10px;
-    font-size: 10px;
   }
   .faq {
     padding: 35px 24px 55px;

@@ -15,6 +15,7 @@ import { Brand, Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
 import { PricingMatrix } from '@/components/pricing-matrix';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Roll Off Dumpster Software — Free Online Booking & Dispatch',
@@ -417,64 +418,7 @@ export default function Home() {
       </section>
 
       {/* 10. Bottom Colony Pillar & Reverse Silo Navigation (Kyle Roof Architecture) */}
-      <footer className="marketing-footer">
-        <div className="footer-cols">
-          <div>
-            <div className="flex items-center gap-2 mb-2 font-bold text-white text-base">
-              <Dumpster size={22} />
-              RollOS
-            </div>
-            <p style={{ fontSize: 14, color: '#9bb0a0', lineHeight: 1.6 }}>
-              The booking-first roll off dumpster software for independent haulers. Built to eliminate phone tag, dispatch drivers instantly, and keep 100% of your rental money.
-            </p>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#fff', fontSize: 14, marginBottom: 12 }}>Solutions</h4>
-            <div style={{ display: 'grid', gap: 10, fontSize: 14 }}>
-              <Link href="/uses/dumpster-booking-system" style={{ color: '#c8dac5' }}>
-                Dumpster Booking System
-              </Link>
-              <Link href="/uses/roll-off-dispatch-software" style={{ color: '#c8dac5' }}>
-                Roll Off Dispatch Software
-              </Link>
-              <Link href="/calculator" style={{ color: '#c8dac5' }}>
-                Software Savings Calculator
-              </Link>
-              <Link href="/pricing" style={{ color: '#c8dac5' }}>
-                Dumpster Software Pricing
-              </Link>
-              <Link href="/vs/docket" style={{ color: '#c8dac5' }}>
-                RollOS vs Docket Comparison
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#fff', fontSize: 14, marginBottom: 12 }}>Hauler Resources</h4>
-            <div style={{ display: 'grid', gap: 10, fontSize: 14 }}>
-              <Link href="/templates/dumpster-rental-contract" style={{ color: '#c8dac5' }}>
-                Dumpster Rental Contract Template
-              </Link>
-              <Link href="/templates/dumpster-invoice" style={{ color: '#c8dac5' }}>
-                Dumpster Rental Invoice Template
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="footer-bottom" style={{ fontSize: 13 }}>
-          <div>© {new Date().getFullYear()} RollOS (rolloffdumpstersoftware.com). All rights reserved.</div>
-          <div style={{ display: 'flex', gap: 20 }}>
-            <Link href="/terms-of-service" style={{ color: '#9bb0a0' }}>
-              Terms of Service
-            </Link>
-            <Link href="/privacy" style={{ color: '#9bb0a0' }}>
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

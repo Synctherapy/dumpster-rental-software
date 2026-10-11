@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, DollarSign, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Dumpster Rental Software Savings Calculator — Compare Costs & ROI',
@@ -120,6 +121,7 @@ export default function CalculatorPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }
