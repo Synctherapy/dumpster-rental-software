@@ -291,9 +291,7 @@ export function Settings({
                 )}
               </label>
               <p style={{ margin: '6px 0 0 24px', fontSize: '13px', color: 'var(--muted, #666)', lineHeight: 1.5 }}>
-                {data.organization.subscription_status === 'active'
-                  ? 'On your paid plan, you can disable this fee if you prefer absorbing customer checkout charges or keeping prices flat.'
-                  : 'On the free plan, the $12 reservation fee covers your hosting, booking engine, and driver links. Upgrading to Starter ($29/mo) or Growth ($149/mo) is required to disable this fee.'}
+                Every plan includes the standard $12 reservation fee, paid by the customer at online checkout. Starter ($29/mo) and Fleet ($149/mo) add operational tools like cash/check logging and multi-truck dispatch—they do not remove the fee. (Phone jobs have $0 platform fee).
               </p>
             </div>
             <div className="form-row">

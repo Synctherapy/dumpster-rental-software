@@ -285,18 +285,18 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               >
                 Fleet ($149/mo)
                 <span className="block text-[10px] font-normal opacity-80 mt-0.5">
-                  Multi-driver/0 fees
+                  Multi-driver Fleet
                 </span>
               </button>
             </div>
             <p className="text-[11px] text-[#687864] mt-2 flex items-center gap-1">
               <Info size={12} className="shrink-0 text-[#82956d]" />
               {rollosPlan === 'free' &&
-                'Free Plan has $0 monthly software bills for you. Customer pays a $12 reservation fee.'}
+                'Free Plan ($0/mo): Online booking & dispatch. Customer pays $12 fee at checkout.'}
               {rollosPlan === 'starter' &&
-                'Starter Plan includes offline cash/check billing and Google/Apple calendar sync.'}
+                'Starter Plan ($29/mo): Adds offline cash/check logging & calendar sync. Customer pays $12 fee.'}
               {rollosPlan === 'growth' &&
-                'Growth Fleet Plan includes unlimited driver logins, white-labeling, and zero customer fees.'}
+                'Fleet Plan ($149/mo): Adds unlimited driver logins & multi-truck dispatch. Customer pays $12 fee.'}
             </p>
           </div>
         </div>
@@ -426,7 +426,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
 
           {/* Transparent Hauler Pricing Guarantee Note */}
           <div className="px-4 py-3 bg-[#f8faf6] border border-[#dde4d4] rounded-xl text-[11px] text-[#556658] leading-relaxed">
-            <span className="font-bold text-[#1f2d26]">The Hauler Guarantee:</span> On the Free Plan, RollOS never bills your bank account. Your customer pays a standard $12 reservation fee at online checkout. For expanding fleets wanting flat monthly pricing with zero customer fees, choose Starter ($29/mo) or Fleet ($149/mo).
+            <span className="font-bold text-[#1f2d26]">The Hauler Guarantee:</span> Every plan includes the $12 reservation fee, paid by the customer. Starter and Fleet add tools. They do not remove the fee.
           </div>
 
           {/* CTA */}

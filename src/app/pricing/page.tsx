@@ -87,7 +87,7 @@ export default function PricingPage() {
                   <td className="font-mono font-bold">$29 / mo</td>
                   <td className="font-bold">$0 (Instant self-serve)</td>
                   <td className="font-bold font-mono text-[#166534]">$348 / yr ($5,000+ saved)</td>
-                  <td>Option to absorb or keep $12 fee</td>
+                  <td>Customer pays $12 booking fee</td>
                 </tr>
               </tbody>
             </table>

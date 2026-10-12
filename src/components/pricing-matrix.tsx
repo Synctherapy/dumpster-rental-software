@@ -57,8 +57,8 @@ export function PricingMatrix() {
         {
           name: 'Customer Online Reservation Fee',
           free: '$12 paid by customer',
-          starter: 'Option to disable or absorb',
-          growth: 'Option to disable or absorb',
+          starter: '$12 paid by customer',
+          growth: '$12 paid by customer',
         },
         {
           name: 'Direct Stripe Connect Bank Payouts',
