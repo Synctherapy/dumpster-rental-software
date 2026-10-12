@@ -44,6 +44,12 @@ export const NAV_SECTIONS: NavSection[] = [
         href: '/features/tonnage-billing',
         desc: 'Charge extra tonnage and overage fees automatically',
       },
+      {
+        name: 'View All Software Features',
+        href: '/features',
+        desc: 'Complete suite of roll-off operations tools',
+        isAllLink: true,
+      },
     ],
   },
   {

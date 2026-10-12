@@ -460,12 +460,6 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               </p>
             )}
           </div>
-
-          {/* Transparent Hauler Pricing Guarantee Note */}
-          <div className="px-4 py-3 bg-[#f8faf6] border border-[#dde4d4] rounded-xl text-[11px] text-[#556658] leading-relaxed">
-            <span className="font-bold text-[#1f2d26]">The Hauler Guarantee:</span> Every plan includes the $12 reservation fee, paid by the customer. Starter and Fleet add tools. They do not remove the fee.
-          </div>
-
           {/* CTA */}
           <div>
             <Link

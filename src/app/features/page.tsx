@@ -10,14 +10,22 @@ import {
   Zap,
   Clock,
   DollarSign,
+  ShieldCheck,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SavingsCalculator } from '@/components/savings-calculator';
+import {
+  StandoutFeaturesGrid,
+  FeaturesComparisonMatrix,
+  HaulerPersonas,
+  FeaturesFAQSection,
+} from '@/components/features-cro';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Roll-Off Dumpster Software Features — Complete Suite | RollOS',
+  title: 'Roll-Off Dumpster Software Features — Complete Operations Suite | RollOS',
   description:
-    'Explore the 4 core pillars of RollOS: 24/7 online booking, visual drag-and-drop dispatch board, 1-tap SMS driver routes with zero app downloads, and scale ticket tonnage invoicing.',
+    'Explore the complete RollOS feature suite: 24/7 online booking, visual drag-and-drop dispatch, 1-tap SMS driver routes with zero app downloads, automated scale ticket overage billing, and real-time inventory.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/features',
   },
@@ -43,6 +51,8 @@ export default function FeaturesHubPage() {
       'Drag-and-Drop Roll-Off Dispatch Board',
       '1-Tap Driver SMS Routes (Zero App Store Downloads)',
       'Scale Ticket Photo Upload & Automated Tonnage Invoicing',
+      'Real-Time Container Fleet Inventory Tracking',
+      'Digital Customer Damage Waiver & Liability Signatures',
     ],
   };
 
@@ -58,21 +68,21 @@ export default function FeaturesHubPage() {
       description:
         'Over 40% of homeowners and contractors search for dumpsters in the evening when your phone is turned off. RollOS embeds seamlessly on your existing website or social page, validates delivery ZIP codes, checks container inventory, collects upfront deposits, and binds your rental agreement automatically.',
       highlights: [
-        'Embed on any website (WordPress, Squarespace, Wix, Webflow) in 60 seconds',
-        'Direct Stripe Connect payments—money goes directly into your bank account',
-        'Automatic ZIP code delivery zone rate calculation & travel surcharges',
-        'Digital terms of service & property damage waiver acceptance at checkout',
+        'Embed on WordPress, Squarespace, Wix, or share as standalone link',
+        'Real-time delivery ZIP code service radius validation',
+        'Direct credit card deposits into your bank via Stripe Connect',
+        'Collect customer liability damage waiver signatures during checkout',
       ],
-      linkText: 'Explore Online Booking Engine',
+      linkText: 'Explore Online Booking',
     },
     {
-      title: 'Drag-and-Drop Dispatch Board',
+      title: 'Visual Drag-and-Drop Dispatch',
       slug: '/features/dispatch-board',
       pillarNumber: 'Pillar 02',
       icon: Truck,
-      badge: 'Visual Fleet Command',
+      badge: 'Zero Whiteboard Confusion',
       image: '/images/screenshots/roll-off-dumpster-dispatch-board-software.png',
-      headline: 'Eliminate whiteboard chaos and know where every can is in real time',
+      headline: 'Schedule drop-offs, swaps, and pickups in seconds with live inventory',
       description:
         'Replace messy dry-erase boards and scattered spreadsheets with a fast, intuitive dispatch calendar. Drag orders into driver schedules, view container statuses (Delivered, In Transit, In Yard, Swapped, Overdue for Pickup), and prevent double-booking with live inventory tracking.',
       highlights: [
@@ -133,17 +143,31 @@ export default function FeaturesHubPage() {
       {/* Hero Section */}
       <section className="max-w-5xl mx-auto px-6 pt-12 pb-8">
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
-          ROLLOS SOFTWARE PLATFORM · 4 CORE OPERATIONAL PILLARS
+          ROLLOS SOFTWARE PLATFORM · COMPLETE ROLL-OFF SUITE
         </div>
         <h1 className="text-3xl md:text-5xl font-extrabold text-[#20302a] leading-tight mb-4">
-          The all-in-one roll-off software built for haulers who hate software.
+          Every tool you need to run, dispatch, and scale your dumpster fleet.
         </h1>
-        <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          Most waste software is clunky, overpriced, and built for massive municipal garbage haulers. RollOS is built from the ground up for independent 1 to 20 truck roll-off operations: fast to set up, dirt simple for drivers, and focused strictly on booking dumpsters, dispatching routes, and getting you paid.
+        <p className="text-lg text-[#556658] leading-relaxed mb-6 max-w-3xl">
+          Most waste software is clunky, overpriced, and built for massive septic pumpers. RollOS is built from the ground up for independent roll-off operations: fast to set up, dirt simple for drivers, and engineered to capture 24/7 bookings, automate dispatch, and collect tonnage fees.
         </p>
 
+        {/* Dual Primary & Secondary CTAs */}
+        <div className="flex flex-wrap items-center gap-4 mb-10">
+          <Link href="/signup" className="btn btn-orange text-sm py-3.5 px-6 font-bold flex items-center gap-2">
+            <span>Start Free Demo Now</span>
+            <ArrowRight size={16} />
+          </Link>
+          <Link href="/book/greenline" className="btn btn-secondary text-sm py-3.5 px-6 font-bold flex items-center gap-2">
+            <span>Test Live Booking Widget</span>
+          </Link>
+          <Link href="/pricing" className="text-xs text-[#556658] hover:text-[#1f2d26] underline ml-2">
+            View Transparent Pricing ($0, $29, $149/mo)
+          </Link>
+        </div>
+
         {/* Quick Highlights Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm mb-8">
           <div className="flex items-center gap-3">
             <span className="p-2 rounded-lg bg-[#eef3e6] text-[#2d4034]">
               <Clock size={18} />
@@ -181,10 +205,33 @@ export default function FeaturesHubPage() {
             </div>
           </div>
         </div>
+
+        {/* Jump Navigation Bar */}
+        <div className="flex flex-wrap items-center gap-2 p-3 bg-[#f2f6ee] border border-[#d8e2cf] rounded-xl text-xs font-semibold text-[#445548]">
+          <span className="text-[#6d826a] px-2 font-bold uppercase text-[10px] tracking-wider">Quick Jump:</span>
+          <a href="#core-pillars" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">4 Core Pillars</a>
+          <a href="#all-features" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">12 Standout Features</a>
+          <a href="#comparison" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">Comparison Matrix</a>
+          <a href="#calculator" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">ROI Calculator</a>
+          <a href="#personas" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">Fleet Fit</a>
+          <a href="#faqs" className="px-2.5 py-1 rounded-md bg-white hover:text-[#ea580c] transition-colors border border-[#d8e2cf]/50">FAQs</a>
+        </div>
       </section>
 
       {/* The 4 Pillars Deep Dives */}
-      <section className="max-w-5xl mx-auto px-6 py-6 space-y-16">
+      <section id="core-pillars" className="max-w-5xl mx-auto px-6 py-6 space-y-16">
+        <div className="text-center max-w-2xl mx-auto mb-4">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            CORE ARCHITECTURE
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            The 4 Operational Pillars of RollOS
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            Everything connects seamlessly from the moment a homeowner books to the final landfill scale slip.
+          </p>
+        </div>
+
         {pillars.map((pillar, idx) => {
           const Icon = pillar.icon;
           const isEven = idx % 2 === 1;
@@ -238,7 +285,7 @@ export default function FeaturesHubPage() {
                 </div>
               </div>
 
-              {/* Image / Visual Side */}
+              {/* Image Side */}
               <div className="flex-1 w-full">
                 <Link href={pillar.slug} className="block group">
                   <div className="rounded-2xl overflow-hidden border border-[#d8e2cf] shadow-md group-hover:shadow-lg transition-all group-hover:border-[#ea580c]">
@@ -257,8 +304,78 @@ export default function FeaturesHubPage() {
         })}
       </section>
 
-      {/* Complete Workflow Infographic / Steps */}
-      <section className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da] mt-12">
+      {/* 12 Standout Features Grid */}
+      <section id="all-features" className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da] mt-12">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            COMPLETE FEATURE CATALOG
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            12 Standout Features Built Exclusively for Roll-Off
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            No generic contractor fluff. Every tool solves a daily operational friction point in dumpster rentals.
+          </p>
+        </div>
+
+        <StandoutFeaturesGrid />
+      </section>
+
+      {/* Competitor Comparison Matrix */}
+      <section id="comparison" className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da]">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            TRANSPARENT COMPARISON
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            RollOS vs. Whiteboard & Paper vs. Legacy Software
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            See how RollOS compares to manual dry-erase boards and \$300–\$700+/mo enterprise waste platforms.
+          </p>
+        </div>
+
+        <FeaturesComparisonMatrix />
+      </section>
+
+      {/* Interactive Savings Calculator */}
+      <section id="calculator" className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da]">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            ROI & SAVINGS PROOF
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            Calculate Exactly How Much You Save
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            Compare your monthly costs on RollOS vs. Docket, ServiceCore, or DRS based on your fleet size.
+          </p>
+        </div>
+
+        <div className="bg-white border border-[#dde4d4] rounded-3xl p-6 md:p-10 shadow-sm">
+          <SavingsCalculator showTitle={false} />
+        </div>
+      </section>
+
+      {/* Hauler Personas */}
+      <section id="personas" className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da]">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            BUILT FOR YOUR FLEET SIZE
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            Whether You Run 1 Truck or 10, RollOS Scales With You
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            Choose the workflow that fits your daily operation today, and scale seamlessly as you buy more cans.
+          </p>
+        </div>
+
+        <HaulerPersonas />
+      </section>
+
+      {/* End-to-End Workflow Steps */}
+      <section className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da]">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
             HOW IT WORKS · THE END-TO-END WORKFLOW
@@ -306,7 +423,24 @@ export default function FeaturesHubPage() {
         </div>
       </section>
 
-      {/* Cross-Silo Hub Navigation */}
+      {/* Frequently Asked Questions */}
+      <section id="faqs" className="max-w-5xl mx-auto px-6 py-16 border-t border-[#e2e8da]">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
+            FREQUENTLY ASKED QUESTIONS
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+            Questions from Independent Haulers
+          </h2>
+          <p className="text-xs md:text-sm text-[#556658] mt-2">
+            Common questions about setup, driver mobile access, payment processing, and scale ticket billing.
+          </p>
+        </div>
+
+        <FeaturesFAQSection />
+      </section>
+
+      {/* Cross-Silo Navigation Hubs */}
       <section className="max-w-5xl mx-auto px-6 py-8 border-t border-[#e2e8da]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 bg-[#f7f9f4] border border-[#dce3d4] rounded-2xl">
@@ -348,10 +482,11 @@ export default function FeaturesHubPage() {
             Create your account in under 3 minutes. Test the online booking widget and dispatch board with your actual cans—no credit card required.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/signup" className="btn btn-orange">
-              Start Free Demo Now <ArrowRight size={14} />
+            <Link href="/signup" className="btn btn-orange font-bold flex items-center gap-2">
+              <span>Start Free Demo Now</span>
+              <ArrowRight size={14} />
             </Link>
-            <Link href="/pricing" className="btn btn-secondary">
+            <Link href="/pricing" className="btn btn-secondary font-bold">
               View Pricing ($0, $29, $149/mo)
             </Link>
           </div>
