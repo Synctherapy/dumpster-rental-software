@@ -18,6 +18,9 @@ import { SavingsCalculator } from '@/components/savings-calculator';
 import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
 import { SoftwareApplicationSchema, FAQPageSchema } from '@/components/schema-org';
+import { WorkflowVisualizer } from '@/components/workflow-visualizer';
+import { CheckoutReceiptPreview } from '@/components/checkout-receipt-preview';
+import { MobileStickyCta } from '@/components/mobile-sticky-cta';
 
 export const metadata = {
   title: 'Roll Off Dumpster Software — Free Online Booking & Dispatch',
@@ -77,10 +80,7 @@ export default function Home() {
           </h1>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: '#4a5d4e' }}>
             Stop losing $450 jobs to voicemail. Over 40% of dumpster searches happen after 7 PM—if you don’t have online booking, homeowners hire the next hauler on Google. RollOS gives independent haulers
-            free <strong>roll off dumpster software</strong> with an embeddable 24/7 booking widget
-            for your website, visual drag-and-drop dispatching, and 1-tap SMS driver routes with
-            zero app downloads. Setup takes 3 minutes, customers pay upfront, and you keep 100% of
-            your rental money.
+            free <strong>roll off dumpster software</strong> with an embeddable 24/7 booking widget, visual drag-and-drop dispatching, and 1-tap SMS driver routes with zero app downloads. No website? Put your custom link (rollos.com/book/yourcompany) directly on your Google Business Profile &amp; Facebook. Already have a website? Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy. Setup takes 3 minutes, customers pay upfront, and you keep 100% of your rental money.
           </p>
           <div className="hero-actions">
             <Link href="/signup" className="btn btn-orange">
@@ -104,7 +104,7 @@ export default function Home() {
           >
             <span>✓ Capture orders 24/7 while you drive</span>
             <span>✓ Free plan ($0/mo) · Keep 100% of rental revenue</span>
-            <span>✓ Setup in 3 minutes on any website</span>
+            <span>✓ Works with or without a website (direct link or 1-line embed)</span>
             <span>✓ Zero driver app downloads (instant SMS links)</span>
           </div>
         </div>
@@ -150,7 +150,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Real High-Resolution SEO Software Screenshots (Clickable Lightbox) */}
+      {/* 3. 60-Second Real-Time Workflow Visualizer Product Tour */}
+      <section className="px-6 py-12 max-w-[1240px] mx-auto" id="product-tour">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="eyebrow" style={{ color: '#82956d', marginBottom: 10 }}>
+            60-SECOND PRODUCT TOUR
+          </div>
+          <h2 style={{ fontSize: 32, marginBottom: 12 }}>
+            Watch how an online dumpster booking flows in real time
+          </h2>
+          <p style={{ color: '#4a5d4e', fontSize: 16 }}>
+            From customer checkout to dispatch board to driver turn-by-turn navigation.
+          </p>
+        </div>
+
+        {/* Interactive Step-by-Step Flow Demo */}
+        <WorkflowVisualizer />
+      </section>
+
+      {/* 4. Real High-Resolution SEO Software Screenshots (Clickable Lightbox) */}
       <section className="px-6 py-12 max-w-[1240px] mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-4">
           <div className="eyebrow" style={{ color: '#82956d', marginBottom: 10 }}>
@@ -168,7 +186,7 @@ export default function Home() {
         <ScreenshotLightbox />
       </section>
 
-      {/* 4. Donald Miller 3-Step Success Plan */}
+      {/* 5. Donald Miller 3-Step Success Plan */}
       <section className="px-6 py-12 max-w-[1040px] mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="eyebrow" style={{ color: '#82956d', marginBottom: 8 }}>
@@ -200,10 +218,10 @@ export default function Home() {
               2
             </div>
             <h3 className="text-lg font-bold text-[#1f2d26] mb-2">
-              Add the Booking Widget to Your Website
+              Embed Widget or Share Direct Link
             </h3>
             <p className="text-sm text-[#475569] leading-relaxed">
-              Copy one line of embed code into WordPress, Wix, Squarespace, or custom HTML. Or simply share your direct booking link on your Google Business Profile, Facebook page, or Instagram bio.
+              No website? Put your custom link (rollos.com/book/yourcompany) directly on your Google Business Profile &amp; Facebook. Already have a website? Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy.
             </p>
           </div>
 
@@ -284,6 +302,22 @@ export default function Home() {
           <p className="text-sm text-[#475569] leading-relaxed">
             <strong>More money in your pocket:</strong> You keep 100% of your hard-earned dumpster revenue. No $150–$350/mo monthly software bills. No percentage taken out of your haul.
           </p>
+        </div>
+
+        {/* Fleet Capacity & Overbooking Fear Reassurance */}
+        <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
+            <Truck size={20} className="text-[#ea580c]" />
+            Worried about taking bookings when your yard is empty?
+          </h4>
+          <p className="text-sm text-[#475569] leading-relaxed">
+            <strong>Never Get Overbooked:</strong> Enter your available container counts and set your minimum dispatch notice (e.g., 24 or 48 hours). When all bins are booked out, dates automatically black out. You stay in total control of your calendar.
+          </p>
+        </div>
+
+        {/* Visual Customer Receipt and Hauler 100% Payout Preview */}
+        <div className="mt-8">
+          <CheckoutReceiptPreview />
         </div>
       </section>
 
@@ -440,8 +474,70 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. Bottom Colony Pillar & Reverse Silo Navigation (Kyle Roof Architecture) */}
+      {/* 10. Bottom Closing CTA Banner */}
+      <section className="px-6 py-14 max-w-[1040px] mx-auto">
+        <div className="p-8 md:p-12 bg-[#1f2d26] text-white rounded-3xl shadow-xl text-center relative overflow-hidden border border-[#2d3e35]">
+          <div
+            style={{
+              position: 'absolute',
+              top: '-30%',
+              right: '-10%',
+              width: 380,
+              height: 380,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(234, 88, 12, 0.15) 0%, rgba(234, 88, 12, 0) 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'rgba(214, 239, 124, 0.12)',
+              color: '#d6ef7c',
+              padding: '6px 16px',
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: 16,
+              border: '1px solid rgba(214, 239, 124, 0.25)',
+            }}
+          >
+            <Sparkles size={13} color="#d6ef7c" />
+            GET STARTED IN 3 MINUTES
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+            Ready to stop losing $450 dumpster jobs to voicemail?
+          </h2>
+          <p className="text-base md:text-lg text-[#b8c9b9] max-w-2xl mx-auto mb-8 leading-relaxed">
+            Join independent haulers who let customers book and pay 24/7. Free plan includes the online booking widget, drag-and-drop dispatch board, and SMS driver routes.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+            <Link href="/signup" className="btn btn-orange">
+              Start Free in 3 Minutes — No Credit Card <ArrowRight size={15} />
+            </Link>
+            <Link
+              href="/book/greenline"
+              className="btn btn-dark"
+              style={{ background: '#2c3e34', border: '1px solid #3c5447', color: '#ffffff' }}
+            >
+              Test Live Customer Checkout
+            </Link>
+          </div>
+          <div className="text-xs md:text-sm text-[#8ca58b] flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-medium">
+            <span>✓ $0/month free plan · Keep 100% rental money · Setup in 3 minutes · Zero contracts</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. Bottom Colony Pillar & Reverse Silo Navigation (Kyle Roof Architecture) */}
       <Footer />
+
+      {/* Mobile Sticky CTA Bar */}
+      <MobileStickyCta />
     </main>
   );
 }

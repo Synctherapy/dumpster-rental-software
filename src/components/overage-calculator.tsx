@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Calculator } from 'lucide-react';
+import { ArrowRight, Calculator, Sparkles } from 'lucide-react';
 import { money } from '@/lib/types';
 export function OverageCalculator() {
   const [included, setIncluded] = useState(2);
@@ -65,9 +65,87 @@ export function OverageCalculator() {
         <p style={{ fontSize: 11 }}>
           This estimate excludes base rental, extra days, and any other charges in your agreement.
         </p>
-        <Link href="/" className="btn" style={{ marginTop: 20 }}>
-          Explore RollOS
-        </Link>
+        <div
+          style={{
+            marginTop: 26,
+            padding: '20px 22px',
+            background: '#f8faf6',
+            border: '1px solid #d4dfce',
+            borderRadius: 14,
+            textAlign: 'left',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 11,
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: '#ea580c',
+              marginBottom: 8,
+            }}
+          >
+            <Sparkles size={13} />
+            <span>Automate Weight Overages with RollOS</span>
+          </div>
+          <h3
+            style={{
+              fontSize: 17,
+              fontWeight: 700,
+              color: '#1f2d26',
+              margin: '0 0 8px',
+              lineHeight: 1.35,
+            }}
+          >
+            Tired of doing manual disposal math and paper scale tickets?
+          </h3>
+          <p
+            style={{
+              fontSize: 13.5,
+              color: '#475569',
+              lineHeight: 1.6,
+              margin: '0 0 16px',
+            }}
+          >
+            RollOS automatically calculates overages and charges the customer&apos;s card on file the second your driver uploads the certified scale ticket.
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              gap: 10,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Link
+              href="/signup"
+              className="btn btn-orange"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 700,
+                padding: '10px 16px',
+              }}
+            >
+              Start Free in 3 Minutes <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/book/greenline"
+              className="btn btn-dark"
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                padding: '10px 16px',
+              }}
+            >
+              Test Live Demo
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -54,27 +54,28 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 setError('');
                 const fields = new FormData(e.currentTarget);
                 try {
-                  const result = await api<{ confirmation?: boolean; demo?: boolean }>(
-                    '/api/auth',
-                    {
-                      method: 'POST',
-                      body: JSON.stringify({
-                        action: signup ? 'signup' : 'login',
-                        email: fields.get('email'),
-                        password: fields.get('password'),
-                        ...(signup
-                          ? { name: fields.get('name'), company: fields.get('company') }
-                          : {}),
-                      }),
-                    },
-                  );
+                  const result = await api<{
+                    confirmation?: boolean;
+                    demo?: boolean;
+                    ok?: boolean;
+                  }>('/api/auth', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      action: signup ? 'signup' : 'login',
+                      email: fields.get('email'),
+                      password: fields.get('password'),
+                      ...(signup
+                        ? { name: fields.get('name'), company: fields.get('company') }
+                        : {}),
+                    }),
+                  });
                   if (result.confirmation) {
                     setConfirmation(true);
-                  } else if (result.demo) {
-                    setError(
-                      'Authentication is not connected in this local demo. Use “Explore the demo workspace” below; no account was created.',
-                    );
-                  } else window.location.href = signup ? '/settings' : '/dashboard';
+                  } else if (result.demo || result.ok) {
+                    window.location.href = '/dashboard';
+                  } else {
+                    window.location.href = '/dashboard';
+                  }
                 } catch (e) {
                   setError((e as Error).message);
                 } finally {

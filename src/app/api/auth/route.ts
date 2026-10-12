@@ -1,12 +1,30 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isDemo } from '@/lib/server/store';
+import { isDemo, mutateDemo } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    if (isDemo()) return NextResponse.json({ demo: true });
+    const body = await request.json().catch(() => ({}));
+    if (isDemo()) {
+      if (body?.action === 'logout') {
+        return NextResponse.json({ ok: true });
+      }
+      if (body?.action === 'signup' && (body?.name || body?.company)) {
+        await mutateDemo((d) => {
+          if (body.name) d.users[0].name = String(body.name).trim();
+          if (body.company) d.organization.name = String(body.company).trim();
+        }).catch(() => {});
+      }
+      return NextResponse.json({
+        ok: true,
+        demo: true,
+        message: 'Welcome to your pre-launch sandbox!',
+      });
+    }
+
     const input = z
       .object({
         action: z.enum(['login', 'signup', 'logout']),
@@ -15,7 +33,8 @@ export async function POST(request: Request) {
         name: z.string().trim().min(2).max(80).optional(),
         company: z.string().trim().min(2).max(80).optional(),
       })
-      .parse(await request.json());
+      .parse(body);
+
     const db = await sessionClient();
     if (input.action === 'logout') {
       await db.auth.signOut();
