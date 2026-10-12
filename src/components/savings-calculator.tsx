@@ -15,10 +15,34 @@ interface CompetitorProfile {
   perTruckMonthly: number;
   setupFee: number;
   notes: string;
-  type: 'legacy_saas' | 'general_contractor' | 'manual';
+  type: 'sub100_saas' | 'legacy_saas' | 'general_contractor' | 'manual';
 }
 
 const COMPETITORS: Record<string, CompetitorProfile> = {
+  icans: {
+    name: 'iCANS Software',
+    monthlyBase: 99,
+    perTruckMonthly: 0,
+    setupFee: 0,
+    notes: '$99/mo base plan (email-only notifications; $159/mo Plus required for SMS). Requires drivers to download native app from App Store.',
+    type: 'sub100_saas',
+  },
+  binboss: {
+    name: 'Bin Boss',
+    monthlyBase: 99,
+    perTruckMonthly: 0,
+    setupFee: 0,
+    notes: 'Flat $99/mo with no setup fees. Requires drivers to install and maintain native mobile app.',
+    type: 'sub100_saas',
+  },
+  reservety: {
+    name: 'Reservety',
+    monthlyBase: 59,
+    perTruckMonthly: 0,
+    setupFee: 0,
+    notes: '$59/mo Starter or $99/mo Pro. Generic rental software lacking dumpster scale tickets and swap logic.',
+    type: 'sub100_saas',
+  },
   docket: {
     name: 'Docket Software',
     monthlyBase: 299,
@@ -62,7 +86,7 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
 };
 
 export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean }) {
-  const [competitorKey, setCompetitorKey] = useState<string>('docket');
+  const [competitorKey, setCompetitorKey] = useState<string>('icans');
   // 'switching' means they already pay the competitor and paid setup long ago; 'evaluating' means first-time buyer
   const [isSwitching, setIsSwitching] = useState<boolean>(true);
   const [trucks, setTrucks] = useState<number>(2);
@@ -128,17 +152,24 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               onChange={(e) => setCompetitorKey(e.target.value)}
               className="w-full p-3 rounded-lg border border-[#cbd5c4] bg-white text-sm font-semibold text-[#1f2d26] focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
             >
-              <option value="docket">Docket Software (~$299/mo + $50/truck + $1,500 setup)</option>
-              <option value="servicecore">ServiceCore (~$349/mo per truck + $1,200 setup)</option>
-              <option value="drs">Dumpster Rental Systems - DRS ($195–$280/mo + $500 setup)</option>
-              <option value="jobber">Jobber Grow Tier ($249/mo)</option>
-              <option value="phone_tag">No Software (Pen & Paper / Phone Tag)</option>
+              <optgroup label="Independent & 1–3 Truck Dumpster Software">
+                <option value="icans">iCANS ($99/mo flat · $1,188/yr)</option>
+                <option value="binboss">Bin Boss ($99/mo flat · $1,188/yr)</option>
+                <option value="reservety">Reservety ($59/mo · $708/yr)</option>
+                <option value="phone_tag">No Software (Pen & Paper / Phone Tag)</option>
+              </optgroup>
+              <optgroup label="Multi-Truck & Enterprise Software">
+                <option value="docket">Docket Software (~$299/mo + $50/truck + $1,500 setup)</option>
+                <option value="servicecore">ServiceCore (~$349/mo per truck + $1,200 setup)</option>
+                <option value="drs">Dumpster Rental Systems - DRS ($195–$280/mo + $500 setup)</option>
+                <option value="jobber">Jobber Grow Tier ($249/mo)</option>
+              </optgroup>
             </select>
             <p className="text-xs text-[#687864] mt-2 italic">{selectedCompetitor.notes}</p>
           </div>
 
-          {/* Situation Toggle: Switching vs Shopping */}
-          {!isManual && (
+          {/* Situation Toggle: Switching vs Shopping (only relevant when competitor charges a setup fee) */}
+          {!isManual && selectedCompetitor.setupFee > 0 && (
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#4a6344] mb-2">
                 Your Current Situation:
@@ -308,10 +339,16 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
             <div className="p-6 bg-[#16201a] text-white rounded-2xl shadow-xl border border-[#2d3a31]">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-[#ea580c] uppercase tracking-wider">
-                  {isSwitching ? 'ONGOING ANNUAL RECURRING SAVINGS' : 'YEAR 1 TOTAL SAVINGS (INCL. SETUP)'}
+                  {selectedCompetitor.setupFee > 0 && !isSwitching
+                    ? 'YEAR 1 TOTAL SAVINGS (INCL. SETUP)'
+                    : 'ANNUAL HARD SOFTWARE SAVINGS'}
                 </span>
                 <span className="text-[11px] bg-[#223126] text-[#9bb0a0] px-2 py-0.5 rounded font-mono">
-                  {isSwitching ? 'Year 2+ Ongoing' : 'Year 1 Switching'}
+                  {selectedCompetitor.setupFee > 0
+                    ? isSwitching
+                      ? 'Year 2+ Ongoing'
+                      : 'Year 1 Switching'
+                    : 'Flat Rate SaaS'}
                 </span>
               </div>
               <div className="text-4xl md:text-5xl font-black text-white tracking-tight my-2">
