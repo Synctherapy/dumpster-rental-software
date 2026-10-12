@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { DollarSign, ArrowRight, TrendingUp, Moon, Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowRight,
+  Moon,
+  ShieldCheck,
+  Info,
+} from 'lucide-react';
 
 interface CompetitorProfile {
   name: string;
@@ -10,6 +15,7 @@ interface CompetitorProfile {
   perTruckMonthly: number;
   setupFee: number;
   notes: string;
+  type: 'legacy_saas' | 'general_contractor' | 'manual';
 }
 
 const COMPETITORS: Record<string, CompetitorProfile> = {
@@ -18,85 +24,93 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
     monthlyBase: 299,
     perTruckMonthly: 50,
     setupFee: 1500,
-    notes: 'Hidden subscription pricing, mandatory sales demos, ~3.0% processing rates, native driver app downloads.',
+    notes: 'Hidden pricing, mandatory sales demos, $1,500 onboarding fee, ~$3.0% processing rates, native app downloads.',
+    type: 'legacy_saas',
   },
   servicecore: {
     name: 'ServiceCore',
     monthlyBase: 349,
     perTruckMonthly: 75,
     setupFee: 1200,
-    notes: 'Per-truck pricing model built for septic/restrooms, complex enterprise quotes, mandatory sales calls.',
+    notes: 'Per-truck pricing model built for septic/restrooms, $1,200 setup fee, enterprise quotes, locked-in contracts.',
+    type: 'legacy_saas',
   },
   drs: {
     name: 'Dumpster Rental Systems (DRS)',
     monthlyBase: 195,
     perTruckMonthly: 0,
     setupFee: 500,
-    notes: 'Restricts Standard plan to only 20 cans ($195.95/mo); jumps to $279.95/mo for over 20 cans.',
+    notes: 'Caps Standard tier at 20 cans ($195.95/mo); jumps to $279.95/mo over 20 cans, plus $500 setup fee.',
+    type: 'legacy_saas',
   },
   jobber: {
     name: 'Jobber (Grow Tier)',
     monthlyBase: 249,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: 'General contractor tool without dumpster-specific driveway waivers, container inventory, or scale slips.',
+    notes: 'Generic contractor software lacking dumpster driveway waivers, container yard tracking, or scale ticket billing.',
+    type: 'general_contractor',
   },
   phone_tag: {
     name: 'Pen & Paper / Phone Tag',
     monthlyBase: 0,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: 'Zero software fees, but loses 3–5 after-hours bookings every month to competitors with instant online booking.',
+    notes: '$0 monthly software bills, but you lose 2–4 high-intent bookings every month when you are driving or after 7 PM.',
+    type: 'manual',
   },
 };
 
 export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean }) {
+  const [competitorKey, setCompetitorKey] = useState<string>('docket');
+  // 'switching' means they already pay the competitor and paid setup long ago; 'evaluating' means first-time buyer
+  const [isSwitching, setIsSwitching] = useState<boolean>(true);
   const [trucks, setTrucks] = useState<number>(2);
   const [rentalsPerMonth, setRentalsPerMonth] = useState<number>(30);
   const [averageRentalPrice, setAverageRentalPrice] = useState<number>(450);
-  const [competitorKey, setCompetitorKey] = useState<string>('docket');
-  const [rollosPlan, setRollosPlan] = useState<'free' | 'starter'>('free');
+  const [rollosPlan, setRollosPlan] = useState<'free' | 'starter' | 'growth'>('free');
 
   const selectedCompetitor = COMPETITORS[competitorKey];
+  const isManual = selectedCompetitor.type === 'manual';
 
-  // Competitor Annual Cost calculation
-  let competitorAnnualCost = 0;
-  let missedRevenueAnnual = 0;
+  // 1. Competitor Annual Cost calculation
+  // Base monthly fee + per extra truck fee
+  const competitorMonthlyFee =
+    selectedCompetitor.monthlyBase + Math.max(0, trucks - 1) * selectedCompetitor.perTruckMonthly;
+  
+  // If switching: setup fee is $0 because they paid it in the past; if evaluating: include one-time setup fee in Year 1
+  const effectiveSetupFee = isSwitching ? 0 : selectedCompetitor.setupFee;
+  const competitorAnnualCost = isManual ? 0 : competitorMonthlyFee * 12 + effectiveSetupFee;
 
-  if (competitorKey === 'phone_tag') {
-    // Estimating 3 missed bookings/month when driving or after-hours
-    const missedBookingsMonthly = Math.max(2, Math.round(rentalsPerMonth * 0.12));
-    missedRevenueAnnual = missedBookingsMonthly * averageRentalPrice * 12;
-    competitorAnnualCost = missedRevenueAnnual;
-  } else {
-    const monthlyFee = selectedCompetitor.monthlyBase + (trucks - 1) * selectedCompetitor.perTruckMonthly;
-    competitorAnnualCost = monthlyFee * 12 + selectedCompetitor.setupFee;
-  }
-
-  // RollOS Annual Cost
-  // Free: $0/mo (homeowner pays $12 booking fee)
+  // 2. RollOS Annual Cost
+  // Free: $0/mo (homeowner pays $12 booking fee at checkout)
   // Starter: $29/mo ($348/yr)
-  const rollosAnnualCost = rollosPlan === 'free' ? 0 : 29 * 12;
+  // Growth: $149/mo ($1,788/yr)
+  const rollosMonthlyCost = rollosPlan === 'free' ? 0 : rollosPlan === 'starter' ? 29 : 149;
+  const rollosAnnualCost = rollosMonthlyCost * 12;
 
-  // Net Savings
-  const netSavingsAnnual = Math.max(0, competitorAnnualCost - rollosAnnualCost);
+  // 3. Direct Hard Software Savings (for SaaS comparisons)
+  const directAnnualSavings = Math.max(0, competitorAnnualCost - rollosAnnualCost);
 
-  // Extra after-hours online bookings captured while sleeping (estimate 15% increase from 24/7 web booking)
-  const extraBookingsAnnual = Math.round(rentalsPerMonth * 0.15 * 12);
-  const extraRevenueAnnual = extraBookingsAnnual * averageRentalPrice;
+  // 4. Phone Tag Opportunity Cost (Realistic hauler economics: ~10% missed calls, ~45% net profit after landfill/fuel)
+  const missedBookingsMonthly = Math.min(6, Math.max(2, Math.round(rentalsPerMonth * 0.10)));
+  const missedRevenueAnnual = missedBookingsMonthly * averageRentalPrice * 12;
+  // Realistic net profit margin (~45% margin after $130 landfill tip fee, $45 fuel, driver wages)
+  const missedNetProfitAnnual = Math.round(missedRevenueAnnual * 0.45);
 
   return (
     <div className="w-full bg-white border border-[#dde4d4] rounded-2xl p-6 md:p-10 shadow-sm text-[#1f2d26]">
       {showTitle && (
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <div className="eyebrow" style={{ color: '#82956d', marginBottom: 8 }}>
-            ROI & SOFTWARE COST CALCULATOR
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0fdf4] text-xs font-bold text-[#166534] border border-[#bbf7d0] mb-3">
+            <ShieldCheck size={14} className="text-[#16a34a]" />
+            Hauler-Audited Math · Real Landfill & Fuel Margins
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26] mb-3">
             How much money can RollOS save your hauling business?
           </h2>
           <p className="text-sm text-[#556658]">
-            See the true cost comparison between legacy software subscriptions, lost phone-tag revenue, and RollOS.
+            Compare honest, itemized software bills and after-hours bookings without inflated vanity metrics.
           </p>
         </div>
       )}
@@ -114,14 +128,53 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               onChange={(e) => setCompetitorKey(e.target.value)}
               className="w-full p-3 rounded-lg border border-[#cbd5c4] bg-white text-sm font-semibold text-[#1f2d26] focus:outline-none focus:ring-2 focus:ring-[#ea580c]"
             >
-              <option value="docket">Docket Software (~$299/mo + $1,500 setup)</option>
+              <option value="docket">Docket Software (~$299/mo + $50/truck + $1,500 setup)</option>
               <option value="servicecore">ServiceCore (~$349/mo per truck + $1,200 setup)</option>
-              <option value="drs">Dumpster Rental Systems - DRS ($195–$280/mo)</option>
+              <option value="drs">Dumpster Rental Systems - DRS ($195–$280/mo + $500 setup)</option>
               <option value="jobber">Jobber Grow Tier ($249/mo)</option>
               <option value="phone_tag">No Software (Pen & Paper / Phone Tag)</option>
             </select>
             <p className="text-xs text-[#687864] mt-2 italic">{selectedCompetitor.notes}</p>
           </div>
+
+          {/* Situation Toggle: Switching vs Shopping */}
+          {!isManual && (
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#4a6344] mb-2">
+                Your Current Situation:
+              </label>
+              <div className="grid grid-cols-2 gap-2 bg-[#eef3e6] p-1 rounded-lg border border-[#cbd5c4]">
+                <button
+                  type="button"
+                  onClick={() => setIsSwitching(true)}
+                  className={`py-2 px-3 rounded-md text-xs font-bold transition-all ${
+                    isSwitching
+                      ? 'bg-white text-[#1f2d26] shadow-sm'
+                      : 'text-[#687864] hover:text-[#1f2d26]'
+                  }`}
+                >
+                  I Currently Pay This
+                  <span className="block text-[10px] font-normal text-[#71826d]">
+                    (Setup fee excluded)
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSwitching(false)}
+                  className={`py-2 px-3 rounded-md text-xs font-bold transition-all ${
+                    !isSwitching
+                      ? 'bg-white text-[#1f2d26] shadow-sm'
+                      : 'text-[#687864] hover:text-[#1f2d26]'
+                  }`}
+                >
+                  Shopping / Evaluating
+                  <span className="block text-[10px] font-normal text-[#71826d]">
+                    (Includes Year 1 setup)
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Trucks Slider */}
           <div>
@@ -187,82 +240,193 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
 
           {/* RollOS Plan Choice */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#4a6344] mb-2">
-              Compare Against RollOS Plan:
-            </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#4a6344]">
+                Compare Against RollOS Plan:
+              </label>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setRollosPlan('free')}
-                className={`p-3 rounded-lg text-xs font-bold border text-center transition-all ${
+                className={`p-2.5 rounded-lg text-xs font-bold border text-center transition-all ${
                   rollosPlan === 'free'
                     ? 'bg-[#1f2d26] text-white border-[#1f2d26] shadow-sm'
-                    : 'bg-white text-[#556658] border-[#cbd5c4]'
+                    : 'bg-white text-[#556658] border-[#cbd5c4] hover:bg-[#f1f5ee]'
                 }`}
               >
-                Free Plan ($0/mo)
+                Free ($0/mo)
+                <span className="block text-[10px] font-normal opacity-80 mt-0.5">
+                  $12 fee at checkout
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setRollosPlan('starter')}
-                className={`p-3 rounded-lg text-xs font-bold border text-center transition-all ${
+                className={`p-2.5 rounded-lg text-xs font-bold border text-center transition-all ${
                   rollosPlan === 'starter'
                     ? 'bg-[#1f2d26] text-white border-[#1f2d26] shadow-sm'
-                    : 'bg-white text-[#556658] border-[#cbd5c4]'
+                    : 'bg-white text-[#556658] border-[#cbd5c4] hover:bg-[#f1f5ee]'
                 }`}
               >
                 Starter ($29/mo)
+                <span className="block text-[10px] font-normal opacity-80 mt-0.5">
+                  Offline Cash/Sync
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRollosPlan('growth')}
+                className={`p-2.5 rounded-lg text-xs font-bold border text-center transition-all ${
+                  rollosPlan === 'growth'
+                    ? 'bg-[#1f2d26] text-white border-[#1f2d26] shadow-sm'
+                    : 'bg-white text-[#556658] border-[#cbd5c4] hover:bg-[#f1f5ee]'
+                }`}
+              >
+                Fleet ($149/mo)
+                <span className="block text-[10px] font-normal opacity-80 mt-0.5">
+                  Multi-driver/0 fees
+                </span>
               </button>
             </div>
+            <p className="text-[11px] text-[#687864] mt-2 flex items-center gap-1">
+              <Info size={12} className="shrink-0 text-[#82956d]" />
+              {rollosPlan === 'free' &&
+                'Free Plan has $0 monthly software bills for you. Customer pays a $12 reservation fee.'}
+              {rollosPlan === 'starter' &&
+                'Starter Plan includes offline cash/check billing and Google/Apple calendar sync.'}
+              {rollosPlan === 'growth' &&
+                'Growth Fleet Plan includes unlimited driver logins, white-labeling, and zero customer fees.'}
+            </p>
           </div>
         </div>
 
         {/* Results Column */}
         <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-6">
-          <div className="p-6 bg-[#16201a] text-white rounded-2xl shadow-xl border border-[#2d3a31]">
-            <div className="text-xs font-bold text-[#ea580c] uppercase tracking-wider mb-1">
-              ESTIMATED ANNUAL HARD SAVINGS
-            </div>
-            <div className="text-4xl md:text-5xl font-black text-white tracking-tight my-2">
-              ${netSavingsAnnual.toLocaleString()}
-              <span className="text-sm font-normal text-[#9bb0a0]"> / year</span>
-            </div>
-            <p className="text-xs text-[#cbd5cc] leading-relaxed">
-              Money kept directly in your bank account instead of paying bloated monthly subscriptions or losing orders to phone tag.
-            </p>
+          {!isManual ? (
+            /* SaaS Comparison Result */
+            <div className="p-6 bg-[#16201a] text-white rounded-2xl shadow-xl border border-[#2d3a31]">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-[#ea580c] uppercase tracking-wider">
+                  {isSwitching ? 'ONGOING ANNUAL RECURRING SAVINGS' : 'YEAR 1 TOTAL SAVINGS (INCL. SETUP)'}
+                </span>
+                <span className="text-[11px] bg-[#223126] text-[#9bb0a0] px-2 py-0.5 rounded font-mono">
+                  {isSwitching ? 'Year 2+ Ongoing' : 'Year 1 Switching'}
+                </span>
+              </div>
+              <div className="text-4xl md:text-5xl font-black text-white tracking-tight my-2">
+                ${directAnnualSavings.toLocaleString()}
+                <span className="text-sm font-normal text-[#9bb0a0]"> / year</span>
+              </div>
+              <p className="text-xs text-[#cbd5cc] leading-relaxed">
+                Direct subscription money kept in your business checking account instead of paying bloated monthly software fees.
+              </p>
 
-            <div className="mt-6 pt-6 border-t border-[#2d3a31] space-y-3 text-xs">
-              <div className="flex justify-between items-center text-[#cbd5cc]">
-                <span>{selectedCompetitor.name} Annual Expense:</span>
-                <span className="font-mono font-bold text-red-400">
-                  ${competitorAnnualCost.toLocaleString()}/yr
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-[#cbd5cc]">
-                <span>RollOS ({rollosPlan === 'free' ? 'Free Plan' : 'Starter'}) Annual Cost:</span>
-                <span className="font-mono font-bold text-green-400">
-                  ${rollosAnnualCost.toLocaleString()}/yr
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-[#cbd5cc]">
-                <span>Hauler Rental Commission:</span>
-                <span className="font-bold text-green-400">0% (You keep 100%)</span>
+              {/* Itemized Math Breakdown */}
+              <div className="mt-6 pt-5 border-t border-[#2d3a31] space-y-2.5 text-xs">
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>{selectedCompetitor.name} Monthly Subscription:</span>
+                  <span className="font-mono font-bold text-red-400">
+                    ${competitorMonthlyFee.toLocaleString()}/mo
+                  </span>
+                </div>
+                {effectiveSetupFee > 0 && (
+                  <div className="flex justify-between items-center text-[#cbd5cc]">
+                    <span>{selectedCompetitor.name} One-Time Setup Fee:</span>
+                    <span className="font-mono font-bold text-red-400">
+                      ${effectiveSetupFee.toLocaleString()} (waived with RollOS)
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>{selectedCompetitor.name} Total Annual Expense:</span>
+                  <span className="font-mono font-bold text-red-400">
+                    ${competitorAnnualCost.toLocaleString()}/yr
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>RollOS ({rollosPlan === 'free' ? 'Free' : rollosPlan === 'starter' ? 'Starter' : 'Fleet'}) Annual Cost:</span>
+                  <span className="font-mono font-bold text-green-400">
+                    ${rollosAnnualCost.toLocaleString()}/yr
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>Hauler Rental Revenue Kept:</span>
+                  <span className="font-bold text-green-400">100% of rental price</span>
+                </div>
               </div>
             </div>
+          ) : (
+            /* Pen & Paper / Phone Tag Result */
+            <div className="p-6 bg-[#16201a] text-white rounded-2xl shadow-xl border border-[#2d3a31]">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-[#ea580c] uppercase tracking-wider">
+                  ESTIMATED PHONE TAG REVENUE LEAKAGE
+                </span>
+                <span className="text-[11px] bg-[#223126] text-[#9bb0a0] px-2 py-0.5 rounded font-mono">
+                  Missed Call Analysis
+                </span>
+              </div>
+              <div className="text-4xl md:text-5xl font-black text-white tracking-tight my-2">
+                ${missedNetProfitAnnual.toLocaleString()}
+                <span className="text-sm font-normal text-[#9bb0a0]"> / year net profit</span>
+              </div>
+              <p className="text-xs text-[#cbd5cc] leading-relaxed">
+                Realistic take-home profit lost when homeowners call after 7 PM or while you’re driving and book the next hauler on Google.
+              </p>
+
+              {/* Itemized Breakdown */}
+              <div className="mt-6 pt-5 border-t border-[#2d3a31] space-y-2.5 text-xs">
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>Your Current Software Bill:</span>
+                  <span className="font-mono font-bold text-green-400">$0/mo (Pen & Paper)</span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>RollOS Free Plan Cost:</span>
+                  <span className="font-mono font-bold text-green-400">$0/mo</span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>Estimated Missed Orders (after-hours/driving):</span>
+                  <span className="font-mono font-bold text-amber-400">
+                    ~{missedBookingsMonthly} bookings / month
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>Gross Rental Volume Lost:</span>
+                  <span className="font-mono font-bold text-red-400">
+                    ${missedRevenueAnnual.toLocaleString()} / year
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[#cbd5cc]">
+                  <span>Net Profit Kept (after ~55% dump fees & fuel):</span>
+                  <span className="font-bold text-green-400">
+                    +${missedNetProfitAnnual.toLocaleString()} / year in your pocket
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Secondary Conversion & Cash Flow Card */}
+          <div className="p-5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#166534] uppercase tracking-wider mb-1.5">
+              <Moon size={15} className="text-[#ea580c]" />
+              24/7 ONLINE BOOKING & CASH FLOW ADVANTAGE
+            </div>
+            {!isManual ? (
+              <p className="text-xs text-[#14532d] leading-relaxed">
+                Unlike legacy software that charges you <strong>${competitorMonthlyFee}/month</strong> through the dead of winter when trucks are parked, RollOS gives you 24/7 web checkout with zero software debt. Converting just <strong>1 extra after-hours booking per month</strong> adds <strong>+${(12 * averageRentalPrice).toLocaleString()} in gross volume</strong> (~${Math.round(12 * averageRentalPrice * 0.45).toLocaleString()} net profit).
+              </p>
+            ) : (
+              <p className="text-xs text-[#14532d] leading-relaxed">
+                Over 40% of residential dumpster searches happen between 7 PM and 7 AM. An embeddable 60-second booking widget captures payment while you sleep—stopping customers from calling the next hauler on Google.
+              </p>
+            )}
           </div>
 
-          {/* Extra Bookings Captured While Sleeping */}
-          <div className="p-6 bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#166534] uppercase tracking-wider mb-2">
-              <Moon size={16} className="text-[#ea580c]" />
-              REVENUE CAPTURED WHILE YOU SLEEP
-            </div>
-            <div className="text-2xl font-black text-[#166534] my-1">
-              +${extraRevenueAnnual.toLocaleString()} / year
-            </div>
-            <p className="text-xs text-[#14532d] leading-relaxed">
-              Based on an estimated <strong>{extraBookingsAnnual} extra online bookings per year</strong> captured via your 24/7 website widget while you are driving or resting.
-            </p>
+          {/* Transparent Hauler Pricing Guarantee Note */}
+          <div className="px-4 py-3 bg-[#f8faf6] border border-[#dde4d4] rounded-xl text-[11px] text-[#556658] leading-relaxed">
+            <span className="font-bold text-[#1f2d26]">The Hauler Guarantee:</span> On the Free Plan, RollOS never bills your bank account. Your customer pays a standard $12 reservation fee at online checkout. For expanding fleets wanting flat monthly pricing with zero customer fees, choose Starter ($29/mo) or Fleet ($149/mo).
           </div>
 
           {/* CTA */}
@@ -271,10 +435,10 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               href="/signup"
               className="btn btn-orange w-full py-4 text-center justify-center font-bold text-sm shadow-md"
             >
-              Start Free in 3 Minutes — Keep 100% of Your Revenue <ArrowRight size={16} />
+              Start Free in 3 Minutes — Keep 100% of Rental Revenue <ArrowRight size={16} />
             </Link>
             <p className="text-[11px] text-center text-[#687864] mt-2">
-              No credit card required · Zero annual contracts · Up & running today
+              No credit card required · Zero annual contracts · Embeds on any site in 3 min
             </p>
           </div>
         </div>
