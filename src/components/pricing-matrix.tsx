@@ -72,7 +72,7 @@ export function PricingMatrix() {
       category: 'Visual Dispatch & Driver Workflows',
       features: [
         {
-          name: 'Drag-and-Drop Dispatch Kanban Board',
+          name: 'Visual Drag-and-Drop Dispatch Whiteboard',
           free: true,
           starter: true,
           growth: true,

@@ -278,7 +278,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     <Check size={13} color="#16a34a" /> 24/7 Website Booking Widget & Direct Link
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={13} color="#16a34a" /> Visual Drag & Drop Dispatch Kanban
+                    <Check size={13} color="#16a34a" /> Visual Drag & Drop Dispatch Whiteboard
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Check size={13} color="#16a34a" /> Driver SMS Magic Links & Photo Proof

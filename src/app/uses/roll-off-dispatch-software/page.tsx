@@ -33,7 +33,7 @@ export default function DispatchSoftwarePage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8">
-          Stop managing thousands of dollars in dumpster rentals on whiteboards and text threads. Our <strong>roll off dispatch software</strong> organizes every delivery, container swap, and pickup into a clean, drag-and-drop kanban board designed specifically for roll off containers.
+          Stop managing thousands of dollars in dumpster rentals on whiteboards and text threads. Our <strong>roll off dispatch software</strong> organizes every delivery, container swap, and pickup into a clean, visual drag-and-drop dispatch board designed specifically for roll off containers.
         </p>
 
         <div className="panel p-6 bg-white border border-[#dde4d4] rounded-xl mb-10 shadow-sm">
