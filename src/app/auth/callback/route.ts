@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   if (code) {
     const db = await sessionClient();
     const { error } = await db.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL('/settings', url.origin));
+    if (!error) return NextResponse.redirect(new URL('/dashboard', url.origin));
   }
   return NextResponse.redirect(new URL('/login?error=confirmation', url.origin));
 }

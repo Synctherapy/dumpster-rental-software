@@ -439,18 +439,14 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                       🔥 The Math: Just 1 dumpster booking covers 100% of this cost. Everything after is pure profit.
                     </div>
 
-                    <p style={{ fontSize: '11px', color: '#475569', margin: '0 0 6px 0', lineHeight: 1.45 }}>
+                    <p style={{ fontSize: '11px', color: '#475569', margin: '0 0 2px 0', lineHeight: 1.45 }}>
                       Agencies charge $3,000+ and take months. We write your sales copy, set up your town’s service areas, and plug in your 24/7 booking checkout with zero tech work from you.
                     </p>
-
-                    <div style={{ fontSize: '10.5px', color: '#92400e', background: '#fef3c7', padding: '5px 8px', borderRadius: '6px', fontWeight: 700, lineHeight: 1.35 }}>
-                      ⚡ 72-Hour &ldquo;Launch Or Free&rdquo; Guarantee: Live and taking orders in 72h, or get a 100% refund AND keep the website free forever.
-                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Upsell 2: Google 3-Pack Optimization ($79) */}
+              {/* Upsell 2: Google 3-Pack Optimization ($199 -> $79) */}
               <div
                 onClick={() => setAddGbp(!addGbp)}
                 style={{
@@ -467,7 +463,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 }}
               >
                 <span style={{ position: 'absolute', top: -9, right: 14, background: '#ea580c', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>
-                  TOP RATED LOCAL HAULER
+                  SAVE $120 · TOP RATED LOCAL HAULER
                 </span>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <input
@@ -481,7 +477,10 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                       <span style={{ fontWeight: 800, fontSize: '14px', color: '#1f2d26' }}>
                         Google Maps 3-Pack Domination Kit
                       </span>
-                      <strong style={{ color: '#1f2d26', fontSize: '14px', flexShrink: 0 }}>$79</strong>
+                      <span style={{ flexShrink: 0 }}>
+                        <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '11px' }}>$199</span>{' '}
+                        <strong style={{ color: '#ea580c', fontSize: '14px' }}>$79</strong>
+                      </span>
                     </div>
 
                     <div style={{ fontSize: '11.5px', color: '#9a3412', fontWeight: 700, margin: '4px 0 2px 0' }}>
@@ -538,7 +537,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   }}
                 >
                   {busy ? <Loader2 className="spin" size={15} /> : null}
-                  Launch My Workspace
+                  Start Getting Clients Today
                   <ArrowRight size={14} style={{ flexShrink: 0, marginLeft: '6px' }} />
                 </Button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

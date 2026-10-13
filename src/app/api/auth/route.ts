@@ -44,13 +44,21 @@ export async function POST(request: Request) {
     if (input.action === 'signup') {
       if (!input.company || !input.name) throw new Error('Your name and company are required.');
       try {
+        const appOrigin =
+          process.env.APP_URL ||
+          request.headers.get('origin') ||
+          (request.headers.get('x-forwarded-host')
+            ? `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('x-forwarded-host')}`
+            : null) ||
+          new URL(request.url).origin;
+
         const { data, error } = await Promise.race([
           db.auth.signUp({
             email: input.email,
             password: input.password,
             options: {
               data: { name: input.name, company: input.company },
-              emailRedirectTo: `${process.env.APP_URL || new URL(request.url).origin}/auth/callback`,
+              emailRedirectTo: `${appOrigin}/auth/callback`,
             },
           }),
           new Promise<{ data: null; error: Error }>((_, reject) =>

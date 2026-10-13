@@ -203,9 +203,6 @@ export function GrowthHub({
               <CheckCircle2 size={13} color="#16a34a" /> <strong>🔥 The Math:</strong> 1 single dumpster rental covers 100% of the cost
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> <strong>⚡ 72-Hour &ldquo;Launch Or Free&rdquo; Guarantee:</strong> Live in 72h or 100% money back + keep site
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle2 size={13} color="#16a34a" /> Zero tech work required from you
             </div>
           </div>
@@ -238,10 +235,13 @@ export function GrowthHub({
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Google Maps 3-Pack Domination Kit</h3>
                 <span style={{ fontSize: '9px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                  TOP RATED LOCAL HAULER
+                  SAVE $120
                 </span>
               </div>
-              <span style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>$79 One-Time Setup</span>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>
+                <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>$199</span>{' '}
+                <strong style={{ color: '#166534', fontSize: '12px' }}>$79 One-Time Setup</strong>
+              </span>
             </div>
           </div>
           <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, flex: 1 }}>
@@ -400,12 +400,6 @@ export function GrowthHub({
                 notify('Website request received! We will be in touch within 24 hours.');
               }}
             >
-              <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, background: '#fffbeb', border: '1px solid #fef3c7', padding: '12px', borderRadius: '8px' }}>
-                <strong style={{ color: '#92400e' }}>72-Hour Speed Guarantee:</strong>
-                <p style={{ margin: '4px 0 0 0', color: '#78350f' }}>
-                  We launch your custom website in 72 hours. If it takes even 1 hour longer, we refund 100% of your \$299 and give you the website for free.
-                </p>
-              </div>
               <label className="field">
                 Business Name
                 <input defaultValue={data.organization.name} required />
