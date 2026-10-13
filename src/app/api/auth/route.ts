@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         demo: true,
-        message: 'Welcome to your pre-launch sandbox!',
+        message: 'Welcome to your workspace!',
       });
     }
 
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
           ok: true,
           demo: true,
-          message: 'Welcome to your sandbox workspace!',
+          message: 'Welcome to your workspace!',
         });
       }
     }

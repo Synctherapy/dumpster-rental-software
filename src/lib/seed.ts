@@ -27,7 +27,7 @@ export function seed(): Workspace {
     ],
   }));
   const users: Workspace['users'] = [
-    { id: 'owner', org_id, name: 'Alex Morgan', phone: '', role: 'owner' },
+    { id: 'owner', org_id, name: 'Burt Reynolds', phone: '', role: 'owner' },
     { id: 'driver-1', org_id, name: 'Marcus Johnson', phone: '', role: 'driver' },
     { id: 'driver-2', org_id, name: 'Sarah Chen', phone: '', role: 'driver' },
     { id: 'driver-3', org_id, name: 'David Miller', phone: '', role: 'driver' },

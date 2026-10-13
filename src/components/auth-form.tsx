@@ -104,50 +104,6 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
 
       <section className="auth-form-area">
         <div className="auth-form" style={{ maxWidth: signup ? 440 : 380 }}>
-          {/* Top Step Breadcrumbs for Signup */}
-          {signup && !confirmation && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  background: step === 1 ? '#ea580c' : '#e2e8f0',
-                  color: step === 1 ? '#fff' : '#64748b',
-                }}
-              >
-                1. Details
-              </span>
-              <span style={{ color: '#cbd5e1', fontSize: '12px' }}>›</span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  background: step === 2 ? '#ea580c' : '#e2e8f0',
-                  color: step === 2 ? '#fff' : '#64748b',
-                }}
-              >
-                2. Plan
-              </span>
-              <span style={{ color: '#cbd5e1', fontSize: '12px' }}>›</span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '3px 8px',
-                  borderRadius: '12px',
-                  background: step === 3 ? '#ea580c' : '#e2e8f0',
-                  color: step === 3 ? '#fff' : '#64748b',
-                }}
-              >
-                3. Launch Offers
-              </span>
-            </div>
-          )}
-
           {/* Form Header */}
           <h1>
             {!signup
@@ -232,9 +188,6 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 Log in
                 <ArrowRight size={14} />
               </Button>
-              <Link href="/dashboard" className="btn btn-ghost">
-                Explore the demo workspace
-              </Link>
             </form>
           ) : step === 1 ? (
             /* Signup Step 1: Input Information */
@@ -247,7 +200,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   autoComplete="name"
                   required
                   minLength={2}
-                  placeholder="Alex Morgan"
+                  placeholder="Burt Reynolds"
                 />
               </label>
               <label className="field">
@@ -269,7 +222,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="alex@apexdumpsters.com"
+                  placeholder="burt@apexdumpsters.com"
                 />
               </label>
               <label className="field">
@@ -288,13 +241,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
               {error && <div className="error-box" role="alert">{error}</div>}
 
               <Button variant="orange" type="submit">
-                Continue to Plan Selection
+                Continue To Get Free Customers
                 <ArrowRight size={14} />
               </Button>
-
-              <Link href="/dashboard" className="btn btn-ghost">
-                Explore the demo workspace
-              </Link>
             </form>
           ) : step === 2 ? (
             /* Signup Step 2: Choose Plan Version */
@@ -398,7 +347,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
             /* Signup Step 3: Hormozi One-Time Launch Offers */
             <div style={{ display: 'grid', gap: '16px' }}>
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 14px', borderRadius: '10px', fontSize: '12px', color: '#166534' }}>
-                <strong>Step 3: New Hauler Launch Offers</strong>
+                <strong>New Hauler Fast-Track Offers</strong>
                 <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#15803d' }}>
                   One-time discounted setup available only during workspace creation.
                 </p>
