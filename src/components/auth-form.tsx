@@ -90,7 +90,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
           <h2>
             Less paperwork.
             <br />
-            More open road.
+            More rentals.
           </h2>
           <p>
             Your bookings, containers, and crew. Together in one workspace that works as hard as you
