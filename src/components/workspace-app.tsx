@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowDownToLine,
+  ArrowRight,
   ArrowUpRight,
   Bell,
   Box,
@@ -80,6 +81,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
   const [calendarModal, setCalendarModal] = useState(false);
   const [quickOrderModal, setQuickOrderModal] = useState(false);
   const [help, setHelp] = useState(false);
+  const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const notify: Notify = useCallback((message, error = false) => setToast({ message, error }), []);
   const reload = useCallback(async () => {
     const d = await api<Workspace>('/api/workspace');
@@ -240,6 +242,112 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         </div>
       </aside>
       <div className="main">
+        {data.demo && !dismissDemoBar && (
+          <aside
+            role="banner"
+            aria-label="Interactive dispatch demo"
+            style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 50,
+              background: 'rgba(26, 41, 32, 0.96)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              borderBottom: '1px solid rgba(220, 228, 214, 0.25)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+              padding: '7px 12px',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              fontSize: '12.5px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#628f34',
+                  boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.35)',
+                  display: 'inline-block',
+                  flexShrink: 0,
+                }}
+              />
+              {/* Desktop single line */}
+              <span
+                className="hidden sm:inline"
+                style={{
+                  fontWeight: 700,
+                  color: '#f3f6f0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                Live Dispatch Demo ·{' '}
+                <span style={{ fontWeight: 500, color: '#c4d4c5' }}>
+                  Drag cards to dispatch drivers. Want this for your dumpster fleet?
+                </span>
+              </span>
+
+              {/* Mobile stacked 2 lines, zero cutoff */}
+              <div className="flex flex-col sm:hidden leading-tight">
+                <span style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}>
+                  Live Dispatch Demo
+                </span>
+                <span style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}>
+                  Want this for your dumpster fleet?
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <Link
+                href="/signup"
+                style={{
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '12px',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 2px 8px rgba(234, 88, 12, 0.35)',
+                  minHeight: '32px',
+                }}
+              >
+                <span className="hidden sm:inline">Start Free ($0/mo)</span>
+                <span className="sm:hidden font-bold">Start Free</span>
+                <ArrowRight size={13} />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setDismissDemoBar(true)}
+                aria-label="Dismiss banner"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#8fa093',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '4px',
+                }}
+              >
+                <X size={15} />
+              </button>
+            </div>
+          </aside>
+        )}
         <header className="topbar">
           <div className="breadcrumbs">
             <Button
@@ -258,6 +366,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
             {data.demo ? (
               <Link
                 href="/signup"
+                className="hidden sm:inline-flex"
                 style={{
                   background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                   color: '#ffffff',
@@ -267,7 +376,6 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                   borderRadius: '6px',
                   textDecoration: 'none',
                   whiteSpace: 'nowrap',
-                  display: 'inline-flex',
                   alignItems: 'center',
                   gap: '4px',
                   boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)',

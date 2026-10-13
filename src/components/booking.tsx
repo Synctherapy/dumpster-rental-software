@@ -235,19 +235,13 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const showDemoBar = !!(data.demo && !embed && !dismissDemoBar);
 
   return (
-    <main
-      className="booking-page"
-      style={{
-        ...(embed ? { padding: '18px', minHeight: 'auto' } : {}),
-        ...(showDemoBar ? { paddingTop: '58px' } : {}),
-      }}
-    >
+    <div style={{ minHeight: '100vh', background: '#f6f8f3' }}>
       {showDemoBar && (
         <aside
           role="banner"
           aria-label="Interactive hauler demo"
           style={{
-            position: 'fixed',
+            position: 'sticky',
             top: 0,
             left: 0,
             right: 0,
@@ -257,12 +251,12 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
             WebkitBackdropFilter: 'blur(12px)',
             borderBottom: '1px solid rgba(220, 228, 214, 0.25)',
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-            padding: '7px 14px',
+            padding: '7px 12px',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '10px',
+            gap: '8px',
             fontSize: '12.5px',
           }}
         >
@@ -278,9 +272,32 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontWeight: 700, color: '#f3f6f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Live Hauler Demo · <span style={{ fontWeight: 500, color: '#c4d4c5' }}>Want this 24/7 booking widget for your dumpster company?</span>
+            {/* Desktop single line */}
+            <span
+              className="hidden sm:inline"
+              style={{
+                fontWeight: 700,
+                color: '#f3f6f0',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Live Hauler Demo ·{' '}
+              <span style={{ fontWeight: 500, color: '#c4d4c5' }}>
+                Want this 24/7 booking widget for your dumpster company?
+              </span>
             </span>
+
+            {/* Mobile stacked 2 lines, zero cutoff */}
+            <div className="flex flex-col sm:hidden leading-tight">
+              <span style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}>
+                Live Hauler Demo
+              </span>
+              <span style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}>
+                Want this on your website?
+              </span>
+            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
@@ -291,7 +308,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 color: '#ffffff',
                 fontWeight: 800,
                 fontSize: '12px',
-                padding: '6px 14px',
+                padding: '6px 12px',
                 borderRadius: '8px',
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
@@ -299,10 +316,11 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 alignItems: 'center',
                 gap: '4px',
                 boxShadow: '0 2px 8px rgba(234, 88, 12, 0.35)',
-                minHeight: '34px',
+                minHeight: '32px',
               }}
             >
-              <span>Start Free ($0/mo)</span>
+              <span className="hidden sm:inline">Start Free ($0/mo)</span>
+              <span className="sm:hidden font-bold">Start Free</span>
               <ArrowRight size={13} />
             </Link>
 
@@ -326,6 +344,10 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
           </div>
         </aside>
       )}
+      <main
+        className="booking-page"
+        style={embed ? { padding: '18px', minHeight: 'auto' } : undefined}
+      >
       <div className="booking-nav">
         <Link className="booking-org" href={embed ? '#' : '/'}>
           <span className="org-logo">
@@ -1218,5 +1240,6 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
         </>
       )}
     </main>
+    </div>
   );
 }
