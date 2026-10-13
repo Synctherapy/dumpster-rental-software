@@ -368,44 +368,44 @@ export function OnboardingWizard({
     >
       <div style={{ padding: '4px 0 10px 0' }}>
         {/* Stepper Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px' }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#166534', background: '#dcfce7', padding: '3px 10px', borderRadius: '12px', marginBottom: '6px' }}>
+        <div className="wizard-header">
+          <div className="wizard-header-top">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#166534', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px' }}>
               <Rocket size={12} />
               FAST-TRACK SETUP (2 MINUTES)
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-              {step === 1 && 'Where do you deliver?'}
-              {step === 2 && 'Confirm your dumpster pricing'}
-              {step === 3 && 'Your booking page is live! Get your 1st client'}
-            </h2>
-            <p style={{ fontSize: '12.5px', color: '#64748b', margin: '4px 0 0 0' }}>
-              {step === 1 && 'Set your service ZIP codes and dispatch contact.'}
-              {step === 2 && 'Review standard industry rates or tweak numbers in seconds.'}
-              {step === 3 && 'Share your custom booking link on Facebook, Instagram, or Google.'}
-            </p>
+            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+              {[1, 2, 3].map((s) => (
+                <div
+                  key={s}
+                  style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    background: step === s ? '#166534' : step > s ? '#bbf7d0' : '#f1f5f9',
+                    color: step === s ? '#ffffff' : step > s ? '#166534' : '#94a3b8',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {step > s ? <Check size={13} /> : s}
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            {[1, 2, 3].map((s) => (
-              <div
-                key={s}
-                style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  background: step === s ? '#166534' : step > s ? '#bbf7d0' : '#f1f5f9',
-                  color: step === s ? '#ffffff' : step > s ? '#166534' : '#94a3b8',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {step > s ? <Check size={14} /> : s}
-              </div>
-            ))}
-          </div>
+          <h2 className="wizard-header-title">
+            {step === 1 && 'Where do you deliver?'}
+            {step === 2 && 'Confirm your dumpster pricing'}
+            {step === 3 && 'Your booking page is live! Get your 1st client'}
+          </h2>
+          <p className="wizard-header-desc">
+            {step === 1 && 'Set your service ZIP codes and dispatch contact.'}
+            {step === 2 && 'Review standard industry rates or tweak numbers in seconds.'}
+            {step === 3 && 'Share your custom booking link on Facebook, Instagram, or Google.'}
+          </p>
         </div>
 
         {/* STEP 1: SERVICE AREA & CONTACT */}
@@ -708,11 +708,11 @@ export function OnboardingWizard({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <div className="wizard-footer">
               <Button type="button" variant="ghost" onClick={onClose}>
                 Skip for now
               </Button>
-              <Button type="submit" variant="primary" style={{ background: '#166534', color: '#fff', fontWeight: 600 }}>
+              <Button type="submit" variant="primary" style={{ background: '#166534', color: '#fff', fontWeight: 600, padding: '10px 20px' }}>
                 Next: Confirm Pricing <ArrowRight size={14} />
               </Button>
             </div>
@@ -973,7 +973,7 @@ export function OnboardingWizard({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+            <div className="wizard-footer">
               <Button type="button" variant="ghost" onClick={() => setStep(1)} disabled={busy}>
                 <ArrowLeft size={14} /> Back
               </Button>
@@ -982,7 +982,7 @@ export function OnboardingWizard({
                 variant="primary"
                 onClick={handleSaveStep2}
                 disabled={busy}
-                style={{ background: '#166534', color: '#fff', fontWeight: 600 }}
+                style={{ background: '#166534', color: '#fff', fontWeight: 600, padding: '10px 20px' }}
               >
                 {busy ? <Loader2 size={14} className="spin" /> : null}
                 Save & Open Launchpad <ArrowRight size={14} />
@@ -999,36 +999,37 @@ export function OnboardingWizard({
               style={{
                 background: 'linear-gradient(135deg, #182820 0%, #1c3626 100%)',
                 color: '#ffffff',
-                padding: '16px 20px',
+                padding: '16px',
                 borderRadius: '12px',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
+                flexDirection: 'column',
                 gap: '12px',
+                width: '100%',
+                boxSizing: 'border-box',
               }}
             >
               <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#86efac', fontWeight: 700, marginBottom: '4px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#86efac', fontWeight: 700, marginBottom: '6px' }}>
                   <Sparkles size={12} />
                   READY TO ACCEPT BOOKINGS 24/7
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 700, wordBreak: 'break-all' }}>
+                <div style={{ fontSize: '13.5px', fontWeight: 700, wordBreak: 'break-all', lineHeight: 1.4, color: '#f8fafc' }}>
                   {bookingUrl}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="wizard-url-actions">
                 <Button
+                  type="button"
                   onClick={() => copyToClipboard(bookingUrl, 'main_url', 'Booking URL copied to clipboard!')}
-                  style={{ background: '#ffffff', color: '#0f172a', fontWeight: 600, fontSize: '12.5px' }}
+                  style={{ background: '#ffffff', color: '#0f172a', fontWeight: 600, fontSize: '12.5px', justifyContent: 'center' }}
                 >
                   {copiedType === 'main_url' ? <Check size={14} /> : <Copy size={14} />}
                   Copy Link
                 </Button>
                 <Button
                   asChild
-                  style={{ background: '#22c55e', color: '#ffffff', fontWeight: 700, fontSize: '12.5px' }}
+                  style={{ background: '#22c55e', color: '#ffffff', fontWeight: 700, fontSize: '12.5px', justifyContent: 'center' }}
                 >
                   <Link href={`/book/${slug}`} target="_blank">
                     <ExternalLink size={14} /> Test Live Page
@@ -1038,8 +1039,21 @@ export function OnboardingWizard({
             </div>
 
             {/* Social & Web Distribution Tabs */}
-            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '6px', marginBottom: '14px', overflowX: 'auto', paddingBottom: '4px' }}>
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', width: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'hidden' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  borderBottom: '1px solid #e2e8f0',
+                  gap: '6px',
+                  marginBottom: '14px',
+                  overflowX: 'auto',
+                  paddingBottom: '6px',
+                  width: '100%',
+                  minWidth: 0,
+                  WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'thin',
+                }}
+              >
                 {[
                   { id: 'facebook', label: 'Facebook Post' },
                   { id: 'instagram', label: 'Instagram Bio' },
@@ -1062,6 +1076,7 @@ export function OnboardingWizard({
                       cursor: 'pointer',
                       boxShadow: activeSocialTab === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                       whiteSpace: 'nowrap',
+                      flexShrink: 0,
                     }}
                   >
                     {tab.label}
@@ -1075,21 +1090,22 @@ export function OnboardingWizard({
                   <p style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
                     Post this directly on your <b>Facebook Business Page</b> or local community groups (e.g. HOA, buy-sell-trade):
                   </p>
-                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: '140px', overflowY: 'auto' }}>
+                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: '140px', overflowY: 'auto', wordBreak: 'break-word' }}>
                     {facebookPostText}
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
                     <Button
+                      type="button"
                       onClick={() => copyToClipboard(facebookPostText, 'fb', 'Facebook post copied to clipboard!')}
                       variant="primary"
-                      style={{ background: '#1877f2', color: '#fff', fontSize: '12px' }}
+                      style={{ background: '#1877f2', color: '#fff', fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       {copiedType === 'fb' ? <Check size={13} /> : <Copy size={13} />} Copy Facebook Post
                     </Button>
                     <Button
                       asChild
                       variant="ghost"
-                      style={{ fontSize: '12px' }}
+                      style={{ fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
                         Open Facebook <ExternalLink size={12} />
@@ -1105,21 +1121,22 @@ export function OnboardingWizard({
                   <p style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
                     Put your booking link in your <b>Instagram profile bio</b> so followers can book with one tap:
                   </p>
-                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5, wordBreak: 'break-word' }}>
                     {instagramBioText}
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
                     <Button
+                      type="button"
                       onClick={() => copyToClipboard(instagramBioText, 'ig', 'Instagram bio copied!')}
                       variant="primary"
-                      style={{ background: '#e1306c', color: '#fff', fontSize: '12px' }}
+                      style={{ background: '#e1306c', color: '#fff', fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       {copiedType === 'ig' ? <Check size={13} /> : <Copy size={13} />} Copy Instagram Bio
                     </Button>
                     <Button
                       asChild
                       variant="ghost"
-                      style={{ fontSize: '12px' }}
+                      style={{ fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
                         Open Instagram <ExternalLink size={12} />
@@ -1138,20 +1155,21 @@ export function OnboardingWizard({
                   <ol style={{ fontSize: '12px', color: '#334155', paddingLeft: '18px', margin: '8px 0', lineHeight: 1.6 }}>
                     <li>Go to your <b>Google Business Profile</b>.</li>
                     <li>Click <b>Edit profile</b> → <b>Online appointments</b> (or <b>Website</b>).</li>
-                    <li>Paste your booking URL: <code style={{ background: '#e2e8f0', padding: '2px 4px', borderRadius: '4px' }}>{bookingUrl}</code></li>
+                    <li>Paste your booking URL: <code style={{ background: '#e2e8f0', padding: '2px 4px', borderRadius: '4px', wordBreak: 'break-all' }}>{bookingUrl}</code></li>
                   </ol>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
                     <Button
+                      type="button"
                       onClick={() => copyToClipboard(bookingUrl, 'gbp', 'Google booking link copied!')}
                       variant="primary"
-                      style={{ background: '#166534', color: '#fff', fontSize: '12px' }}
+                      style={{ background: '#166534', color: '#fff', fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       {copiedType === 'gbp' ? <Check size={13} /> : <Copy size={13} />} Copy Link for Google
                     </Button>
                     <Button
                       asChild
                       variant="ghost"
-                      style={{ fontSize: '12px' }}
+                      style={{ fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       <a href="https://business.google.com" target="_blank" rel="noopener noreferrer">
                         Open Google Business <ExternalLink size={12} />
@@ -1172,9 +1190,10 @@ export function OnboardingWizard({
                   </div>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
                     <Button
+                      type="button"
                       onClick={() => copyToClipboard(embedSnippet, 'embed', 'Website embed snippet copied!')}
                       variant="primary"
-                      style={{ background: '#0f172a', color: '#fff', fontSize: '12px' }}
+                      style={{ background: '#0f172a', color: '#fff', fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       {copiedType === 'embed' ? <Check size={13} /> : <Copy size={13} />} Copy Embed Code
                     </Button>
@@ -1188,14 +1207,15 @@ export function OnboardingWizard({
                   <p style={{ fontSize: '12px', color: '#475569', marginBottom: '8px' }}>
                     Send this quick text message to contractors, roofers, or past customers to land an immediate order:
                   </p>
-                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', fontSize: '12.5px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.5, wordBreak: 'break-word' }}>
                     {smsText}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
                     <Button
+                      type="button"
                       onClick={() => copyToClipboard(smsText, 'sms', 'Contractor SMS copied!')}
                       variant="primary"
-                      style={{ background: '#166534', color: '#fff', fontSize: '12px' }}
+                      style={{ background: '#166534', color: '#fff', fontSize: '12px', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       {copiedType === 'sms' ? <Check size={13} /> : <Copy size={13} />} Copy SMS Template
                     </Button>
@@ -1205,7 +1225,7 @@ export function OnboardingWizard({
             </div>
 
             {/* Bottom Complete CTA */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+            <div className="wizard-footer">
               <Button type="button" variant="ghost" onClick={() => setStep(2)}>
                 <ArrowLeft size={14} /> Back
               </Button>
@@ -1213,7 +1233,7 @@ export function OnboardingWizard({
                 type="button"
                 variant="primary"
                 onClick={handleFinish}
-                style={{ background: '#166534', color: '#fff', fontWeight: 700, padding: '10px 20px' }}
+                style={{ background: '#166534', color: '#fff', fontWeight: 700, padding: '11px 22px', fontSize: '13.5px' }}
               >
                 Go to Dispatch Board <ArrowRight size={14} />
               </Button>

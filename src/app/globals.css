@@ -1062,9 +1062,78 @@ td small {
 }
 .dialog.onboarding-modal {
   width: 640px;
-  max-width: min(640px, calc(100vw - 28px));
+  max-width: min(640px, calc(100vw - 24px));
   padding: 24px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
+.dialog.onboarding-modal .dialog-header {
+  margin-bottom: 0;
+  justify-content: flex-end;
+}
+.dialog-header h2:empty {
+  display: none;
+}
+.wizard-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+.wizard-header-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+  line-height: 1.3;
+}
+.wizard-header-desc {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0 0 18px 0;
+  line-height: 1.4;
+}
+.wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 14px;
+  gap: 12px;
+}
+.wizard-url-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .dialog.onboarding-modal {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    padding: 16px 14px 20px 14px;
+    border-radius: 12px;
+    max-height: 94vh;
+  }
+  .wizard-header-title {
+    font-size: 17px;
+  }
+  .wizard-header-desc {
+    font-size: 12px;
+    margin-bottom: 14px;
+  }
+  .wizard-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .wizard-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .dialog-header {
   display: flex;
   justify-content: space-between;
@@ -1081,6 +1150,8 @@ td small {
 .form-stack {
   display: grid;
   gap: 17px;
+  min-width: 0;
+  width: 100%;
 }
 .form-row {
   display: grid;
