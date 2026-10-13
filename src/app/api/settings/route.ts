@@ -54,6 +54,28 @@ export async function POST(request: Request) {
     if (new Set(input.pricing_rules.map((r) => r.size_yards)).size !== input.pricing_rules.length)
       throw new Error('Each size needs exactly one pricing rule.');
 
+    const profanities = [
+      'fuck',
+      'shit',
+      'bitch',
+      'asshole',
+      'cunt',
+      'nigger',
+      'nigga',
+      'faggot',
+      'whore',
+      'slut',
+      'dick',
+      'pussy',
+      'cock',
+      'bastard',
+      'nazi',
+    ];
+    const lowerName = input.name.toLowerCase();
+    if (profanities.some((w) => lowerName.includes(w))) {
+      throw new Error('Please enter a professional business name suitable for the demo.');
+    }
+
     // Auto-normalize all postal codes (uppercase, standard spacing)
     const normalizedRules = input.pricing_rules.map((r) => ({
       ...r,

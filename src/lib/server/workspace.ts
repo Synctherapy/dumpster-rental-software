@@ -52,7 +52,7 @@ export async function workspace(): Promise<Workspace> {
 export async function publicOrganization(slug: string) {
   if (isDemo()) {
     const d = await readDemo();
-    if (d.organization.slug !== slug) throw new Error('Organization not found');
+    if (d.organization.slug !== slug && slug !== 'greenline') throw new Error('Organization not found');
     return { organization: d.organization, pricing_rules: d.pricing_rules, demo: true };
   }
   const db = admin();

@@ -5,15 +5,17 @@ import { seed } from '../seed';
 import type { Workspace } from '../types';
 
 const directory = process.env.ROLLOS_DATA_DIR || path.join(process.cwd(), '.rollos');
-const filename = path.join(directory, 'demo.json');
+const defaultFilename = path.join(directory, 'demo.json');
 
 const globalStore = globalThis as typeof globalThis & {
   rollosDemoQueue?: { queue: Promise<unknown> };
   rollosDemoMemory?: Workspace;
+  rollosDemoSessions?: Map<string, Workspace>;
   rollosFsDisabled?: boolean;
 };
 
 const state = (globalStore.rollosDemoQueue ??= { queue: Promise.resolve() });
+const sessions = (globalStore.rollosDemoSessions ??= new Map<string, Workspace>());
 
 export function isDemo() {
   if (process.env.ROLLOS_DEMO === 'true') {
@@ -35,6 +37,25 @@ export function isDemo() {
   return true;
 }
 
+export async function getDemoSessionId(): Promise<string | null> {
+  try {
+    const { cookies, headers } = await import('next/headers');
+    const headerStore = await headers();
+    const headerSession = headerStore.get('x-demo-session');
+    if (headerSession && /^[a-zA-Z0-9_-]{8,64}$/.test(headerSession)) {
+      return headerSession;
+    }
+    const cookieStore = await cookies();
+    const cookieSession = cookieStore.get('rollos_demo_session')?.value;
+    if (cookieSession && /^[a-zA-Z0-9_-]{8,64}$/.test(cookieSession)) {
+      return cookieSession;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function getMemoryData(): Workspace {
   if (!globalStore.rollosDemoMemory) {
     globalStore.rollosDemoMemory = seed();
@@ -42,13 +63,33 @@ function getMemoryData(): Workspace {
   return globalStore.rollosDemoMemory;
 }
 
-export async function readDemo(): Promise<Workspace> {
+export async function readDemo(explicitSessionId?: string): Promise<Workspace> {
   await state.queue;
+  const sessionId = explicitSessionId || (await getDemoSessionId());
+
+  if (sessionId) {
+    if (sessions.has(sessionId)) {
+      return sessions.get(sessionId)!;
+    }
+    if (!globalStore.rollosFsDisabled) {
+      const sessionFile = path.join(directory, `demo-${sessionId}.json`);
+      try {
+        const data = JSON.parse(await readFile(sessionFile, 'utf8'));
+        sessions.set(sessionId, data);
+        return data;
+      } catch {}
+    }
+    // Cloned fresh seed data for this visitor session
+    const fresh = seed();
+    sessions.set(sessionId, fresh);
+    return fresh;
+  }
+
   if (globalStore.rollosFsDisabled) {
     return getMemoryData();
   }
   try {
-    const data = JSON.parse(await readFile(filename, 'utf8'));
+    const data = JSON.parse(await readFile(defaultFilename, 'utf8'));
     globalStore.rollosDemoMemory = data;
     return data;
   } catch (error) {
@@ -60,15 +101,46 @@ export async function readDemo(): Promise<Workspace> {
   }
 }
 
-// One Node process owns the local demo file. Hosted multi-instance deployments use Postgres.
-export async function mutateDemo<T>(fn: (data: Workspace) => T | Promise<T>): Promise<T> {
+// Session-isolated demo mutations: visitors can test custom business names and dispatches safely
+export async function mutateDemo<T>(
+  fn: (data: Workspace) => T | Promise<T>,
+  explicitSessionId?: string,
+): Promise<T> {
+  const sessionId = explicitSessionId || (await getDemoSessionId());
+
   const run = state.queue.then(async () => {
     let data: Workspace;
+
+    if (sessionId) {
+      data = await readDemo(sessionId);
+      const result = await fn(data);
+      sessions.set(sessionId, data);
+
+      // Keep in-memory cache bounded (max 500 active demo sessions)
+      if (sessions.size > 500) {
+        const oldestKey = sessions.keys().next().value;
+        if (oldestKey) sessions.delete(oldestKey);
+      }
+
+      if (!globalStore.rollosFsDisabled) {
+        try {
+          await mkdir(directory, { recursive: true });
+          const sessionFile = path.join(directory, `demo-${sessionId}.json`);
+          await writeFile(sessionFile + '.tmp', JSON.stringify(data, null, 2), { mode: 0o600 });
+          await rename(sessionFile + '.tmp', sessionFile);
+        } catch {
+          // In-memory sessions map handles persistence when filesystem is read-only
+        }
+      }
+      return result;
+    }
+
+    // Default global fallback (for tests without request context)
     if (globalStore.rollosFsDisabled) {
       data = getMemoryData();
     } else {
       try {
-        data = JSON.parse(await readFile(filename, 'utf8'));
+        data = JSON.parse(await readFile(defaultFilename, 'utf8'));
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
           console.warn('Filesystem read failed during demo mutation, falling back to in-memory store:', error);
@@ -84,8 +156,8 @@ export async function mutateDemo<T>(fn: (data: Workspace) => T | Promise<T>): Pr
     if (!globalStore.rollosFsDisabled) {
       try {
         await mkdir(directory, { recursive: true });
-        await writeFile(filename + '.tmp', JSON.stringify(data, null, 2), { mode: 0o600 });
-        await rename(filename + '.tmp', filename);
+        await writeFile(defaultFilename + '.tmp', JSON.stringify(data, null, 2), { mode: 0o600 });
+        await rename(defaultFilename + '.tmp', defaultFilename);
       } catch (writeError) {
         console.warn('Filesystem write failed in demo mode; persisting in-memory store instead:', writeError);
         globalStore.rollosFsDisabled = true;

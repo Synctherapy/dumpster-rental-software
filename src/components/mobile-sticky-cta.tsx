@@ -195,24 +195,24 @@ export function MobileStickyCTA() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 5,
-                padding: '10px 14px',
-                fontSize: 13.5,
+                gap: 6,
+                padding: '11px 18px',
+                fontSize: 15,
                 fontWeight: 900,
                 color: '#ffffff',
                 background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 border: 'none',
-                borderRadius: 10,
+                borderRadius: 11,
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
-                minHeight: 44,
-                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.38)',
+                minHeight: 48,
+                boxShadow: '0 4px 16px rgba(234, 88, 12, 0.42)',
                 letterSpacing: '-0.2px',
                 transition: 'transform 0.1s ease',
               }}
             >
               <span>Start Free ($0)</span>
-              <ArrowRight size={14} />
+              <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -327,20 +327,20 @@ export function MobileStickyCTA() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 6,
-                  padding: '9px 18px',
-                  fontSize: 13.5,
+                  padding: '11px 22px',
+                  fontSize: 15,
                   fontWeight: 800,
                   color: '#ffffff',
                   background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                   border: 'none',
-                  borderRadius: 9,
+                  borderRadius: 10,
                   textDecoration: 'none',
-                  boxShadow: '0 3px 12px rgba(234, 88, 12, 0.38)',
-                  minHeight: 40,
+                  boxShadow: '0 3px 14px rgba(234, 88, 12, 0.4)',
+                  minHeight: 46,
                 }}
               >
                 <span>Start Free ($0/mo)</span>
-                <ArrowRight size={14} />
+                <ArrowRight size={16} />
               </Link>
             </div>
           </div>

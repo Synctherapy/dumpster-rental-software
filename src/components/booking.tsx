@@ -307,21 +307,21 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 color: '#ffffff',
                 fontWeight: 800,
-                fontSize: '12px',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                fontSize: '13.5px',
+                padding: '7px 15px',
+                borderRadius: '9px',
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                boxShadow: '0 2px 8px rgba(234, 88, 12, 0.35)',
-                minHeight: '32px',
+                gap: '5px',
+                boxShadow: '0 3px 10px rgba(234, 88, 12, 0.4)',
+                minHeight: '38px',
               }}
             >
               <span className="hidden sm:inline">Start Free ($0/mo)</span>
-              <span className="sm:hidden font-bold">Start Free</span>
-              <ArrowRight size={13} />
+              <span className="sm:hidden font-extrabold">Start Free</span>
+              <ArrowRight size={15} />
             </Link>
 
             <button
