@@ -80,42 +80,23 @@ export function MobileStickyCTA() {
         transform: isVisible ? 'translateY(0)' : 'translateY(115%)',
         opacity: isVisible ? 1 : 0,
         pointerEvents: isVisible ? 'auto' : 'none',
-        background: 'rgba(255, 255, 255, 0.97)',
+        background: 'rgba(255, 255, 255, 0.98)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderTop: '1px solid #dce4d6',
-        boxShadow: '0 -8px 30px -4px rgba(22, 38, 29, 0.14)',
-        paddingTop: 10,
-        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
-        paddingLeft: '16px',
-        paddingRight: '16px',
+        boxShadow: '0 -6px 24px -2px rgba(22, 38, 29, 0.12)',
+        paddingTop: 8,
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 10px)',
+        paddingLeft: '14px',
+        paddingRight: '14px',
       }}
       aria-hidden={!isVisible}
     >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-        }}
-      >
-        {/* Top Micro-Trust Bar for Instant Risk-Reversal */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: 11.5,
-            fontWeight: 700,
-            color: '#495d4d',
-            borderBottom: '1px solid #edf2e8',
-            paddingBottom: 5,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#1f2d26' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        {/* Mobile View (<768px): 1 Sleek, High-Converting Thumb-Friendly Row (Zero Viewport Bloat) */}
+        <div className="flex md:hidden items-center justify-between gap-3">
+          <div className="flex flex-col justify-center min-w-0">
+            <div className="flex items-center gap-1.5 leading-none">
               <span
                 style={{
                   width: 7,
@@ -124,143 +105,200 @@ export function MobileStickyCTA() {
                   background: '#628f34',
                   boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.2)',
                   display: 'inline-block',
+                  flexShrink: 0,
                 }}
               />
-              <strong>Free Plan · $0/mo</strong>
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <CheckCircle2 size={13} color="#628f34" />
-              0% Commission · Keep 100% Revenue
-            </span>
-            <span className="hidden sm:inline-flex" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <ShieldCheck size={13} color="#628f34" />
-              No Credit Card Required
-            </span>
-            <span className="hidden md:inline-flex" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Sparkles size={12} color="#ea580c" />
-              Live in 3 Minutes
-            </span>
-          </div>
-
-          {/* Dismiss Button */}
-          <button
-            type="button"
-            onClick={handleDismiss}
-            aria-label="Dismiss quick bar"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#839686',
-              cursor: 'pointer',
-              padding: '2px 4px',
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: 4,
-              transition: 'color 0.15s ease',
-            }}
-          >
-            <X size={14} />
-          </button>
-        </div>
-
-        {/* Main Action Bar: Maximized Space & Thumb-Friendly Touch Targets */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            minHeight: 46,
-          }}
-        >
-          {/* Left Text / Value Proposition */}
-          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-            <div
-              style={{
-                fontSize: 14.5,
-                fontWeight: 800,
-                color: '#1a2920',
-                lineHeight: 1.25,
-                letterSpacing: '-0.2px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Start taking online dumpster orders today
+              <strong style={{ fontSize: 13.5, fontWeight: 900, color: '#1a2920', whiteSpace: 'nowrap' }}>
+                Free Plan · $0/mo
+              </strong>
             </div>
             <div
               style={{
-                fontSize: 12,
-                color: '#556957',
-                fontWeight: 600,
-                marginTop: 2,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Works with or without a website · 24/7 self-serve customer checkout
-            </div>
-          </div>
-
-          {/* Right Action Buttons */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              flexShrink: 0,
-            }}
-          >
-            {/* Secondary: Test Demo */}
-            <Link
-              href="/book/greenline"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px 14px',
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: 700,
-                color: '#1f2d26',
-                background: '#f3f6f0',
-                border: '1px solid #dce4d6',
-                borderRadius: 9,
-                textDecoration: 'none',
+                color: '#556957',
+                marginTop: 3,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
                 whiteSpace: 'nowrap',
-                minHeight: 44,
-                transition: 'background 0.15s ease',
               }}
             >
-              Test Demo
-            </Link>
+              <span style={{ color: '#628f34' }}>✓ Keep 100%</span>
+              <span style={{ color: '#9cb09f' }}>·</span>
+              <span>No card needed</span>
+            </div>
+          </div>
 
-            {/* Primary Orange: Start Free */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             <Link
               href="/signup"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
-                padding: '10px 18px',
-                fontSize: 13.5,
+                gap: 5,
+                padding: '9px 16px',
+                fontSize: 13,
                 fontWeight: 800,
                 color: '#ffffff',
                 background: '#ea580c',
                 border: 'none',
-                borderRadius: 9,
+                borderRadius: 10,
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
-                boxShadow: '0 3px 12px rgba(234, 88, 12, 0.38)',
-                minHeight: 44,
-                transition: 'transform 0.12s ease, background 0.15s ease',
+                boxShadow: '0 3px 10px rgba(234, 88, 12, 0.35)',
+                minHeight: 40,
               }}
             >
               <span>Start Free</span>
-              <ArrowRight size={15} />
+              <ArrowRight size={13} />
             </Link>
+
+            <button
+              type="button"
+              onClick={handleDismiss}
+              aria-label="Dismiss quick bar"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#839686',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 4,
+              }}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop & Tablet View (>=768px): Full Conversion Dock */}
+        <div className="hidden md:flex flex-col gap-1.5">
+          {/* Top Micro-Trust Strip */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: 11.5,
+              fontWeight: 700,
+              color: '#495d4d',
+              borderBottom: '1px solid #edf2e8',
+              paddingBottom: 4,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#1f2d26' }}>
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: '#628f34',
+                    boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.2)',
+                    display: 'inline-block',
+                  }}
+                />
+                <strong>Free Plan · $0/mo</strong>
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <CheckCircle2 size={13} color="#628f34" />
+                0% Commission · Keep 100% Revenue
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <ShieldCheck size={13} color="#628f34" />
+                No Credit Card Required
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Sparkles size={12} color="#ea580c" />
+                Live in 3 Minutes
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleDismiss}
+              aria-label="Dismiss quick bar"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#839686',
+                cursor: 'pointer',
+                padding: '2px 4px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Desktop Action Row */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              minHeight: 44,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#1a2920' }}>
+                Start taking online dumpster orders today
+              </div>
+              <div style={{ fontSize: 12, color: '#556957', fontWeight: 600, marginTop: 1 }}>
+                Works with or without a website · 24/7 self-serve customer checkout
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Link
+                href="/book/greenline"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '9px 14px',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#1f2d26',
+                  background: '#f3f6f0',
+                  border: '1px solid #dce4d6',
+                  borderRadius: 9,
+                  textDecoration: 'none',
+                  minHeight: 40,
+                }}
+              >
+                Test Demo
+              </Link>
+
+              <Link
+                href="/signup"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  padding: '9px 18px',
+                  fontSize: 13.5,
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  background: '#ea580c',
+                  border: 'none',
+                  borderRadius: 9,
+                  textDecoration: 'none',
+                  boxShadow: '0 3px 12px rgba(234, 88, 12, 0.38)',
+                  minHeight: 40,
+                }}
+              >
+                <span>Start Free</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

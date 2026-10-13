@@ -358,10 +358,10 @@ export function PricingMatrix() {
         </div>
 
         {/* Mobile 2-Column Clean Table (Zero Horizontal Scroll) */}
-        <table className="w-full text-left border-collapse table-fixed">
+        <table className="w-full text-left border-collapse table-auto">
           <colgroup>
-            <col style={{ width: '62%' }} />
-            <col style={{ width: '38%' }} />
+            <col style={{ width: '56%' }} />
+            <col style={{ width: '44%' }} />
           </colgroup>
           <tbody>
             {rows.map((section) => (
@@ -388,10 +388,10 @@ export function PricingMatrix() {
                         idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdfb]'
                       }`}
                     >
-                      <td className="px-3 py-2.5 text-xs font-semibold text-[#2d3a31]">
+                      <td className="px-3 py-2.5 text-xs font-semibold text-[#2d3a31] break-words">
                         {feat.name}
                       </td>
-                      <td className="px-2 py-2.5 text-center">
+                      <td className="px-2 py-2.5 text-center text-xs break-words">
                         {renderVal(val, feat.bold, feat.highlight)}
                       </td>
                     </tr>
