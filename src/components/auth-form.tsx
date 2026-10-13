@@ -103,7 +103,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
       </section>
 
       <section className="auth-form-area">
-        <div className="auth-form" style={{ maxWidth: signup ? 440 : 380 }}>
+        <div className="auth-form" style={{ maxWidth: signup ? 440 : 380, width: '100%', boxSizing: 'border-box' }}>
           {/* Form Header */}
           <h1>
             {!signup
@@ -240,14 +240,27 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
 
               {error && <div className="error-box" role="alert">{error}</div>}
 
-              <Button variant="orange" type="submit">
+              <Button
+                variant="orange"
+                type="submit"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  whiteSpace: 'normal',
+                  height: 'auto',
+                  minHeight: '46px',
+                  padding: '11px 16px',
+                  lineHeight: 1.3,
+                  textAlign: 'center',
+                }}
+              >
                 Continue To Get Free Customers
-                <ArrowRight size={14} />
+                <ArrowRight size={14} style={{ flexShrink: 0, marginLeft: '6px' }} />
               </Button>
             </form>
           ) : step === 2 ? (
             /* Signup Step 2: Choose Plan Version */
-            <div style={{ display: 'grid', gap: '16px' }}>
+            <div style={{ display: 'grid', gap: '16px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               {/* Plan 1: Free Plan */}
               <div
                 onClick={() => setSelectedPlan('free')}
@@ -259,16 +272,19 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   position: 'relative',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
+                  <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '11px', fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Free Forever
                     </div>
                     <div style={{ fontSize: '18px', fontWeight: 800, color: '#1f2d26' }}>Free Plan</div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontSize: '22px', fontWeight: 900, color: '#1f2d26' }}>$0</div>
                     <div style={{ fontSize: '10px', color: '#64748b' }}>no monthly bill</div>
                   </div>
@@ -300,19 +316,22 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   position: 'relative',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
                 <span style={{ position: 'absolute', top: -10, right: 14, background: '#ea580c', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
                   14-DAY FREE TRIAL
                 </span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
+                  <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       Best For Repeat Contractors
                     </div>
                     <div style={{ fontSize: '18px', fontWeight: 800, color: '#1f2d26' }}>Starter Plan</div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontSize: '22px', fontWeight: 900, color: '#1f2d26' }}>$29<span style={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }}>/mo</span></div>
                     <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 600 }}>$0 today · 14 days free</div>
                   </div>
@@ -338,20 +357,41 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <Button variant="ghost" type="button" onClick={() => setStep(1)} style={{ width: 'auto' }}>
-                  <ArrowLeft size={14} /> Back
-                </Button>
-                <Button variant="orange" type="button" onClick={() => setStep(3)} style={{ flex: 1 }}>
+              <div style={{ display: 'grid', gap: '8px', marginTop: '10px', width: '100%' }}>
+                <Button
+                  variant="orange"
+                  type="button"
+                  onClick={() => setStep(3)}
+                  style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    whiteSpace: 'normal',
+                    height: 'auto',
+                    minHeight: '46px',
+                    padding: '11px 16px',
+                    lineHeight: 1.3,
+                    textAlign: 'center',
+                  }}
+                >
                   One Step Away From Your First Customer
-                  <ArrowRight size={14} />
+                  <ArrowRight size={14} style={{ flexShrink: 0, marginLeft: '6px' }} />
                 </Button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => setStep(1)}
+                    style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}
+                  >
+                    <ArrowLeft size={13} /> Back
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
             /* Signup Step 3: Hormozi One-Time Launch Offers */
-            <div style={{ display: 'grid', gap: '16px' }}>
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 14px', borderRadius: '10px', fontSize: '12px', color: '#166534' }}>
+            <div style={{ display: 'grid', gap: '16px', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 14px', borderRadius: '10px', fontSize: '12px', color: '#166534', width: '100%', boxSizing: 'border-box' }}>
                 <strong>New Hauler Fast-Track Offers</strong>
                 <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#15803d' }}>
                   One-time discounted setup available only during workspace creation.
@@ -369,6 +409,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   position: 'relative',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
                 <span style={{ position: 'absolute', top: -9, right: 14, background: '#166534', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>
@@ -381,12 +424,12 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     onChange={() => {}}
                     style={{ marginTop: '4px', cursor: 'pointer', accentColor: '#ea580c' }}
                   />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontWeight: 800, fontSize: '14px', color: '#1f2d26' }}>
                         Done-For-You 24/7 Booking Website
                       </span>
-                      <span>
+                      <span style={{ flexShrink: 0 }}>
                         <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '11px' }}>$499</span>{' '}
                         <strong style={{ color: '#ea580c', fontSize: '14px' }}>$299</strong>
                       </span>
@@ -418,6 +461,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   position: 'relative',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
                 }}
               >
                 <span style={{ position: 'absolute', top: -9, right: 14, background: '#ea580c', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>
@@ -430,12 +476,12 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     onChange={() => {}}
                     style={{ marginTop: '4px', cursor: 'pointer', accentColor: '#ea580c' }}
                   />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontWeight: 800, fontSize: '14px', color: '#1f2d26' }}>
                         Google Maps 3-Pack Domination Kit
                       </span>
-                      <strong style={{ color: '#1f2d26', fontSize: '14px' }}>$79</strong>
+                      <strong style={{ color: '#1f2d26', fontSize: '14px', flexShrink: 0 }}>$79</strong>
                     </div>
 
                     <div style={{ fontSize: '11.5px', color: '#9a3412', fontWeight: 700, margin: '4px 0 2px 0' }}>
@@ -454,7 +500,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
               </div>
 
               {/* Order Summary */}
-              <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '12px 14px', fontSize: '12px' }}>
+              <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', width: '100%', boxSizing: 'border-box' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <span style={{ color: '#64748b' }}>Plan:</span>
                   <span style={{ fontWeight: 600 }}>{selectedPlan === 'starter' ? 'Starter ($29/mo · 14-day free trial)' : 'Free Plan ($0/mo)'}</span>
@@ -475,14 +521,28 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
 
               {error && <div className="error-box" role="alert">{error}</div>}
 
-              <div style={{ display: 'grid', gap: '8px', marginTop: '6px' }}>
-                <Button variant="orange" disabled={busy} onClick={() => handleFinalSubmit()} style={{ width: '100%', justifyContent: 'center' }}>
+              <div style={{ display: 'grid', gap: '8px', marginTop: '6px', width: '100%' }}>
+                <Button
+                  variant="orange"
+                  disabled={busy}
+                  onClick={() => handleFinalSubmit()}
+                  style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    whiteSpace: 'normal',
+                    height: 'auto',
+                    minHeight: '46px',
+                    padding: '11px 16px',
+                    lineHeight: 1.3,
+                    textAlign: 'center',
+                  }}
+                >
                   {busy ? <Loader2 className="spin" size={15} /> : null}
                   Launch My Workspace
-                  <ArrowRight size={14} />
+                  <ArrowRight size={14} style={{ flexShrink: 0, marginLeft: '6px' }} />
                 </Button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Button variant="ghost" type="button" onClick={() => setStep(2)} style={{ width: 'auto', fontSize: '12px' }}>
+                  <Button variant="ghost" type="button" onClick={() => setStep(2)} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}>
                     <ArrowLeft size={13} /> Back
                   </Button>
                   <button
