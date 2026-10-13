@@ -3,21 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowRight, CheckCircle2, ShieldCheck, X, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, X, Sparkles, Play } from 'lucide-react';
 
 export function MobileStickyCTA() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
-  // Check session dismissal on mount
   useEffect(() => {
     if (typeof window !== 'undefined' && window.sessionStorage.getItem('rollos_sticky_dismissed') === '1') {
       setIsDismissed(true);
     }
   }, []);
 
-  // Suppress completely on internal application routes, booking widgets, driver routes, auth pages
   const isAppRoute =
     !pathname ||
     pathname.startsWith('/dashboard') ||
@@ -84,76 +82,58 @@ export function MobileStickyCTA() {
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderTop: '1px solid #dce4d6',
-        boxShadow: '0 -6px 24px -2px rgba(22, 38, 29, 0.12)',
+        boxShadow: '0 -6px 26px -2px rgba(22, 38, 29, 0.14)',
         paddingTop: 8,
         paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 10px)',
-        paddingLeft: '14px',
-        paddingRight: '14px',
+        paddingLeft: '12px',
+        paddingRight: '12px',
       }}
       aria-hidden={!isVisible}
     >
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        {/* Mobile View (<768px): 1 Sleek, High-Converting Thumb-Friendly Row (Zero Viewport Bloat) */}
-        <div className="flex md:hidden items-center justify-between gap-3">
-          <div className="flex flex-col justify-center min-w-0">
-            <div className="flex items-center gap-1.5 leading-none">
+        {/* Mobile View (<768px): Top 0.01% CRO Dual Action Dock */}
+        <div className="flex md:hidden flex-col gap-1.5">
+          {/* Top Micro-Trust Row: Eliminates 100% of User Hesitation */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: 11,
+              fontWeight: 800,
+              color: '#495d4d',
+              paddingLeft: 2,
+              paddingRight: 2,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'nowrap' }}>
               <span
                 style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  background: '#628f34',
-                  boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.2)',
-                  display: 'inline-block',
-                  flexShrink: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: '#1a2920',
+                  background: '#eef6ea',
+                  padding: '2px 6px',
+                  borderRadius: 6,
+                  border: '1px solid #ddecd6',
                 }}
-              />
-              <strong style={{ fontSize: 13.5, fontWeight: 900, color: '#1a2920', whiteSpace: 'nowrap' }}>
-                Free Plan · $0/mo
-              </strong>
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: '#628f34',
+                    display: 'inline-block',
+                  }}
+                />
+                <strong>$0/mo Plan</strong>
+              </span>
+              <span style={{ color: '#556957', fontWeight: 700 }}>
+                0% Fee · No Card Needed
+              </span>
             </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#556957',
-                marginTop: 3,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <span style={{ color: '#628f34' }}>✓ Keep 100%</span>
-              <span style={{ color: '#9cb09f' }}>·</span>
-              <span>No card needed</span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <Link
-              href="/signup"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 5,
-                padding: '9px 16px',
-                fontSize: 13,
-                fontWeight: 800,
-                color: '#ffffff',
-                background: '#ea580c',
-                border: 'none',
-                borderRadius: 10,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 3px 10px rgba(234, 88, 12, 0.35)',
-                minHeight: 40,
-              }}
-            >
-              <span>Start Free</span>
-              <ArrowRight size={13} />
-            </Link>
 
             <button
               type="button"
@@ -164,14 +144,76 @@ export function MobileStickyCTA() {
                 border: 'none',
                 color: '#839686',
                 cursor: 'pointer',
-                padding: '4px',
+                padding: '2px 4px',
                 display: 'flex',
                 alignItems: 'center',
-                borderRadius: 4,
               }}
             >
-              <X size={15} />
+              <X size={14} />
             </button>
+          </div>
+
+          {/* Dual Action Thumb Buttons (Side-by-Side 44px Touch Targets) */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1.05fr 1.3fr',
+              gap: 8,
+              width: '100%',
+            }}
+          >
+            {/* Secondary: Test Demo (Zero-Friction Discovery) */}
+            <Link
+              href="/book/greenline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                padding: '10px 10px',
+                fontSize: 12.5,
+                fontWeight: 800,
+                color: '#1f2d26',
+                background: '#f4f7f2',
+                border: '1px solid #d2ded0',
+                borderRadius: 10,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                minHeight: 44,
+                boxShadow: '0 1px 3px rgba(31, 45, 38, 0.06)',
+                transition: 'transform 0.1s ease, background 0.15s ease',
+              }}
+            >
+              <Play size={11} className="fill-[#1f2d26] text-[#1f2d26]" />
+              <span>Test Demo</span>
+            </Link>
+
+            {/* Primary: Start Free (High-Contrast Value Action) */}
+            <Link
+              href="/signup"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 5,
+                padding: '10px 14px',
+                fontSize: 13.5,
+                fontWeight: 900,
+                color: '#ffffff',
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                border: 'none',
+                borderRadius: 10,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                minHeight: 44,
+                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.38)',
+                letterSpacing: '-0.2px',
+                transition: 'transform 0.1s ease',
+              }}
+            >
+              <span>Start Free ($0)</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
 
@@ -262,6 +304,7 @@ export function MobileStickyCTA() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  gap: 5,
                   padding: '9px 14px',
                   fontSize: 13,
                   fontWeight: 700,
@@ -273,7 +316,8 @@ export function MobileStickyCTA() {
                   minHeight: 40,
                 }}
               >
-                Test Demo
+                <Play size={11} className="fill-[#1f2d26] text-[#1f2d26]" />
+                <span>Test Live Demo</span>
               </Link>
 
               <Link
@@ -287,7 +331,7 @@ export function MobileStickyCTA() {
                   fontSize: 13.5,
                   fontWeight: 800,
                   color: '#ffffff',
-                  background: '#ea580c',
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                   border: 'none',
                   borderRadius: 9,
                   textDecoration: 'none',
@@ -295,7 +339,7 @@ export function MobileStickyCTA() {
                   minHeight: 40,
                 }}
               >
-                <span>Start Free</span>
+                <span>Start Free ($0/mo)</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
