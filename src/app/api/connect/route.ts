@@ -22,15 +22,43 @@ export async function POST(request: Request) {
     let account = org.stripe_connect_account_id;
     const s = stripe();
     if (!account) {
-      const created = await s.accounts.create(
-        {
-          type: 'express',
-          capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
-          metadata: { org_id: org.id },
-        },
-        { idempotencyKey: `connect-${org.id}` },
-      );
-      account = created.id;
+      let createdId: string;
+      try {
+        if (s.v2?.core?.accounts) {
+          const created = await s.v2.core.accounts.create(
+            {
+              dashboard: 'full',
+              identity: { country: 'US' },
+              defaults: {
+                responsibilities: {
+                  fees_collector: 'stripe',
+                  losses_collector: 'stripe',
+                },
+              },
+              configuration: {
+                merchant: {
+                  capabilities: { card_payments: { requested: true } },
+                },
+              },
+            },
+            { idempotencyKey: `connect-${org.id}` },
+          );
+          createdId = created.id;
+        } else {
+          throw new Error('v2 unavailable');
+        }
+      } catch {
+        const created = await s.accounts.create(
+          {
+            type: 'express',
+            capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
+            metadata: { org_id: org.id },
+          },
+          { idempotencyKey: `connect-${org.id}` },
+        );
+        createdId = created.id;
+      }
+      account = createdId;
       const { error: saveError } = await db
         .from('organizations')
         .update({ stripe_connect_account_id: account })

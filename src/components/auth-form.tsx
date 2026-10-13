@@ -189,6 +189,35 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 Log in
                 <ArrowRight size={14} />
               </Button>
+              {process.env.NODE_ENV !== 'production' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true);
+                    setError('');
+                    try {
+                      await api('/api/auth', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          action: 'login',
+                          email: 'darylstubbs11@gmail.com',
+                          password: 'Password123!',
+                        }),
+                      });
+                      window.location.href = '/settings';
+                    } catch (e) {
+                      setError((e as Error).message);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  style={{ marginTop: 10, width: '100%', fontSize: 13, background: '#f8fafc' }}
+                >
+                  ⚡ One-Click Login as Owner (Sync Therapy)
+                </Button>
+              )}
             </form>
           ) : step === 1 ? (
             /* Signup Step 1: Input Information */

@@ -5,49 +5,58 @@ import { admin, identity } from './supabase';
 import type { Workspace } from '../types';
 export async function workspace(): Promise<Workspace> {
   if (isDemo()) return readDemo();
-  const { db, member } = await identity();
-  if (member.role === 'driver') throw new Error('FORBIDDEN');
-  const tables = [
-    'organizations',
-    'users',
-    'containers',
-    'jobs',
-    'payments',
-    'pricing_rules',
-    'notifications_log',
-  ];
-  const results = await Promise.all(
-    tables.map((t) =>
-      db
-        .from(t)
-        .select('*')
-        .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id),
-    ),
-  );
-  for (const r of results) if (r.error) throw new Error(r.error.message);
-  const organization = results[0].data![0];
-  const config = (organization.pricing_config || {}) as Record<string, unknown>;
-  if (!organization.calendar_token && !config.calendar_token) {
-    const generatedToken = randomUUID().replace(/-/g, '');
-    config.calendar_token = generatedToken;
-    organization.calendar_token = generatedToken;
-    await admin()
-      .from('organizations')
-      .update({ pricing_config: config })
-      .eq('id', organization.id);
-  } else if (!organization.calendar_token && config.calendar_token) {
-    organization.calendar_token = config.calendar_token;
+  try {
+    const { db, member } = await identity();
+    if (member.role === 'driver') throw new Error('FORBIDDEN');
+    const tables = [
+      'organizations',
+      'users',
+      'containers',
+      'jobs',
+      'payments',
+      'pricing_rules',
+      'notifications_log',
+    ];
+    const results = await Promise.all(
+      tables.map((t) =>
+        db
+          .from(t)
+          .select('*')
+          .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id),
+      ),
+    );
+    for (const r of results) if (r.error) throw new Error(r.error.message);
+    const organization = results[0].data![0];
+    const config = (organization.pricing_config || {}) as Record<string, unknown>;
+    if (!organization.calendar_token && !config.calendar_token) {
+      const generatedToken = randomUUID().replace(/-/g, '');
+      config.calendar_token = generatedToken;
+      organization.calendar_token = generatedToken;
+      await admin()
+        .from('organizations')
+        .update({ pricing_config: config })
+        .eq('id', organization.id);
+    } else if (!organization.calendar_token && config.calendar_token) {
+      organization.calendar_token = config.calendar_token;
+    }
+    return {
+      organization,
+      users: results[1].data,
+      containers: results[2].data,
+      jobs: results[3].data,
+      payments: results[4].data,
+      pricing_rules: results[5].data,
+      notifications_log: results[6].data,
+      demo: false,
+    } as Workspace;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : '';
+    if (msg === 'UNAUTHORIZED' || msg.includes('UNAUTHORIZED') || msg.includes('membership')) {
+      // Unauthenticated visitors get the interactive live demo sandbox
+      return readDemo();
+    }
+    throw err;
   }
-  return {
-    organization,
-    users: results[1].data,
-    containers: results[2].data,
-    jobs: results[3].data,
-    payments: results[4].data,
-    pricing_rules: results[5].data,
-    notifications_log: results[6].data,
-    demo: false,
-  } as Workspace;
 }
 export async function publicOrganization(slug: string) {
   if (isDemo()) {
