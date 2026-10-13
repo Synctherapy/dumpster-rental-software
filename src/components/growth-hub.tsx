@@ -187,26 +187,26 @@ export function GrowthHub({
             </span>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#1f2d26' }}>Turnkey Dumpster Website</h3>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#1f2d26' }}>Done-For-You 24/7 Booking Website</h3>
               </div>
               <span style={{ fontSize: '11px', color: '#64748b' }}>
                 <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>$499</span>{' '}
-                <strong style={{ color: '#ea580c', fontSize: '12px' }}>$299 One-Time</strong>
+                <strong style={{ color: '#ea580c', fontSize: '12px' }}>$299 One-Time (1 Rental Pays For It)</strong>
               </span>
             </div>
           </div>
           <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, flex: 1 }}>
-            Don&apos;t have a website or tired of an outdated site that doesn&apos;t rank? We&apos;ll build, host, and launch a custom, high-converting dumpster rental website with your RollOS booking engine pre-installed.
+            Agencies charge $3,000+ and take months. We write your sales copy, dial in your town’s service areas, and launch your 24/7 online booking checkout so customers book directly with credit cards while you sleep.
           </p>
           <div style={{ margin: '14px 0', fontSize: '11px', color: '#166534', display: 'grid', gap: '6px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> 5-page custom site for your delivery ZIPs
+              <CheckCircle2 size={13} color="#16a34a" /> <strong>🔥 The Math:</strong> 1 single dumpster rental covers 100% of the cost
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> <strong>72-Hour Turnkey Speed Guarantee</strong>
+              <CheckCircle2 size={13} color="#16a34a" /> <strong>⚡ 72-Hour &ldquo;Launch Or Free&rdquo; Guarantee:</strong> Live in 72h or 100% money back + keep site
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> Live in 72h or 100% money back + keep site
+              <CheckCircle2 size={13} color="#16a34a" /> Zero tech work required from you
             </div>
           </div>
           <Button
@@ -236,26 +236,26 @@ export function GrowthHub({
             </span>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Google 3-Pack Optimization</h3>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Google Maps 3-Pack Domination Kit</h3>
                 <span style={{ fontSize: '9px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                  DONE-FOR-YOU
+                  TOP RATED LOCAL HAULER
                 </span>
               </div>
               <span style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>$79 One-Time Setup</span>
             </div>
           </div>
           <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, flex: 1 }}>
-            Over 70% of residential roll-off customers search Google Maps for <em>&ldquo;dumpster rental near me&rdquo;</em>. Our team sets up and audits your Google Business Profile to rank in the local 3-Pack.
+            80% of dumpster calls go to the top 3 spots on Google Maps. When a roofer or homeowner searches &ldquo;dumpster rental near me&rdquo;, be the first company they call.
           </p>
           <div style={{ margin: '14px 0', fontSize: '11px', color: '#166534', display: 'grid', gap: '6px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> Optimal primary & secondary waste categories
+              <CheckCircle2 size={13} color="#16a34a" /> Dialed-in high-ticket commercial waste categories
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> Geotagged bin photos & ZIP service radius
+              <CheckCircle2 size={13} color="#16a34a" /> Automated 5-star review request texts on container pickup
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} color="#16a34a" /> Automated pickup review request link setup
+              <CheckCircle2 size={13} color="#16a34a" /> <strong>✓ Instant ROI:</strong> 1 customer phone call pays for this 5x over
             </div>
           </div>
           <Button

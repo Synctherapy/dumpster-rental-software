@@ -372,30 +372,36 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 }}
               >
                 <span style={{ position: 'absolute', top: -9, right: 14, background: '#166534', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>
-                  SAVE $200
+                  SAVE $200 · 1 RENTAL PAYS FOR IT
                 </span>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <input
                     type="checkbox"
                     checked={addWebsite}
                     onChange={() => {}}
-                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#ea580c' }}
+                    style={{ marginTop: '4px', cursor: 'pointer', accentColor: '#ea580c' }}
                   />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#1f2d26' }}>
-                        Turnkey Dumpster Rental Website
+                      <span style={{ fontWeight: 800, fontSize: '14px', color: '#1f2d26' }}>
+                        Done-For-You 24/7 Booking Website
                       </span>
                       <span>
                         <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '11px' }}>$499</span>{' '}
                         <strong style={{ color: '#ea580c', fontSize: '14px' }}>$299</strong>
                       </span>
                     </div>
-                    <p style={{ fontSize: '11.5px', color: '#475569', margin: '4px 0 6px 0', lineHeight: 1.4 }}>
-                      Done-for-you 5-page website targeting your service ZIP codes with RollOS booking engine pre-installed.
+
+                    <div style={{ fontSize: '11.5px', color: '#166534', fontWeight: 700, margin: '4px 0 2px 0' }}>
+                      🔥 The Math: Just 1 dumpster booking covers 100% of this cost. Everything after is pure profit.
+                    </div>
+
+                    <p style={{ fontSize: '11px', color: '#475569', margin: '0 0 6px 0', lineHeight: 1.45 }}>
+                      Agencies charge $3,000+ and take months. We write your sales copy, set up your town’s service areas, and plug in your 24/7 booking checkout with zero tech work from you.
                     </p>
-                    <div style={{ fontSize: '10.5px', color: '#92400e', background: '#fef3c7', padding: '4px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                      ⚡ 72-Hour Speed Guarantee: Live in 72h or 100% money back + keep site free.
+
+                    <div style={{ fontSize: '10.5px', color: '#92400e', background: '#fef3c7', padding: '5px 8px', borderRadius: '6px', fontWeight: 700, lineHeight: 1.35 }}>
+                      ⚡ 72-Hour &ldquo;Launch Or Free&rdquo; Guarantee: Live and taking orders in 72h, or get a 100% refund AND keep the website free forever.
                     </div>
                   </div>
                 </div>
@@ -411,25 +417,38 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   padding: '16px',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
+                  position: 'relative',
                 }}
               >
+                <span style={{ position: 'absolute', top: -9, right: 14, background: '#ea580c', color: '#fff', fontSize: '9px', fontWeight: 800, padding: '2px 7px', borderRadius: '10px' }}>
+                  TOP RATED LOCAL HAULER
+                </span>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                   <input
                     type="checkbox"
                     checked={addGbp}
                     onChange={() => {}}
-                    style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#ea580c' }}
+                    style={{ marginTop: '4px', cursor: 'pointer', accentColor: '#ea580c' }}
                   />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#1f2d26' }}>
-                        Google 3-Pack Maps Optimization
+                      <span style={{ fontWeight: 800, fontSize: '14px', color: '#1f2d26' }}>
+                        Google Maps 3-Pack Domination Kit
                       </span>
                       <strong style={{ color: '#1f2d26', fontSize: '14px' }}>$79</strong>
                     </div>
-                    <p style={{ fontSize: '11.5px', color: '#475569', margin: '4px 0 0 0', lineHeight: 1.4 }}>
-                      Optimal categories, geotagged bin photos, and automated pickup review request links.
+
+                    <div style={{ fontSize: '11.5px', color: '#9a3412', fontWeight: 700, margin: '4px 0 2px 0' }}>
+                      📍 Why You Need This: 80% of local dumpster calls go to the top 3 spots on Google Maps.
+                    </div>
+
+                    <p style={{ fontSize: '11px', color: '#475569', margin: '0 0 5px 0', lineHeight: 1.45 }}>
+                      When a roofer or homeowner searches &ldquo;dumpster rental near me&rdquo;, be the first company they call. We dial in your commercial waste categories and set up automatic 5-star review request texts on container pickup.
                     </p>
+
+                    <div style={{ fontSize: '10.5px', color: '#166534', background: '#dcfce7', padding: '4px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                      ✓ 1 single customer phone call from Google Maps pays for this 5x over.
+                    </div>
                   </div>
                 </div>
               </div>
