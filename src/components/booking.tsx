@@ -17,6 +17,7 @@ import {
   Sparkles,
   Zap,
   CreditCard,
+  X,
 } from 'lucide-react';
 import { Dumpster } from './brand';
 import { Button } from './ui/button';
@@ -80,6 +81,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const [pickup, setPickup] = useState(addDays(today(), 8));
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState<Job | null>(null);
+  const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [key] = useState(() => globalThis.crypto?.randomUUID?.() ?? '');
   const [customer, setCustomer] = useState({
     customer_name: '',
@@ -230,11 +232,100 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       setBusy(false);
     }
   };
+  const showDemoBar = !!(data.demo && !embed && !dismissDemoBar);
+
   return (
     <main
       className="booking-page"
-      style={embed ? { padding: '18px', minHeight: 'auto' } : undefined}
+      style={{
+        ...(embed ? { padding: '18px', minHeight: 'auto' } : {}),
+        ...(showDemoBar ? { paddingTop: '58px' } : {}),
+      }}
     >
+      {showDemoBar && (
+        <aside
+          role="banner"
+          aria-label="Interactive hauler demo"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: 'rgba(26, 41, 32, 0.96)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderBottom: '1px solid rgba(220, 228, 214, 0.25)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+            padding: '7px 14px',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '10px',
+            fontSize: '12.5px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: '#628f34',
+                boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.35)',
+                display: 'inline-block',
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontWeight: 700, color: '#f3f6f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Live Hauler Demo · <span style={{ fontWeight: 500, color: '#c4d4c5' }}>Want this 24/7 booking widget for your dumpster company?</span>
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <Link
+              href="/signup"
+              style={{
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '12px',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: '0 2px 8px rgba(234, 88, 12, 0.35)',
+                minHeight: '34px',
+              }}
+            >
+              <span>Start Free ($0/mo)</span>
+              <ArrowRight size={13} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setDismissDemoBar(true)}
+              aria-label="Dismiss banner"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#8fa093',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: '4px',
+              }}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </aside>
+      )}
       <div className="booking-nav">
         <Link className="booking-org" href={embed ? '#' : '/'}>
           <span className="org-logo">
@@ -327,6 +418,67 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               )}
             </div>
           </div>
+
+          {data.demo && (
+            <div
+              style={{
+                marginTop: 24,
+                background: 'linear-gradient(135deg, #1f2d26 0%, #14221a 100%)',
+                borderRadius: '12px',
+                padding: '22px 24px',
+                color: '#ffffff',
+                textAlign: 'center',
+                border: '1px solid #32473a',
+                boxShadow: '0 8px 24px rgba(20, 34, 26, 0.25)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11.5px',
+                  fontWeight: 800,
+                  color: '#a3e635',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.8px',
+                  marginBottom: '8px',
+                }}
+              >
+                <Sparkles size={14} /> Like What You Just Tested?
+              </div>
+              <h3 style={{ fontSize: '19px', fontWeight: 900, margin: '0 0 6px', color: '#ffffff' }}>
+                Put this exact 24/7 online booking widget on your website.
+              </h3>
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: '#cbd5cc',
+                  maxWidth: '520px',
+                  margin: '0 auto 16px',
+                  lineHeight: 1.5,
+                }}
+              >
+                Free plan is $0/mo · Keep 100% of your rental money · Setup takes 3 minutes · No credit card required.
+              </p>
+              <Link
+                href="/signup"
+                className="btn btn-orange"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '11px 24px',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  boxShadow: '0 4px 16px rgba(234, 88, 12, 0.45)',
+                }}
+              >
+                <span>Create Your Free Account in 3 Minutes</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          )}
         </section>
       ) : (
         <>

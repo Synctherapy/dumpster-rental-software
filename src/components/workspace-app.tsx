@@ -255,7 +255,29 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
             <strong>{title}</strong>
           </div>
           <div className="top-actions">
-            <span className="mode-label">{data.demo ? 'Demo workspace' : 'Stripe test mode'}</span>
+            {data.demo ? (
+              <Link
+                href="/signup"
+                style={{
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '12px',
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)',
+                }}
+              >
+                <span>Claim Free Account ($0) →</span>
+              </Link>
+            ) : (
+              <span className="mode-label">Stripe test mode</span>
+            )}
             <Button
               variant="ghost"
               className="btn-icon"
