@@ -338,7 +338,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   <ArrowLeft size={14} /> Back
                 </Button>
                 <Button variant="orange" type="button" onClick={() => setStep(3)} style={{ flex: 1 }}>
-                  Continue to Launch Offers
+                  One Step Away From Your First Customer
                   <ArrowRight size={14} />
                 </Button>
               </div>
