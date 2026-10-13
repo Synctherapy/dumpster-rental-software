@@ -308,7 +308,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                   <div>
                     <div style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Contractors & Growth
+                      Best For Repeat Contractors
                     </div>
                     <div style={{ fontSize: '18px', fontWeight: 800, color: '#1f2d26' }}>Starter Plan</div>
                   </div>
@@ -317,21 +317,23 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 600 }}>$0 today · 14 days free</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '11.5px', color: '#475569', display: 'grid', gap: '5px', marginTop: '10px' }}>
-                  <div style={{ fontWeight: 700, color: '#166534', fontSize: '11.5px', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ fontSize: '11.5px', color: '#475569', display: 'grid', gap: '6px', marginTop: '10px' }}>
+                  <div style={{ fontWeight: 700, color: '#166534', fontSize: '11.5px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <Sparkles size={13} color="#166534" /> Everything in Free, plus:
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={13} color="#ea580c" /> <strong>Commercial Contractor Accounts (Roofers/Builders)</strong>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', lineHeight: 1.35 }}>
+                    <Check size={13} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <span><strong>Contractor Accounts Add-On:</strong> Dedicated VIP booking links with custom negotiated rates for repeat roofers & builders</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', lineHeight: 1.35 }}>
+                    <Check size={13} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <span><strong>Offline Payments ($0 Fee):</strong> Keep 100% on cash, company checks, Zelle & Net-30 invoice orders</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={13} color="#ea580c" /> <strong>$0 Fees on Offline Orders (Cash, Check, Net-30)</strong>
+                    <Check size={13} color="#16a34a" /> <strong>1-Click Container Swaps:</strong> Pull full can & drop empty in one trip
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={13} color="#16a34a" /> 2-Way Google Calendar & Apple iCal Sync
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Check size={13} color="#16a34a" /> 1-Click Container Swaps (Pull Full & Drop Empty)
+                    <Check size={13} color="#16a34a" /> <strong>Calendar Sync:</strong> 2-Way Google Calendar & Apple iCal feed
                   </div>
                 </div>
               </div>

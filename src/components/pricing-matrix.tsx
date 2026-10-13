@@ -108,10 +108,17 @@ export function PricingMatrix() {
       category: 'Contractor & Fleet Operations',
       features: [
         {
-          name: 'Commercial Contractor Accounts (Roofers/Builders) & $0 Offline Orders (Cash, Check, Net-30)',
+          name: 'Contractor Accounts Add-On (Custom VIP Rates for Repeat Roofers & Builders)',
           free: false,
-          starter: 'Unlimited ($0 fees)',
-          growth: 'Unlimited ($0 fees)',
+          starter: 'Unlimited',
+          growth: 'Unlimited',
+          highlight: true,
+        },
+        {
+          name: 'Offline Payments ($0 Platform Fee on Cash, Check, Zelle & Net-30 Invoices)',
+          free: false,
+          starter: '100% Free ($0 fee)',
+          growth: '100% Free ($0 fee)',
           highlight: true,
         },
         {
@@ -221,7 +228,7 @@ export function PricingMatrix() {
                 <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $29<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
-                <p className="text-[11px] text-[#64748b] mb-3">Everything in Free, plus contractor accounts & $0 offline fee</p>
+                <p className="text-[11px] text-[#64748b] mb-3">Everything in Free, plus Contractor Accounts & $0 Offline Payments</p>
                 <Link
                   href="/signup"
                   className="btn btn-dark text-xs py-2 w-full justify-center"

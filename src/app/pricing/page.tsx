@@ -90,7 +90,7 @@ export default function PricingPage() {
                   <td className="font-mono font-bold">$29 / mo</td>
                   <td className="font-bold">$0 (Instant self-serve)</td>
                   <td className="font-bold font-mono text-[#166534]">$348 / yr ($5,000+ saved)</td>
-                  <td>$0 fees on contractor cash/check orders</td>
+                  <td>Contractor accounts add-on & $0 fees on offline orders</td>
                 </tr>
               </tbody>
             </table>
