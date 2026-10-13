@@ -27,6 +27,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
   // Form Fields
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
+  const [city, setCity] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -61,7 +62,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
           action: signup ? 'signup' : 'login',
           email,
           password,
-          ...(signup ? { name, company, plan: selectedPlan, website_upsell: addWebsite, gbp_upsell: addGbp } : {}),
+          ...(signup ? { name, company, city, plan: selectedPlan, website_upsell: addWebsite, gbp_upsell: addGbp } : {}),
         }),
       });
 
@@ -212,6 +213,15 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   required
                   minLength={2}
                   placeholder="Apex Dumpster Rentals"
+                />
+              </label>
+              <label className="field">
+                City / Service Area <small style={{ color: '#64748b', fontWeight: 400 }}>(optional)</small>
+                <input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  autoComplete="address-level2"
+                  placeholder="e.g. Baltimore, Seattle, Austin"
                 />
               </label>
               <label className="field">

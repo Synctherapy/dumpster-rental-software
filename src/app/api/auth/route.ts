@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { generateCleanSlug } from '@/lib/city-zips';
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +16,10 @@ export async function POST(request: Request) {
       if (body?.action === 'signup' && (body?.name || body?.company)) {
         await mutateDemo((d) => {
           if (body.name) d.users[0].name = String(body.name).trim();
-          if (body.company) d.organization.name = String(body.company).trim();
+          if (body.company) {
+            d.organization.name = String(body.company).trim();
+            d.organization.slug = generateCleanSlug(String(body.company), body.city ? String(body.city) : undefined);
+          }
         }).catch(() => {});
       }
       return NextResponse.json({
@@ -32,6 +36,7 @@ export async function POST(request: Request) {
         password: z.string().min(8).optional(),
         name: z.string().trim().min(2).max(80).optional(),
         company: z.string().trim().min(2).max(80).optional(),
+        city: z.string().trim().max(80).optional(),
       })
       .parse(body);
 
@@ -57,7 +62,7 @@ export async function POST(request: Request) {
             email: input.email,
             password: input.password,
             options: {
-              data: { name: input.name, company: input.company },
+              data: { name: input.name, company: input.company, city: input.city },
               emailRedirectTo: `${appOrigin}/auth/callback`,
             },
           }),
@@ -71,7 +76,10 @@ export async function POST(request: Request) {
         console.warn('Supabase auth failed or timed out, falling back to sandbox:', authErr);
         await mutateDemo((d) => {
           if (input.name) d.users[0].name = String(input.name).trim();
-          if (input.company) d.organization.name = String(input.company).trim();
+          if (input.company) {
+            d.organization.name = String(input.company).trim();
+            d.organization.slug = generateCleanSlug(String(input.company), input.city);
+          }
         }).catch(() => {});
         return NextResponse.json({
           ok: true,

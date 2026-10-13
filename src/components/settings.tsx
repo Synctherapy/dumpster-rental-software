@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
+  Building2,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -11,6 +12,7 @@ import {
   ExternalLink,
   Globe,
   Loader2,
+  MapPin,
   Plus,
   Save,
   Trash2,
@@ -20,6 +22,7 @@ import {
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
 import type { Workspace, PricingRule } from '@/lib/types';
+import { METRO_CITIES, findCityData, generateCleanSlug, resolveCityZips } from '@/lib/city-zips';
 export function Settings({
   data,
   reload,
@@ -83,6 +86,69 @@ export function Settings({
   const [newTons, setNewTons] = useState(2);
   const [newOverageTon, setNewOverageTon] = useState(85);
   const [zips, setZips] = useState(data.pricing_rules[0]?.service_zips.join(', ') ?? '');
+  const [cityQuery, setCityQuery] = useState('');
+  const [cityFeedback, setCityFeedback] = useState<string | null>(null);
+
+  const handleCitySelect = async (cityName: string) => {
+    setCityQuery(cityName);
+    const trimmed = cityName.trim();
+    if (!trimmed) {
+      setCityFeedback(null);
+      return;
+    }
+
+    const metro = findCityData(trimmed);
+    if (metro) {
+      setZips(metro.zips.join(', '));
+      setCityFeedback(`✓ Auto-populated ${metro.zips.length} ZIP codes for ${metro.city}, ${metro.state}`);
+      notify(`Loaded ${metro.zips.length} ZIP codes for ${metro.city}!`);
+      return;
+    }
+
+    if (trimmed.length >= 2) {
+      setCityFeedback('Searching postal directory...');
+      const resolved = await resolveCityZips(trimmed);
+      if (resolved && resolved.zips.length) {
+        setZips(resolved.zips.join(', '));
+        setCityFeedback(`✓ Found ${resolved.zips.length} ZIP codes for ${resolved.city}${resolved.state ? `, ${resolved.state}` : ''}`);
+        notify(`Loaded ${resolved.zips.length} ZIP codes for ${resolved.city}!`);
+      } else {
+        setCityFeedback('Custom service area. Type your delivery ZIPs below.');
+      }
+    } else {
+      setCityFeedback(null);
+    }
+  };
+
+  const [newZipInput, setNewZipInput] = useState('');
+  const [showRawZipText, setShowRawZipText] = useState(false);
+
+  const zipList = zips.split(/[\s,]+/).filter(Boolean);
+
+  const handleRemoveZip = (zipToRemove: string) => {
+    const next = zipList.filter((z) => z !== zipToRemove);
+    setZips(next.join(', '));
+    notify(`Removed ${zipToRemove}`);
+  };
+
+  const handleClearAllZips = () => {
+    setZips('');
+    notify('Cleared all service ZIP codes.');
+  };
+
+  const handleAddZip = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = newZipInput.trim().toUpperCase();
+    if (!clean) return;
+    if (zipList.includes(clean)) {
+      notify(`${clean} is already in your service list.`, true);
+      return;
+    }
+    const next = [...zipList, clean];
+    setZips(next.join(', '));
+    setNewZipInput('');
+    notify(`Added ${clean}`);
+  };
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const edit = (size: number, field: keyof PricingRule, value: number) =>
@@ -246,9 +312,53 @@ export function Settings({
                   required
                   pattern="[a-z0-9]+(-[a-z0-9]+)*"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
                 />
-                <small>/book/{slug}</small>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                  <small>/book/{slug}</small>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const clean = generateCleanSlug(name || 'dumpster-rentals');
+                      setSlug(clean);
+                      notify('Slug updated to clean business name.');
+                    }}
+                    style={{
+                      background: '#f1f5f9',
+                      border: 'none',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      color: '#0f172a',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Clean business name
+                  </button>
+                  {cityQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const clean = generateCleanSlug(name || 'dumpster-rentals', cityQuery);
+                        setSlug(clean);
+                        notify(`Slug updated to include ${cityQuery.split(',')[0]}.`);
+                      }}
+                      style={{
+                        background: '#e0f2fe',
+                        border: 'none',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        color: '#0369a1',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      + Add {cityQuery.split(',')[0]} suffix
+                    </button>
+                  )}
+                </div>
               </label>
               <label className="field">
                 Collected at booking
@@ -522,16 +632,212 @@ export function Settings({
               </div>
             </div>
 
-            <label className="field">
-              Service ZIP / Postal codes
-              <textarea
-                required
-                value={zips}
-                onChange={(e) => setZips(e.target.value)}
-                placeholder="78701, 78702, 78704 or V8W 1W4, V8W 2S8"
-              />
-              <small>Separate US 5-digit ZIP codes or Canadian 6-character postal codes with commas or spaces.</small>
-            </label>
+            {/* City / Service Area Auto-Populate Helper */}
+            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>City / Service Area Auto-Fill</span>
+                {cityFeedback && (
+                  <span style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>{cityFeedback}</span>
+                )}
+              </div>
+              <div style={{ position: 'relative' }}>
+                <Building2 size={14} style={{ position: 'absolute', left: '12px', top: '15px', color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  list="settings-metro-cities-list"
+                  value={cityQuery}
+                  onChange={(e) => handleCitySelect(e.target.value)}
+                  placeholder="Type any US city, town, or 5-digit ZIP code (e.g. Baltimore, Seattle, Austin, Frederick MD, Round Rock TX...)"
+                  style={{ paddingLeft: '34px' }}
+                />
+                <datalist id="settings-metro-cities-list">
+                  {METRO_CITIES.map((c) => (
+                    <option key={`${c.city}-${c.state}`} value={`${c.city}, ${c.state}`} />
+                  ))}
+                </datalist>
+              </div>
+
+              {/* Quick City Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                {['Baltimore', 'Seattle', 'Austin', 'Dallas', 'Houston', 'Denver', 'Phoenix', 'Atlanta', 'Miami', 'Chicago'].map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => handleCitySelect(c)}
+                    style={{
+                      fontSize: '11px',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      border: cityQuery.toLowerCase().includes(c.toLowerCase()) ? '1px solid #166534' : '1px solid #cbd5e1',
+                      background: cityQuery.toLowerCase().includes(c.toLowerCase()) ? '#dcfce7' : '#ffffff',
+                      color: cityQuery.toLowerCase().includes(c.toLowerCase()) ? '#14532d' : '#475569',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+              <small style={{ color: '#64748b', display: 'block', marginTop: '6px' }}>
+                Works for any major metro or small town in North America. Automatically fills all delivery ZIP codes below.
+              </small>
+            </div>
+
+            <div className="field">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontWeight: 600 }}>Active Delivery ZIP / Postal Codes</span>
+                  <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                    {zipList.length} active
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {zipList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllZips}
+                      style={{
+                        background: '#fee2e2',
+                        color: '#b91c1c',
+                        border: 'none',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Clear all ({zipList.length})
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowRawZipText(!showRawZipText)}
+                    style={{
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      border: 'none',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {showRawZipText ? 'View as chips' : 'Paste text list'}
+                  </button>
+                </div>
+              </div>
+
+              {!showRawZipText ? (
+                <div>
+                  {/* Quick Add Single ZIP Input */}
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <MapPin size={13} style={{ position: 'absolute', left: '10px', top: '10px', color: '#94a3b8' }} />
+                      <input
+                        type="text"
+                        value={newZipInput}
+                        onChange={(e) => setNewZipInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddZip();
+                          }
+                        }}
+                        placeholder="Add individual ZIP (e.g. 78704 or V8W 1W4) and press Enter"
+                        style={{ paddingLeft: '30px', fontSize: '12.5px', height: '34px' }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={() => handleAddZip()}
+                      style={{ height: '34px', fontSize: '12px', padding: '0 12px' }}
+                    >
+                      + Add ZIP
+                    </Button>
+                  </div>
+
+                  {/* Interactive ZIP Chips Box */}
+                  <div
+                    style={{
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '8px',
+                      padding: '10px',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '6px',
+                    }}
+                  >
+                    {zipList.length > 0 ? (
+                      zipList.map((zip) => (
+                        <span
+                          key={zip}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#f0fdf4',
+                            border: '1px solid #bbf7d0',
+                            color: '#166534',
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            padding: '3px 8px',
+                            borderRadius: '14px',
+                          }}
+                        >
+                          {zip}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveZip(zip)}
+                            title={`Remove ${zip}`}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#166534',
+                              cursor: 'pointer',
+                              padding: '0 2px',
+                              fontSize: '13px',
+                              lineHeight: 1,
+                              fontWeight: 'bold',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = '#166534')}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))
+                    ) : (
+                      <div style={{ fontSize: '12px', color: '#94a3b8', padding: '10px', textAlign: 'center', width: '100%' }}>
+                        No delivery ZIP codes added. Use the auto-fill search above or add ZIP codes to service customers.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <textarea
+                    required
+                    value={zips}
+                    onChange={(e) => setZips(e.target.value)}
+                    placeholder="78701, 78702, 78704 or V8W 1W4, V8W 2S8"
+                    rows={4}
+                    style={{ fontSize: '12.5px', width: '100%', boxSizing: 'border-box' }}
+                  />
+                  <small style={{ color: '#64748b' }}>Separate ZIP codes with commas or spaces.</small>
+                </div>
+              )}
+
+              <small style={{ color: '#64748b', display: 'block', marginTop: '4px' }}>
+                Click the <strong>×</strong> on any ZIP you don't travel to, or click <strong>Clear all</strong> to start fresh.
+              </small>
+            </div>
             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--line, #e2e8f0)' }}>
               <div
                 style={{

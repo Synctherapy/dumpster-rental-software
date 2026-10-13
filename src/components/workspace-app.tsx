@@ -106,9 +106,10 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         setData(d);
         try {
           const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-          const isExplicitOnboarding = params?.get('onboarding') === 'true';
+          const isExplicitOnboarding =
+            params?.get('onboarding') === 'true' || params?.get('setup') === 'true';
           const isCompleted = localStorage.getItem(`onboarding_completed_${d.organization.id}`);
-          if (isExplicitOnboarding || (!isCompleted && !d.demo)) {
+          if (isExplicitOnboarding || !isCompleted) {
             setOnboardingWizardStep(1);
             setOnboardingWizardOpen(true);
           }
@@ -502,13 +503,13 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     <Button
                       variant="primary"
                       onClick={() => {
-                        setOnboardingWizardStep(3);
+                        setOnboardingWizardStep(1);
                         setOnboardingWizardOpen(true);
                       }}
                       style={{ background: '#166534', color: '#ffffff', fontWeight: 600 }}
                     >
                       <Rocket size={13} />
-                      First-Client Launchpad
+                      Setup Wizard & Launchpad
                     </Button>
                   )}
                   <Button asChild>

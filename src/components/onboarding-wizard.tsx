@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   ArrowLeft,
   ArrowRight,
+  Building2,
   Check,
   CheckCircle2,
   Copy,
@@ -14,8 +15,10 @@ import {
   MapPin,
   MessageSquare,
   Phone,
+  Plus,
   Rocket,
   Sparkles,
+  Trash2,
   Truck,
   Zap,
 } from 'lucide-react';
@@ -23,6 +26,7 @@ import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
 import type { Workspace, PricingRule } from '@/lib/types';
+import { METRO_CITIES, findCityData, generateCleanSlug, resolveCityZips } from '@/lib/city-zips';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -45,17 +49,50 @@ export function OnboardingWizard({
   const [busy, setBusy] = useState(false);
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
-  // Step 1: Business & Service Area
+  // Step 1: Business, City & Service Area
   const [name, setName] = useState(data.organization.name);
-  const [slug, setSlug] = useState(data.organization.slug);
+  const [city, setCity] = useState('');
+  const [cityFeedback, setCityFeedback] = useState<string | null>(null);
+  const [slug, setSlug] = useState(
+    data.organization.slug || generateCleanSlug(data.organization.name)
+  );
   const [phone, setPhone] = useState(data.organization.phone || '');
   const [zips, setZips] = useState(
     data.pricing_rules[0]?.service_zips?.length
       ? data.pricing_rules[0].service_zips.join(', ')
-      : '78701, 78702, 78704, 78745'
+      : ''
   );
+  const [newZipInput, setNewZipInput] = useState('');
+  const [showRawZipText, setShowRawZipText] = useState(false);
 
-  // Step 2: Pricing rules
+  const zipList = zips.split(/[\s,]+/).filter(Boolean);
+
+  const handleRemoveZip = (zipToRemove: string) => {
+    const next = zipList.filter((z) => z !== zipToRemove);
+    setZips(next.join(', '));
+    notify(`Removed ${zipToRemove}`);
+  };
+
+  const handleClearAllZips = () => {
+    setZips('');
+    notify('Cleared all service ZIP codes.');
+  };
+
+  const handleAddZip = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = newZipInput.trim().toUpperCase();
+    if (!clean) return;
+    if (zipList.includes(clean)) {
+      notify(`${clean} is already in your service list.`, true);
+      return;
+    }
+    const next = [...zipList, clean];
+    setZips(next.join(', '));
+    setNewZipInput('');
+    notify(`Added ${clean}`);
+  };
+
+  // Step 2: Pricing rules & Custom Dumpster Sizes
   const [rules, setRules] = useState<PricingRule[]>(
     data.pricing_rules.length
       ? data.pricing_rules
@@ -96,6 +133,13 @@ export function OnboardingWizard({
         ]
   );
 
+  // Custom Dumpster Size form toggle & inputs
+  const [showAddCustom, setShowAddCustom] = useState(false);
+  const [customYards, setCustomYards] = useState(12);
+  const [customPriceDollars, setCustomPriceDollars] = useState(365);
+  const [customDays, setCustomDays] = useState(7);
+  const [customTons, setCustomTons] = useState(2);
+
   const [activeSocialTab, setActiveSocialTab] = useState<'facebook' | 'instagram' | 'google' | 'embed' | 'sms'>('facebook');
 
   const bookingUrl =
@@ -122,11 +166,50 @@ export function OnboardingWizard({
     }
   };
 
+  const handleCitySelect = async (cityName: string) => {
+    setCity(cityName);
+    const trimmed = cityName.trim();
+    if (!trimmed) {
+      setCityFeedback(null);
+      return;
+    }
+
+    // 1. Instant match in curated metros
+    const metro = findCityData(trimmed);
+    if (metro) {
+      setZips(metro.zips.join(', '));
+      setCityFeedback(`✓ Auto-populated ${metro.zips.length} ZIP codes for ${metro.city}, ${metro.state}`);
+      notify(`Loaded ${metro.zips.length} ZIP codes for ${metro.city}!`);
+      return;
+    }
+
+    // 2. Dynamic lookup for non-major cities, small towns, or zip codes
+    if (trimmed.length >= 2) {
+      setCityFeedback('Searching postal directory...');
+      const resolved = await resolveCityZips(trimmed);
+      if (resolved && resolved.zips.length) {
+        setZips(resolved.zips.join(', '));
+        setCityFeedback(`✓ Found ${resolved.zips.length} ZIP codes for ${resolved.city}${resolved.state ? `, ${resolved.state}` : ''}`);
+        notify(`Loaded ${resolved.zips.length} ZIP codes for ${resolved.city}!`);
+      } else {
+        setCityFeedback('Custom service area. Type your delivery ZIPs below.');
+      }
+    } else {
+      setCityFeedback(null);
+    }
+  };
+
+  const handleApplyCleanSlug = (includeCity = false) => {
+    const clean = generateCleanSlug(name || 'dumpsters', includeCity ? city : undefined);
+    setSlug(clean);
+    notify(includeCity ? `Updated booking link to include ${city}.` : 'Updated booking link to clean business name.');
+  };
+
   const updateRulePrice = (size_yards: number, basePriceDollars: number) => {
     setRules((prev) =>
       prev.map((r) =>
         r.size_yards === size_yards
-          ? { ...r, base_price_cents: Math.round(basePriceDollars * 100) }
+          ? { ...r, base_price_cents: Math.max(100, Math.round(basePriceDollars * 100)) }
           : r
       )
     );
@@ -134,17 +217,28 @@ export function OnboardingWizard({
 
   const updateRuleDays = (size_yards: number, days: number) => {
     setRules((prev) =>
-      prev.map((r) => (r.size_yards === size_yards ? { ...r, included_days: days } : r))
+      prev.map((r) => (r.size_yards === size_yards ? { ...r, included_days: Math.max(1, days) } : r))
     );
+  };
+
+  const updateRuleTons = (size_yards: number, tons: number) => {
+    setRules((prev) =>
+      prev.map((r) => (r.size_yards === size_yards ? { ...r, included_tons: Math.max(0, tons) } : r))
+    );
+  };
+
+  const removeRule = (size_yards: number) => {
+    if (rules.length <= 1) {
+      notify('You must keep at least 1 dumpster size active.', true);
+      return;
+    }
+    setRules((prev) => prev.filter((r) => r.size_yards !== size_yards));
+    notify(`Removed ${size_yards} yard dumpster.`);
   };
 
   const toggleSize = (size_yards: number) => {
     if (rules.some((r) => r.size_yards === size_yards)) {
-      if (rules.length <= 1) {
-        notify('You must keep at least 1 dumpster size active.', true);
-        return;
-      }
-      setRules((prev) => prev.filter((r) => r.size_yards !== size_yards));
+      removeRule(size_yards);
     } else {
       const defaultPrice = size_yards <= 10 ? 34500 : size_yards <= 15 ? 39500 : size_yards <= 20 ? 44500 : 54500;
       setRules((prev) => [
@@ -161,7 +255,38 @@ export function OnboardingWizard({
           service_zips: zips.split(/[\s,]+/).filter(Boolean),
         },
       ].sort((a, b) => a.size_yards - b.size_yards));
+      notify(`Added ${size_yards} yard dumpster.`);
     }
+  };
+
+  const handleAddCustomSize = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customYards < 1 || customYards > 100) {
+      notify('Size must be between 1 and 100 yards.', true);
+      return;
+    }
+    if (rules.some((r) => r.size_yards === customYards)) {
+      notify(`A ${customYards} yard dumpster is already in your pricing rules.`, true);
+      return;
+    }
+    if (rules.length >= 12) {
+      notify('Maximum of 12 dumpster sizes allowed.', true);
+      return;
+    }
+    const newRule: PricingRule = {
+      id: `rule-${customYards}`,
+      org_id: data.organization.id,
+      size_yards: customYards,
+      base_price_cents: Math.round(customPriceDollars * 100),
+      included_days: customDays,
+      extra_day_cents: 2000,
+      included_tons: customTons,
+      overage_per_ton_cents: 8500,
+      service_zips: zips.split(/[\s,]+/).filter(Boolean),
+    };
+    setRules((prev) => [...prev, newRule].sort((a, b) => a.size_yards - b.size_yards));
+    setShowAddCustom(false);
+    notify(`Added custom ${customYards} yard dumpster ($${customPriceDollars})!`);
   };
 
   const handleSaveStep1 = (e: React.FormEvent) => {
@@ -294,10 +419,66 @@ export function OnboardingWizard({
                     type="text"
                     required
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (!slug || slug === 'dumpster-rentals' || slug.includes(name.toLowerCase().replace(/[^a-z0-9]/g, '-'))) {
+                        setSlug(generateCleanSlug(e.target.value, city || undefined));
+                      }
+                    }}
                     placeholder="e.g. Alamo Roll-Offs"
                   />
                 </label>
+
+                {/* City or ZIP Lookup with instant auto-population */}
+                <div className="field">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600 }}>Service Area Lookup (City or ZIP)</span>
+                    {cityFeedback && (
+                      <span style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>{cityFeedback}</span>
+                    )}
+                  </div>
+                  <div style={{ position: 'relative' }}>
+                    <Building2 size={14} style={{ position: 'absolute', left: '12px', top: '15px', color: '#94a3b8' }} />
+                    <input
+                      type="text"
+                      list="metro-cities-list"
+                      value={city}
+                      onChange={(e) => handleCitySelect(e.target.value)}
+                      placeholder="Type your ZIP (e.g. 78704) or city (e.g. Austin, Texas, Baltimore...)"
+                      style={{ paddingLeft: '34px' }}
+                    />
+                    <datalist id="metro-cities-list">
+                      {METRO_CITIES.map((c) => (
+                        <option key={`${c.city}-${c.state}`} value={`${c.city}, ${c.state}`} />
+                      ))}
+                    </datalist>
+                  </div>
+                  {/* Quick City Chips */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                    {['Baltimore', 'Seattle', 'Austin', 'Dallas', 'Houston', 'Denver', 'Phoenix', 'Atlanta', 'Miami', 'Chicago'].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => handleCitySelect(c)}
+                        style={{
+                          fontSize: '11px',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          border: city.toLowerCase().includes(c.toLowerCase()) ? '1px solid #166534' : '1px solid #e2e8f0',
+                          background: city.toLowerCase().includes(c.toLowerCase()) ? '#dcfce7' : '#ffffff',
+                          color: city.toLowerCase().includes(c.toLowerCase()) ? '#14532d' : '#475569',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                  <small style={{ color: '#64748b' }}>
+                    Enter any ZIP code or city to auto-load all local delivery ZIPs as removable chips.
+                  </small>
+                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <label className="field">
@@ -330,28 +511,200 @@ export function OnboardingWizard({
                         style={{ paddingLeft: '34px' }}
                       />
                     </div>
-                    <small>/book/{slug}</small>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>/book/{slug}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyCleanSlug(false)}
+                        style={{
+                          background: '#f1f5f9',
+                          border: 'none',
+                          padding: '2px 7px',
+                          borderRadius: '4px',
+                          fontSize: '10.5px',
+                          color: '#0f172a',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Clean business name
+                      </button>
+                      {city && (
+                        <button
+                          type="button"
+                          onClick={() => handleApplyCleanSlug(true)}
+                          style={{
+                            background: '#e0f2fe',
+                            border: 'none',
+                            padding: '2px 7px',
+                            borderRadius: '4px',
+                            fontSize: '10.5px',
+                            color: '#0369a1',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          + Add {city.split(',')[0]} suffix
+                        </button>
+                      )}
+                    </div>
                   </label>
                 </div>
 
-                <label className="field">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>Service ZIP Codes</span>
-                    <span style={{ fontSize: '11px', color: '#166534', fontWeight: 600 }}>Comma-separated</span>
+                <div className="field">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontWeight: 600 }}>Service ZIP Codes</span>
+                      <span style={{ fontSize: '11px', background: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                        {zipList.length} active
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {zipList.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearAllZips}
+                          style={{
+                            background: '#fee2e2',
+                            color: '#b91c1c',
+                            border: 'none',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Clear all ({zipList.length})
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowRawZipText(!showRawZipText)}
+                        style={{
+                          background: '#f1f5f9',
+                          color: '#475569',
+                          border: 'none',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {showRawZipText ? 'View as chips' : 'Paste text list'}
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ position: 'relative' }}>
-                    <MapPin size={14} style={{ position: 'absolute', left: '12px', top: '15px', color: '#94a3b8' }} />
-                    <input
-                      type="text"
-                      required
-                      value={zips}
-                      onChange={(e) => setZips(e.target.value)}
-                      placeholder="78701, 78702, 78704, 78745"
-                      style={{ paddingLeft: '34px' }}
-                    />
-                  </div>
-                  <small>Homeowners entering these ZIPs will be able to book instantly. You can add more later.</small>
-                </label>
+
+                  {!showRawZipText ? (
+                    <div>
+                      {/* Quick Add Single ZIP Input */}
+                      <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                          <MapPin size={13} style={{ position: 'absolute', left: '10px', top: '10px', color: '#94a3b8' }} />
+                          <input
+                            type="text"
+                            value={newZipInput}
+                            onChange={(e) => setNewZipInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddZip();
+                              }
+                            }}
+                            placeholder="Add individual ZIP (e.g. 21201) and press Enter"
+                            style={{ paddingLeft: '30px', fontSize: '12.5px', height: '34px' }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="default"
+                          onClick={() => handleAddZip()}
+                          style={{ height: '34px', fontSize: '12px', padding: '0 12px' }}
+                        >
+                          + Add ZIP
+                        </Button>
+                      </div>
+
+                      {/* Interactive ZIP Chips Box */}
+                      <div
+                        style={{
+                          maxHeight: '130px',
+                          overflowY: 'auto',
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          padding: '8px',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                        }}
+                      >
+                        {zipList.length > 0 ? (
+                          zipList.map((zip) => (
+                            <span
+                              key={zip}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                background: '#f0fdf4',
+                                border: '1px solid #bbf7d0',
+                                color: '#166534',
+                                fontSize: '11.5px',
+                                fontWeight: 600,
+                                padding: '3px 8px',
+                                borderRadius: '14px',
+                              }}
+                            >
+                              {zip}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveZip(zip)}
+                                title={`Remove ${zip}`}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#166534',
+                                  cursor: 'pointer',
+                                  padding: '0 2px',
+                                  fontSize: '13px',
+                                  lineHeight: 1,
+                                  fontWeight: 'bold',
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.color = '#dc2626')}
+                                onMouseLeave={(e) => (e.currentTarget.style.color = '#166534')}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))
+                        ) : (
+                          <div style={{ fontSize: '12px', color: '#94a3b8', padding: '10px', textAlign: 'center', width: '100%' }}>
+                            No service ZIP codes added. Pick your city above or type a ZIP code to begin.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <textarea
+                        required
+                        value={zips}
+                        onChange={(e) => setZips(e.target.value)}
+                        placeholder="78701, 78702, 78704, 78745"
+                        rows={3}
+                        style={{ fontSize: '12.5px', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <small style={{ color: '#64748b' }}>Separate ZIP codes with commas or spaces.</small>
+                    </div>
+                  )}
+
+                  <small style={{ color: '#64748b', display: 'block', marginTop: '4px' }}>
+                    Click the <strong>×</strong> on any ZIP you don't travel to, or click <strong>Clear all</strong> to start fresh.
+                  </small>
+                </div>
               </div>
             </div>
 
@@ -370,12 +723,23 @@ export function OnboardingWizard({
         {step === 2 && (
           <div className="form-stack">
             <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Active Dumpster Sizes</span>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>Click size to enable/disable</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                <div>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Active Dumpster Sizes</span>
+                  <span style={{ fontSize: '11px', color: '#64748b', marginLeft: '8px' }}>Click size to toggle</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => setShowAddCustom(!showAddCustom)}
+                  style={{ fontSize: '12px', padding: '4px 10px', height: '30px' }}
+                >
+                  <Plus size={13} />
+                  + Add Custom Size
+                </Button>
               </div>
 
-              {/* Quick Size Toggle Pills */}
+              {/* Quick Size Toggle Pills (Standards + Custom Active) */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
                 {[10, 15, 20, 30, 40].map((size) => {
                   const isActive = rules.some((r) => r.size_yards === size);
@@ -403,7 +767,113 @@ export function OnboardingWizard({
                     </button>
                   );
                 })}
+
+                {/* Custom sizes not in the 10,15,20,30,40 presets */}
+                {rules
+                  .filter((r) => ![10, 15, 20, 30, 40].includes(r.size_yards))
+                  .map((r) => (
+                    <button
+                      key={r.size_yards}
+                      type="button"
+                      onClick={() => removeRule(r.size_yards)}
+                      title="Click to remove custom size"
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        border: '2px solid #2563eb',
+                        background: '#eff6ff',
+                        color: '#1d4ed8',
+                        fontWeight: 700,
+                        fontSize: '12.5px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Check size={13} />
+                      {r.size_yards} Yard (Custom) ×
+                    </button>
+                  ))}
               </div>
+
+              {/* Expandable Custom Size Creator */}
+              {showAddCustom && (
+                <form
+                  onSubmit={handleAddCustomSize}
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px dashed #3b82f6',
+                    borderRadius: '8px',
+                    padding: '14px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <strong style={{ fontSize: '13px', color: '#1e40af' }}>+ Add Custom Container Size</strong>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>e.g. 12 yard, 14 yard, 16 yard, 25 yard</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+                    <label style={{ fontSize: '12px', color: '#475569' }}>
+                      Size (Yards)
+                      <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        required
+                        value={customYards}
+                        onChange={(e) => setCustomYards(Number(e.target.value))}
+                        style={{ padding: '6px', fontSize: '13px', marginTop: '4px' }}
+                      />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#475569' }}>
+                      Price ($)
+                      <input
+                        type="number"
+                        min={50}
+                        max={5000}
+                        required
+                        value={customPriceDollars}
+                        onChange={(e) => setCustomPriceDollars(Number(e.target.value))}
+                        style={{ padding: '6px', fontSize: '13px', marginTop: '4px' }}
+                      />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#475569' }}>
+                      Rental Days
+                      <input
+                        type="number"
+                        min={1}
+                        max={60}
+                        required
+                        value={customDays}
+                        onChange={(e) => setCustomDays(Number(e.target.value))}
+                        style={{ padding: '6px', fontSize: '13px', marginTop: '4px' }}
+                      />
+                    </label>
+                    <label style={{ fontSize: '12px', color: '#475569' }}>
+                      Included Tons
+                      <input
+                        type="number"
+                        min={0}
+                        max={20}
+                        step={0.5}
+                        required
+                        value={customTons}
+                        onChange={(e) => setCustomTons(Number(e.target.value))}
+                        style={{ padding: '6px', fontSize: '13px', marginTop: '4px' }}
+                      />
+                    </label>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <Button type="button" variant="ghost" onClick={() => setShowAddCustom(false)} style={{ fontSize: '12px' }}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="primary" style={{ background: '#2563eb', color: '#fff', fontSize: '12px' }}>
+                      Add Size to Pricing
+                    </Button>
+                  </div>
+                </form>
+              )}
 
               {/* Pricing Cards Grid */}
               <div style={{ display: 'grid', gap: '10px' }}>
@@ -477,6 +947,26 @@ export function OnboardingWizard({
                           />
                         </div>
                       </label>
+
+                      <button
+                        type="button"
+                        onClick={() => removeRule(rule.size_yards)}
+                        title="Remove size"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
+                          padding: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          borderRadius: '6px',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                      >
+                        <Trash2 size={15} />
+                      </button>
                     </div>
                   </div>
                 ))}
