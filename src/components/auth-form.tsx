@@ -192,7 +192,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
               {process.env.NODE_ENV !== 'production' && (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   disabled={busy}
                   onClick={async () => {
                     setBusy(true);
