@@ -318,6 +318,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   </div>
                 </div>
                 <div style={{ fontSize: '11.5px', color: '#475569', display: 'grid', gap: '5px', marginTop: '10px' }}>
+                  <div style={{ fontWeight: 700, color: '#166534', fontSize: '11.5px', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Sparkles size={13} color="#166534" /> Everything in Free, plus:
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Check size={13} color="#ea580c" /> <strong>Commercial Contractor Accounts (Roofers/Builders)</strong>
                   </div>

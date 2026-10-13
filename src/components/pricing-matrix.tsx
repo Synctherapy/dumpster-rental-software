@@ -221,7 +221,7 @@ export function PricingMatrix() {
                 <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $29<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
-                <p className="text-[11px] text-[#64748b] mb-3">Roofers/contractor add-on & offline payments ($0 fee)</p>
+                <p className="text-[11px] text-[#64748b] mb-3">Everything in Free, plus contractor accounts & $0 offline fee</p>
                 <Link
                   href="/signup"
                   className="btn btn-dark text-xs py-2 w-full justify-center"
