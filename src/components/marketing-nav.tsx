@@ -152,6 +152,21 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
     setMobileMenuOpen(false);
   }
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -223,7 +238,7 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
   };
 
   return (
-    <header className="marketing-nav-header">
+    <header className={`marketing-nav-header ${isScrolled ? 'scrolled' : ''}`}>
       <nav ref={navRef} className="marketing-nav" aria-label="Main Navigation">
         {/* Brand Logo */}
         <Brand />

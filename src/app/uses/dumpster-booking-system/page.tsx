@@ -5,9 +5,12 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Online Booking for Dumpster Rentals',
+  title: 'Dumpster Rental Online Booking System | RollOS',
   description:
     'Add a dumpster booking link or embed to your existing website. ZIP check, dates, deposit, and the $12 free-plan reservation fee shown at checkout.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/uses/dumpster-booking-system',
+  },
 };
 
 export default function BookingSystemPage() {
@@ -73,7 +76,7 @@ export default function BookingSystemPage() {
             RollOS is dumpster rental software: booking, dispatch, driver links, and billing. Free to start.
           </p>
           <Link href="/" className="inline-flex items-center gap-2 font-bold text-sm text-[#ea580c] hover:underline">
-            Explore the complete roll off dumpster software platform <ArrowRight size={14} />
+            Explore the complete dumpster rental software platform <ArrowRight size={14} />
           </Link>
         </div>
       </div>

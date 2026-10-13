@@ -8,6 +8,9 @@ export const metadata = {
   title: 'RollOS vs ServiceCore (2026 Comparison) — Dumpster Software Review',
   description:
     'Compare RollOS vs ServiceCore for dumpster rentals. Why pay per-truck fees for bloated septic software? RollOS offers dedicated roll-off tools from $0/month.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/vs/servicecore',
+  },
 };
 
 export default function ServiceCoreComparisonPage() {

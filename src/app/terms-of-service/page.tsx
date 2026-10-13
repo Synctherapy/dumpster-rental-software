@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { Brand } from '@/components/brand';
 
 export const metadata = {
-  title: 'Terms of Service',
+  title: 'Terms of Service | RollOS Dumpster Rental Software',
   description: 'The software subscription terms between RollOS and a hauler.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/terms-of-service',
+  },
 };
 
 export default function SaasTerms() {

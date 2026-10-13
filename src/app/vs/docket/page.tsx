@@ -8,6 +8,9 @@ export const metadata = {
   title: 'RollOS vs Docket Dumpster Software (2026 In-Depth Review) — Pricing & Features',
   description:
     'Comprehensive comparison of RollOS vs Docket dumpster software. Compare hidden pricing vs $0/mo Free / $29 Starter, driver SMS links vs App Store apps, and online booking.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/vs/docket',
+  },
 };
 
 export default function DocketComparisonPage() {

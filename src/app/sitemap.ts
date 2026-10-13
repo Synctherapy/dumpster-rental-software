@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const origin = 'https://rolloffdumpstersoftware.com';
+const origin = process.env.APP_URL || 'https://rolloffdumpstersoftware.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [
@@ -17,17 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/templates/dumpster-rental-contract',
     '/templates/dumpster-invoice',
     '/compare',
-    '/vs',
     '/vs/docket',
     '/vs/dumpster-rental-systems',
     '/vs/servicecore',
     '/pricing',
-    '/calculator',
     '/uses/dumpster-booking-system',
     '/uses/roll-off-dispatch-software',
     '/privacy',
     '/terms-of-service',
-    '/terms',
   ];
   return paths.map((path) => ({
     url: `${origin}${path}`,

@@ -9,6 +9,9 @@ export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
   description:
     'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for cash/check & calendar sync, or $149/mo Growth.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/pricing',
+  },
 };
 
 export default function PricingPage() {

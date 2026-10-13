@@ -5,21 +5,17 @@ import Link from 'next/link';
 import {
   Globe,
   Truck,
-  Smartphone,
   Play,
   Pause,
   ArrowRight,
   CheckCircle2,
   MapPin,
   Calendar,
-  CreditCard,
   Navigation,
   Camera,
   Check,
-  Clock,
   Sparkles,
   ChevronRight,
-  Layers,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';
 
@@ -65,17 +61,20 @@ export function WorkflowVisualizer() {
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [progress, setProgress] = useState<number>(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
 
   // Step Auto-cycle logic with smooth progress bar
   useEffect(() => {
     if (!isPlaying) {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
       return;
     }
 
-    startTimeRef.current = Date.now();
-    setProgress(0);
+    const start = Date.now();
+    startTimeRef.current = start;
 
     const interval = 50; // update progress every 50ms
     timerRef.current = setInterval(() => {
@@ -91,14 +90,16 @@ export function WorkflowVisualizer() {
     }, interval);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [isPlaying, activeStep]);
 
   const handleStepClick = (stepId: number) => {
     setActiveStep(stepId);
     setProgress(0);
-    startTimeRef.current = Date.now();
   };
 
   const togglePlayPause = () => {

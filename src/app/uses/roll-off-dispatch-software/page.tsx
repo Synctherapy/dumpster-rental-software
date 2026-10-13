@@ -5,9 +5,12 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Roll-Off Dispatch Board',
+  title: 'Roll-Off Dumpster Dispatch Software & Board | RollOS',
   description:
     'Dispatch deliveries, swaps, and pickups for a roll-off fleet. Assign a container and a driver, then send a phone link for navigation and a delivery photo.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/uses/roll-off-dispatch-software',
+  },
 };
 
 export default function DispatchSoftwarePage() {
@@ -73,7 +76,7 @@ export default function DispatchSoftwarePage() {
             Connect your dispatch board to customer self-service booking, container tracking, and scale tonnage billing.
           </p>
           <Link href="/" className="inline-flex items-center gap-2 font-bold text-sm text-[#ea580c] hover:underline">
-            Return to the all-in-one roll off dumpster software platform <ArrowRight size={14} />
+            Return to the complete dumpster rental software platform <ArrowRight size={14} />
           </Link>
         </div>
       </div>

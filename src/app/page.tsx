@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import {
   ArrowRight,
-  Check,
   CheckCircle2,
   Globe,
   HelpCircle,
@@ -9,7 +8,6 @@ import {
   ShieldCheck,
   Truck,
   Sparkles,
-  Calculator,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
@@ -20,12 +18,14 @@ import { Footer } from '@/components/footer';
 import { SoftwareApplicationSchema, FAQPageSchema } from '@/components/schema-org';
 import { WorkflowVisualizer } from '@/components/workflow-visualizer';
 import { CheckoutReceiptPreview } from '@/components/checkout-receipt-preview';
-import { MobileStickyCta } from '@/components/mobile-sticky-cta';
 
 export const metadata = {
-  title: 'Roll Off Dumpster Software — Free Online Booking & Dispatch',
+  title: 'Dumpster Rental Software — Free Online Booking & Dispatch | RollOS',
   description:
-    'Book dumpster jobs and collect payments while you sleep with free roll off dumpster software. 24/7 online booking widget, visual dispatch board, and SMS driver links. $0/mo free plan.',
+    'Dumpster rental software that books jobs and collects payments while you sleep. Free 24/7 online booking widget, visual dispatch board, and SMS driver routes. $0/mo free plan.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com',
+  },
 };
 
 export default function Home() {
@@ -76,11 +76,10 @@ export default function Home() {
             <span className="dot" /> Built for Independent Haulers · 24/7 Booking Engine
           </div>
           <h1>
-            Roll off dumpster software that books jobs and collects payments <em>while you sleep.</em>
+            Dumpster rental software that books jobs and collects payments <em>while you sleep.</em>
           </h1>
-          <p style={{ fontSize: 16, lineHeight: 1.7, color: '#4a5d4e' }}>
-            Stop losing $450 jobs to voicemail. Over 40% of dumpster searches happen after 7 PM—if you don’t have online booking, homeowners hire the next hauler on Google. RollOS gives independent haulers
-            free <strong>roll off dumpster software</strong> with an embeddable 24/7 booking widget, visual drag-and-drop dispatching, and 1-tap SMS driver routes with zero app downloads. No website? Put your custom link (rollos.com/book/yourcompany) directly on your Google Business Profile &amp; Facebook. Already have a website? Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy. Setup takes 3 minutes, customers pay upfront, and you keep 100% of your rental money.
+          <p style={{ fontSize: 16.5, lineHeight: 1.65, color: '#4a5d4e' }}>
+            Stop losing $450 jobs to voicemail. Over 40% of dumpster searches happen after 7 PM—if you don’t have online booking, homeowners hire the next hauler on Google. RollOS gives independent haulers free <strong>dumpster rental software</strong> with 24/7 online customer booking, visual drag-and-drop dispatching, and 1-tap SMS driver routes with zero app downloads.
           </p>
           <div className="hero-actions">
             <Link href="/signup" className="btn btn-orange">
@@ -90,6 +89,59 @@ export default function Home() {
               Open Live Dispatch Board
             </Link>
           </div>
+
+          {/* Edward Sturm Above-The-Fold Trust Bar */}
+          <div
+            style={{
+              marginTop: 18,
+              padding: '10px 14px',
+              background: '#f4f7f1',
+              border: '1px solid #dde4d4',
+              borderRadius: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              flexWrap: 'wrap',
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: '#223326',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ShieldCheck size={16} color="#628f34" />
+              <span>Stripe Connect Verified Partner</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CheckCircle2 size={16} color="#628f34" />
+              <span>0% Hauler Commission</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CheckCircle2 size={16} color="#628f34" />
+              <span>Zero Driver App Downloads</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CheckCircle2 size={16} color="#628f34" />
+              <span>3-Minute Setup</span>
+            </div>
+          </div>
+
+          {/* $12 Booking Fee Objection-Killer Micro-Copy */}
+          <div
+            style={{
+              marginTop: 12,
+              padding: '10px 14px',
+              background: '#ffffff',
+              border: '1px dashed #c9dec2',
+              borderRadius: 10,
+              fontSize: 13,
+              lineHeight: 1.55,
+              color: '#556658',
+            }}
+          >
+            <strong style={{ color: '#1f2d26' }}>How does the $0/mo free plan work?</strong> Just like Airbnb or DoorDash reservation fees, your customer pays a standard $12 delivery lock fee at checkout to guarantee their container. You pay $0/mo in software fees, 0% commission, and keep 100% of your rental money.
+          </div>
+
           <div
             style={{
               marginTop: 14,
@@ -220,8 +272,11 @@ export default function Home() {
             <h3 className="text-lg font-bold text-[#1f2d26] mb-2">
               Embed Widget or Share Direct Link
             </h3>
+            <p className="text-sm text-[#475569] leading-relaxed mb-2.5">
+              <strong>No website?</strong> Put your custom link (<code className="text-xs bg-[#f4f7f2] px-1.5 py-0.5 rounded text-[#223326] font-semibold">rollos.com/book/yourcompany</code>) directly on your Google Business Profile &amp; Facebook.
+            </p>
             <p className="text-sm text-[#475569] leading-relaxed">
-              No website? Put your custom link (rollos.com/book/yourcompany) directly on your Google Business Profile &amp; Facebook. Already have a website? Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy.
+              <strong>Already have a website?</strong> Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy. Setup takes 3 minutes, customers pay upfront, and you keep 100% of your rental money.
             </p>
           </div>
 
@@ -535,9 +590,6 @@ export default function Home() {
 
       {/* 11. Bottom Colony Pillar & Reverse Silo Navigation (Kyle Roof Architecture) */}
       <Footer />
-
-      {/* Mobile Sticky CTA Bar */}
-      <MobileStickyCta />
     </main>
   );
 }

@@ -8,6 +8,9 @@ export const metadata = {
   title: 'RollOS vs Dumpster Rental Systems (DRS Review 2026) — Pricing & Features',
   description:
     'Compare RollOS vs Dumpster Rental Systems (DRS). Why pay $195–$280/mo with 20-can limits? RollOS gives you unlimited cans, $0/mo free plan, and SMS driver links.',
+  alternates: {
+    canonical: 'https://rolloffdumpstersoftware.com/vs/dumpster-rental-systems',
+  },
 };
 
 export default function DRSComparisonPage() {

@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Globe,
   Loader2,
-  Lock,
   Plus,
   Save,
   Trash2,
@@ -35,9 +34,6 @@ export function Settings({
   const [phone, setPhone] = useState(data.organization.phone);
   const [currency, setCurrency] = useState(
     data.organization.currency || data.organization.pricing_config?.currency || 'usd',
-  );
-  const [customerFeeEnabled, setCustomerFeeEnabled] = useState(
-    data.organization.pricing_config?.customer_fee_enabled !== false,
   );
   const [googleReviewUrl, setGoogleReviewUrl] = useState(
     data.organization.google_review_url || data.organization.pricing_config?.google_review_url || '',
@@ -143,7 +139,7 @@ export function Settings({
           phone,
           currency,
           deposit_percent: 100,
-          customer_fee_enabled: customerFeeEnabled,
+          customer_fee_enabled: true,
           google_review_url: googleReviewUrl,
           min_notice_hours: minNoticeHours,
           prohibited_items: prohibitedItems,
@@ -259,40 +255,6 @@ export function Settings({
                 <input type="number" value={100} readOnly />
                 <small>The full base rental is collected. Extra days and tonnage are billed after pickup.</small>
               </label>
-            </div>
-            <div
-              style={{
-                padding: '14px 16px',
-                borderRadius: '8px',
-                border: '1px solid var(--border, #e2e8f0)',
-                background: 'var(--panel, #fff)',
-                marginBottom: '16px',
-              }}
-            >
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: data.organization.subscription_status === 'active' ? 'pointer' : 'not-allowed', fontWeight: 600, fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  checked={customerFeeEnabled}
-                  disabled={data.organization.subscription_status !== 'active'}
-                  onChange={(e) => {
-                    if (data.organization.subscription_status !== 'active' && !e.target.checked) {
-                      notify('Upgrading to a Starter ($29/mo) or Growth ($149/mo) plan is required to disable this fee.', true);
-                      return;
-                    }
-                    setCustomerFeeEnabled(e.target.checked);
-                  }}
-                />
-                Pass $12 Online Reservation Fee to customer at checkout
-                {data.organization.subscription_status !== 'active' && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', background: '#fef3c7', color: '#b45309', padding: '3px 8px', borderRadius: '12px', fontWeight: 600, border: '1px solid #fde68a' }}>
-                    <Lock size={12} />
-                    Paid Plan Required to Disable
-                  </span>
-                )}
-              </label>
-              <p style={{ margin: '6px 0 0 24px', fontSize: '13px', color: 'var(--muted, #666)', lineHeight: 1.5 }}>
-                Every plan includes the standard $12 reservation fee, paid by the customer at online checkout. Starter ($29/mo) and Fleet ($149/mo) add operational tools like cash/check logging and multi-truck dispatch—they do not remove the fee. (Phone jobs have $0 platform fee).
-              </p>
             </div>
             <div className="form-row">
               <label className="field">
