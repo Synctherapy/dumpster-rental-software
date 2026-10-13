@@ -108,10 +108,11 @@ export function PricingMatrix() {
       category: 'Contractor & Fleet Operations',
       features: [
         {
-          name: 'Offline Cash & Check Order Recording',
+          name: 'Commercial Contractor Accounts (Roofers/Builders) & $0 Offline Orders (Cash, Check, Net-30)',
           free: false,
-          starter: true,
-          growth: true,
+          starter: 'Unlimited ($0 fees)',
+          growth: 'Unlimited ($0 fees)',
+          highlight: true,
         },
         {
           name: '2-Way Google Calendar & Apple iCal Sync Feed',
@@ -213,19 +214,19 @@ export function PricingMatrix() {
                 </Link>
               </th>
               <th className="p-5 text-center border-r border-[#dde4d4]">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Contractors
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">
+                  14-Day Free Trial
                 </div>
                 <div className="text-lg font-extrabold text-[#1f2d26]">Starter Plan</div>
                 <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $29<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
-                <p className="text-[11px] text-[#64748b] mb-3">Cash/check & calendar sync</p>
+                <p className="text-[11px] text-[#64748b] mb-3">Roofers/contractor add-on & offline payments ($0 fee)</p>
                 <Link
                   href="/signup"
                   className="btn btn-dark text-xs py-2 w-full justify-center"
                 >
-                  Choose Starter
+                  Start 14-Day Trial
                 </Link>
               </th>
               <th className="p-5 text-center">

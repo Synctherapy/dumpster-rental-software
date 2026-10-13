@@ -12,6 +12,10 @@ import {
   Sparkles,
   Zap,
   CheckCircle2,
+  Building2,
+  Truck,
+  MapPin,
+  ShieldCheck,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Modal } from './ui/dialog';
@@ -28,6 +32,10 @@ export function GrowthHub({
   const [copiedEmbed, setCopiedEmbed] = useState(false);
   const [showWebsiteModal, setShowWebsiteModal] = useState(false);
   const [websiteRequested, setWebsiteRequested] = useState(false);
+  const [showGbpModal, setShowGbpModal] = useState(false);
+  const [gbpRequested, setGbpRequested] = useState(false);
+  const [contractorName, setContractorName] = useState('');
+  const [copiedContractorLink, setCopiedContractorLink] = useState(false);
 
   const bookingUrl =
     typeof window !== 'undefined'
@@ -53,6 +61,21 @@ export function GrowthHub({
       setCopiedEmbed(true);
       notify('Embed code copied! Paste it into your WordPress, Squarespace, or Wix site.');
       setTimeout(() => setCopiedEmbed(false), 3000);
+    } catch {
+      notify('Failed to copy. Please copy manually.', true);
+    }
+  };
+
+  const contractorLink = contractorName.trim()
+    ? `${bookingUrl}?contractor=${encodeURIComponent(contractorName.trim())}`
+    : `${bookingUrl}?contractor=Contractor`;
+
+  const copyContractorLink = async () => {
+    try {
+      await navigator.clipboard.writeText(contractorLink);
+      setCopiedContractorLink(true);
+      notify('Contractor custom booking link copied to clipboard.');
+      setTimeout(() => setCopiedContractorLink(false), 3000);
     } catch {
       notify('Failed to copy. Please copy manually.', true);
     }
@@ -150,49 +173,170 @@ export function GrowthHub({
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
+            border: '2px solid #ea580c',
+            background: '#fffbf7',
+            position: 'relative',
+          }}
+        >
+          <div style={{ position: 'absolute', top: -10, right: 16, background: '#ea580c', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '12px', textTransform: 'uppercase' }}>
+            Save $200
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ background: '#ffedd5', color: '#c2410c', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+              <Globe size={18} />
+            </span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#1f2d26' }}>Turnkey Dumpster Website</h3>
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>
+                <span style={{ textDecoration: 'line-through', color: '#94a3b8' }}>$499</span>{' '}
+                <strong style={{ color: '#ea580c', fontSize: '12px' }}>$299 One-Time</strong>
+              </span>
+            </div>
+          </div>
+          <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, flex: 1 }}>
+            Don&apos;t have a website or tired of an outdated site that doesn&apos;t rank? We&apos;ll build, host, and launch a custom, high-converting dumpster rental website with your RollOS booking engine pre-installed.
+          </p>
+          <div style={{ margin: '14px 0', fontSize: '11px', color: '#166534', display: 'grid', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="#16a34a" /> 5-page custom site for your delivery ZIPs
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="#16a34a" /> <strong>72-Hour Turnkey Speed Guarantee</strong>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckCircle2 size={13} color="#16a34a" /> Live in 72h or 100% money back + keep site
+            </div>
+          </div>
+          <Button
+            variant="orange"
+            style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => setShowWebsiteModal(true)}
+          >
+            <Sparkles size={13} />
+            Claim $299 Website Offer
+          </Button>
+        </section>
+
+        {/* Pillar 4: Google Business Profile (GBP) 3-Pack Optimization */}
+        <section
+          className="panel"
+          style={{
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
             border: '2px solid #bbf7d0',
             background: '#fcfdfc',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ background: '#dcfce7', color: '#15803d', padding: '8px', borderRadius: '8px', display: 'grid' }}>
-              <Globe size={18} />
+              <MapPin size={18} />
             </span>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Custom Website & Local SEO</h3>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Google 3-Pack Optimization</h3>
                 <span style={{ fontSize: '9px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                  VIP SETUP
+                  DONE-FOR-YOU
                 </span>
               </div>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Done-for-you waste hauling website</span>
+              <span style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>$79 One-Time Setup</span>
             </div>
           </div>
           <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, flex: 1 }}>
-            Don&apos;t have a website or tired of an outdated site that doesn&apos;t rank? Our dedicated waste industry web team
-            will build, host, and optimize a custom website for your service ZIP codes with the RollOS booking engine pre-installed.
+            Over 70% of residential roll-off customers search Google Maps for <em>&ldquo;dumpster rental near me&rdquo;</em>. Our team sets up and audits your Google Business Profile to rank in the local 3-Pack.
           </p>
           <div style={{ margin: '14px 0', fontSize: '11px', color: '#166534', display: 'grid', gap: '6px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} /> High-speed Google Mobile optimized
+              <CheckCircle2 size={13} color="#16a34a" /> Optimal primary & secondary waste categories
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} /> Local ZIP code SEO landing pages
+              <CheckCircle2 size={13} color="#16a34a" /> Geotagged bin photos & ZIP service radius
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={13} /> Direct booking & dispatch integration
+              <CheckCircle2 size={13} color="#16a34a" /> Automated pickup review request link setup
             </div>
           </div>
           <Button
             variant="primary"
-            style={{ width: '100%', justifyContent: 'center', background: '#1b3323', color: '#fff' }}
-            onClick={() => setShowWebsiteModal(true)}
+            style={{ width: '100%', justifyContent: 'center' }}
+            onClick={() => setShowGbpModal(true)}
           >
             <Sparkles size={13} />
-            Request Website Setup Consultation
+            Get Google 3-Pack Kit ($79)
           </Button>
         </section>
       </div>
+
+      {/* Commercial Contractor Partner Booking Link Generator */}
+      <section
+        className="panel"
+        style={{
+          padding: '28px',
+          background: '#ffffff',
+          border: '1px solid #dde4d4',
+          borderRadius: '14px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+            <Building2 size={20} />
+          </span>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#1f2d26' }}>
+              Commercial Contractor Direct Booking Links
+            </h3>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>
+              Give roofers, remodelers, and builders a custom link for instant 30-second dumpster orders.
+            </span>
+          </div>
+        </div>
+        <p style={{ fontSize: '13px', color: '#556658', lineHeight: 1.6, maxWidth: '780px', margin: '8px 0 16px 0' }}>
+          Tired of contractors texting you at 6:00 AM asking for a can? Generate a branded booking link for each contractor.
+          When they order, their company is automatically tagged, dispatch is notified with priority commercial routing, and 1-click dumpster swaps are ready on your board.
+        </p>
+
+        <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '16px', display: 'grid', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
+            <label className="field" style={{ margin: 0 }}>
+              Contractor / Business Name
+              <input
+                value={contractorName}
+                onChange={(e) => setContractorName(e.target.value)}
+                placeholder="e.g. Apex Roofing LLC or Miller Construction"
+                style={{ background: '#ffffff' }}
+              />
+            </label>
+            <label className="field" style={{ margin: 0 }}>
+              Generated Contractor Link
+              <input
+                readOnly
+                value={contractorLink}
+                style={{ background: '#ffffff', color: '#166534', fontWeight: 600, fontSize: '12px' }}
+              />
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#166534' }}>
+              <ShieldCheck size={16} />
+              <span>Orders tag as <strong>{contractorName.trim() || 'Contractor Trade Account'}</strong> in dispatch board.</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button onClick={copyContractorLink} variant="orange" style={{ fontSize: '12px' }}>
+                {copiedContractorLink ? <Check size={13} /> : <Copy size={13} />}
+                {copiedContractorLink ? 'Link Copied!' : 'Copy Contractor Link'}
+              </Button>
+              <Button asChild variant="ghost" style={{ fontSize: '12px' }}>
+                <Link href={contractorLink} target="_blank">
+                  Test Link <ArrowUpRight size={13} />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Subscription Model Upgrade Card */}
       <section
@@ -225,23 +369,23 @@ export function GrowthHub({
         </div>
       </section>
 
-      {/* Website Setup Consultation Modal */}
+      {/* Website Setup Modal */}
       {showWebsiteModal && (
         <Modal
           open={showWebsiteModal}
           onOpenChange={(open) => !open && setShowWebsiteModal(false)}
-          title="Turnkey Hauling Website & Local SEO"
-          description="Have our specialized team build and launch your company website with direct RollOS booking."
+          title="Turnkey Dumpster Rental Website ($299 Offer)"
+          description="Have our waste industry web team design, build, and launch your company website with direct RollOS booking."
         >
           {websiteRequested ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
                 <CheckCircle2 size={24} />
               </div>
-              <h3 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>Request Submitted!</h3>
+              <h3 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>$299 Website Setup Reserved!</h3>
               <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '380px', margin: '0 auto 20px' }}>
-                We&apos;ve received your request for {data.organization.name}. Our web launch specialist will reach out to{' '}
-                <strong>{data.organization.phone || 'your business phone'}</strong> within 1 business day.
+                We&apos;ve locked in your \$299 discounted rate for {data.organization.name}. Our web launch specialist will contact{' '}
+                <strong>{data.organization.phone || 'your business phone'}</strong> within 1 business day to collect your logo and service areas.
               </p>
               <Button variant="primary" onClick={() => setShowWebsiteModal(false)}>
                 Done
@@ -253,17 +397,14 @@ export function GrowthHub({
               onSubmit={(e) => {
                 e.preventDefault();
                 setWebsiteRequested(true);
-                notify('Website consultation request submitted!');
+                notify('Website request received! We will be in touch within 24 hours.');
               }}
             >
-              <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: '12px', borderRadius: '8px' }}>
-                <strong>What’s Included:</strong>
-                <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
-                  <li>Custom modern design showcasing your dumpster sizes (10, 20, 30, 40 yd)</li>
-                  <li>Local SEO pages targeting your primary service cities and ZIP codes</li>
-                  <li>Directly connected to your RollOS dispatch calendar and Stripe account</li>
-                  <li>Fast turnaround (typically live in 5–7 business days)</li>
-                </ul>
+              <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, background: '#fffbeb', border: '1px solid #fef3c7', padding: '12px', borderRadius: '8px' }}>
+                <strong style={{ color: '#92400e' }}>72-Hour Speed Guarantee:</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#78350f' }}>
+                  We launch your custom website in 72 hours. If it takes even 1 hour longer, we refund 100% of your \$299 and give you the website for free.
+                </p>
               </div>
               <label className="field">
                 Business Name
@@ -281,8 +422,67 @@ export function GrowthHub({
                 <Button type="button" variant="ghost" onClick={() => setShowWebsiteModal(false)}>
                   Cancel
                 </Button>
+                <Button type="submit" variant="orange">
+                  Lock in $299 Website Offer
+                </Button>
+              </div>
+            </form>
+          )}
+        </Modal>
+      )}
+
+      {/* GBP 3-Pack Setup Modal */}
+      {showGbpModal && (
+        <Modal
+          open={showGbpModal}
+          onOpenChange={(open) => !open && setShowGbpModal(false)}
+          title="Done-For-You Google 3-Pack Optimization ($79)"
+          description="Get your Google Business Profile optimized for top local visibility on Google Maps."
+        >
+          {gbpRequested ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+                <CheckCircle2 size={24} />
+              </div>
+              <h3 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>Google 3-Pack Request Received!</h3>
+              <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '380px', margin: '0 auto 20px' }}>
+                We&apos;ll audit your profile and reach out to configure your local waste categories and automated review links.
+              </p>
+              <Button variant="primary" onClick={() => setShowGbpModal(false)}>
+                Done
+              </Button>
+            </div>
+          ) : (
+            <form
+              className="form-stack"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setGbpRequested(true);
+                notify('Google 3-Pack optimization request submitted!');
+              }}
+            >
+              <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: '12px', borderRadius: '8px' }}>
+                <strong>What You Get:</strong>
+                <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
+                  <li>Google Maps audit & optimal category configuration</li>
+                  <li>Local service ZIP code radius setup</li>
+                  <li>Automated post-delivery SMS review link connection</li>
+                </ul>
+              </div>
+              <label className="field">
+                Business Name on Google
+                <input defaultValue={data.organization.name} required />
+              </label>
+              <label className="field">
+                Google Business Profile Link or Address
+                <input placeholder="e.g. google.com/maps/... or 123 Main St" required />
+              </label>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '12px' }}>
+                <Button type="button" variant="ghost" onClick={() => setShowGbpModal(false)}>
+                  Cancel
+                </Button>
                 <Button type="submit" variant="primary">
-                  Submit Request
+                  Order Google 3-Pack Kit ($79)
                 </Button>
               </div>
             </form>

@@ -13,18 +13,23 @@ export function assertSameOrigin(request: Request) {
   }
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
-  // Next may normalize request.url to localhost; Host retains the browser's destination.
   const host = request.headers.get('host') || new URL(request.url).host;
-  const protocol = new URL(request.url).protocol;
-  const expected = process.env.APP_URL
-    ? new URL(process.env.APP_URL).origin
-    : `${protocol}//${host}`;
+  const forwardedProto =
+    request.headers.get('x-forwarded-proto') || new URL(request.url).protocol.replace(':', '');
+  const requestOrigin = `${forwardedProto}://${host}`;
+
+  const allowedOrigins = new Set([requestOrigin, `http://${host}`, `https://${host}`]);
+  if (process.env.APP_URL) {
+    try {
+      allowedOrigins.add(new URL(process.env.APP_URL).origin);
+    } catch {}
+  }
 
   if (origin) {
-    if (origin !== expected) throw new Error('FORBIDDEN');
+    if (!allowedOrigins.has(origin)) throw new Error('FORBIDDEN');
   } else if (referer) {
     try {
-      if (new URL(referer).origin !== expected) throw new Error('FORBIDDEN');
+      if (!allowedOrigins.has(new URL(referer).origin)) throw new Error('FORBIDDEN');
     } catch {
       throw new Error('FORBIDDEN');
     }

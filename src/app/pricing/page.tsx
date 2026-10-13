@@ -8,7 +8,7 @@ import { BreadcrumbSchema } from '@/components/schema-org';
 export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
   description:
-    'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for cash/check & calendar sync, or $149/mo Growth.',
+    'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, or take a 14-day free trial of $29/mo Starter for contractor accounts (roofers) & offline payments ($0 fees).',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/pricing',
   },
@@ -83,14 +83,14 @@ export default function PricingPage() {
                   <td className="text-[#166534] font-bold font-mono highlight-col">$0 / mo</td>
                   <td className="text-[#166534] font-bold highlight-col">$0 (Instant self-serve)</td>
                   <td className="text-[#166534] font-black font-mono highlight-col">$0 / yr ($5,400+ saved)</td>
-                  <td className="highlight-col font-semibold">Customer pays $12 booking fee</td>
+                  <td className="highlight-col font-semibold">$0 software cost to hauler</td>
                 </tr>
                 <tr>
-                  <td className="font-bold text-[#1f2d26]">RollOS Starter Plan</td>
+                  <td className="font-bold text-[#1f2d26]">RollOS Starter (14-Day Free Trial)</td>
                   <td className="font-mono font-bold">$29 / mo</td>
                   <td className="font-bold">$0 (Instant self-serve)</td>
                   <td className="font-bold font-mono text-[#166534]">$348 / yr ($5,000+ saved)</td>
-                  <td>Customer pays $12 booking fee</td>
+                  <td>$0 fees on contractor cash/check orders</td>
                 </tr>
               </tbody>
             </table>

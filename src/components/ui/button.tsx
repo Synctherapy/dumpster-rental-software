@@ -7,7 +7,7 @@ export function Button({
   asChild = false,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'default' | 'primary' | 'dark' | 'ghost' | 'danger';
+  variant?: 'default' | 'primary' | 'dark' | 'ghost' | 'danger' | 'orange';
   asChild?: boolean;
 }) {
   const Component = asChild ? Slot : 'button';

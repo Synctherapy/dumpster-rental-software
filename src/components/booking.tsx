@@ -83,6 +83,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const [confirmed, setConfirmed] = useState<Job | null>(null);
   const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [key] = useState(() => globalThis.crypto?.randomUUID?.() ?? '');
+  const [contractorParam, setContractorParam] = useState<string | null>(null);
   const [customer, setCustomer] = useState({
     customer_name: '',
     customer_phone: '',
@@ -112,6 +113,18 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
         );
       })
       .catch((e) => setError(e.message));
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const c = params.get('contractor');
+      if (c) {
+        setContractorParam(c);
+        setCustomer((prev) => ({
+          ...prev,
+          notes: prev.notes ? prev.notes : `[COMMERCIAL CONTRACTOR: ${c}]`,
+        }));
+      }
+    }
   }, [slug]);
   if (!data)
     return (
@@ -515,6 +528,56 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 <div className="booking-notice">
                   <FlaskConical size={13} />
                   Demo booking · No real payment or delivery · Try Austin ZIP 78704
+                </div>
+              )}
+              {contractorParam && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #86efac',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span
+                      style={{
+                        background: '#dcfce7',
+                        color: '#15803d',
+                        padding: '6px',
+                        borderRadius: '8px',
+                        display: 'grid',
+                      }}
+                    >
+                      <Truck size={18} />
+                    </span>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#166534' }}>
+                        Commercial Contractor Booking: {contractorParam === 'true' ? 'Trade Partner' : contractorParam}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#15803d' }}>
+                        Direct contractor order link • Commercial priority dispatch routing
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      background: '#dcfce7',
+                      color: '#166534',
+                      fontWeight: 700,
+                      padding: '4px 10px',
+                      borderRadius: '20px',
+                    }}
+                  >
+                    COMMERCIAL ACCOUNT
+                  </span>
                 </div>
               )}
               <div className="steps">
