@@ -36,11 +36,30 @@ export function GrowthHub({
   const [gbpRequested, setGbpRequested] = useState(false);
   const [contractorName, setContractorName] = useState('');
   const [copiedContractorLink, setCopiedContractorLink] = useState(false);
+  const [socialTab, setSocialTab] = useState<'facebook' | 'instagram' | 'google' | 'sms'>('facebook');
+  const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
 
   const bookingUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/book/${data.organization.slug}`
       : `/book/${data.organization.slug}`;
+
+  const facebookCopy = `Need a dumpster for a home cleanout, renovation, or job site? 🚛\n\nWe now have 24/7 instant online booking! Check available delivery dates, transparent pricing, and reserve your container in 60 seconds:\n\n👉 ${bookingUrl}\n\nFast delivery, reliable pickup, zero hidden fees!`;
+
+  const instagramCopy = `📍 Roll-off Dumpster Rentals in ${data.organization.name || 'Your Area'}\n⚡ Instant 24/7 Online Booking\n👇 Reserve Your Container in 60s:\n${bookingUrl}`;
+
+  const smsCopy = `Hey! We now have online booking for our roll-off dumpsters. Next time you need a bin dropped off on a job or driveway, you can check availability and lock it in directly here: ${bookingUrl}`;
+
+  const copySocialText = async (text: string, type: string, msg: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSocial(type);
+      notify(msg);
+      setTimeout(() => setCopiedSocial(null), 3000);
+    } catch {
+      notify('Failed to copy. Please copy manually.', true);
+    }
+  };
 
   const embedCode = `<iframe src="${bookingUrl}" width="100%" height="900" style="border:0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);" title="Rent a dumpster"></iframe>`;
 
@@ -104,6 +123,154 @@ export function GrowthHub({
           Turn your digital presence into automated rentals. Collect 5-star Google reviews on autopilot, embed
           direct checkout on your website, or let our waste marketing team build a turnkey website for you.
         </p>
+      </section>
+
+      {/* Social Media & Client Launchpad */}
+      <section
+        className="panel"
+        style={{
+          padding: '24px',
+          background: '#ffffff',
+          border: '1px solid #dce4d6',
+          borderRadius: '14px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ background: '#dcfce7', color: '#166534', padding: '6px', borderRadius: '6px', display: 'grid' }}>
+                <Rocket size={18} />
+              </span>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+                First-Client Social & Web Launchpad
+              </h3>
+            </div>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+              Copy pre-tested marketing copy and drop your booking link directly onto Facebook, Instagram, Google, or SMS.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button onClick={copyBookingLink} variant="ghost" style={{ fontSize: '12px' }}>
+              {copiedLink ? <Check size={13} style={{ color: '#16a34a' }} /> : <Copy size={13} />}
+              {copiedLink ? 'Link Copied' : 'Copy Booking Link'}
+            </Button>
+            <Button asChild variant="primary" style={{ fontSize: '12px', background: '#166534', color: '#fff' }}>
+              <Link href={`/book/${data.organization.slug}`} target="_blank">
+                <ArrowUpRight size={13} /> Test Booking Page
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab Buttons */}
+        <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', marginBottom: '14px', overflowX: 'auto' }}>
+          {[
+            { id: 'facebook', label: 'Facebook Post Template' },
+            { id: 'instagram', label: 'Instagram Bio Template' },
+            { id: 'google', label: 'Google Business Profile' },
+            { id: 'sms', label: 'Contractor Text Message' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setSocialTab(tab.id as typeof socialTab)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: 'none',
+                background: socialTab === tab.id ? '#f1f5f9' : 'transparent',
+                color: socialTab === tab.id ? '#0f172a' : '#64748b',
+                fontWeight: socialTab === tab.id ? 700 : 500,
+                fontSize: '12px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        {socialTab === 'facebook' && (
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '12px', color: '#334155', whiteSpace: 'pre-wrap', lineHeight: 1.5, marginBottom: '12px' }}>
+              {facebookCopy}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button
+                onClick={() => copySocialText(facebookCopy, 'fb', 'Facebook post template copied!')}
+                style={{ fontSize: '12px', background: '#1877f2', color: '#fff' }}
+              >
+                {copiedSocial === 'fb' ? <Check size={13} /> : <Copy size={13} />} Copy Facebook Post
+              </Button>
+              <Button asChild variant="ghost" style={{ fontSize: '12px' }}>
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+                  Open Facebook <ArrowUpRight size={12} />
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {socialTab === 'instagram' && (
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '12px', color: '#334155', whiteSpace: 'pre-wrap', lineHeight: 1.5, marginBottom: '12px' }}>
+              {instagramCopy}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button
+                onClick={() => copySocialText(instagramCopy, 'ig', 'Instagram bio template copied!')}
+                style={{ fontSize: '12px', background: '#e1306c', color: '#fff' }}
+              >
+                {copiedSocial === 'ig' ? <Check size={13} /> : <Copy size={13} />} Copy Bio Text & Link
+              </Button>
+              <Button asChild variant="ghost" style={{ fontSize: '12px' }}>
+                <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+                  Open Instagram <ArrowUpRight size={12} />
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {socialTab === 'google' && (
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <p style={{ fontSize: '12px', color: '#334155', margin: '0 0 10px 0', lineHeight: 1.6 }}>
+              Add your booking URL under <b>Online Appointments</b> or as your primary <b>Website</b> on your Google Business Profile. When homeowners find your business on Google Search and Maps, they can instantly book without calling.
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button
+                onClick={() => copySocialText(bookingUrl, 'gbp', 'Booking link copied for Google Business!')}
+                style={{ fontSize: '12px', background: '#166534', color: '#fff' }}
+              >
+                {copiedSocial === 'gbp' ? <Check size={13} /> : <Copy size={13} />} Copy Link for Google
+              </Button>
+              <Button asChild variant="ghost" style={{ fontSize: '12px' }}>
+                <a href="https://business.google.com" target="_blank" rel="noopener noreferrer">
+                  Open Google Business Profile <ArrowUpRight size={12} />
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {socialTab === 'sms' && (
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '12px', color: '#334155', whiteSpace: 'pre-wrap', lineHeight: 1.5, marginBottom: '12px' }}>
+              {smsCopy}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button
+                onClick={() => copySocialText(smsCopy, 'sms', 'SMS template copied!')}
+                style={{ fontSize: '12px', background: '#166534', color: '#fff' }}
+              >
+                {copiedSocial === 'sms' ? <Check size={13} /> : <Copy size={13} />} Copy SMS Template
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 3 Pillars of Client Growth */}

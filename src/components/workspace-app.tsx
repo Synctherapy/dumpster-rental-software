@@ -45,6 +45,8 @@ import { CalendarSubscribeModal } from './calendar-subscribe-modal';
 import { QuickOrderModal } from './quick-order-modal';
 import { ReportsHub } from './reports-hub';
 import { GrowthHub } from './growth-hub';
+import { OnboardingWizard } from './onboarding-wizard';
+import { OnboardingChecklist } from './onboarding-checklist';
 import { api, initials } from '@/lib/client';
 import { money, dateLabel, today, type Workspace, type JobStatus } from '@/lib/types';
 const navigation = [
@@ -82,14 +84,36 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
   const [quickOrderModal, setQuickOrderModal] = useState(false);
   const [help, setHelp] = useState(false);
   const [dismissDemoBar, setDismissDemoBar] = useState(false);
+  const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
+  const [onboardingWizardStep, setOnboardingWizardStep] = useState<1 | 2 | 3>(1);
   const notify: Notify = useCallback((message, error = false) => setToast({ message, error }), []);
+  const handleLogout = useCallback(async () => {
+    try {
+      await api('/api/auth', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'logout' }),
+      });
+    } catch {}
+    window.location.href = '/login';
+  }, []);
   const reload = useCallback(async () => {
     const d = await api<Workspace>('/api/workspace');
     setData(d);
   }, []);
   useEffect(() => {
     api<Workspace>('/api/workspace')
-      .then(setData)
+      .then((d) => {
+        setData(d);
+        try {
+          const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+          const isExplicitOnboarding = params?.get('onboarding') === 'true';
+          const isCompleted = localStorage.getItem(`onboarding_completed_${d.organization.id}`);
+          if (isExplicitOnboarding || (!isCompleted && !d.demo)) {
+            setOnboardingWizardStep(1);
+            setOnboardingWizardOpen(true);
+          }
+        } catch {}
+      })
       .catch((e) => setError(e.message));
     const interval = setInterval(() => reload().catch(() => {}), 30000);
     return () => clearInterval(interval);
@@ -221,22 +245,31 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
           </div>
           <div className="user-profile">
             <span className="avatar">{initials(owner?.name ?? 'Owner')}</span>
-            <div style={{ flex: 1 }}>
-              <strong>{owner?.name ?? 'Your account'}</strong>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+                {owner?.name ?? 'Your account'}
+              </strong>
               <p>Business owner</p>
             </div>
             <button
               aria-label="Log out"
-              style={{ background: 'none', border: 0, color: '#93a58e' }}
-              onClick={async () => {
-                await api('/api/auth', {
-                  method: 'POST',
-                  body: JSON.stringify({ action: 'logout' }),
-                });
-                window.location.href = '/login';
+              title="Log out"
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#e2e8f0',
+                padding: '6px 8px',
+                borderRadius: '6px',
+                fontSize: '11.5px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
               }}
+              onClick={handleLogout}
             >
-              <LogOut size={14} />
+              <LogOut size={13} />
+              <span>Log out</span>
             </button>
           </div>
         </div>
@@ -395,7 +428,28 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
             >
               <Bell size={16} />
             </Button>
-            <span className="avatar top-avatar">{initials(owner?.name ?? 'Owner')}</span>
+            <span className="avatar top-avatar" title={owner?.name ?? 'Account'}>{initials(owner?.name ?? 'Owner')}</span>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '12.5px',
+                fontWeight: 600,
+                color: '#64748b',
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #e2e8f0',
+                background: '#ffffff',
+                cursor: 'pointer',
+              }}
+              title="Log out of account"
+            >
+              <LogOut size={14} />
+              <span>Log out</span>
+            </Button>
           </div>
           {notifications && (
             <section className="notification-feed">
@@ -444,13 +498,26 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                       Subscribe (iCal)
                     </Button>
                   )}
+                  {page === 'dashboard' && (
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        setOnboardingWizardStep(3);
+                        setOnboardingWizardOpen(true);
+                      }}
+                      style={{ background: '#166534', color: '#ffffff', fontWeight: 600 }}
+                    >
+                      <Rocket size={13} />
+                      First-Client Launchpad
+                    </Button>
+                  )}
                   <Button asChild>
                     <Link href={`/book/${data.organization.slug}`} target="_blank">
                       <Globe size={13} />
                       Booking page <ArrowUpRight size={12} />
                     </Link>
                   </Button>
-                  <Button variant="primary" onClick={() => setQuickOrderModal(true)}>
+                  <Button variant="default" onClick={() => setQuickOrderModal(true)}>
                     <Phone size={14} />
                     + Phone order
                   </Button>
@@ -495,6 +562,16 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
           </div>
           {['dashboard', 'bookings', 'calendar'].includes(page) && (
             <>
+              {page === 'dashboard' && (
+                <OnboardingChecklist
+                  data={data}
+                  onOpenWizard={(step) => {
+                    setOnboardingWizardStep(step || 1);
+                    setOnboardingWizardOpen(true);
+                  }}
+                  notify={notify}
+                />
+              )}
               <OverviewStats data={data} />
               <DispatchBoard
                 key={page}
@@ -583,6 +660,17 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         description="Your workspace in a few simple steps."
       >
         <div className="form-stack">
+          <Button
+            variant="primary"
+            onClick={() => {
+              setHelp(false);
+              setOnboardingWizardStep(1);
+              setOnboardingWizardOpen(true);
+            }}
+            style={{ width: '100%', justifyContent: 'center', background: '#166534', color: '#fff', fontWeight: 600, padding: '10px' }}
+          >
+            <Rocket size={15} /> Launch 2-Minute Setup & Launchpad
+          </Button>
           {[
             'Set your prices and service ZIP codes in Settings.',
             'Add your available containers and drivers.',
@@ -602,6 +690,14 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
           </div>
         </div>
       </Modal>
+      <OnboardingWizard
+        open={onboardingWizardOpen}
+        onClose={() => setOnboardingWizardOpen(false)}
+        data={data}
+        reload={reload}
+        notify={notify}
+        initialStep={onboardingWizardStep}
+      />
       {toast && (
         <div
           role={toast.error ? 'alert' : 'status'}

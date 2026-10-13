@@ -1060,6 +1060,11 @@ td small {
   padding: 27px;
   box-shadow: 0 20px 80px #13221926;
 }
+.dialog.onboarding-modal {
+  width: 640px;
+  max-width: min(640px, calc(100vw - 28px));
+  padding: 24px;
+}
 .dialog-header {
   display: flex;
   justify-content: space-between;

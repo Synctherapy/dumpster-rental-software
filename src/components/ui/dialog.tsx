@@ -8,6 +8,7 @@ export function Modal({
   description,
   children,
   drawer = false,
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -15,13 +16,14 @@ export function Modal({
   description?: string;
   children: React.ReactNode;
   drawer?: boolean;
+  className?: string;
 }) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="overlay" />
         <DialogPrimitive.Content
-          className={drawer ? 'drawer' : 'dialog'}
+          className={`${drawer ? 'drawer' : 'dialog'} ${className || ''}`}
           aria-describedby={description ? 'modal-description' : undefined}
         >
           <div className="dialog-header">

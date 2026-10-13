@@ -68,12 +68,12 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
       if (result.confirmation) {
         setConfirmation(true);
       } else {
-        window.location.href = '/dashboard';
+        window.location.href = signup ? '/dashboard?onboarding=true' : '/dashboard';
       }
     } catch {
       // Graceful fallback: If Supabase auth network call fails or isn't set up yet,
       // direct directly into sandbox dashboard so hauler is never blocked by a spinner
-      window.location.href = '/dashboard';
+      window.location.href = signup ? '/dashboard?onboarding=true' : '/dashboard';
     } finally {
       setBusy(false);
     }
