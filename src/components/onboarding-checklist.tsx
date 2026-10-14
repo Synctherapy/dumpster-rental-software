@@ -31,25 +31,47 @@ export function OnboardingChecklist({
   onOpenWizard,
   notify,
 }: OnboardingChecklistProps) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const [testedBooking, setTestedBooking] = useState(false);
-  const [sharedLink, setSharedLink] = useState(false);
-
   const storageKey = `checklist_state_${data.organization.id}`;
 
-  useEffect(() => {
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
     try {
       const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.dismissed) setDismissed(true);
-        if (parsed.testedBooking) setTestedBooking(true);
-        if (parsed.sharedLink) setSharedLink(true);
-        if (parsed.collapsed) setCollapsed(true);
-      }
-    } catch {}
-  }, [storageKey]);
+      return stored ? Boolean(JSON.parse(stored).collapsed) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? Boolean(JSON.parse(stored).dismissed) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const [testedBooking, setTestedBooking] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? Boolean(JSON.parse(stored).testedBooking) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const [sharedLink, setSharedLink] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? Boolean(JSON.parse(stored).sharedLink) : false;
+    } catch {
+      return false;
+    }
+  });
 
   const updateState = (updates: Partial<{ dismissed: boolean; testedBooking: boolean; sharedLink: boolean; collapsed: boolean }>) => {
     try {

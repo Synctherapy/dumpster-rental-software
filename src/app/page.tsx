@@ -18,6 +18,7 @@ import { Footer } from '@/components/footer';
 import { SoftwareApplicationSchema, FAQPageSchema } from '@/components/schema-org';
 import { WorkflowVisualizer } from '@/components/workflow-visualizer';
 import { CheckoutReceiptPreview } from '@/components/checkout-receipt-preview';
+import { FounderNoteSection } from '@/components/founder-contact';
 
 export const metadata = {
   title: 'Dumpster Rental Software — Free Online Booking & Dispatch | RollOS',
@@ -38,6 +39,26 @@ export default function Home() {
             question: 'How does the free plan work?',
             answer:
               'The Free Plan gives you our full 24/7 online booking widget, visual drag-and-drop dispatch board, driver SMS magic links, and delivery photo proof with $0 monthly software bills. Your customer pays a standard $12 online reservation fee at checkout to guarantee their container delivery. You keep 100% of your rental money.',
+          },
+          {
+            question: 'What about phone or manual orders? Do I pay $12 for manual dispatch?',
+            answer:
+              'No. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When contractors or homeowners call or text you, enter them onto your visual dispatch board with $0 platform fee. You get full dispatch, SMS driver routes, and yard tracking without paying a dime.',
+          },
+          {
+            question: 'How do I collect for overweight dumpsters and scale tickets?',
+            answer:
+              'When a customer books online, their credit card is securely saved on file via Stripe Connect. When your driver picks up the can and you get the landfill scale ticket, enter the actual tonnage into RollOS. Overages calculate automatically at your agreed rate ($75/ton, etc.) and can be charged to the card on file in 1 click.',
+          },
+          {
+            question: 'Can I export my customer records and data if I ever leave?',
+            answer:
+              'Yes, 100%. You own all your customer records, phone numbers, addresses, and job history. You can export everything to CSV at any time with zero lock-in.',
+          },
+          {
+            question: 'Can I absorb the $12 booking fee instead of charging my customer?',
+            answer:
+              'Yes. In your RollOS dashboard settings, you can choose to pass the $12 reservation fee to the customer at checkout or absorb it into your container rental price.',
           },
           {
             question: 'Will my customers complain about a $12 booking fee?',
@@ -273,7 +294,7 @@ export default function Home() {
               Embed Widget or Share Direct Link
             </h3>
             <p className="text-sm text-[#475569] leading-relaxed mb-2.5">
-              <strong>No website?</strong> Put your custom link (<code className="text-xs bg-[#f4f7f2] px-1.5 py-0.5 rounded text-[#223326] font-semibold">rollos.com/book/yourcompany</code>) directly on your Google Business Profile &amp; Facebook.
+              <strong>No website?</strong> Put your custom link (<code className="text-xs bg-[#f4f7f2] px-1.5 py-0.5 rounded text-[#223326] font-semibold">rolloffdumpstersoftware.com/book/yourcompany</code>) directly on your Google Business Profile &amp; Facebook.
             </p>
             <p className="text-sm text-[#475569] leading-relaxed">
               <strong>Already have a website?</strong> Copy-paste one line of embed code into WordPress, Wix, Squarespace, or GoDaddy. Setup takes 3 minutes, customers pay upfront, and you keep 100% of your rental money.
@@ -356,6 +377,34 @@ export default function Home() {
           </p>
           <p className="text-sm text-[#475569] leading-relaxed">
             <strong>More money in your pocket:</strong> You keep 100% of your hard-earned dumpster revenue. No $150–$350/mo monthly software bills. No percentage taken out of your haul.
+          </p>
+        </div>
+
+        {/* Manual Phone Orders Objection Reassurance */}
+        <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
+            <CheckCircle2 size={20} className="text-[#ea580c]" />
+            What about contractors who call or text? Do you charge $12 for manual orders?
+          </h4>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>$0 Platform Fee on Manual &amp; Phone Orders:</strong> Absolutely not. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When regular contractors call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>.
+          </p>
+          <p className="text-sm text-[#475569] leading-relaxed">
+            Run your entire fleet, send 1-click driver SMS route links, and track inventory without paying a penny.
+          </p>
+        </div>
+
+        {/* Card on File for Tonnage Overages & Scale Tickets */}
+        <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
+            <ShieldCheck size={20} className="text-[#ea580c]" />
+            How do I collect for overweight dumpsters and scale tickets?
+          </h4>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>Secure Card on File via Stripe:</strong> When a customer books online, their payment method is securely tokenized and saved on file. When your driver picks up the can and you get the landfill scale ticket, enter the actual tonnage into RollOS.
+          </p>
+          <p className="text-sm text-[#475569] leading-relaxed">
+            Overages calculate automatically at the rate agreed upon at booking ($75/ton, $95/ton, etc.). Click <strong>&quot;Charge Overage to Card on File&quot;</strong> and the funds deposit directly into your bank account. No chasing checks or awkward calls.
           </p>
         </div>
 
@@ -459,6 +508,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 8.5. Founder Transparency & Personal 1-on-1 Walkthrough */}
+      <FounderNoteSection />
+
       {/* 9. Uncollapsed Semantic FAQs (Edward Sturm Anti-Pogo & David Quaid Answer Engine) */}
       <section className="faq">
         <h2>Frequently asked questions about roll off dumpster software</h2>
@@ -474,6 +526,46 @@ export default function Home() {
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
               The Free Plan gives you our full 24/7 online booking widget, visual drag-and-drop dispatch board, driver SMS magic links, and delivery photo proof with $0 monthly software bills. Your customer pays a standard $12 online reservation fee at checkout to guarantee their container delivery. You keep 100% of your rental money.
+            </p>
+          </div>
+
+          <div className="faq-card">
+            <h3>
+              <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
+              What about phone or manual orders? Do I pay $12 for manual dispatch?
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
+              No. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When contractors or homeowners call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>. You get full dispatch, SMS driver routes, and yard tracking without paying a dime.
+            </p>
+          </div>
+
+          <div className="faq-card">
+            <h3>
+              <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
+              How do I collect for overweight dumpsters and scale tickets?
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
+              When a customer books online, their credit card is securely saved on file via Stripe Connect. When your driver picks up the can and you get the landfill scale ticket, enter the actual tonnage into RollOS. Overages calculate automatically at your agreed rate ($75/ton, etc.) and can be charged to the card on file in 1 click.
+            </p>
+          </div>
+
+          <div className="faq-card">
+            <h3>
+              <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
+              Can I export my customer records and data if I ever leave?
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
+              Yes, 100%. You own all your customer records, phone numbers, addresses, and job history. You can export everything to CSV at any time with zero lock-in.
+            </p>
+          </div>
+
+          <div className="faq-card">
+            <h3>
+              <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
+              Can I absorb the $12 booking fee instead of charging my customer?
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
+              Yes. In your RollOS dashboard settings, you can choose to pass the $12 reservation fee to the customer at checkout or absorb it into your container rental price with one toggle.
             </p>
           </div>
 

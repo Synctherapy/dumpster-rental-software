@@ -83,16 +83,27 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const [confirmed, setConfirmed] = useState<Job | null>(null);
   const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [key] = useState(() => globalThis.crypto?.randomUUID?.() ?? '');
-  const [contractorParam, setContractorParam] = useState<string | null>(null);
-  const [customer, setCustomer] = useState({
-    customer_name: '',
-    customer_phone: '',
-    customer_email: '',
-    delivery_address: '',
-    notes: '',
-    protective_boards: false,
-    signature_name: '',
-    accepted_terms: false,
+  const [contractorParam] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('contractor');
+    }
+    return null;
+  });
+  const [customer, setCustomer] = useState(() => {
+    const contractor =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('contractor')
+        : null;
+    return {
+      customer_name: '',
+      customer_phone: '',
+      customer_email: '',
+      delivery_address: '',
+      notes: contractor ? `[COMMERCIAL CONTRACTOR: ${contractor}]` : '',
+      protective_boards: false,
+      signature_name: '',
+      accepted_terms: false,
+    };
   });
   useEffect(() => {
     api<PublicData>(`/api/public/${slug}`)
@@ -113,18 +124,6 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
         );
       })
       .catch((e) => setError(e.message));
-
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const c = params.get('contractor');
-      if (c) {
-        setContractorParam(c);
-        setCustomer((prev) => ({
-          ...prev,
-          notes: prev.notes ? prev.notes : `[COMMERCIAL CONTRACTOR: ${c}]`,
-        }));
-      }
-    }
   }, [slug]);
   if (!data)
     return (

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
 import { Brand } from '@/components/brand';
+import { WhatsAppButton } from '@/components/founder-contact';
 
 export interface NavItem {
   name: string;
@@ -312,8 +313,28 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
           </Link>
         </div>
 
-        {/* Right Actions: Log In + Start Free Demo */}
+        {/* Right Actions: WhatsApp + Log In + Start Free Demo */}
         <div className="marketing-nav-actions">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              const phone = typeof window !== 'undefined' ? window.atob('MTI1MDgxMjg2OTg=') : '';
+              if (!phone) return;
+              window.open(
+                `https://wa.me/${phone}?text=${encodeURIComponent(
+                  'Hi, I saw RollOS dumpster software and have a quick question / would like a walkthrough.'
+                )}`,
+                '_blank',
+                'noopener,noreferrer'
+              );
+            }}
+            className="hidden lg:inline-flex items-center gap-1.5 text-xs font-bold text-[#15803d] hover:text-[#166534] bg-[#f0fdf4] hover:bg-[#dcfce7] border border-[#bbf7d0] px-3 py-1.5 rounded-full transition-all cursor-pointer"
+            aria-label="Chat with founder on WhatsApp"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
+            <span>Chat on WhatsApp</span>
+          </button>
           <Link href="/login" className="nav-action-login">
             Log In
           </Link>
@@ -417,6 +438,11 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
 
         {/* Drawer Footer Actions */}
         <div className="marketing-mobile-actions">
+          <WhatsAppButton
+            className="w-full justify-center mb-2"
+            label="Chat with Founder on WhatsApp"
+            sublabel="Direct response · Personal walkthrough"
+          />
           <Link
             href="/login"
             className="marketing-mobile-login-btn"

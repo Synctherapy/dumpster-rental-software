@@ -43,7 +43,7 @@ export function SoftwareApplicationSchema() {
           'https://rolloffdumpstersoftware.com/images/screenshots/dumpster-rental-online-booking-system.png',
           'https://rolloffdumpstersoftware.com/images/screenshots/mobile-driver-sms-delivery-proof-app.png',
           'https://rolloffdumpstersoftware.com/images/screenshots/dumpster-fleet-inventory-management-software.png',
-          'https://rolloffdumpstersoftware.com/images/screenshots/roll-off-container-delivery-pickup-calendar.png',
+          'https://rolloffdumpstersoftware.com/images/screenshots/dumpster-rental-tonnage-invoice-scale-ticket.png',
         ],
         author: {
           '@id': 'https://rolloffdumpstersoftware.com/#organization',

@@ -8,13 +8,12 @@ import { ArrowRight, CheckCircle2, ShieldCheck, X, Sparkles, Play } from 'lucide
 export function MobileStickyCTA() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [isDismissed, setIsDismissed] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage.getItem('rollos_sticky_dismissed') === '1') {
-      setIsDismissed(true);
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.sessionStorage.getItem('rollos_sticky_dismissed') === '1';
     }
-  }, []);
+    return false;
+  });
 
   const isAppRoute =
     !pathname ||

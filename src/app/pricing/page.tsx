@@ -97,6 +97,28 @@ export default function PricingPage() {
           </div>
         </div>
 
+        {/* Manual Phone Orders & Scale Ticket Guarantees */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left">
+            <h4 className="text-sm font-bold text-[#1f2d26] mb-1.5 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-[#ea580c]" />
+              Manual &amp; Phone Orders: $0 Platform Fee
+            </h4>
+            <p className="text-xs md:text-sm text-[#475569] leading-relaxed">
+              When contractors or homeowners call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>. The $12 fee only applies when a customer self-books on your 24/7 online widget.
+            </p>
+          </div>
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left">
+            <h4 className="text-sm font-bold text-[#1f2d26] mb-1.5 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-[#ea580c]" />
+              Card on File for Scale Tickets &amp; Dry Runs
+            </h4>
+            <p className="text-xs md:text-sm text-[#475569] leading-relaxed">
+              Customer payment cards are tokenized and saved on file via Stripe Connect at booking. When landfill scale tickets show overages, charge the exact amount in 1 click without chasing checks.
+            </p>
+          </div>
+        </div>
+
         {/* Clear Truth & Transparency Box */}
         <div className="mt-8 p-6 bg-[#f3f6ee] border border-[#d8e2cf] rounded-2xl text-xs text-[#334155] leading-relaxed">
           <h3 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
@@ -107,6 +129,7 @@ export default function PricingPage() {
             RollOS is designed for clean, high-speed operations. We do not require long-term contracts, setup fees, or proprietary hardware.
             Drivers never have to download an app from the App Store—they use secure, 1-tap SMS web links. Landfill scale ticket weights are entered
             directly against the job, and navigation opens in the driver’s preferred map app. Stripe credit card processing fees are standard and separate.
+            You own 100% of your data and can export all records to CSV at any time.
           </p>
         </div>
 

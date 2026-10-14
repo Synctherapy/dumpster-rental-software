@@ -835,7 +835,7 @@ export function Settings({
               )}
 
               <small style={{ color: '#64748b', display: 'block', marginTop: '4px' }}>
-                Click the <strong>×</strong> on any ZIP you don't travel to, or click <strong>Clear all</strong> to start fresh.
+                Click the <strong>×</strong> on any ZIP you don&apos;t travel to, or click <strong>Clear all</strong> to start fresh.
               </small>
             </div>
             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--line, #e2e8f0)' }}>

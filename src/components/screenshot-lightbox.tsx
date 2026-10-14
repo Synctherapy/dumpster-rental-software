@@ -42,7 +42,7 @@ const screenshots: ScreenshotItem[] = [
     title: 'Invoicing From Measured Tonnage',
     badge: 'Zero-Leakage Invoicing',
     subtitle: 'Record the scale weight, then bill included tons, extra days, and the overage from the rate agreed at booking.',
-    src: '/images/screenshots/roll-off-container-delivery-pickup-calendar.png',
+    src: '/images/screenshots/dumpster-rental-tonnage-invoice-scale-ticket.png',
     alt: 'Dumpster rental invoice and tonnage overage billing system showing automatic scale weight overage calculations and receipts',
     iconName: 'receipt',
     description: 'Enter the weight from the landfill scale ticket. RollOS calculates tons over the included allowance and adds that overage to the invoice using the rate locked at booking. Weight entry is manual. There is no scale-ticket OCR.',

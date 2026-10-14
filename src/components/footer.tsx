@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Dumpster } from '@/components/brand';
-import { ShieldCheck, Smartphone, CheckCircle2, ArrowRight, Lock } from 'lucide-react';
+import { ShieldCheck, Smartphone, CheckCircle2, ArrowRight, Lock, MessageSquare } from 'lucide-react';
+import { WhatsAppButton, SupportEmailButton } from '@/components/founder-contact';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -185,6 +186,27 @@ export function Footer() {
             </ul>
           </div>
 
+        </div>
+
+        {/* Founder Direct Support & Walkthrough Card */}
+        <div className="mt-12 p-6 md:p-8 rounded-2xl bg-[#142118] border border-[#233a2a] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-[#22c55e] uppercase tracking-wider mb-2">
+              <MessageSquare size={14} />
+              <span>Direct Founder Support · Personal 1-on-1 Walkthrough</span>
+            </div>
+            <h4 className="text-lg md:text-xl font-bold text-white mb-1.5">
+              Have questions about your fleet or want a personal walkthrough?
+            </h4>
+            <p className="text-sm text-[#9bb0a0] leading-relaxed">
+              No sales reps, no Calendly links, and no automated runaround. Reach out on WhatsApp or email me directly for answers on how RollOS works for your specific yard.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <WhatsAppButton label="Chat on WhatsApp" sublabel="Direct founder line" />
+            <SupportEmailButton label="Email Support" />
+          </div>
         </div>
       </div>
 

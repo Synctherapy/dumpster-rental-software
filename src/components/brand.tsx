@@ -9,7 +9,7 @@ export function Brand({ href = '/' }: { href?: string }) {
       <div>
         roll<span>os</span>
         <span style={{ fontSize: 10, verticalAlign: 'top', marginLeft: 3, color: '#99ac91' }}>
-          ®
+          ™
         </span>
       </div>
     </Link>
