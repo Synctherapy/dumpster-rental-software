@@ -1,12 +1,14 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { isDemo, readDemo } from './store';
-import { admin, identity } from './supabase';
+import { admin, maybeIdentity } from './supabase';
 import type { Workspace } from '../types';
 export async function workspace(): Promise<Workspace> {
   if (isDemo()) return readDemo();
   try {
-    const { db, member } = await identity();
+    const auth = await maybeIdentity();
+    if (!auth) return readDemo();
+    const { db, member } = auth;
     if (member.role === 'driver') throw new Error('FORBIDDEN');
     const tables = [
       'organizations',
@@ -17,14 +19,19 @@ export async function workspace(): Promise<Workspace> {
       'pricing_rules',
       'notifications_log',
     ];
-    const results = await Promise.all(
-      tables.map((t) =>
-        db
-          .from(t)
-          .select('*')
-          .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id),
+    const results = await Promise.race([
+      Promise.all(
+        tables.map((t) =>
+          db
+            .from(t)
+            .select('*')
+            .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id),
+        ),
       ),
-    );
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('DB_TIMEOUT')), 4000),
+      ),
+    ]);
     for (const r of results) if (r.error) throw new Error(r.error.message);
     const organization = results[0].data![0];
     const config = (organization.pricing_config || {}) as Record<string, unknown>;
@@ -51,8 +58,13 @@ export async function workspace(): Promise<Workspace> {
     } as Workspace;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : '';
-    if (msg === 'UNAUTHORIZED' || msg.includes('UNAUTHORIZED') || msg.includes('membership')) {
-      // Unauthenticated visitors get the interactive live demo sandbox
+    if (
+      msg === 'UNAUTHORIZED' ||
+      msg.includes('UNAUTHORIZED') ||
+      msg.includes('membership') ||
+      msg.includes('TIMEOUT')
+    ) {
+      // Unauthenticated visitors or slow network get the interactive live demo sandbox
       return readDemo();
     }
     throw err;

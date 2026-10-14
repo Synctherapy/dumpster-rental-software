@@ -28,9 +28,13 @@ export async function sessionClient() {
 }
 export async function identity() {
   const db = await sessionClient();
+  const authPromise = db.auth.getUser();
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('AUTH_TIMEOUT')), 3000),
+  );
   const {
     data: { user },
-  } = await db.auth.getUser();
+  } = await Promise.race([authPromise, timeoutPromise]);
   if (!user) throw new Error('UNAUTHORIZED');
   const { data, error } = await db.from('users').select('*').eq('id', user.id).single();
   if (error || !data) throw new Error('No organization membership found.');

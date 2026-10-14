@@ -339,7 +339,11 @@ export function OnboardingWizard({
           })),
         }),
       });
-      await reload();
+      try {
+        await reload();
+      } catch (e) {
+        console.warn('Background reload notice:', e);
+      }
       notify('Settings & pricing saved! Your booking page is live.');
       setStep(3);
     } catch (err) {

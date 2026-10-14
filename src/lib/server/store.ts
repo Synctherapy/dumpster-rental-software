@@ -63,26 +63,29 @@ function getMemoryData(): Workspace {
   return globalStore.rollosDemoMemory;
 }
 
+async function loadSessionData(sessionId: string): Promise<Workspace> {
+  if (sessions.has(sessionId)) {
+    return sessions.get(sessionId)!;
+  }
+  if (!globalStore.rollosFsDisabled) {
+    const sessionFile = path.join(directory, `demo-${sessionId}.json`);
+    try {
+      const data = JSON.parse(await readFile(sessionFile, 'utf8'));
+      sessions.set(sessionId, data);
+      return data;
+    } catch {}
+  }
+  // Cloned fresh seed data for this visitor session
+  const fresh = seed();
+  sessions.set(sessionId, fresh);
+  return fresh;
+}
+
 export async function readDemo(explicitSessionId?: string): Promise<Workspace> {
-  await state.queue;
   const sessionId = explicitSessionId || (await getDemoSessionId());
 
   if (sessionId) {
-    if (sessions.has(sessionId)) {
-      return sessions.get(sessionId)!;
-    }
-    if (!globalStore.rollosFsDisabled) {
-      const sessionFile = path.join(directory, `demo-${sessionId}.json`);
-      try {
-        const data = JSON.parse(await readFile(sessionFile, 'utf8'));
-        sessions.set(sessionId, data);
-        return data;
-      } catch {}
-    }
-    // Cloned fresh seed data for this visitor session
-    const fresh = seed();
-    sessions.set(sessionId, fresh);
-    return fresh;
+    return loadSessionData(sessionId);
   }
 
   if (globalStore.rollosFsDisabled) {
@@ -112,7 +115,7 @@ export async function mutateDemo<T>(
     let data: Workspace;
 
     if (sessionId) {
-      data = await readDemo(sessionId);
+      data = await loadSessionData(sessionId);
       const result = await fn(data);
       sessions.set(sessionId, data);
 
