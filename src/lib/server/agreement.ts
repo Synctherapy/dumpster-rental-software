@@ -58,7 +58,44 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
     .eq('id', jobId)
     .single();
 
-  if (jobError || !job) return null;
+  if (jobError || !job) {
+    try {
+      const demoData = await readDemo();
+      const demoJob = demoData.jobs.find((j) => j.id === jobId);
+      if (!demoJob) return null;
+      const organization = demoData.organization;
+      const pricingRule =
+        demoJob.pricing_snapshot ||
+        demoData.pricing_rules.find((r) => r.size_yards === demoJob.size_yards) || {
+          id: 'snapshot',
+          org_id: organization.id,
+          size_yards: demoJob.size_yards,
+          base_price_cents: demoJob.price_cents,
+          included_days: 7,
+          extra_day_cents: demoJob.extra_day_cents || 1500,
+          included_tons: demoJob.tons_included || 2,
+          overage_per_ton_cents: 8500,
+          service_zips: [demoJob.zip],
+        };
+      const deliveryTime = new Date(demoJob.delivery_date).getTime();
+      const pickupTime = new Date(demoJob.pickup_date).getTime();
+      const diffDays = Math.max(1, Math.round((pickupTime - deliveryTime) / (1000 * 60 * 60 * 24)));
+      const currency = (
+        organization.currency ||
+        organization.pricing_config?.currency ||
+        'usd'
+      ).toUpperCase();
+      return {
+        job: demoJob,
+        organization,
+        pricingRule,
+        rentalDays: diffDays,
+        currency,
+      };
+    } catch {
+      return null;
+    }
+  }
 
   const { data: organization, error: orgError } = await db
     .from('organizations')

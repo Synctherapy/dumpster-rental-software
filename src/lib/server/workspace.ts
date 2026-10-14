@@ -61,8 +61,11 @@ export async function workspace(): Promise<Workspace> {
 export async function publicOrganization(slug: string) {
   if (isDemo()) {
     const d = await readDemo();
-    if (d.organization.slug !== slug && slug !== 'greenline') throw new Error('Organization not found');
-    return { organization: d.organization, pricing_rules: d.pricing_rules, demo: true };
+    return {
+      organization: { ...d.organization, slug },
+      pricing_rules: d.pricing_rules,
+      demo: true,
+    };
   }
   const db = admin();
   const { data: organization, error } = await db
@@ -70,7 +73,22 @@ export async function publicOrganization(slug: string) {
     .select('id,name,slug,phone,timezone,pricing_config,stripe_connect_account_id')
     .eq('slug', slug)
     .single();
-  if (error || !organization) throw new Error('Organization not found');
+  if (error || !organization) {
+    try {
+      const d = await readDemo();
+      return {
+        organization: {
+          ...d.organization,
+          slug,
+          name: d.organization.slug === slug ? d.organization.name : (d.organization.name || 'Demo Hauler'),
+        },
+        pricing_rules: d.pricing_rules,
+        demo: true,
+      };
+    } catch {
+      throw new Error('Organization not found');
+    }
+  }
   const { data: pricing_rules, error: ruleError } = await db
     .from('pricing_rules')
     .select('*')

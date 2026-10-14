@@ -51,7 +51,26 @@ export async function POST(
       .eq('id', id)
       .single();
 
-    if (jobErr || !job) throw new Error('Job not found');
+    if (jobErr || !job) {
+      try {
+        const updated = await mutateDemo((d) => {
+          const j = d.jobs.find((jobItem) => jobItem.id === id);
+          if (!j) throw new Error('Job not found');
+          j.signature = {
+            name: body.signature_name,
+            timestamp,
+            ip,
+          };
+          j.signed_by_customer = true;
+          return { job: j, org: d.organization };
+        });
+        const smsText = `${updated.org.name || 'Texas Haul Off'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
+        await sendSms(updated.org.id, id, updated.job.customer_phone, 'waiver_signed', smsText);
+        return NextResponse.json({ ok: true, job: updated.job });
+      } catch {
+        throw new Error('Job not found');
+      }
+    }
 
     const updatedSignature = {
       name: body.signature_name,
