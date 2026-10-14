@@ -36,3 +36,11 @@ export async function identity() {
   if (error || !data) throw new Error('No organization membership found.');
   return { db, user, member: data };
 }
+
+export async function maybeIdentity() {
+  try {
+    return await identity();
+  } catch {
+    return null;
+  }
+}

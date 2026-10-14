@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
-import { identity, admin } from '@/lib/server/supabase';
+import { identity, maybeIdentity, admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { isValidPostalCode, normalizePostalCode } from '@/lib/types';
 const rule = z.object({
@@ -82,7 +82,9 @@ export async function POST(request: Request) {
       service_zips: r.service_zips.map(normalizePostalCode),
     }));
 
-    if (isDemo()) {
+    const auth = isDemo() ? null : await maybeIdentity();
+
+    if (!auth) {
       await mutateDemo((d) => {
         const isPaidPlan = d.organization.subscription_status === 'active';
         if (input.customer_fee_enabled === false && !isPaidPlan) {
@@ -118,31 +120,32 @@ export async function POST(request: Request) {
           org_id: d.organization.id,
         }));
       });
-    } else {
-      const { member, db } = await identity();
-      if (member.role !== 'owner') throw new Error('FORBIDDEN');
-
-      // Check if organization has an active paid subscription to remove the $12 fee
-      const { data: orgData } = await db
-        .from('organizations')
-        .select('subscription_status')
-        .eq('id', member.org_id)
-        .single();
-      const isPaid = orgData?.subscription_status === 'active';
-      if (input.customer_fee_enabled === false && !isPaid) {
-        throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
-      }
-      const sanitizedInput = {
-        ...input,
-        customer_fee_enabled: input.customer_fee_enabled ?? true,
-      };
-
-      const { error } = await admin().rpc('save_settings', {
-        p_org: member.org_id,
-        p_input: sanitizedInput,
-      });
-      if (error) throw new Error(error.message);
+      return NextResponse.json({ ok: true, demo: true });
     }
+
+    const { member, db } = auth;
+    if (member.role !== 'owner') throw new Error('FORBIDDEN');
+
+    // Check if organization has an active paid subscription to remove the $12 fee
+    const { data: orgData } = await db
+      .from('organizations')
+      .select('subscription_status')
+      .eq('id', member.org_id)
+      .single();
+    const isPaid = orgData?.subscription_status === 'active';
+    if (input.customer_fee_enabled === false && !isPaid) {
+      throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+    }
+    const sanitizedInput = {
+      ...input,
+      customer_fee_enabled: input.customer_fee_enabled ?? true,
+    };
+
+    const { error } = await admin().rpc('save_settings', {
+      p_org: member.org_id,
+      p_input: sanitizedInput,
+    });
+    if (error) throw new Error(error.message);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return failure(e);

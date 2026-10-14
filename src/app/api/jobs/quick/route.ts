@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
-import { admin, identity } from '@/lib/server/supabase';
+import { admin, identity, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { quote, platformFee } from '@/lib/pricing';
 import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
@@ -52,8 +52,9 @@ export async function POST(request: Request) {
       `${body.customer_name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'customer'}@phone.rollos`;
 
     let createdJob: Job;
+    const auth = isDemo() ? null : await maybeIdentity();
 
-    if (isDemo()) {
+    if (!auth) {
       const demoData = await readDemo();
       const org = demoData.organization;
       const rule = demoData.pricing_rules.find((r) => r.size_yards === body.size_yards);
@@ -165,7 +166,7 @@ export async function POST(request: Request) {
         );
       }
     } else {
-      const { db, member } = await identity();
+      const { db, member } = auth;
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
 
       const { data: org, error: orgErr } = await db

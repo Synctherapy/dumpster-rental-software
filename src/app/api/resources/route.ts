@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo } from '@/lib/server/store';
-import { identity } from '@/lib/server/supabase';
+import { identity, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 const schema = z.discriminatedUnion('kind', [
   z.object({
@@ -43,7 +43,8 @@ export async function POST(request: Request) {
         role: 'driver' as const,
       };
     };
-    if (isDemo())
+    const auth = isDemo() ? null : await maybeIdentity();
+    if (!auth)
       await mutateDemo((d) => {
         if (input.kind === 'container') {
           if (d.containers.some((c) => c.label === input.label))
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
         } else d.users.push(make(d.organization.id) as (typeof d.users)[number]);
       });
     else {
-      const { db, member } = await identity();
+      const { db, member } = auth;
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
       const row: Record<string, unknown> = make(member.org_id);
       const { error } = await db
@@ -95,8 +96,10 @@ export async function PATCH(request: Request) {
     const withKind = body.kind ? body : { kind: 'container', ...body };
     const input = patchSchema.parse(withKind);
 
+    const auth = isDemo() ? null : await maybeIdentity();
+
     if (input.kind === 'container') {
-      if (isDemo())
+      if (!auth)
         await mutateDemo((d) => {
           const c = d.containers.find((c) => c.id === input.id);
           if (!c) throw new Error('Container not found');
@@ -105,7 +108,7 @@ export async function PATCH(request: Request) {
           c.status = input.status;
         });
       else {
-        const { db, member } = await identity();
+        const { db, member } = auth;
         if (member.role !== 'owner') throw new Error('FORBIDDEN');
         const { data, error } = await db
           .from('containers')
@@ -122,7 +125,7 @@ export async function PATCH(request: Request) {
         throw new Error('Please enter a valid phone number, e.g. +15125551234 or (512) 555-1234.');
       }
 
-      if (isDemo())
+      if (!auth)
         await mutateDemo((d) => {
           const u = d.users.find((u) => u.id === input.id && u.role === 'driver');
           if (!u) throw new Error('Driver not found');
@@ -130,7 +133,7 @@ export async function PATCH(request: Request) {
           u.phone = formattedPhone;
         });
       else {
-        const { db, member } = await identity();
+        const { db, member } = auth;
         if (member.role !== 'owner') throw new Error('FORBIDDEN');
         const updateFields: Record<string, unknown> = { phone: formattedPhone };
         if (input.name) updateFields.name = input.name;
