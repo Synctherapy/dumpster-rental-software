@@ -49,7 +49,7 @@ export default function Home() {
           {
             question: 'What if I don’t have a Stripe account or have never accepted cards online?',
             answer:
-              'Setting up Stripe Connect takes under 3 minutes directly inside your RollOS dashboard. It is 100% free with $0 monthly fees, no credit check, and zero impact on your credit score. Payments deposit automatically to your business checking account on a 2-day rolling basis, with optional 30-minute instant payouts for fuel or landfill tipping fees. RollOS never holds your funds.',
+              'Setting up Stripe Connect takes under 3 minutes directly inside your RollOS dashboard. It has $0 monthly fees, no setup charges, and zero credit checks. When a customer pays online with a card, standard card processing (2.9% + 30¢) is deducted automatically by Stripe at the time of transaction—meaning no surprise bills at the end of the month. Your payouts deposit automatically into your bank on a free 2-day rolling schedule, with optional 30-minute instant payouts for fuel or landfill fees. RollOS never holds your funds.',
           },
           {
             question: 'How do I collect for overweight dumpsters and scale tickets?',
@@ -415,20 +415,20 @@ export default function Home() {
             Don&apos;t have a Stripe account or never processed cards online?
           </h4>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
-            <strong>Setup takes under 3 minutes and costs $0:</strong> RollOS connects directly with <strong>Stripe Connect</strong>—the gold standard payment system trusted by millions of businesses. Setting up your account is 100% free with $0 monthly fees, <strong>zero credit checks</strong>, and no impact on your credit score.
+            <strong>$0 monthly fees and 3-minute setup:</strong> RollOS connects directly with <strong>Stripe Connect</strong>—the payment backbone trusted by Amazon, Shopify, and millions of businesses. Setting up your account is 100% free with <strong>$0 monthly account fees</strong>, zero statement charges, and <strong>zero credit checks</strong> (no score impact).
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#334155] mb-3">
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
-              <span><strong>Automatic 2-Day Payouts:</strong> Direct to your local bank.</span>
+              <span><strong>Free Automatic 2-Day Payouts:</strong> Direct to your checking account.</span>
             </div>
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
-              <span><strong>30-Min Instant Payouts:</strong> Ready for landfill tipping fees or fuel.</span>
+              <span><strong>Deducted at Time of Payment:</strong> Standard 2.9% + 30¢ card processing.</span>
             </div>
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
-              <span><strong>RollOS Never Holds Funds:</strong> Money flows directly to you.</span>
+              <span><strong>RollOS Never Holds Funds:</strong> Money flows straight to you.</span>
             </div>
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
@@ -436,7 +436,7 @@ export default function Home() {
             </div>
           </div>
           <p className="text-xs text-[#64748b] leading-relaxed">
-            Card processing is standard interchange (2.9% + 30¢ per transaction). No merchant setup charges, no gateway fees, and no lock-in.
+            <strong>How card fees work:</strong> When a customer pays online, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment—meaning you never receive a surprise bill at the end of the month. Standard bank payouts on a 2-day rolling schedule are 100% free. Optional 30-minute instant debit card cashouts carry Stripe&apos;s standard 1.5% fee.
           </p>
         </div>
 
@@ -591,7 +591,7 @@ export default function Home() {
               What if I don&apos;t have a Stripe account or never processed cards online?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              Setting up Stripe Connect takes under 3 minutes directly from your RollOS dashboard. It is 100% free with $0 monthly fees and <strong>zero credit checks</strong> (no score impact). Your customer payments deposit automatically into your bank account on a 2-day rolling basis, with optional 30-minute instant payouts when you need cash for fuel or landfill tipping fees. RollOS never holds your funds.
+              Setting up Stripe Connect takes under 3 minutes directly from your RollOS dashboard. There are <strong>$0 monthly fees</strong>, no setup charges, and <strong>zero credit checks</strong> (no score impact). When a customer pays online with a card, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment, meaning you never get a surprise bill at the end of the month. Your payouts deposit automatically into your bank account on a 2-day rolling schedule (100% free), with optional 30-minute instant cashouts if you need emergency cash for fuel or landfill tipping fees. RollOS never holds your funds.
             </p>
           </div>
 

@@ -123,14 +123,14 @@ export default function PricingPage() {
             <div>
               <h4 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-1.5">
                 <CreditCard size={18} className="text-[#ea580c] shrink-0" />
-                Stripe Direct Payouts: $0 Setup
+                Stripe Direct Payouts: $0 Monthly Fees
               </h4>
               <p className="text-xs text-[#475569] leading-relaxed mb-3">
-                Connect your business checking account in under 3 minutes with <strong>zero credit checks</strong>. Automatic 2-day rolling bank deposits and optional 30-minute instant payouts for fuel or landfill tipping fees. RollOS never holds your cash.
+                Connect your business checking account in under 3 minutes with <strong>zero credit checks</strong>. Standard card processing (2.9% + 30¢) is deducted automatically at payment time, with free automatic 2-day bank deposits and optional 30-min instant payouts. RollOS never holds your cash.
               </p>
             </div>
             <div className="text-[11px] font-semibold text-[#166534]">
-              ✓ 100% free account · 0 monthly merchant fees
+              ✓ $0 monthly merchant fees · No surprise monthly bills
             </div>
           </div>
 
