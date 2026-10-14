@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, ShieldCheck, DollarSign } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, DollarSign, CreditCard, CheckCircle2 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { PricingMatrix } from '@/components/pricing-matrix';
 import { Footer } from '@/components/footer';
@@ -97,25 +97,56 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Manual Phone Orders & Scale Ticket Guarantees */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left">
-            <h4 className="text-sm font-bold text-[#1f2d26] mb-1.5 flex items-center gap-2">
-              <ShieldCheck size={18} className="text-[#ea580c]" />
-              Manual &amp; Phone Orders: $0 Platform Fee
-            </h4>
-            <p className="text-xs md:text-sm text-[#475569] leading-relaxed">
-              When contractors or homeowners call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>. The $12 fee only applies when a customer self-books on your 24/7 online widget.
-            </p>
+        {/* Manual Phone Orders, Stripe Connect & Scale Ticket Guarantees */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-1 mb-2">
+                <h4 className="text-sm font-bold text-[#1f2d26] flex items-center gap-1.5">
+                  <CheckCircle2 size={18} className="text-[#ea580c] shrink-0" />
+                  Manual &amp; Phone Orders: $0 Fees
+                </h4>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-[#eef3e6] text-[#4a6331] px-2 py-0.5 rounded-full border border-[#d2dec3]">
+                  Starter $29/mo
+                </span>
+              </div>
+              <p className="text-xs text-[#475569] leading-relaxed mb-3">
+                When repeat contractors call or text you, enter them onto your visual dispatch board with <strong>$0 platform fees forever</strong> on Starter. Just 1 contractor pull pays for the software for the entire month while saving you $3,600+/yr vs legacy tools.
+              </p>
+            </div>
+            <div className="text-[11px] font-semibold text-[#166534]">
+              ✓ Includes 14-day free trial · Cancel anytime
+            </div>
           </div>
-          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left">
-            <h4 className="text-sm font-bold text-[#1f2d26] mb-1.5 flex items-center gap-2">
-              <ShieldCheck size={18} className="text-[#ea580c]" />
-              Card on File for Scale Tickets &amp; Dry Runs
-            </h4>
-            <p className="text-xs md:text-sm text-[#475569] leading-relaxed">
-              Customer payment cards are tokenized and saved on file via Stripe Connect at booking. When landfill scale tickets show overages, charge the exact amount in 1 click without chasing checks.
-            </p>
+
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left flex flex-col justify-between">
+            <div>
+              <h4 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-1.5">
+                <CreditCard size={18} className="text-[#ea580c] shrink-0" />
+                Stripe Direct Payouts: $0 Setup
+              </h4>
+              <p className="text-xs text-[#475569] leading-relaxed mb-3">
+                Connect your business checking account in under 3 minutes with <strong>zero credit checks</strong>. Automatic 2-day rolling bank deposits and optional 30-minute instant payouts for fuel or landfill tipping fees. RollOS never holds your cash.
+              </p>
+            </div>
+            <div className="text-[11px] font-semibold text-[#166534]">
+              ✓ 100% free account · 0 monthly merchant fees
+            </div>
+          </div>
+
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm text-left flex flex-col justify-between">
+            <div>
+              <h4 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-1.5">
+                <ShieldCheck size={18} className="text-[#ea580c] shrink-0" />
+                Card on File for Scale Tickets
+              </h4>
+              <p className="text-xs text-[#475569] leading-relaxed mb-3">
+                Customer payment cards are tokenized and saved on file at checkout via Stripe Connect. When landfill scale tickets show overages, charge the exact amount in 1 click without chasing checks or awkward calls.
+              </p>
+            </div>
+            <div className="text-[11px] font-semibold text-[#166534]">
+              ✓ Automatic overage math at your custom rate
+            </div>
           </div>
         </div>
 

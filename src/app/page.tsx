@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Truck,
   Sparkles,
+  CreditCard,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
@@ -43,7 +44,12 @@ export default function Home() {
           {
             question: 'What about phone or manual orders? Do I pay $12 for manual dispatch?',
             answer:
-              'No. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When contractors or homeowners call or text you, enter them onto your visual dispatch board with $0 platform fee. You get full dispatch, SMS driver routes, and yard tracking without paying a dime.',
+              'No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When contractors or homeowners call or text you, upgrading to our Starter Plan ($29/mo with a 14-day free trial) unlocks unlimited manual phone dispatch with $0 platform fees forever, custom VIP contractor price tiers, and 2-way Google Calendar sync. Just one contractor haul per month pays for the entire software.',
+          },
+          {
+            question: 'What if I don’t have a Stripe account or have never accepted cards online?',
+            answer:
+              'Setting up Stripe Connect takes under 3 minutes directly inside your RollOS dashboard. It is 100% free with $0 monthly fees, no credit check, and zero impact on your credit score. Payments deposit automatically to your business checking account on a 2-day rolling basis, with optional 30-minute instant payouts for fuel or landfill tipping fees. RollOS never holds your funds.',
           },
           {
             question: 'How do I collect for overweight dumpsters and scale tickets?',
@@ -382,15 +388,55 @@ export default function Home() {
 
         {/* Manual Phone Orders Objection Reassurance */}
         <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h4 className="text-base font-bold text-[#1f2d26] flex items-center gap-2">
+              <CheckCircle2 size={20} className="text-[#ea580c] shrink-0" />
+              What about contractors who call or text? Do you charge $12 for manual orders?
+            </h4>
+            <span className="text-[11px] font-bold uppercase tracking-wider bg-[#eef3e6] text-[#4a6331] px-2.5 py-0.5 rounded-full border border-[#d2dec3] shrink-0">
+              Starter Plan ($29/mo)
+            </span>
+          </div>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>$0 Platform Fee on Offline &amp; Phone Orders:</strong> The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When regular contractors, roofers, or commercial accounts call or text you, enter them onto your visual dispatch board with <strong>$0 platform fees forever</strong>.
+          </p>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>Why upgrading to Starter ($29/mo) is an absolute no-brainer:</strong> At just $29/mo (less than $1/day), a single contractor dumpster pull pays for the software for the entire month. While legacy tools like Docket or ServiceCore charge $350–$600+ every month ($4,200+/year) plus forced onboarding fees, RollOS Starter gives you unlimited manual phone dispatches, custom VIP contractor price tiers (cash, check, or net-30 terms), and 2-way Google Calendar sync—saving you <strong>$3,600+ every year</strong>.
+          </p>
+          <div className="text-xs font-semibold text-[#166534] bg-[#f0fdf4] p-3 rounded-lg border border-[#bbf7d0]">
+            💡 <strong>Start 100% Free:</strong> Capture after-hours online bookings on our $0/mo Free Plan first. When you&apos;re ready to organize your manual phone contractor dispatches, take a 14-day free trial of Starter with 1 click.
+          </div>
+        </div>
+
+        {/* Stripe Payments Objection Handling */}
+        <div className="p-5 bg-white border border-[#dde4d4] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
           <h4 className="text-base font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
-            <CheckCircle2 size={20} className="text-[#ea580c]" />
-            What about contractors who call or text? Do you charge $12 for manual orders?
+            <CreditCard size={20} className="text-[#ea580c] shrink-0" />
+            Don&apos;t have a Stripe account or never processed cards online?
           </h4>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
-            <strong>$0 Platform Fee on Manual &amp; Phone Orders:</strong> Absolutely not. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When regular contractors call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>.
+            <strong>Setup takes under 3 minutes and costs $0:</strong> RollOS connects directly with <strong>Stripe Connect</strong>—the gold standard payment system trusted by millions of businesses. Setting up your account is 100% free with $0 monthly fees, <strong>zero credit checks</strong>, and no impact on your credit score.
           </p>
-          <p className="text-sm text-[#475569] leading-relaxed">
-            Run your entire fleet, send 1-click driver SMS route links, and track inventory without paying a penny.
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#334155] mb-3">
+            <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
+              <span className="text-[#166534] font-bold">✓</span>
+              <span><strong>Automatic 2-Day Payouts:</strong> Direct to your local bank.</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
+              <span className="text-[#166534] font-bold">✓</span>
+              <span><strong>30-Min Instant Payouts:</strong> Ready for landfill tipping fees or fuel.</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
+              <span className="text-[#166534] font-bold">✓</span>
+              <span><strong>RollOS Never Holds Funds:</strong> Money flows directly to you.</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
+              <span className="text-[#166534] font-bold">✓</span>
+              <span><strong>Free Stripe Mobile App:</strong> Live payout alerts on your phone.</span>
+            </div>
+          </div>
+          <p className="text-xs text-[#64748b] leading-relaxed">
+            Card processing is standard interchange (2.9% + 30¢ per transaction). No merchant setup charges, no gateway fees, and no lock-in.
           </p>
         </div>
 
@@ -535,7 +581,17 @@ export default function Home() {
               What about phone or manual orders? Do I pay $12 for manual dispatch?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              No. The $12 reservation fee only applies when a customer self-books on your 24/7 online widget. When contractors or homeowners call or text you, enter them onto your visual dispatch board with <strong>$0 platform fee</strong>. You get full dispatch, SMS driver routes, and yard tracking without paying a dime.
+              No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When regular contractors call or text you, our <strong>Starter Plan ($29/mo)</strong> unlocks unlimited manual phone dispatch with <strong>$0 platform fees forever</strong>, VIP contractor custom rates (cash, check, or net-30 terms), and 2-way Google Calendar sync. One single contractor haul per month pays for the entire software while saving you $3,600+/yr vs legacy tools.
+            </p>
+          </div>
+
+          <div className="faq-card">
+            <h3>
+              <HelpCircle size={20} className="text-[#ea580c] flex-shrink-0" />
+              What if I don&apos;t have a Stripe account or never processed cards online?
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
+              Setting up Stripe Connect takes under 3 minutes directly from your RollOS dashboard. It is 100% free with $0 monthly fees and <strong>zero credit checks</strong> (no score impact). Your customer payments deposit automatically into your bank account on a 2-day rolling basis, with optional 30-minute instant payouts when you need cash for fuel or landfill tipping fees. RollOS never holds your funds.
             </p>
           </div>
 

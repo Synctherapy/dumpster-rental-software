@@ -148,7 +148,7 @@ export function FounderNoteSection() {
               }}
             >
               <UserCheck size={13} color="#628f34" />
-              FOUNDER TRANSPARENCY &amp; COMMITMENT
+              DIRECT TALK · BUILT FOR 1–5 TRUCK INDEPENDENT HAULERS
             </div>
 
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26] mb-4 tracking-tight leading-snug">
@@ -160,10 +160,10 @@ export function FounderNoteSection() {
                 If you run 1 to 5 roll-off trucks, you know how legacy dumpster software operates. They force you into a 45-minute sales demo, make you sign a 12-month contract, and charge you $300 to $500 every month—even during the winter when construction slows down.
               </p>
               <p>
-                <strong>We believe independent haulers deserve better.</strong> That’s why RollOS is free ($0/month) for haulers. Just like Airbnb, your customer pays a standard $12 reservation fee at online checkout to guarantee their container delivery date. You keep 100% of your rental money, 100% of your extra day fees, and 100% of your tonnage overages.
+                <strong>We believe independent haulers deserve better.</strong> That’s why RollOS offers a $0/month free plan to capture new online bookings while you sleep. Your customer pays a standard $12 reservation lock fee at online checkout (just like an Airbnb or flight), and you keep 100% of your rental money, extra day fees, and tonnage overages.
               </p>
               <p>
-                And when a regular contractor calls or texts you? <strong>Manual phone orders entered on your dispatch board have a $0 platform fee.</strong> You run your entire daily schedule without paying a monthly software tax.
+                When you&apos;re ready to run repeat contractors who call or text and pay offline (Cash, Check, Zelle, or Net-30 invoice), our <strong>Starter Plan ($29/mo)</strong> unlocks unlimited manual dispatch with $0 platform fees, VIP contractor custom pricing, and 2-way Google Calendar sync. One single contractor pull covers the software for the entire month.
               </p>
             </div>
 
@@ -178,19 +178,19 @@ export function FounderNoteSection() {
               <div className="flex items-start gap-2.5">
                 <ShieldCheck size={18} className="text-[#628f34] shrink-0 mt-0.5" />
                 <span className="text-xs md:text-sm text-[#2a382c] font-medium">
-                  <strong>Phone orders are 100% free:</strong> $0 fee on manual dispatch jobs entered by staff.
+                  <strong>Starter is just $29/mo:</strong> Unlimited $0-fee manual phone dispatch &amp; contractor accounts.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <ShieldCheck size={18} className="text-[#628f34] shrink-0 mt-0.5" />
                 <span className="text-xs md:text-sm text-[#2a382c] font-medium">
-                  <strong>Card on file for overages:</strong> Charge scale tickets and dry runs in 1 click via Stripe.
+                  <strong>Direct Stripe Connect payouts:</strong> Automatic 2-day bank deposits, 30-min instant payouts, 0 credit checks.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <ShieldCheck size={18} className="text-[#628f34] shrink-0 mt-0.5" />
                 <span className="text-xs md:text-sm text-[#2a382c] font-medium">
-                  <strong>Zero lock-in:</strong> No annual contracts. Start or stop whenever you choose.
+                  <strong>Zero lock-in:</strong> No annual contracts. Start free or cancel anytime with 1 click.
                 </span>
               </div>
             </div>

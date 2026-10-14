@@ -38,7 +38,6 @@ const DUMPSTER_OPTIONS: DumpsterOption[] = [
 export function CheckoutReceiptPreview() {
   const [selectedYards, setSelectedYards] = useState<number>(20);
   const [viewMode, setViewMode] = useState<'customer' | 'hauler'>('customer');
-  const [showObjectionDetails, setShowObjectionDetails] = useState<boolean>(false);
 
   const currentOption =
     DUMPSTER_OPTIONS.find((opt) => opt.yards === selectedYards) || DUMPSTER_OPTIONS[1];
@@ -654,70 +653,46 @@ export function CheckoutReceiptPreview() {
             </div>
           </div>
 
-          {/* Objection Explainer Expandable */}
+          {/* Objection Explainer (Open by Default) */}
           <div
             style={{
-              background: '#f7f8fa',
+              background: '#f8faf7',
               border: '1px solid #dde4d4',
               borderRadius: 12,
-              overflow: 'hidden',
+              padding: '16px',
             }}
           >
-            <button
-              type="button"
-              onClick={() => setShowObjectionDetails(!showObjectionDetails)}
+            <div
               style={{
-                width: '100%',
-                padding: '12px 16px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                border: 'none',
-                background: 'transparent',
-                textAlign: 'left',
-                fontSize: 13.5,
+                gap: 8,
+                fontSize: 14,
                 fontWeight: 700,
                 color: '#1f2d26',
+                marginBottom: 10,
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <HelpCircle size={16} color="#ea580c" />
-                Will my customers complain about a $12 reservation fee?
-              </span>
-              <span
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  transform: showObjectionDetails ? 'rotate(45deg)' : 'none',
-                  transition: 'transform 0.15s ease',
-                  display: 'inline-block',
-                }}
-              >
-                +
-              </span>
-            </button>
-            {showObjectionDetails && (
-              <div
-                style={{
-                  padding: '0 16px 14px',
-                  fontSize: 13,
-                  color: '#4a5d4e',
-                  lineHeight: 1.6,
-                  borderTop: '1px solid #e8ebed',
-                  paddingTop: 12,
-                }}
-              >
-                <p style={{ margin: '0 0 8px' }}>
-                  <strong>Actual data from over 12,000 completed RollOS checkouts:</strong> Abandonment
-                  rate due to the $12 reservation fee is virtually non-existent (under 0.4%).
-                </p>
-                <p style={{ margin: 0 }}>
-                  Why? Customers booking online at 9:30 PM are delighted that they don&apos;t have to call three
-                  haulers tomorrow morning during work hours. The $12 gives them peace of mind that their dumpster is
-                  locked in and scheduled.
-                </p>
-              </div>
-            )}
+              <HelpCircle size={17} color="#ea580c" />
+              <span>Will your customers complain about a $12 reservation fee?</span>
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                color: '#475569',
+                lineHeight: 1.6,
+              }}
+            >
+              <p style={{ margin: '0 0 10px' }}>
+                <strong>Think about consumer booking psychology:</strong> When a homeowner or contractor orders a <strong>$450 roll-off container</strong> online at 9:30 PM, they want immediate certainty that their delivery is scheduled. A standard <strong>$12 delivery lock fee</strong> (less than 3%) is completely routine—just like an Airbnb, hotel, or flight reservation fee.
+              </p>
+              <p style={{ margin: '0 0 10px' }}>
+                They gladly pay it for instant online confirmation, instead of waiting until 8:00 AM tomorrow morning to play phone tag with three different haulers while getting ready for work.
+              </p>
+              <p style={{ margin: 0, color: '#166534', fontWeight: 600 }}>
+                ✓ Want to absorb the fee? You can toggle &quot;Absorb Fee&quot; in your RollOS settings or fold it into your base container price anytime. You stay in 100% control of your business.
+              </p>
+            </div>
           </div>
 
           {/* CTA Box */}
