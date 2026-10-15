@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, ArrowRight } from 'lucide-react';
@@ -43,6 +43,11 @@ export const NAV_SECTIONS: NavSection[] = [
         name: 'Scale Tickets & Invoicing',
         href: '/features/tonnage-billing',
         desc: 'Charge extra tonnage and overage fees automatically',
+      },
+      {
+        name: 'Software Pricing Plans',
+        href: '/pricing',
+        desc: 'Start 100% free with $0/mo — view Starter & Growth tiers',
       },
       {
         name: 'View All Software Features',
@@ -252,53 +257,65 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
               (section.id === 'compare' && activePath?.startsWith('/vs'));
 
             return (
-              <div
-                key={section.id}
-                className="nav-dropdown"
-                onMouseEnter={() => handleMouseEnter(section.id)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  className={`nav-dropdown-btn ${isOpen ? 'open' : ''} ${isSectionActive ? 'active' : ''}`}
-                  onClick={() => handleTriggerClick(section.id)}
-                  aria-expanded={isOpen}
-                  aria-haspopup="true"
-                  aria-label={`${section.label} menu`}
-                >
-                  <span>{section.label}</span>
-                  <ChevronDown size={14} className={`nav-chevron ${isOpen ? 'open' : ''}`} />
-                </button>
-
-                {/* Dropdown Menu Panel */}
+              <Fragment key={section.id}>
                 <div
-                  className={`nav-dropdown-menu ${isOpen ? 'open' : ''}`}
-                  role="menu"
-                  aria-label={`${section.label} links`}
+                  className="nav-dropdown"
                   onMouseEnter={() => handleMouseEnter(section.id)}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <div className="nav-dropdown-menu-inner">
-                    {section.items.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`nav-dropdown-item ${item.isAllLink ? 'nav-dropdown-item-all' : ''}`}
-                        role="menuitem"
-                        onClick={() => setActiveDropdown(null)}
-                      >
-                        <div className="nav-dropdown-item-title">
-                          <span>{item.name}</span>
-                          {item.isAllLink ? (
-                            <ArrowRight size={13} className="text-[#ea580c] transition-transform group-hover:translate-x-0.5" />
-                          ) : null}
-                        </div>
-                        <div className="nav-dropdown-item-desc">{item.desc}</div>
-                      </Link>
-                    ))}
+                  <button
+                    type="button"
+                    className={`nav-dropdown-btn ${isOpen ? 'open' : ''} ${isSectionActive ? 'active' : ''}`}
+                    onClick={() => handleTriggerClick(section.id)}
+                    aria-expanded={isOpen}
+                    aria-haspopup="true"
+                    aria-label={`${section.label} menu`}
+                  >
+                    <span>{section.label}</span>
+                    <ChevronDown size={14} className={`nav-chevron ${isOpen ? 'open' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu Panel */}
+                  <div
+                    className={`nav-dropdown-menu ${isOpen ? 'open' : ''}`}
+                    role="menu"
+                    aria-label={`${section.label} links`}
+                    onMouseEnter={() => handleMouseEnter(section.id)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <div className="nav-dropdown-menu-inner">
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`nav-dropdown-item ${item.isAllLink ? 'nav-dropdown-item-all' : ''}`}
+                          role="menuitem"
+                          onClick={() => setActiveDropdown(null)}
+                        >
+                          <div className="nav-dropdown-item-title">
+                            <span>{item.name}</span>
+                            {item.isAllLink ? (
+                              <ArrowRight size={13} className="text-[#ea580c] transition-transform group-hover:translate-x-0.5" />
+                            ) : null}
+                          </div>
+                          <div className="nav-dropdown-item-desc">{item.desc}</div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+
+                {/* Direct Pricing Link placed right next to Features */}
+                {section.id === 'features' && (
+                  <Link
+                    href="/pricing"
+                    className={`nav-link-direct ${activePath === '/pricing' ? 'active' : ''}`}
+                    role="menuitem"
+                  >
+                    Pricing
+                  </Link>
+                )}
+              </Fragment>
             );
           })}
 
@@ -309,15 +326,6 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
             role="menuitem"
           >
             Guides
-          </Link>
-
-          {/* Pricing Link */}
-          <Link
-            href="/pricing"
-            className={`nav-link-direct ${activePath === '/pricing' ? 'active' : ''}`}
-            role="menuitem"
-          >
-            Pricing
           </Link>
         </div>
 
@@ -375,39 +383,55 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
           {NAV_SECTIONS.map((section) => {
             const isExpanded = !!expandedMobileSections[section.id];
             return (
-              <div key={section.id} className="marketing-mobile-section">
-                <button
-                  type="button"
-                  className="marketing-mobile-accordion-btn"
-                  onClick={() => toggleMobileSection(section.id)}
-                  aria-expanded={isExpanded}
-                >
-                  <span className="font-bold text-[#20332a] text-sm">{section.label}</span>
-                  <ChevronDown
-                    size={16}
-                    className={`nav-chevron transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#ea580c]' : 'text-[#748777]'}`}
-                  />
-                </button>
+              <Fragment key={section.id}>
+                <div className="marketing-mobile-section">
+                  <button
+                    type="button"
+                    className="marketing-mobile-accordion-btn"
+                    onClick={() => toggleMobileSection(section.id)}
+                    aria-expanded={isExpanded}
+                  >
+                    <span className="font-bold text-[#20332a] text-sm">{section.label}</span>
+                    <ChevronDown
+                      size={16}
+                      className={`nav-chevron transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#ea580c]' : 'text-[#748777]'}`}
+                    />
+                  </button>
 
-                {isExpanded && (
-                  <div className="marketing-mobile-links">
-                    {section.items.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`marketing-mobile-link ${item.isAllLink ? 'marketing-mobile-link-all' : ''}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="marketing-mobile-link-title">
-                          <span>{item.name}</span>
-                          {item.isAllLink && <ArrowRight size={13} className="text-[#ea580c]" />}
-                        </div>
-                        <div className="marketing-mobile-link-desc">{item.desc}</div>
-                      </Link>
-                    ))}
+                  {isExpanded && (
+                    <div className="marketing-mobile-links">
+                      {section.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`marketing-mobile-link ${item.isAllLink ? 'marketing-mobile-link-all' : ''}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <div className="marketing-mobile-link-title">
+                            <span>{item.name}</span>
+                            {item.isAllLink && <ArrowRight size={13} className="text-[#ea580c]" />}
+                          </div>
+                          <div className="marketing-mobile-link-desc">{item.desc}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Direct Pricing Link placed right under Features */}
+                {section.id === 'features' && (
+                  <div className="marketing-mobile-section">
+                    <Link
+                      href="/pricing"
+                      className={`marketing-mobile-direct-link ${activePath === '/pricing' ? 'active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="font-bold text-[#20332a] text-sm">Pricing</span>
+                      <ArrowRight size={15} className="text-[#ea580c]" />
+                    </Link>
                   </div>
                 )}
-              </div>
+              </Fragment>
             );
           })}
 
@@ -419,18 +443,6 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
               onClick={() => setMobileMenuOpen(false)}
             >
               <span>Hauler Guides &amp; Blog</span>
-              <ArrowRight size={15} className="text-[#647867]" />
-            </Link>
-          </div>
-
-          {/* Direct Pricing Link in Mobile */}
-          <div className="marketing-mobile-section">
-            <Link
-              href="/pricing"
-              className="marketing-mobile-direct-link"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span>Pricing</span>
               <ArrowRight size={15} className="text-[#647867]" />
             </Link>
           </div>
