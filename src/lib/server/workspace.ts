@@ -2,9 +2,19 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { isDemo, readDemo } from './store';
 import { admin, maybeIdentity } from './supabase';
+import { checkAndTriggerPhoneProvisioning } from './phone';
 import type { Workspace } from '../types';
 export async function workspace(): Promise<Workspace> {
-  if (isDemo()) return readDemo();
+  if (isDemo()) {
+    const d = await readDemo();
+    if (!d.organization.twilio_phone_number) {
+      const provisioned = await checkAndTriggerPhoneProvisioning(d.organization.id).catch(() => null);
+      if (provisioned) {
+        d.organization.twilio_phone_number = provisioned;
+      }
+    }
+    return d;
+  }
   try {
     const auth = await maybeIdentity();
     if (!auth) return readDemo();
@@ -45,6 +55,12 @@ export async function workspace(): Promise<Workspace> {
         .eq('id', organization.id);
     } else if (!organization.calendar_token && config.calendar_token) {
       organization.calendar_token = config.calendar_token;
+    }
+    if (!organization.twilio_phone_number) {
+      const provisioned = await checkAndTriggerPhoneProvisioning(organization.id).catch(() => null);
+      if (provisioned) {
+        organization.twilio_phone_number = provisioned;
+      }
     }
     return {
       organization,

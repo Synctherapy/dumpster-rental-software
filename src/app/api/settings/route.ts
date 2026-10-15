@@ -4,6 +4,7 @@ import { isDemo, mutateDemo } from '@/lib/server/store';
 import { identity, maybeIdentity, admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { isValidPostalCode, normalizePostalCode } from '@/lib/types';
+import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 const rule = z.object({
   size_yards: z.number().int().min(1).max(100),
   base_price_cents: z.number().int().min(100).max(10000000),
@@ -120,6 +121,8 @@ export async function POST(request: Request) {
           org_id: d.organization.id,
         }));
       });
+      const d = await import('@/lib/server/store').then((m) => m.readDemo());
+      await checkAndTriggerPhoneProvisioning(d.organization.id).catch(() => {});
       return NextResponse.json({ ok: true, demo: true });
     }
 
@@ -146,6 +149,7 @@ export async function POST(request: Request) {
       p_input: sanitizedInput,
     });
     if (error) throw new Error(error.message);
+    await checkAndTriggerPhoneProvisioning(member.org_id).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (e) {
     return failure(e);

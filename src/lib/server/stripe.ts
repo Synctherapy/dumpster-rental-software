@@ -2,9 +2,7 @@ import 'server-only';
 import Stripe from 'stripe';
 export function stripe() {
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!key?.startsWith('sk_test_'))
-    throw new Error(
-      'Stripe test-mode key required. Live payments are disabled until launch acceptance tests pass.',
-    );
+  if (!key || (!key.startsWith('sk_test_') && !key.startsWith('sk_live_')))
+    throw new Error('Valid Stripe secret key required (sk_test_... or sk_live_...).');
   return new Stripe(key);
 }

@@ -3,6 +3,7 @@ import { identity, admin } from '@/lib/server/supabase';
 import { isDemo } from '@/lib/server/store';
 import { stripe } from '@/lib/server/stripe';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
         .update({ stripe_connect_account_id: account })
         .eq('id', org.id);
       if (saveError) throw saveError;
+      await checkAndTriggerPhoneProvisioning(org.id).catch(() => {});
     }
     const origin = process.env.APP_URL || new URL(request.url).origin;
     const link = await s.accountLinks.create({

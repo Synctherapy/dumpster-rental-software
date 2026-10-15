@@ -462,7 +462,7 @@ export default function FeaturesHubPage() {
           <div className="p-6 bg-[#f7f9f4] border border-[#dce3d4] rounded-2xl">
             <h3 className="text-base font-bold text-[#1f2d26] mb-2">Software Comparisons</h3>
             <p className="text-xs text-[#556658] mb-4">Compare RollOS vs Docket, ServiceCore, and DRS side-by-side.</p>
-            <Link href="/compare" className="text-xs font-bold text-[#ea580c] flex items-center gap-1 hover:underline">
+            <Link href="/vs" className="text-xs font-bold text-[#ea580c] flex items-center gap-1 hover:underline">
               <span>Explore Comparison Hub</span> <ArrowRight size={13} />
             </Link>
           </div>

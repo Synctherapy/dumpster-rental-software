@@ -11,6 +11,7 @@ interface FeatureItem {
   growth: string | boolean;
   bold?: boolean;
   highlight?: boolean;
+  growthHighlight?: boolean;
 }
 
 interface FeatureSection {
@@ -128,16 +129,44 @@ export function PricingMatrix() {
           growth: true,
         },
         {
-          name: 'Multi-Truck Fleet Scheduling & Team Management',
-          free: 'Single Fleet View',
-          starter: 'Multi-Truck Filter',
-          growth: 'Dedicated Multi-Fleet Dispatch',
-        },
-        {
           name: 'Financial & Exportable Operations Logs',
           free: false,
           starter: true,
           growth: true,
+        },
+      ],
+    },
+    {
+      category: 'Growth & Contractor Automation ($149/mo Exclusive)',
+      features: [
+        {
+          name: 'Missed-Call SMS Auto-Textback (Instant Twilio text with booking link when driving)',
+          free: false,
+          starter: false,
+          growth: 'Included (Saves 2–3 lost rentals/mo)',
+          bold: true,
+          growthHighlight: true,
+        },
+        {
+          name: 'VIP Contractor Net-30 Portal (1-click swap requests & monthly Net-30 billing for roofers)',
+          free: false,
+          starter: false,
+          growth: 'Included (Growth Exclusive)',
+          bold: true,
+          growthHighlight: true,
+        },
+        {
+          name: 'Multi-Truck Fleet Scheduling & Team Dispatch Management',
+          free: 'Single Fleet View',
+          starter: 'Multi-Truck Filter',
+          growth: 'Dedicated Multi-Fleet Dispatch',
+          growthHighlight: true,
+        },
+        {
+          name: 'Zero Reservation Fee Option (Absorb or Pass $12 Fee)',
+          free: false,
+          starter: false,
+          growth: 'Included (Absorb or Pass)',
         },
       ],
     },
@@ -167,7 +196,12 @@ export function PricingMatrix() {
     },
   ];
 
-  const renderVal = (val: boolean | string, bold?: boolean, highlight?: boolean) => {
+  const renderVal = (
+    val: boolean | string,
+    bold?: boolean,
+    highlight?: boolean,
+    growthHighlight?: boolean
+  ) => {
     if (typeof val === 'boolean') {
       return val ? (
         <Check size={18} className="text-[#16a34a] mx-auto font-bold" />
@@ -178,7 +212,11 @@ export function PricingMatrix() {
     return (
       <span
         className={`text-xs md:text-sm ${bold ? 'font-bold text-[#1f2d26]' : 'text-[#334155]'} ${
-          highlight ? 'text-[#166534] font-bold bg-[#f0fdf4] px-2 py-0.5 rounded' : ''
+          growthHighlight
+            ? 'text-[#065f46] font-bold bg-[#ecfdf5] border border-[#a7f3d0] px-2 py-0.5 rounded shadow-xs inline-block'
+            : highlight
+            ? 'text-[#166534] font-bold bg-[#f0fdf4] px-2 py-0.5 rounded'
+            : ''
         }`}
       >
         {val}
@@ -236,15 +274,15 @@ export function PricingMatrix() {
                   Start 14-Day Trial
                 </Link>
               </th>
-              <th className="p-5 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] mb-1">
-                  Fleets
+              <th className="p-5 text-center bg-[#fcfdfa] border-l border-[#dde4d4]">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#059669] mb-1">
+                  High-Growth Automation
                 </div>
                 <div className="text-lg font-extrabold text-[#1f2d26]">Growth Fleet</div>
                 <div className="text-2xl font-black text-[#1f2d26] my-1">
                   $149<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
-                <p className="text-[11px] text-[#64748b] mb-3">Multi-truck operations</p>
+                <p className="text-[11px] text-[#475569] mb-3">Missed-call SMS textback, VIP Net-30 roofer portal &amp; fleet routing</p>
                 <Link
                   href="/signup"
                   className="btn btn-secondary text-xs py-2 w-full justify-center"
@@ -281,8 +319,8 @@ export function PricingMatrix() {
                     <td className="px-3 py-3 text-center border-r border-[#edf2e7]">
                       {renderVal(feat.starter, feat.bold)}
                     </td>
-                    <td className="px-3 py-3 text-center">
-                      {renderVal(feat.growth, feat.bold)}
+                    <td className="px-3 py-3 text-center bg-[#fdfefe]">
+                      {renderVal(feat.growth, feat.bold, feat.highlight, feat.growthHighlight)}
                     </td>
                   </tr>
                 ))}
@@ -338,7 +376,7 @@ export function PricingMatrix() {
               ? 'Most Popular · Free Plan'
               : mobilePlan === 'starter'
               ? 'Contractors · Starter Plan'
-              : 'Multi-Truck Fleet Plan'}
+              : 'High Growth · Growth Fleet Plan'}
           </div>
           <div className="text-3xl font-black text-[#1f2d26]">
             {mobilePlan === 'free' ? '$0' : mobilePlan === 'starter' ? '$29' : '$149'}
@@ -349,7 +387,7 @@ export function PricingMatrix() {
               ? 'Get bookings and revenue while you sleep'
               : mobilePlan === 'starter'
               ? 'Cash/check logging & two-way calendar sync'
-              : 'Dedicated fleet scheduling for multi-truck operations'}
+              : 'Missed-call SMS textback, VIP Contractor Net-30 portal & multi-truck dispatch'}
           </p>
           <Link
             href="/signup"
@@ -400,7 +438,12 @@ export function PricingMatrix() {
                         {feat.name}
                       </td>
                       <td className="px-2 py-2.5 text-center text-xs break-words">
-                        {renderVal(val, feat.bold, feat.highlight)}
+                        {renderVal(
+                          val,
+                          feat.bold,
+                          feat.highlight,
+                          mobilePlan === 'growth' ? feat.growthHighlight : false
+                        )}
                       </td>
                     </tr>
                   );

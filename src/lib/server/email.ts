@@ -3,7 +3,7 @@ import { claimNotification, finishNotification } from './notifications';
 import { isDemo } from './store';
 export async function sendEmail(
   org_id: string,
-  job_id: string,
+  job_id: string | null,
   to: string,
   template: string,
   subject: string,

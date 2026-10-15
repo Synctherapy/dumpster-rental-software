@@ -16,6 +16,10 @@ import {
   Truck,
   MapPin,
   ShieldCheck,
+  PhoneCall,
+  MessageSquare,
+  Clock,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Modal } from './ui/dialog';
@@ -505,34 +509,177 @@ export function GrowthHub({
         </div>
       </section>
 
-      {/* Subscription Model Upgrade Card */}
+      {/* Growth Fleet ($149/mo) Automation Engine: Missed-Call Textback & VIP Contractor Net-30 */}
       <section
         className="panel"
         style={{
-          padding: '24px',
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
+          padding: '28px',
+          background: 'linear-gradient(135deg, #121f17 0%, #192d22 100%)',
+          color: '#f0fdf4',
+          borderRadius: '16px',
+          border: '1px solid #284433',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Zap size={16} style={{ color: '#d97706' }} />
-            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Upgrade to RollOS Pro Fleet</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(214,239,124,0.15)', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', color: '#d6ef7c', fontWeight: 700, letterSpacing: '0.04em' }}>
+            <Sparkles size={14} />
+            GROWTH FLEET AUTOMATION ($149/MO)
           </div>
-          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b', maxWidth: '580px', lineHeight: 1.5 }}>
-            Running 5+ trucks or 50+ bins? Unlock unlimited driver route links, custom branded SMS sender ID,
-            dedicated phone dispatch hotline, and zero platform transaction cut.
-          </p>
+          <span style={{ fontSize: '12px', color: '#86efac', fontWeight: 600 }}>
+            🔥 Recovers 2–3 Lost Rentals/Mo ($900–$1,500 Extra Revenue)
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <Button asChild variant="primary">
-            <Link href="/settings">Manage Membership & Billing</Link>
-          </Button>
+
+        <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', margin: '0 0 8px 0' }}>
+          Stop losing $450 rentals while driving &amp; lock in repeat roofers.
+        </h2>
+        <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#cbd5e1', maxWidth: '780px', lineHeight: 1.6 }}>
+          When homeowners call while you&apos;re hauling or dropping a can, <strong>75% hang up and immediately dial the next dumpster company on Google</strong>. Growth Fleet equips your operation with automated Twilio missed-call text-back and a dedicated VIP Contractor Net-30 Portal that pays for itself week one.
+        </p>
+
+        {/* 2 Column Feature Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+          {/* Card 1: Missed-Call SMS Auto-Textback */}
+          <div
+            style={{
+              background: '#1a2c21',
+              border: '1px solid #2d4c38',
+              borderRadius: '12px',
+              padding: '22px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ background: 'rgba(234,88,12,0.2)', color: '#fb923c', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+                  <PhoneCall size={18} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#ffffff' }}>
+                    Missed-Call SMS Auto-Textback
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#fb923c', fontWeight: 600 }}>
+                    Powered by Twilio · Instant 5-Second Response
+                  </span>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 14px 0' }}>
+                Driving down the highway or running landfill tickets? When a caller hangs up, RollOS instantly fires a customized text before they have time to call another hauler on Google Maps:
+              </p>
+
+              {/* SMS Mockup */}
+              <div style={{ background: '#0e1812', borderRadius: '8px', padding: '12px', border: '1px solid #22382a', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#64748b', marginBottom: '6px' }}>
+                  <MessageSquare size={12} color="#38bdf8" /> Automated SMS (Fires in &lt;5s):
+                </div>
+                <div style={{ background: '#193022', padding: '10px 12px', borderRadius: '8px', color: '#d6ef7c', fontSize: '12px', lineHeight: 1.5, border: '1px solid #2d5038' }}>
+                  &ldquo;Hey! Driving right now. Check live dumpster prices and reserve your bin here in 60s: <span style={{ textDecoration: 'underline' }}>{bookingUrl}</span>&rdquo;
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#86efac', lineHeight: 1.5 }}>
+                <strong>💰 The Hauler Math:</strong> Saving just <strong>2–3 lost rentals a month</strong> recovers <strong>$900–$1,500</strong> in revenue that would have gone to your competitor.
+              </div>
+            </div>
+
+            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #284433', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#86efac' }}>
+              <span>✓ Twilio instant integration</span>
+              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($149)</span>
+            </div>
+          </div>
+
+          {/* Card 2: VIP Contractor Net-30 Portal */}
+          <div
+            style={{
+              background: '#1a2c21',
+              border: '1px solid #2d4c38',
+              borderRadius: '12px',
+              padding: '22px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ background: 'rgba(59,130,246,0.2)', color: '#60a5fa', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+                  <Building2 size={18} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#ffffff' }}>
+                    VIP Contractor Net-30 Portal
+                  </h3>
+                  <span style={{ fontSize: '11px', color: '#60a5fa', fontWeight: 600 }}>
+                    High-Volume Commercial Lock-In
+                  </span>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 14px 0' }}>
+                Roofers and remodelers order <strong>5–15 dumpsters every single month</strong>. Gating 1-click dumpster swap requests and Net-30 monthly invoicing to paid tiers creates permanent lock-in:
+              </p>
+
+              {/* Feature Points */}
+              <div style={{ background: '#0e1812', borderRadius: '8px', padding: '12px', border: '1px solid #22382a', marginBottom: '14px', display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#e2e8f0' }}>
+                  <CheckCircle2 size={14} color="#86efac" />
+                  <span><strong>1-Click Job-Site Swaps:</strong> Foremen request swaps in 10s from phones.</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#e2e8f0' }}>
+                  <CheckCircle2 size={14} color="#86efac" />
+                  <span><strong>Automated Net-30 Invoices:</strong> Monthly consolidated billing.</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#e2e8f0' }}>
+                  <CheckCircle2 size={14} color="#86efac" />
+                  <span><strong>Scale Overages Included:</strong> Landfill slips attached to invoices.</span>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#93c5fd', lineHeight: 1.5 }}>
+                <strong>🔒 High Account Lock-In:</strong> Once a roofer has a seamless 1-click swap portal and Net-30 billing with you, they will never switch haulers.
+              </div>
+            </div>
+
+            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #284433', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#86efac' }}>
+              <span>✓ Multi-truck route management</span>
+              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($149)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Upgrade / Management Callout Banner */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '10px',
+            padding: '16px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '14px',
+          }}
+        >
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff' }}>
+              Ready to recover missed calls and lock in commercial accounts?
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+              Upgrade to the Growth Fleet Plan ($149/mo) — just 1 recovered dumpster pays for 3 months.
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button asChild variant="orange" style={{ fontSize: '13px', padding: '10px 18px' }}>
+              <Link href="/settings">
+                Upgrade to Growth Fleet ($149/mo) <ArrowRight size={14} />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 

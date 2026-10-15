@@ -820,7 +820,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                         type="tel"
                         autoComplete="tel"
                         required
-                        placeholder="(250) 812-8698"
+                        placeholder="(555) 234-5678"
                         value={customer.customer_phone}
                         onChange={(e) =>
                           setCustomer({ ...customer, customer_phone: e.target.value })

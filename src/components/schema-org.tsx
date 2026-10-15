@@ -17,6 +17,10 @@ export function SoftwareApplicationSchema() {
         },
         description:
           'RollOS provides all-in-one dumpster rental software, online booking, and visual dispatching for independent roll-off haulers.',
+        sameAs: [
+          'https://en.wikipedia.org/wiki/Software_as_a_service',
+          'https://www.wikidata.org/wiki/Q1254596',
+        ],
       },
       {
         '@type': 'WebSite',
@@ -33,11 +37,38 @@ export function SoftwareApplicationSchema() {
         '@id': 'https://rolloffdumpstersoftware.com/#software',
         name: 'RollOS',
         applicationCategory: 'BusinessApplication',
-        operatingSystem: 'Web browser',
+        applicationSubCategory: 'Waste Management Logistics & Roll-Off Dispatch Software',
+        operatingSystem: 'Web browser, iOS Safari, Android Chrome',
         description:
           'All-in-one roll off dumpster rental software for independent haulers. 24/7 online booking, visual dispatching, driver SMS routing, and automated tonnage billing.',
         url: 'https://rolloffdumpstersoftware.com',
         image: 'https://rolloffdumpstersoftware.com/images/screenshots/roll-off-dumpster-dispatch-board-software.png',
+        about: [
+          {
+            '@type': 'Thing',
+            name: 'Roll-off dumpster',
+            sameAs: [
+              'https://en.wikipedia.org/wiki/Roll-off_(dumpster)',
+              'https://www.wikidata.org/wiki/Q7360866',
+            ],
+          },
+          {
+            '@type': 'Thing',
+            name: 'Waste management',
+            sameAs: [
+              'https://en.wikipedia.org/wiki/Waste_management',
+              'https://www.wikidata.org/wiki/Q180388',
+            ],
+          },
+          {
+            '@type': 'Thing',
+            name: 'Software as a service',
+            sameAs: [
+              'https://en.wikipedia.org/wiki/Software_as_a_service',
+              'https://www.wikidata.org/wiki/Q1254596',
+            ],
+          },
+        ],
         screenshot: [
           'https://rolloffdumpstersoftware.com/images/screenshots/roll-off-dumpster-dispatch-board-software.png',
           'https://rolloffdumpstersoftware.com/images/screenshots/dumpster-rental-online-booking-system.png',
@@ -157,3 +188,57 @@ export function FAQPageSchema({
     />
   );
 }
+
+export function ArticleSchema({
+  title,
+  description,
+  url,
+  datePublished,
+  dateModified,
+  authorName = 'Daryl Stubbs',
+}: {
+  title: string;
+  description: string;
+  url: string;
+  datePublished: string;
+  dateModified?: string;
+  authorName?: string;
+}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: description,
+    url: url.startsWith('http') ? url : `https://rolloffdumpstersoftware.com${url}`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url.startsWith('http') ? url : `https://rolloffdumpstersoftware.com${url}`,
+    },
+    author: {
+      '@type': 'Person',
+      name: authorName,
+      jobTitle: 'Founder & Software Engineer',
+      url: 'https://rolloffdumpstersoftware.com/about',
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': 'https://rolloffdumpstersoftware.com/#organization',
+      name: 'RollOS',
+      url: 'https://rolloffdumpstersoftware.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://rolloffdumpstersoftware.com/icon.svg',
+      },
+    },
+    datePublished: datePublished,
+    dateModified: dateModified || datePublished,
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+

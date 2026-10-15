@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
-import { admin, identity, maybeIdentity } from '@/lib/server/supabase';
+import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { quote, platformFee } from '@/lib/pricing';
 import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
+import { recordBookingOccurred } from '@/lib/server/jobs';
 
 function normalizePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '');
@@ -150,6 +151,8 @@ export async function POST(request: Request) {
         return job;
       });
 
+      await recordBookingOccurred(org.id);
+
       // Send SMS & Email booking confirmation with mobile waiver signing link
       const origin = process.env.APP_URL || new URL(request.url).origin;
       const agreementUrl = `${origin}/agreement/${createdJob.id}`;
@@ -240,12 +243,14 @@ export async function POST(request: Request) {
         .single();
       if (insertErr || !inserted) throw new Error(insertErr?.message || 'Failed to create job');
       createdJob = inserted;
+      await recordBookingOccurred(member.org_id);
 
       if (body.container_id) {
         await admin()
           .from('containers')
           .update({ status: 'on_site', current_job_id: createdJob.id })
-          .eq('id', body.container_id);
+          .eq('id', body.container_id)
+          .eq('org_id', member.org_id);
       }
 
       const origin = process.env.APP_URL || new URL(request.url).origin;

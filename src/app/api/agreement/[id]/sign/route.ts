@@ -38,7 +38,7 @@ export async function POST(
       });
 
       // Send SMS confirmation that waiver was successfully signed
-      const smsText = `Texas Haul Off: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
+      const smsText = `${updated.org?.name || 'Your dumpster rental'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
       await sendSms(updated.org.id, id, updated.job.customer_phone, 'waiver_signed', smsText);
 
       return NextResponse.json({ ok: true, job: updated.job });
@@ -64,7 +64,7 @@ export async function POST(
           j.signed_by_customer = true;
           return { job: j, org: d.organization };
         });
-        const smsText = `${updated.org.name || 'Texas Haul Off'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
+        const smsText = `${updated.org?.name || 'Your dumpster rental'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
         await sendSms(updated.org.id, id, updated.job.customer_phone, 'waiver_signed', smsText);
         return NextResponse.json({ ok: true, job: updated.job });
       } catch {
@@ -90,7 +90,14 @@ export async function POST(
 
     if (updateErr) throw new Error(updateErr.message);
 
-    const smsText = `Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
+    const { data: org } = await db
+      .from('organizations')
+      .select('name')
+      .eq('id', job.org_id)
+      .single();
+
+    const orgName = org?.name || 'Your dumpster rental';
+    const smsText = `${orgName}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
     await sendSms(job.org_id, id, job.customer_phone, 'waiver_signed', smsText);
 
     return NextResponse.json({ ok: true, job: saved });

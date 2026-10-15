@@ -30,7 +30,7 @@ export default function DRSComparisonPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
       />
 
-      <MarketingNav currentPath="/compare" />
+      <MarketingNav currentPath="/vs" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="mb-4">
@@ -192,6 +192,39 @@ export default function DRSComparisonPage() {
             <p>• If you own 18 dumpsters, you pay <strong>$195.95/month ($2,351/year)</strong>.</p>
             <p>• The moment you buy 3 more containers to take on a new roofing contractor, you cross 20 cans and your software bill jumps to <strong>$279.95/month ($3,359/year)</strong>.</p>
             <p>• With RollOS, you have <strong>zero container caps</strong>. You can run 5, 25, or 50 cans on our Free ($0/mo) or Starter ($29/mo) plans without ever paying a container penalty.</p>
+          </div>
+        </div>
+
+        {/* Kyle Roof Spoke-to-Spoke Comparison Silo */}
+        <div className="p-6 bg-white border border-[#dde4d4] rounded-2xl mb-8 shadow-sm">
+          <h3 className="text-base font-bold text-[#1f2d26] mb-3">
+            Compare Other Roll-Off Dumpster Rental Software Alternatives
+          </h3>
+          <p className="text-xs text-[#556658] mb-4 leading-relaxed">
+            Evaluating multiple platforms? Explore our side-by-side operational reviews against other major waste and dumpster software providers:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <Link
+              href="/vs/docket"
+              className="p-3 rounded-xl border border-[#dde4d4] hover:border-[#ea580c] hover:bg-[#fff7ed] transition-all font-semibold text-[#1f2d26] flex items-center justify-between"
+            >
+              <span>RollOS vs. Docket</span>
+              <ArrowRight size={13} className="text-[#ea580c] shrink-0" />
+            </Link>
+            <Link
+              href="/vs/servicecore"
+              className="p-3 rounded-xl border border-[#dde4d4] hover:border-[#ea580c] hover:bg-[#fff7ed] transition-all font-semibold text-[#1f2d26] flex items-center justify-between"
+            >
+              <span>RollOS vs. ServiceCore</span>
+              <ArrowRight size={13} className="text-[#ea580c] shrink-0" />
+            </Link>
+            <Link
+              href="/vs"
+              className="p-3 rounded-xl border border-[#dde4d4] hover:border-[#ea580c] hover:bg-[#fff7ed] transition-all font-semibold text-[#1f2d26] flex items-center justify-between"
+            >
+              <span>All Comparisons Hub</span>
+              <ArrowRight size={13} className="text-[#ea580c] shrink-0" />
+            </Link>
           </div>
         </div>
 

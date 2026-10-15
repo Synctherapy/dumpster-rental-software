@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { identity, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 const schema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('container'),
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
       };
     };
     const auth = isDemo() ? null : await maybeIdentity();
-    if (!auth)
+    if (!auth) {
       await mutateDemo((d) => {
         if (input.kind === 'container') {
           if (d.containers.some((c) => c.label === input.label))
@@ -52,7 +53,11 @@ export async function POST(request: Request) {
           d.containers.push(make(d.organization.id) as (typeof d.containers)[number]);
         } else d.users.push(make(d.organization.id) as (typeof d.users)[number]);
       });
-    else {
+      if (input.kind === 'container') {
+        const d = await import('@/lib/server/store').then((m) => m.readDemo());
+        await checkAndTriggerPhoneProvisioning(d.organization.id).catch(() => {});
+      }
+    } else {
       const { db, member } = auth;
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
       const row: Record<string, unknown> = make(member.org_id);
@@ -60,6 +65,9 @@ export async function POST(request: Request) {
         .from(input.kind === 'container' ? 'containers' : 'users')
         .insert(row);
       if (error) throw new Error(error.message);
+      if (input.kind === 'container') {
+        await checkAndTriggerPhoneProvisioning(member.org_id).catch(() => {});
+      }
     }
     return NextResponse.json({ ok: true });
   } catch (e) {

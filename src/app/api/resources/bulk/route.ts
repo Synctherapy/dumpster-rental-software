@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { identity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 import type { Container } from '@/lib/types';
 
 const bulkSchema = z.object({
@@ -51,6 +52,8 @@ export async function POST(request: Request) {
 
         d.containers.push(...newContainers);
       });
+      const d = await import('@/lib/server/store').then((m) => m.readDemo());
+      await checkAndTriggerPhoneProvisioning(d.organization.id).catch(() => {});
     } else {
       const { db, member } = await identity();
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
@@ -71,6 +74,7 @@ export async function POST(request: Request) {
         }
         throw new Error(error.message);
       }
+      await checkAndTriggerPhoneProvisioning(member.org_id).catch(() => {});
     }
 
     return NextResponse.json({ ok: true, count: items.length });

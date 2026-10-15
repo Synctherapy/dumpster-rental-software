@@ -49,6 +49,35 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/compare',
+        destination: '/vs',
+        permanent: true,
+      },
+      {
+        source: '/calculator',
+        destination: '/tools/savings-calculator',
+        permanent: true,
+      },
+      {
+        source: '/uses',
+        destination: '/features',
+        permanent: true,
+      },
+      {
+        source: '/uses/dumpster-booking-system',
+        destination: '/features/online-booking',
+        permanent: true,
+      },
+      {
+        source: '/uses/roll-off-dispatch-software',
+        destination: '/features/dispatch-board',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

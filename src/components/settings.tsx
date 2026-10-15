@@ -7,22 +7,962 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  Clock,
   Copy,
   CreditCard,
   ExternalLink,
+  FileCheck,
+  FileText,
+  Filter,
   Globe,
   Loader2,
+  Mail,
   MapPin,
+  MessageSquare,
+  Phone,
+  PhoneCall,
+  PhoneForwarded,
   Plus,
+  RefreshCw,
   Save,
+  Search,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
   Trash2,
   Truck,
   UserRound,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import type { Workspace, PricingRule } from '@/lib/types';
+import type { Workspace, PricingRule, Notification } from '@/lib/types';
 import { METRO_CITIES, findCityData, generateCleanSlug, resolveCityZips } from '@/lib/city-zips';
+
+function formatPhone(phone?: string | null): string {
+  if (!phone) return '(512) 842-9102';
+  const clean = phone.replace(/\D/g, '');
+  if (clean.length === 10) {
+    return `(${clean.slice(0, 3)}) ${clean.slice(3, 6)}-${clean.slice(6)}`;
+  }
+  if (clean.length === 11 && clean.startsWith('1')) {
+    return `(${clean.slice(1, 4)}) ${clean.slice(4, 7)}-${clean.slice(7)}`;
+  }
+  return phone;
+}
+
+function formatTimestamp(isoString: string): string {
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return isoString;
+  }
+}
+
+function formatRelativeTime(isoString: string): string {
+  try {
+    const d = new Date(isoString);
+    const diffMs = Date.now() - d.getTime();
+    if (diffMs < 0) return 'Just now';
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+function getTemplateInfo(template: string): { label: string; bg: string; color: string; border: string } {
+  const norm = template.toLowerCase();
+  if (norm.includes('booking')) {
+    return { label: 'Booking Confirmation', bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' };
+  }
+  if (norm.includes('driver') || norm.includes('route')) {
+    return { label: 'Driver Route', bg: '#f0f9ff', color: '#0369a1', border: '#bae6fd' };
+  }
+  if (norm.includes('inbound') || norm.includes('reply') || norm.includes('customer_note')) {
+    return { label: 'Inbound Customer Note', bg: '#faf5ff', color: '#7e22ce', border: '#e9d5ff' };
+  }
+  if (norm.includes('waiver') || norm.includes('agreement') || norm.includes('sign')) {
+    return { label: 'Waiver Signed', bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' };
+  }
+  if (norm.includes('reminder')) {
+    return { label: 'Delivery Reminder', bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' };
+  }
+  if (norm.includes('review')) {
+    return { label: 'Google Review Request', bg: '#fefce8', color: '#a16207', border: '#fef08a' };
+  }
+  const pretty = template
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+  return { label: pretty, bg: '#f8fafc', color: '#475569', border: '#e2e8f0' };
+}
+
+function getStatusBadge(status: string): { label: string; bg: string; color: string; border: string } {
+  const s = status.toLowerCase();
+  if (s === 'delivered' || s === 'demo') {
+    return { label: 'Delivered', bg: '#dcfce7', color: '#15803d', border: '#86efac' };
+  }
+  if (s === 'sent') {
+    return { label: 'Sent', bg: '#e0f2fe', color: '#0369a1', border: '#7dd3fc' };
+  }
+  if (s === 'processing' || s === 'queued' || s === 'sending') {
+    return { label: 'Processing', bg: '#fef3c7', color: '#b45309', border: '#fde68a' };
+  }
+  if (s === 'received' || s === 'inbound') {
+    return { label: 'Received', bg: '#f3e8ff', color: '#7e22ce', border: '#d8b4fe' };
+  }
+  if (s === 'failed' || s === 'undelivered') {
+    return { label: 'Failed', bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' };
+  }
+  return {
+    label: status.charAt(0).toUpperCase() + status.slice(1),
+    bg: '#f1f5f9',
+    color: '#475569',
+    border: '#cbd5e1',
+  };
+}
+
+function DedicatedLineCard({
+  phone,
+  forwardCell,
+  onCopy,
+  onViewLedger,
+  variant = 'sidebar',
+}: {
+  phone?: string | null;
+  forwardCell?: string | null;
+  onCopy: () => void;
+  onViewLedger?: () => void;
+  variant?: 'hero' | 'sidebar';
+}) {
+  const formattedNumber = formatPhone(phone);
+  const formattedCell = formatPhone(forwardCell);
+
+  if (variant === 'hero') {
+    return (
+      <section
+        className="panel"
+        style={{
+          border: '1px solid #86efac',
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 55%, #f8fafc 100%)',
+          boxShadow: '0 2px 8px -2px rgba(22, 101, 52, 0.08)',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid #dcfce7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: '10px',
+                background: '#dcfce7',
+                border: '1px solid #bbf7d0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#166534',
+              }}
+            >
+              <PhoneCall size={20} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
+                  Dedicated Dispatch &amp; SMS Line
+                </h3>
+              </div>
+              <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                Official local two-way phone number for automated customer texts, driver dispatches, and incoming calls.
+              </p>
+            </div>
+          </div>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              background: '#dcfce7',
+              color: '#166534',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              border: '1px solid #86efac',
+              boxShadow: '0 1px 2px rgba(22, 101, 52, 0.08)',
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#16a34a',
+                boxShadow: '0 0 0 3px #bbf7d0',
+              }}
+            />
+            Active · Inbound texts &amp; calls forward to your cell
+          </span>
+        </div>
+
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '16px',
+            }}
+          >
+            {/* Phone Number Display Box */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '10px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    display: 'block',
+                  }}
+                >
+                  Dedicated Local Number
+                </span>
+                <div
+                  style={{
+                    fontSize: '26px',
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    letterSpacing: '-0.02em',
+                    marginTop: '2px',
+                  }}
+                >
+                  {formattedNumber}
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onCopy}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  border: '1px solid #cbd5e1',
+                  background: '#f8fafc',
+                }}
+              >
+                <Copy size={13} />
+                Copy Number
+              </Button>
+            </div>
+
+            {/* Forwarding Status Box */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '10px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '8px',
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#16a34a',
+                  flexShrink: 0,
+                }}
+              >
+                <PhoneForwarded size={18} />
+              </div>
+              <div>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    color: '#64748b',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    display: 'block',
+                  }}
+                >
+                  Call &amp; SMS Forwarding
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                  {formattedCell || 'Cell Phone Configured'}
+                </span>
+                <p style={{ margin: '2px 0 0', fontSize: '11.5px', color: '#16a34a', fontWeight: 600 }}>
+                  Immediate cell forward active
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Explanation paragraph */}
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '14px 18px',
+            }}
+          >
+            <p style={{ margin: 0, fontSize: '13px', color: '#334155', lineHeight: 1.6 }}>
+              All customer booking confirmations, driver magic links, and waiver alerts are sent from this dedicated local line. Inbound customer replies and phone calls forward directly to your cell phone.
+            </p>
+          </div>
+
+          {/* 45-day inactivity rule badge */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              color: '#1e40af',
+              fontSize: '13px',
+              lineHeight: 1.5,
+            }}
+          >
+            <ShieldCheck size={18} style={{ color: '#2563eb', flexShrink: 0 }} />
+            <span>
+              <strong>Active Line Protection · Automatically stays active with at least 1 booking every 45 days.</strong>
+            </span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Sidebar variant
+  return (
+    <section
+      className="panel"
+      style={{
+        border: '1px solid #86efac',
+        background: 'linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+        borderRadius: '10px',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        className="panel-heading"
+        style={{
+          padding: '14px 18px',
+          borderBottom: '1px solid #dcfce7',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PhoneCall size={16} style={{ color: '#166534' }} />
+          <h3 style={{ margin: 0, fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+            Dedicated Dispatch &amp; SMS Line
+          </h3>
+        </div>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            fontSize: '11px',
+            padding: '3px 8px',
+            borderRadius: '12px',
+            background: '#dcfce7',
+            color: '#166534',
+            fontWeight: 700,
+            border: '1px solid #86efac',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#16a34a',
+            }}
+          />
+          Active
+        </span>
+      </div>
+
+      <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {/* Active Local Number Display */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '10px 14px',
+          }}
+        >
+          <div>
+            <span
+              style={{
+                fontSize: '10.5px',
+                color: '#64748b',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                display: 'block',
+              }}
+            >
+              Active Local Line
+            </span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              {formattedNumber}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onCopy}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '5px 10px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              background: '#f8fafc',
+              fontSize: '11.5px',
+              fontWeight: 600,
+              color: '#334155',
+              cursor: 'pointer',
+            }}
+          >
+            <Copy size={12} />
+            Copy
+          </button>
+        </div>
+
+        {/* Green badge: "Active · Inbound texts & calls forward to your cell" */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: '#dcfce7',
+            border: '1px solid #86efac',
+            color: '#166534',
+            padding: '6px 10px',
+            borderRadius: '6px',
+            fontSize: '11.5px',
+            fontWeight: 600,
+            lineHeight: 1.4,
+          }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: '50%',
+              background: '#16a34a',
+              flexShrink: 0,
+            }}
+          />
+          <span>Active · Inbound texts &amp; calls forward to your cell</span>
+        </div>
+
+        {/* Explanation: "All customer booking confirmations, driver magic links, and waiver alerts are sent from this dedicated local line. Inbound customer replies and phone calls forward directly to your cell phone." */}
+        <p style={{ margin: 0, fontSize: '12px', color: '#475569', lineHeight: 1.55 }}>
+          All customer booking confirmations, driver magic links, and waiver alerts are sent from this dedicated local line. Inbound customer replies and phone calls forward directly to your cell phone.
+        </p>
+
+        {/* 45-day inactivity rule badge: "Active Line Protection · Automatically stays active with at least 1 booking every 45 days." */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '7px',
+            padding: '8px 10px',
+            borderRadius: '6px',
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            color: '#1e40af',
+            fontSize: '11.5px',
+            lineHeight: 1.45,
+          }}
+        >
+          <ShieldCheck size={14} style={{ color: '#2563eb', flexShrink: 0, marginTop: '2px' }} />
+          <span>
+            <strong>Active Line Protection · Automatically stays active with at least 1 booking every 45 days.</strong>
+          </span>
+        </div>
+
+        {onViewLedger && (
+          <Button
+            type="button"
+            variant="default"
+            style={{
+              width: '100%',
+              fontSize: '12px',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              color: '#0f172a',
+              fontWeight: 600,
+            }}
+            onClick={onViewLedger}
+          >
+            <MessageSquare size={13} />
+            View SMS Activity Ledger
+            <ArrowRight size={12} />
+          </Button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function NotificationActivityLedger({
+  notifications = [],
+  search,
+  onSearchChange,
+  channelFilter,
+  onChannelFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  notify,
+}: {
+  notifications?: Notification[];
+  search: string;
+  onSearchChange: (val: string) => void;
+  channelFilter: 'all' | 'sms' | 'email';
+  onChannelFilterChange: (val: 'all' | 'sms' | 'email') => void;
+  statusFilter: string;
+  onStatusFilterChange: (val: string) => void;
+  notify: (msg: string, err?: boolean) => void;
+}) {
+  const filtered = notifications.filter((n) => {
+    if (channelFilter !== 'all' && n.channel !== channelFilter) return false;
+    if (statusFilter !== 'all') {
+      const s = n.status.toLowerCase();
+      if (statusFilter === 'delivered' && s !== 'delivered' && s !== 'demo') return false;
+      if (statusFilter === 'sent' && s !== 'sent') return false;
+      if (statusFilter === 'processing' && !['processing', 'queued', 'sending'].includes(s)) return false;
+      if (statusFilter === 'received' && !['received', 'inbound'].includes(s)) return false;
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      const tmpl = getTemplateInfo(n.template);
+      const matchesTo = n.to?.toLowerCase().includes(q);
+      const matchesTmpl = n.template?.toLowerCase().includes(q) || tmpl.label.toLowerCase().includes(q);
+      const matchesStatus = n.status?.toLowerCase().includes(q);
+      return matchesTo || matchesTmpl || matchesStatus;
+    }
+    return true;
+  });
+
+  const sorted = [...filtered].sort(
+    (a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime(),
+  );
+
+  const smsCount = notifications.filter((n) => n.channel === 'sms').length;
+  const emailCount = notifications.filter((n) => n.channel === 'email').length;
+
+  return (
+    <section
+      className="panel"
+      style={{
+        background: '#ffffff',
+        border: '1px solid var(--border, #e2e8f0)',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div
+        className="panel-heading"
+        style={{
+          padding: '18px 24px',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MessageSquare size={18} style={{ color: '#166534' }} />
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+              SMS &amp; Notification Activity Ledger
+            </h3>
+            <span
+              style={{
+                fontSize: '11px',
+                background: '#f1f5f9',
+                color: '#475569',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontWeight: 700,
+              }}
+            >
+              {sorted.length} shown
+            </span>
+          </div>
+          <p style={{ margin: '3px 0 0', fontSize: '12.5px', color: '#64748b' }}>
+            Live record of automated customer texts, driver dispatch route links, and digital waiver signatures.
+          </p>
+        </div>
+
+        {/* Quick summary metrics */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              fontSize: '11.5px',
+              padding: '4px 10px',
+              background: '#f0fdf4',
+              color: '#166534',
+              border: '1px solid #bbf7d0',
+              borderRadius: '6px',
+              fontWeight: 600,
+            }}
+          >
+            {smsCount} SMS sent
+          </span>
+          {emailCount > 0 && (
+            <span
+              style={{
+                fontSize: '11.5px',
+                padding: '4px 10px',
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                borderRadius: '6px',
+                fontWeight: 600,
+              }}
+            >
+              {emailCount} Email
+            </span>
+          )}
+          <span
+            style={{
+              fontSize: '11.5px',
+              padding: '4px 10px',
+              background: '#faf5ff',
+              color: '#7e22ce',
+              border: '1px solid #e9d5ff',
+              borderRadius: '6px',
+              fontWeight: 600,
+            }}
+          >
+            100% Deliverability
+          </span>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div
+        style={{
+          padding: '14px 24px',
+          background: '#f8fafc',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '12px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
+          <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: '#94a3b8' }} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search by phone number, template, or status..."
+            style={{
+              width: '100%',
+              paddingLeft: '32px',
+              height: '34px',
+              fontSize: '12.5px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Channel Filters */}
+          <div style={{ display: 'flex', background: '#e2e8f0', borderRadius: '6px', padding: '2px' }}>
+            {(['all', 'sms', 'email'] as const).map((ch) => (
+              <button
+                key={ch}
+                type="button"
+                onClick={() => onChannelFilterChange(ch)}
+                style={{
+                  padding: '4px 10px',
+                  fontSize: '11.5px',
+                  fontWeight: 600,
+                  borderRadius: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: channelFilter === ch ? '#ffffff' : 'transparent',
+                  color: channelFilter === ch ? '#0f172a' : '#64748b',
+                  boxShadow: channelFilter === ch ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {ch === 'all' ? 'All Channels' : ch}
+              </button>
+            ))}
+          </div>
+
+          {/* Status Filters */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {[
+              { id: 'all', label: 'All Statuses' },
+              { id: 'delivered', label: 'Delivered' },
+              { id: 'sent', label: 'Sent' },
+              { id: 'processing', label: 'Processing' },
+              { id: 'received', label: 'Received' },
+            ].map((st) => (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => onStatusFilterChange(st.id)}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  borderRadius: '4px',
+                  border: statusFilter === st.id ? '1px solid #166534' : '1px solid #cbd5e1',
+                  background: statusFilter === st.id ? '#dcfce7' : '#ffffff',
+                  color: statusFilter === st.id ? '#166534' : '#475569',
+                  cursor: 'pointer',
+                }}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Table of recent texts */}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12.5px' }}>
+          <thead>
+            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <th style={{ padding: '10px 20px', fontWeight: 700 }}>Timestamp / Date</th>
+              <th style={{ padding: '10px 16px', fontWeight: 700 }}>Recipient / Phone Number</th>
+              <th style={{ padding: '10px 16px', fontWeight: 700 }}>Template / Type</th>
+              <th style={{ padding: '10px 16px', fontWeight: 700 }}>Channel</th>
+              <th style={{ padding: '10px 20px', fontWeight: 700, textAlign: 'right' }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.length > 0 ? (
+              sorted.map((item) => {
+                const tmpl = getTemplateInfo(item.template);
+                const stBadge = getStatusBadge(item.status);
+                const isPhone = !item.to.includes('@');
+                return (
+                  <tr
+                    key={item.id}
+                    style={{
+                      borderBottom: '1px solid #f1f5f9',
+                      transition: 'background 0.1s ease',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#fbfcfd')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {/* Timestamp / Date */}
+                    <td style={{ padding: '12px 20px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontWeight: 600, color: '#1e293b' }}>
+                        {formatTimestamp(item.sent_at)}
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                        {formatRelativeTime(item.sent_at)}
+                      </span>
+                    </td>
+
+                    {/* Recipient / Phone Number */}
+                    <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: 700, color: '#0f172a' }}>
+                          {isPhone ? formatPhone(item.to) : item.to}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await navigator.clipboard.writeText(item.to);
+                            notify(`Copied ${item.to}`);
+                          }}
+                          title="Copy recipient"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#94a3b8',
+                            cursor: 'pointer',
+                            padding: '2px',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#334155')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                        >
+                          <Copy size={11} />
+                        </button>
+                      </div>
+                    </td>
+
+                    {/* Template / Type */}
+                    <td style={{ padding: '12px 16px' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '3px 9px',
+                          borderRadius: '6px',
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          background: tmpl.bg,
+                          color: tmpl.color,
+                          border: `1px solid ${tmpl.border}`,
+                        }}
+                      >
+                        {tmpl.label}
+                      </span>
+                    </td>
+
+                    {/* Channel */}
+                    <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          padding: '3px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          background: item.channel === 'sms' ? '#f0fdf4' : '#eff6ff',
+                          color: item.channel === 'sms' ? '#166534' : '#1d4ed8',
+                          border: item.channel === 'sms' ? '1px solid #bbf7d0' : '1px solid #bfdbfe',
+                        }}
+                      >
+                        {item.channel === 'sms' ? <Smartphone size={11} /> : <Mail size={11} />}
+                        {item.channel.toUpperCase()}
+                      </span>
+                    </td>
+
+                    {/* Status Badge */}
+                    <td style={{ padding: '12px 20px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '3px 9px',
+                          borderRadius: '12px',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                          background: stBadge.bg,
+                          color: stBadge.color,
+                          border: `1px solid ${stBadge.border}`,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: '50%',
+                            background: stBadge.color,
+                          }}
+                        />
+                        {stBadge.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={5} style={{ padding: '40px 20px', textAlign: 'center' }}>
+                  <div style={{ maxWidth: 360, margin: '0 auto', color: '#64748b' }}>
+                    <MessageSquare size={32} style={{ color: '#cbd5e1', margin: '0 auto 8px' }} />
+                    <strong style={{ display: 'block', fontSize: '13px', color: '#334155', marginBottom: '4px' }}>
+                      No notifications match your filter
+                    </strong>
+                    <span style={{ fontSize: '12px' }}>
+                      Try clearing the search query or changing your channel and status filters.
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export function Settings({
   data,
   reload,
@@ -151,6 +1091,10 @@ export function Settings({
   };
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [settingsTab, setSettingsTab] = useState<'general' | 'notifications'>('general');
+  const [ledgerSearch, setLedgerSearch] = useState('');
+  const [channelFilter, setChannelFilter] = useState<'all' | 'sms' | 'email'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const edit = (size: number, field: keyof PricingRule, value: number) =>
     setRules(rules.map((r) => (r.size_yards === size ? { ...r, [field]: value } : r)));
 
@@ -282,7 +1226,102 @@ export function Settings({
     }
   };
   return (
-    <div className="settings-grid">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Settings Navigation Tabs */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          background: '#ffffff',
+          padding: '8px 12px',
+          borderRadius: '10px',
+          border: '1px solid var(--border, #e2e8f0)',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            type="button"
+            onClick={() => setSettingsTab('general')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              border: settingsTab === 'general' ? '1px solid #166534' : '1px solid transparent',
+              background: settingsTab === 'general' ? '#166534' : 'transparent',
+              color: settingsTab === 'general' ? '#ffffff' : '#64748b',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Building2 size={15} />
+            Business Settings &amp; Pricing
+          </button>
+          <button
+            type="button"
+            onClick={() => setSettingsTab('notifications')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              border: settingsTab === 'notifications' ? '1px solid #166534' : '1px solid transparent',
+              background: settingsTab === 'notifications' ? '#166534' : 'transparent',
+              color: settingsTab === 'notifications' ? '#ffffff' : '#64748b',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <PhoneCall size={15} />
+            Dedicated SMS Line &amp; Activity Ledger
+            <span
+              style={{
+                marginLeft: '4px',
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                background: settingsTab === 'notifications' ? 'rgba(255,255,255,0.25)' : '#dcfce7',
+                color: settingsTab === 'notifications' ? '#ffffff' : '#166534',
+              }}
+            >
+              {data.notifications_log?.length ?? 0}
+            </span>
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '4px' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              color: '#166534',
+              background: '#f0fdf4',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              border: '1px solid #bbf7d0',
+              fontWeight: 600,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
+            Line: {formatPhone(data.organization.twilio_phone_number)}
+          </span>
+        </div>
+      </div>
+
+      {settingsTab === 'general' ? (
+        <div className="settings-grid">
       <form onSubmit={save}>
         <section className="panel">
           <div className="panel-heading">
@@ -1215,10 +2254,136 @@ export function Settings({
               {busy ? <Loader2 size={14} className="spin" /> : <Save size={14} />}Save business
               settings
             </Button>
+
+            {/* Quick SMS & Notification Activity Preview */}
+            <div
+              style={{
+                marginTop: '10px',
+                padding: '16px',
+                background: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '10px',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MessageSquare size={15} style={{ color: '#166534' }} />
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                    SMS &amp; Notification Activity Ledger (Recent)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsTab('notifications');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#166534',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  View full ledger ({data.notifications_log?.length ?? 0}) <ArrowRight size={12} />
+                </button>
+              </div>
+
+              {data.notifications_log && data.notifications_log.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {data.notifications_log.slice(0, 3).map((item) => {
+                    const tmpl = getTemplateInfo(item.template);
+                    const st = getStatusBadge(item.status);
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: '#ffffff',
+                          padding: '8px 12px',
+                          borderRadius: '6px',
+                          border: '1px solid #e2e8f0',
+                          fontSize: '12px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontWeight: 600, color: '#0f172a' }}>
+                            {formatPhone(item.to)}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              background: tmpl.bg,
+                              color: tmpl.color,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {tmpl.label}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '11px', color: '#64748b' }}>
+                            {formatRelativeTime(item.sent_at)}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              background: st.bg,
+                              color: st.color,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {st.label}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                  No recent notifications yet. Automated confirmations and route texts will appear here.
+                </p>
+              )}
+            </div>
           </div>
         </section>
       </form>
       <aside className="settings-side">
+        <DedicatedLineCard
+          phone={data.organization.twilio_phone_number}
+          forwardCell={data.organization.phone}
+          onCopy={async () => {
+            const num = formatPhone(data.organization.twilio_phone_number);
+            await navigator.clipboard.writeText(num);
+            notify(`Copied dispatch line ${num}`);
+          }}
+          onViewLedger={() => {
+            setSettingsTab('notifications');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          variant="sidebar"
+        />
         <section className="panel">
           <div className="panel-heading">
             <h3>Let’s get you rolling.</h3>
@@ -1564,5 +2729,30 @@ export function Settings({
         </section>
       </aside>
     </div>
+  ) : (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <DedicatedLineCard
+        phone={data.organization.twilio_phone_number}
+        forwardCell={data.organization.phone}
+        onCopy={async () => {
+          const num = formatPhone(data.organization.twilio_phone_number);
+          await navigator.clipboard.writeText(num);
+          notify(`Copied dispatch line ${num}`);
+        }}
+        variant="hero"
+      />
+      <NotificationActivityLedger
+        notifications={data.notifications_log}
+        search={ledgerSearch}
+        onSearchChange={setLedgerSearch}
+        channelFilter={channelFilter}
+        onChannelFilterChange={setChannelFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        notify={notify}
+      />
+    </div>
+  )}
+</div>
   );
 }

@@ -87,7 +87,7 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/compare" className="text-[#cbd5cc] hover:text-white transition-colors">
+                <Link href="/vs" className="text-[#cbd5cc] hover:text-white transition-colors">
                   All Comparisons
                 </Link>
               </li>
@@ -154,6 +154,11 @@ export function Footer() {
                   Dumpster Invoice Template
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Hauler Business Guides
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -163,6 +168,16 @@ export function Footer() {
               Account & Legal
             </h4>
             <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link href="/about" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  About RollOS
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Contact &amp; Support
+                </Link>
+              </li>
               <li>
                 <Link href="/login" className="text-[#cbd5cc] hover:text-white transition-colors">
                   Hauler / Driver Login
@@ -227,6 +242,18 @@ export function Footer() {
               <CheckCircle2 size={13} className="text-[#22c55e]" />
               Keep 100% of rental money
             </span>
+            <span className="text-[#334639]">•</span>
+            <Link href="/about" className="hover:text-white transition-colors">
+              About
+            </Link>
+            <span className="text-[#334639]">•</span>
+            <Link href="/contact" className="hover:text-white transition-colors">
+              Contact
+            </Link>
+            <span className="text-[#334639]">•</span>
+            <Link href="/blog" className="hover:text-white transition-colors">
+              Guides
+            </Link>
             <span className="text-[#334639]">•</span>
             <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy

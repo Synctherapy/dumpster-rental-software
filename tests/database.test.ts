@@ -26,6 +26,8 @@ async function database() {
   await db.exec(await readFile('supabase/migrations/202610080001_swap_and_offline_payments.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610090001_custom_dumpster_sizes.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610110001_pickup_proof.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610140001_fix_payments_and_stripe_fees.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610140002_dedicated_twilio_numbers.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
@@ -206,3 +208,198 @@ test('payment failure, retried success, reordered failure, and refund are transa
     await db.close();
   }
 });
+
+test('stripe deposit with application fee and offline payments record properly into payments', async () => {
+  const db = await database();
+  try {
+    const owner = randomUUID();
+    await db.query('insert into auth.users(id,raw_user_meta_data) values($1,$2)', [
+      owner,
+      { name: 'Fee Test Owner', company: 'Fee Test Hauler' },
+    ]);
+    const org = (
+      await db.query<{ org_id: string }>('select org_id from public.users where id=$1', [owner])
+    ).rows[0].org_id;
+    await db.query("update organizations set stripe_connect_account_id='acct_fee_test' where id=$1", [org]);
+    await db.query("update pricing_rules set service_zips=array['78704'] where org_id=$1", [org]);
+
+    const container = randomUUID();
+    await db.query("insert into containers(id,org_id,label,size_yards) values($1,$2,'T-FEE',20)", [
+      container,
+      org,
+    ]);
+    const container2 = randomUUID();
+    await db.query("insert into containers(id,org_id,label,size_yards) values($1,$2,'T-OFFLINE',20)", [
+      container2,
+      org,
+    ]);
+
+    // 1. Test Stripe deposit payment with application fee ($11.95 = 1195 cents)
+    // Server computes price with reservation fee + add-on, passing price_cents & deposit_cents into reserve_booking
+    const bookingInput = {
+      id: randomUUID(),
+      org_id: org,
+      size_yards: 20,
+      zip: '78704',
+      delivery_date: addDays(today(), 2),
+      pickup_date: addDays(today(), 9),
+      booking_key: randomUUID(),
+      customer_name: 'Fee Customer',
+      customer_phone: '+15125550199',
+      customer_email: 'fee@example.com',
+      delivery_address: '100 Main St',
+      price_cents: 43695,
+      deposit_cents: 43695,
+      notes: '',
+      signature: { name: 'Fee Customer', timestamp: new Date().toISOString(), ip: 'test' },
+    };
+    const reservation = (
+      await db.query<{ job: { id: string; deposit_cents: number; price_cents: number } }>(
+        'select reserve_booking($1) as job',
+        [bookingInput],
+      )
+    ).rows[0].job;
+    assert.equal(reservation.deposit_cents, 43695);
+    assert.equal(reservation.price_cents, 43695);
+
+    const stripeDepositObject = {
+      id: 'pi_test_with_fee',
+      amount: 43695,
+      application_fee_amount: 1195,
+      currency: 'usd',
+      customer: 'cus_fee_test',
+      payment_method: 'pm_fee_test',
+      metadata: { job_id: reservation.id, org_id: org, kind: 'deposit' },
+    };
+    await db.query('select apply_stripe_event($1,$2,$3)', [
+      'evt_deposit_fee_succeeded',
+      'payment_intent.succeeded',
+      stripeDepositObject,
+    ]);
+
+    const stripePayment = (
+      await db.query<{
+        stripe_payment_intent_id: string;
+        amount_cents: number;
+        application_fee_cents: number;
+        status: string;
+      }>(
+        "select stripe_payment_intent_id, amount_cents, application_fee_cents, status from payments where stripe_payment_intent_id='pi_test_with_fee'",
+      )
+    ).rows[0];
+    assert.ok(stripePayment, 'Stripe payment with application fee must exist');
+    assert.equal(stripePayment.stripe_payment_intent_id, 'pi_test_with_fee');
+    assert.equal(stripePayment.amount_cents, 43695);
+    assert.equal(stripePayment.application_fee_cents, 1195);
+    assert.equal(stripePayment.status, 'succeeded');
+
+    // 2. Test offline payment (e.g. offline_cash_...)
+    const offlineJobId = randomUUID();
+    const offlineBookingInput = {
+      id: offlineJobId,
+      org_id: org,
+      size_yards: 20,
+      zip: '78704',
+      delivery_date: addDays(today(), 3),
+      pickup_date: addDays(today(), 10),
+      booking_key: randomUUID(),
+      customer_name: 'Offline Customer',
+      customer_phone: '+15125550188',
+      customer_email: 'offline@example.com',
+      delivery_address: '200 Pine St',
+      price_cents: 42500,
+      deposit_cents: 42500,
+      notes: '[Phone Order]',
+      signature: { name: 'Offline Customer', timestamp: new Date().toISOString(), ip: 'phone' },
+    };
+    await db.query('select reserve_booking($1)', [offlineBookingInput]);
+
+    const offlinePaymentIntentId = `offline_cash_${randomUUID().slice(0, 8)}`;
+    await db.query(
+      `insert into payments (org_id, job_id, stripe_payment_intent_id, amount_cents, application_fee_cents, status, idempotency_key)
+       values ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        org,
+        offlineJobId,
+        offlinePaymentIntentId,
+        42500,
+        0,
+        'succeeded',
+        `offline-cash-${offlineJobId}`,
+      ],
+    );
+
+    const offlinePayment = (
+      await db.query<{
+        stripe_payment_intent_id: string;
+        amount_cents: number;
+        application_fee_cents: number;
+        status: string;
+      }>(
+        'select stripe_payment_intent_id, amount_cents, application_fee_cents, status from payments where stripe_payment_intent_id=$1',
+        [offlinePaymentIntentId],
+      )
+    ).rows[0];
+    assert.ok(offlinePayment, 'Offline payment must exist');
+    assert.equal(offlinePayment.stripe_payment_intent_id, offlinePaymentIntentId);
+    assert.equal(offlinePayment.amount_cents, 42500);
+    assert.equal(offlinePayment.application_fee_cents, 0);
+    assert.equal(offlinePayment.status, 'succeeded');
+
+    // 3. Verify constraint still rejects payment intent IDs that are neither pi_% nor offline_%
+    await assert.rejects(
+      db.query(
+        `insert into payments (org_id, job_id, stripe_payment_intent_id, amount_cents, application_fee_cents, status, idempotency_key)
+         values ($1, $2, 'invalid_id_format', 42500, 0, 'succeeded', 'invalid-key')`,
+        [org, offlineJobId],
+      ),
+      /payments_stripe_payment_intent_id_check/i,
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test('dedicated twilio numbers migration adds columns and index to organizations table', async () => {
+  const db = await database();
+  try {
+    const owner = randomUUID();
+    await db.query('insert into auth.users(id,raw_user_meta_data) values($1,$2)', [
+      owner,
+      { name: 'Twilio Test Owner', company: 'Twilio Test Hauler' },
+    ]);
+    const org = (await db.query<{ id: string }>('select id from public.organizations')).rows[0].id;
+
+    // Verify columns exist and can be updated
+    await db.query(
+      `update organizations
+       set twilio_phone_number = '+15128429102',
+           twilio_phone_sid = 'PN1234567890abcdef',
+           last_booking_at = now(),
+           number_warning_sent_at = now()
+       where id = $1`,
+      [org],
+    );
+
+    const updated = (
+      await db.query<{
+        twilio_phone_number: string;
+        twilio_phone_sid: string;
+        last_booking_at: string;
+        number_warning_sent_at: string;
+      }>(
+        'select twilio_phone_number, twilio_phone_sid, last_booking_at, number_warning_sent_at from organizations where id = $1',
+        [org],
+      )
+    ).rows[0];
+
+    assert.equal(updated.twilio_phone_number, '+15128429102');
+    assert.equal(updated.twilio_phone_sid, 'PN1234567890abcdef');
+    assert.ok(updated.last_booking_at);
+    assert.ok(updated.number_warning_sent_at);
+  } finally {
+    await db.close();
+  }
+});
+
+

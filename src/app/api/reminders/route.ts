@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
-import { isDemo, readDemo } from '@/lib/server/store';
+import { isDemo, readDemo, mutateDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
+import { releaseOrganizationPhone } from '@/lib/server/phone';
 import { addDays, type Job, type Organization, type User } from '@/lib/types';
 import { driverToken } from '@/lib/server/tokens';
 
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
       const [j, o, u] = await Promise.all([
         db.from('jobs').select('*').in('status', ['booked', 'dispatched', 'delivered']),
         db.from('organizations').select('*'),
-        db.from('users').select('*').eq('role', 'driver'),
+        db.from('users').select('*'),
       ]);
       if (j.error || o.error || u.error) throw new Error('Unable to load reminder queue');
       jobs = j.data;
@@ -45,6 +46,59 @@ export async function GET(request: Request) {
     }
     let processed = 0;
     for (const org of orgs) {
+      // 1. Dedicated phone number 45-day inactivity warning & release
+      if (org.twilio_phone_number && org.last_booking_at) {
+        const lastBookingTime = new Date(org.last_booking_at).getTime();
+        const daysSinceBooking = (Date.now() - lastBookingTime) / (1000 * 60 * 60 * 24);
+
+        if (daysSinceBooking >= 45) {
+          await releaseOrganizationPhone(org.id);
+        } else if (daysSinceBooking >= 40 && !org.number_warning_sent_at) {
+          let recipientEmail = org.email;
+          if (!recipientEmail) {
+            if (demo) {
+              recipientEmail = 'hauler@example.com';
+            } else {
+              const ownerUser = users.find((u) => u.org_id === org.id && u.role === 'owner');
+              if (ownerUser) {
+                try {
+                  const { data: authUser } = await admin().auth.admin.getUserById(ownerUser.id);
+                  recipientEmail = authUser.user?.email;
+                } catch {}
+              }
+            }
+          }
+
+          if (recipientEmail) {
+            const warningText =
+              'Your dedicated RollOS dispatch phone line will be paused in 5 days due to inactivity. Log in or take a booking to keep your line active.';
+            await sendEmail(
+              org.id,
+              null,
+              recipientEmail,
+              'phone_inactivity_warning',
+              `RollOS Action Required: Dedicated phone line inactivity warning · ${org.name}`,
+              warningText,
+            );
+          }
+
+          const nowIso = new Date().toISOString();
+          if (demo) {
+            await mutateDemo((d) => {
+              if (d.organization.id === org.id) {
+                d.organization.number_warning_sent_at = nowIso;
+              }
+            });
+          } else {
+            await admin()
+              .from('organizations')
+              .update({ number_warning_sent_at: nowIso })
+              .eq('id', org.id);
+          }
+        }
+      }
+
+      // 2. Scheduled delivery and pickup reminders
       const localToday = new Intl.DateTimeFormat('en-CA', {
         timeZone: org.timezone,
         year: 'numeric',
@@ -74,7 +128,7 @@ export async function GET(request: Request) {
           text,
         );
         if (template === 'pickup_reminder' && job.driver_id) {
-          const driver = users.find((u) => u.id === job.driver_id);
+          const driver = users.find((u) => u.id === job.driver_id && u.role === 'driver');
           if (driver?.phone) {
             const origin = new URL(request.url).origin;
             await sendSms(

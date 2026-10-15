@@ -117,7 +117,7 @@ export const NAV_SECTIONS: NavSection[] = [
       },
       {
         name: 'All Comparisons',
-        href: '/compare',
+        href: '/vs',
         desc: 'Compare RollOS side-by-side with alternatives',
         isAllLink: true,
       },

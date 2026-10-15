@@ -20,7 +20,13 @@ export async function claimNotification(
     to,
     status: 'processing',
     sent_at: new Date().toISOString(),
-    dedupe_key: `${org_id}:${job_id ?? to}:${channel}:${template}${template.includes('reminder') || template === 'driver_invite' ? ':' + new Date().toISOString().slice(0, 10) : ''}`,
+    dedupe_key: `${org_id}:${job_id ?? to}:${channel}:${template}${
+      template.includes('reminder') || template === 'driver_invite'
+        ? ':' + new Date().toISOString().slice(0, 10)
+        : template.includes('inbound')
+          ? ':' + randomUUID()
+          : ''
+    }`,
   };
   if (isDemo())
     return mutateDemo((d) => {
@@ -57,12 +63,25 @@ export async function sendSms(
   if (!log) return 'already_logged';
   const demo = isDemo();
   let status = demo ? 'demo' : 'not_configured';
+  let fromNumber = process.env.TWILIO_FROM_NUMBER;
+  if (!demo && org_id) {
+    try {
+      const { data: org } = await admin()
+        .from('organizations')
+        .select('twilio_phone_number')
+        .eq('id', org_id)
+        .single();
+      if (org?.twilio_phone_number) {
+        fromNumber = org.twilio_phone_number;
+      }
+    } catch {}
+  }
   if (
     !demo &&
     to &&
+    fromNumber &&
     process.env.TWILIO_ACCOUNT_SID &&
-    process.env.TWILIO_AUTH_TOKEN &&
-    process.env.TWILIO_FROM_NUMBER
+    process.env.TWILIO_AUTH_TOKEN
   ) {
     try {
       const msg = await twilio(
@@ -70,7 +89,7 @@ export async function sendSms(
         process.env.TWILIO_AUTH_TOKEN,
       ).messages.create({
         to,
-        from: process.env.TWILIO_FROM_NUMBER,
+        from: fromNumber,
         body,
         ...(process.env.APP_URL
           ? { statusCallback: `${process.env.APP_URL}/api/webhooks/twilio?log=${log.id}` }

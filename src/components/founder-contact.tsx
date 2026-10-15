@@ -3,22 +3,21 @@
 import React, { useState } from 'react';
 import { Mail, Check, MessageSquare, ShieldCheck, ArrowRight, UserCheck } from 'lucide-react';
 
-// Anti-bot obfuscated strings (Base64)
-// 'MTI1MDgxMjg2OTg=' -> '12508128698' (+1-250-812-8698)
-// 'c3VwcG9ydEByb2xsb2ZmZHVtcHN0ZXJzb2Z0d2FyZS5jb20=' -> 'support@rolloffdumpstersoftware.com'
-const ENCODED_PHONE = 'MTI1MDgxMjg2OTg=';
-const ENCODED_EMAIL = 'c3VwcG9ydEByb2xsb2ZmZHVtcHN0ZXJzb2Z0d2FyZS5jb20=';
 const DEFAULT_WHATSAPP_MSG = encodeURIComponent(
   'Hi, I saw RollOS dumpster software and have a quick question / would like a walkthrough.'
 );
 
-function decodeSafe(encoded: string): string {
+// Anti-scraper runtime assembly (no static phone/email strings or base64 in HTML/JS)
+function getFounderDirectPhone(): string {
   if (typeof window === 'undefined') return '';
-  try {
-    return window.atob(encoded);
-  } catch {
-    return '';
-  }
+  const segs = ['1', '250', '812', '8698'];
+  return segs.join('');
+}
+
+function getFounderDirectEmail(): string {
+  if (typeof window === 'undefined') return '';
+  const parts = ['support', '@', 'rolloffdumpstersoftware', '.', 'com'];
+  return parts.join('');
 }
 
 export function WhatsAppButton({
@@ -32,7 +31,7 @@ export function WhatsAppButton({
 }) {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const phone = decodeSafe(ENCODED_PHONE);
+    const phone = getFounderDirectPhone();
     if (!phone) return;
     const url = `https://wa.me/${phone}?text=${DEFAULT_WHATSAPP_MSG}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -81,7 +80,7 @@ export function SupportEmailButton({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const email = decodeSafe(ENCODED_EMAIL);
+    const email = getFounderDirectEmail();
     if (!email) return;
 
     if (navigator.clipboard) {

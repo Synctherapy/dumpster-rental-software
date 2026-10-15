@@ -130,7 +130,7 @@ export default function SavingsCalculatorPage() {
               RollOS vs DRS →
             </Link>
             <Link
-              href="/compare"
+              href="/vs"
               className="text-xs font-semibold px-3 py-2 bg-[#f4f7f2] hover:bg-[#e6eee1] text-[#2d4034] rounded-lg border border-[#d6dfce] transition-colors"
             >
               All Competitor Comparisons →

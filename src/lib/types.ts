@@ -12,6 +12,11 @@ export interface Organization {
   subscription_status?: string;
   stripe_subscription_id?: string | null;
   is_paid_plan?: boolean;
+  twilio_phone_number?: string | null;
+  twilio_phone_sid?: string | null;
+  last_booking_at?: string | null;
+  number_warning_sent_at?: string | null;
+  email?: string | null;
   pricing_config: {
     deposit_percent: number;
     currency?: string;

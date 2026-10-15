@@ -11,6 +11,35 @@ import { sendSms } from './notifications';
 import { sendEmail } from './email';
 import { driverToken } from './tokens';
 import { validateProof } from './proofs';
+import { ensureOrganizationPhone } from './phone';
+
+export async function recordBookingOccurred(orgId: string) {
+  const now = new Date().toISOString();
+  if (isDemo()) {
+    await mutateDemo((d) => {
+      if (d.organization.id === orgId) {
+        d.organization.last_booking_at = now;
+        d.organization.number_warning_sent_at = null;
+      }
+    });
+    const demoData = await readDemo();
+    if (!demoData.organization.twilio_phone_number) {
+      await ensureOrganizationPhone(orgId);
+    }
+  } else {
+    const db = admin();
+    const { data: org } = await db
+      .from('organizations')
+      .update({ last_booking_at: now, number_warning_sent_at: null })
+      .eq('id', orgId)
+      .select('twilio_phone_number')
+      .single();
+
+    if (org && !org.twilio_phone_number) {
+      await ensureOrganizationPhone(orgId);
+    }
+  }
+}
 export const bookingSchema = z
   .object({
     slug: z.string().min(1).max(80),
@@ -130,6 +159,7 @@ export async function book(input: unknown, ip: string, origin: string) {
       return { job, reused: false };
     });
     if (!result.reused) {
+      await recordBookingOccurred(org.id);
       const agreementUrl = `${origin}/agreement/${result.job.id}`;
       const text = `Your ${body.size_yards} yd dumpster is booked for ${body.delivery_date}. Reference ${result.job.id.slice(0, 8)}. View signed agreement & waiver: ${agreementUrl}`;
       await sendSms(org.id, result.job.id, body.customer_phone, 'booking_confirmation', text);
@@ -733,7 +763,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
       );
     }
 
-    return mutateDemo(async (d) => {
+    const result = await mutateDemo(async (d) => {
       if (d.organization.subscription_status !== 'active') {
         throw new Error(
           'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
@@ -815,6 +845,8 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
 
       return { swap_job: swapJob, previous_job: prevJob };
     });
+    await recordBookingOccurred(result.previous_job.org_id);
+    return result;
   }
 
   const { member, db } = await identity();
@@ -922,5 +954,6 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     inserted = insertAttempt.data as Job;
   }
 
+  await recordBookingOccurred(member.org_id);
   return { swap_job: inserted, previous_job: prevJob };
 }

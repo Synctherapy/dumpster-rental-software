@@ -9,6 +9,9 @@ import {
   Truck,
   Sparkles,
   CreditCard,
+  PhoneCall,
+  MessageSquare,
+  Building2,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
@@ -84,7 +87,7 @@ export default function Home() {
           {
             question: 'What do the Starter ($29/mo) and Growth ($149/mo) plans include?',
             answer:
-              'The Starter Plan ($29/mo) unlocks offline cash/check logging (for contractors who pay on invoice terms) and two-way Google Calendar/Apple iCal sync. The Growth Fleet Plan ($149/mo) is designed for expanding operations with multiple trucks managing high container volumes.',
+              'The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 2-way Google Calendar sync. The Growth Fleet Plan ($149/mo) adds high-value front-office automation: Missed-Call SMS Auto-Textback (instantly texts callers a 60-second booking link when you miss calls while driving, saving 2–3 lost rentals or $900–$1,500/mo) and the VIP Contractor Net-30 Portal (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.',
           },
           {
             question: 'How do I get paid for dumpster rentals?',
@@ -353,6 +356,29 @@ export default function Home() {
         ))}
       </section>
 
+      {/* 6.5. Growth Tier Automation Engine: Missed-Call SMS Auto-Textback & VIP Contractor Portal */}
+      <section className="px-6 py-6 max-w-[1040px] mx-auto">
+        <div className="p-6 md:p-8 bg-[#182820] text-white rounded-2xl border border-[#273d30] shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-[#223d2e] text-[#86efac] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-[#325b43] mb-3">
+              <Sparkles size={14} />
+              Growth Fleet ($149/mo) Automation
+            </div>
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
+              Stop losing $450 jobs while driving &amp; lock in repeat roofers.
+            </h3>
+            <p className="text-xs md:text-sm text-[#cbd5e1] leading-relaxed">
+              When a homeowner calls your cell while you&apos;re hauling or at the landfill, 75% hang up and call the next hauler on Google. Growth Fleet equips you with <strong>Twilio Missed-Call SMS Auto-Textback</strong> (recovering 2–3 lost rentals or $900–$1,500/mo) and a <strong>VIP Contractor Net-30 Portal</strong> with 1-click swap requests for roofers.
+            </p>
+          </div>
+          <div className="shrink-0 flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto">
+            <Link href="/pricing" className="btn btn-orange text-xs py-2.5 px-4 justify-center whitespace-nowrap">
+              Explore Growth Tier ($149) <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 7. Column & Checkbox Pricing Section */}
       <section id="pricing" className="px-6 py-12 max-w-[1040px] mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-8">
@@ -405,6 +431,31 @@ export default function Home() {
           </p>
           <div className="text-xs font-semibold text-[#166534] bg-[#f0fdf4] p-3 rounded-lg border border-[#bbf7d0]">
             💡 <strong>Start 100% Free:</strong> Capture after-hours online bookings on our $0/mo Free Plan first. When you&apos;re ready to organize your manual phone contractor dispatches, take a 14-day free trial of Starter with 1 click.
+          </div>
+        </div>
+
+        {/* Growth Fleet ($149/mo) High-ROI Front-Office Automation Card */}
+        <div className="p-5 bg-[#fbfdfa] border-2 border-[#a7f3d0] rounded-xl my-6 shadow-sm text-left max-w-3xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h4 className="text-base font-bold text-[#1f2d26] flex items-center gap-2">
+              <PhoneCall size={20} className="text-[#059669] shrink-0" />
+              Growth Fleet ($149/mo): Missed-Call SMS Textback &amp; VIP Net-30 Portal
+            </h4>
+            <span className="text-[11px] font-bold uppercase tracking-wider bg-[#dcfce7] text-[#166534] px-2.5 py-0.5 rounded-full border border-[#86efac] shrink-0">
+              Recovers 2–3 Rentals/Mo
+            </span>
+          </div>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>Missed-Call SMS Auto-Textback (Powered by Twilio):</strong> When a homeowner calls while you&apos;re driving, <strong>75% hang up and call the next dumpster company on Google</strong>. Growth Fleet instantly fires a customized text in under 5 seconds (<em>&ldquo;Hey, driving right now! Check prices and reserve a bin here in 60s: [your booking link]&rdquo;</em>). Saving just 2–3 lost rentals a month puts <strong>$900–$1,500 back in your pocket</strong>.
+          </p>
+          <p className="text-sm text-[#475569] leading-relaxed mb-3">
+            <strong>VIP Contractor Net-30 Portal:</strong> Roofers and remodelers order 5–15 dumpsters a month. Give them their own self-service portal for <strong>1-click container swap requests</strong> (no 6:00 AM phone calls) and <strong>automated Net-30 monthly invoicing</strong> with attached landfill scale weight slips. Once a contractor has a Net-30 portal with you, they will never switch haulers.
+          </p>
+          <div className="text-xs font-semibold text-[#065f46] bg-[#ecfdf5] p-3 rounded-lg border border-[#a7f3d0] flex items-center justify-between flex-wrap gap-2">
+            <span>🚀 <strong>No-Brainer ROI:</strong> Just 1 recovered dumpster rental ($450) pays for 3 full months of Growth Fleet.</span>
+            <Link href="/pricing" className="text-[#059669] underline hover:text-[#047857]">
+              Compare all plan features →
+            </Link>
           </div>
         </div>
 
@@ -543,6 +594,20 @@ export default function Home() {
                 <td>Included in higher tiers</td>
               </tr>
               <tr>
+                <td>Missed-Call SMS Auto-Textback</td>
+                <td className="highlight-col font-semibold">
+                  Included in Growth ($149/mo)
+                </td>
+                <td>Not offered or $350+/mo</td>
+              </tr>
+              <tr>
+                <td>VIP Contractor Net-30 Portal</td>
+                <td className="highlight-col font-semibold">
+                  Included in Growth ($149/mo)
+                </td>
+                <td>Requires enterprise tier</td>
+              </tr>
+              <tr>
                 <td>Contract Lock-In</td>
                 <td className="highlight-col text-[#2e7d32] font-bold">
                   None. Cancel anytime.
@@ -661,7 +726,7 @@ export default function Home() {
               What do the Starter ($29/mo) and Growth ($149/mo) plans include?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              The Starter Plan ($29/mo) unlocks offline cash/check logging (for contractors who pay on invoice terms) and two-way Google Calendar/Apple iCal sync. The Growth Fleet Plan ($149/mo) is designed for expanding operations with multiple trucks managing high container volumes.
+              The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 2-way Google Calendar sync. The Growth Fleet Plan ($149/mo) adds high-value front-office automation: <strong>Missed-Call SMS Auto-Textback</strong> (instantly texts callers a 60-second booking link when you miss calls while driving, saving 2–3 lost rentals or $900–$1,500/mo) and the <strong>VIP Contractor Net-30 Portal</strong> (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.
             </p>
           </div>
 
