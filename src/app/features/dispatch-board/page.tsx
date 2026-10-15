@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft,
   ArrowRight,
   Layers,
   MapPin,
@@ -9,6 +8,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -74,14 +74,15 @@ export default function DispatchBoardFeaturePage() {
 
       <MarketingNav currentPath="/features" />
 
-      {/* Breadcrumb */}
+      {/* Semantic Breadcrumbs */}
       <div className="max-w-5xl mx-auto px-6 pt-8 pb-4">
-        <Link
-          href="/features"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-        >
-          <ArrowLeft size={14} /> Back to All Features
-        </Link>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Features', item: '/features' },
+            { name: 'Dispatch Board', item: '/features/dispatch-board' },
+          ]}
+        />
       </div>
 
       {/* Hero Section */}
@@ -229,52 +230,91 @@ export default function DispatchBoardFeaturePage() {
         </div>
       </section>
 
-      {/* Connected Pillars Navigation */}
+      {/* Connected Pillars / Internal Linking */}
       <section className="max-w-5xl mx-auto px-6 py-12 border-t border-[#e2e8da]">
         <div className="text-center max-w-xl mx-auto mb-8">
-          <h3 className="text-xl font-bold text-[#1f2d26]">Connected Operational Features</h3>
-          <p className="text-xs text-[#556658]">RollOS links dispatch directly to driver mobile phones and scale ticket billing:</p>
+          <h3 className="text-xl font-bold text-[#1f2d26]">Where Does The Order Go Next?</h3>
+          <p className="text-xs text-[#556658]">
+            RollOS links dispatch directly to customer checkout, driver mobile routes, and landfill billing. Part of our unified <Link href="/" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">dumpster rental software</Link> platform:
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
             href="/features/online-booking"
-            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
           >
-            <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 01</div>
-            <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
-              24/7 Online Booking Widget →
-            </h4>
-            <p className="text-xs text-[#556658]">
-              Online orders land automatically on your dispatch board ready for driver assignment.
-            </p>
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 01</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                24/7 Online Booking Widget
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Online orders land automatically on your visual dispatch schedule ready for driver assignment.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore dumpster rental online booking system</span>
+              <ArrowRight size={13} />
+            </div>
           </Link>
 
           <Link
             href="/features/driver-routes"
-            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
           >
-            <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 03</div>
-            <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
-              1-Tap Driver SMS Routes →
-            </h4>
-            <p className="text-xs text-[#556658]">
-              Text your daily manifest to drivers without requiring any app store downloads.
-            </p>
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 03</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                1-Tap Driver SMS Routes
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Text your daily manifest to drivers without requiring any app store downloads.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore dumpster driver routing software</span>
+              <ArrowRight size={13} />
+            </div>
           </Link>
 
           <Link
             href="/features/tonnage-billing"
-            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
           >
-            <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 04</div>
-            <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
-              Scale Tickets & Tonnage Invoicing →
-            </h4>
-            <p className="text-xs text-[#556658]">
-              Calculate overages and charge customer credit cards as soon as the container is dumped.
-            </p>
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 04</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                Scale Tickets &amp; Tonnage Invoicing
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Calculate overages and charge customer credit cards as soon as the container is dumped.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore dumpster tonnage billing software</span>
+              <ArrowRight size={13} />
+            </div>
           </Link>
+        </div>
+
+        {/* Reciprocal link to Mother Ship & Equipment Guide */}
+        <div className="mt-8 p-4 bg-[#f8faf7] border border-[#d8e2cf] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#556658]">
+          <span>
+            Part of RollOS suite. Comparing rigs? Read our{' '}
+            <Link href="/blog/roll-off-truck-vs-dump-trailer" className="font-bold text-[#ea580c] hover:underline">
+              roll-off truck vs dump trailer equipment guide
+            </Link>
+            .
+          </span>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="font-bold text-[#1f2d26] hover:text-[#ea580c] underline">
+              Return to RollOS Dumpster Rental Software Homepage →
+            </Link>
+            <Link href="/features" className="font-bold text-[#ea580c] hover:underline">
+              All Features Hub →
+            </Link>
+          </div>
         </div>
       </section>
 

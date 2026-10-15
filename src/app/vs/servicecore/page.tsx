@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck } from 'lucide-react';
+import { ArrowRight, Check, X } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -33,14 +34,13 @@ export default function ServiceCoreComparisonPage() {
       <MarketingNav currentPath="/vs" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-          </Link>
-        </div>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Comparisons', item: '/vs' },
+            { name: 'RollOS vs ServiceCore', item: '/vs/servicecore' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           IN-DEPTH SOFTWARE REVIEW & COMPARISON · 2026 EDITION
@@ -50,10 +50,19 @@ export default function ServiceCoreComparisonPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          ServiceCore is a multi-industry platform built primarily for portable restroom (porta-potty) sanitation and septic pumping companies,
-          with roll-off dumpsters as an added module. Because of this, ServiceCore charges on a <strong>per-truck pricing model</strong> that can cost
-          <strong>$350 to $700+ every month</strong> as you add trucks.
-          RollOS is 100% focused on roll-off dumpster rentals—giving you 24/7 online booking, visual dispatching, and SMS driver links without bloated septic menus or per-truck penalties.
+          If you are searching for dedicated{' '}
+          <Link
+            href="/"
+            className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
+          >
+            roll off dumpster software
+          </Link>
+          , ServiceCore and RollOS take two completely different paths. ServiceCore is a multi-industry platform built primarily for portable restroom (porta-potty) sanitation and septic pumping companies, with roll-off dumpsters as an added module. Because of this, ServiceCore charges on a <strong>per-truck pricing model</strong> that can cost <strong>$350 to $700+ every month</strong> as you add trucks.
+          RollOS is 100% focused on roll-off dumpster rentals—giving you 24/7 online booking, high-efficiency{' '}
+          <Link href="/features/dispatch-board" className="text-[#ea580c] font-semibold hover:underline">
+            roll-off dispatch software
+          </Link>
+          , and SMS driver links without bloated septic menus or per-truck penalties.
         </p>
 
         {/* Executive Summary Cards */}
@@ -75,7 +84,10 @@ export default function ServiceCoreComparisonPage() {
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> No per-truck software fees
               </li>
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> 100% dumpster-specific workflow & scale tickets
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> 100% dumpster-specific workflow &amp;{' '}
+                <Link href="/features/tonnage-billing" className="text-[#ea580c] font-semibold hover:underline">
+                  dumpster tonnage billing software
+                </Link>
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Instant SMS links (no driver app downloads)
@@ -111,6 +123,14 @@ export default function ServiceCoreComparisonPage() {
         {/* Embedded Calculator */}
         <div className="my-12">
           <SavingsCalculator showTitle={true} />
+          <div className="mt-4 text-center">
+            <Link
+              href="/tools/savings-calculator"
+              className="text-xs font-bold text-[#ea580c] hover:underline inline-flex items-center gap-1"
+            >
+              <span>Calculate exact fleet savings in our full-screen savings calculator</span> <ArrowRight size={13} />
+            </Link>
+          </div>
         </div>
 
         {/* Feature Comparison Table */}

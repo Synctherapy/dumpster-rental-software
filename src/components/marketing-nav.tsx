@@ -302,6 +302,15 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
             );
           })}
 
+          {/* Guides / Blog Link */}
+          <Link
+            href="/blog"
+            className={`nav-link-direct ${activePath?.startsWith('/blog') ? 'active' : ''}`}
+            role="menuitem"
+          >
+            Guides
+          </Link>
+
           {/* Pricing Link */}
           <Link
             href="/pricing"
@@ -401,6 +410,18 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
               </div>
             );
           })}
+
+          {/* Direct Guides Link in Mobile */}
+          <div className="marketing-mobile-section">
+            <Link
+              href="/blog"
+              className="marketing-mobile-direct-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span>Hauler Guides &amp; Blog</span>
+              <ArrowRight size={15} className="text-[#647867]" />
+            </Link>
+          </div>
 
           {/* Direct Pricing Link in Mobile */}
           <div className="marketing-mobile-section">

@@ -166,6 +166,27 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               </optgroup>
             </select>
             <p className="text-xs text-[#687864] mt-2 italic">{selectedCompetitor.notes}</p>
+            {competitorKey === 'docket' && (
+              <p className="text-xs text-[#ea580c] mt-1 font-semibold">
+                <Link href="/vs/docket" className="underline hover:text-[#c2410c]">
+                  See side-by-side RollOS vs Docket comparison →
+                </Link>
+              </p>
+            )}
+            {competitorKey === 'servicecore' && (
+              <p className="text-xs text-[#ea580c] mt-1 font-semibold">
+                <Link href="/vs/servicecore" className="underline hover:text-[#c2410c]">
+                  See side-by-side RollOS vs ServiceCore comparison →
+                </Link>
+              </p>
+            )}
+            {competitorKey === 'drs' && (
+              <p className="text-xs text-[#ea580c] mt-1 font-semibold">
+                <Link href="/vs/dumpster-rental-systems" className="underline hover:text-[#c2410c]">
+                  See side-by-side RollOS vs Dumpster Rental Systems (DRS) comparison →
+                </Link>
+              </p>
+            )}
           </div>
 
           {/* Situation Toggle: Switching vs Shopping (only relevant when competitor charges a setup fee) */}
@@ -468,6 +489,17 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
             >
               Start Free in 3 Minutes — Keep 100% of Rental Revenue <ArrowRight size={16} />
             </Link>
+            <div className="flex flex-wrap justify-between items-center text-[11px] text-[#687864] mt-2.5 px-1 gap-2">
+              <Link href="/pricing" className="underline hover:text-[#ea580c] transition-colors">
+                Compare all plans on our pricing page →
+              </Link>
+              <span>
+                Engineered for{' '}
+                <Link href="/" className="font-semibold underline hover:text-[#ea580c] transition-colors">
+                  roll off dumpster software
+                </Link>
+              </span>
+            </div>
             <p className="text-[11px] text-center text-[#687864] mt-2">
               No credit card required · Zero annual contracts · Embeds on any site in 3 min
             </p>

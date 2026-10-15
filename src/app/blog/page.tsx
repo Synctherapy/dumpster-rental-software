@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import {
-  ArrowLeft,
   ArrowRight,
   BookOpen,
   Calendar,
@@ -13,8 +12,8 @@ import {
   Calculator,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema } from '@/components/schema-org';
 
 export const metadata = {
   title: 'Dumpster Rental Business Guides & Industry Blueprints | RollOS Blog',
@@ -76,16 +75,10 @@ export default function BlogHubPage() {
 
   return (
     <main className="marketing">
-      <BreadcrumbSchema items={breadcrumbItems} />
       <MarketingNav currentPath="/blog" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors mb-6"
-        >
-          <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-        </Link>
+        <SemanticBreadcrumb items={breadcrumbItems} />
 
         {/* Header */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>

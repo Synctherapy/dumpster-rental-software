@@ -1,19 +1,15 @@
 import Link from 'next/link';
 import {
-  ArrowLeft,
   ArrowRight,
-  ShieldCheck,
   Truck,
   Calendar,
   Clock,
   User,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema, FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
 
 export const metadata = {
   title: 'Roll-Off Truck vs. Dump Trailer: Equipment Guide for Dumpster Startups',
@@ -63,17 +59,11 @@ export default function RollOffTruckVsDumpTrailerPage() {
         datePublished="2026-10-15"
         dateModified="2026-10-15"
       />
-      <BreadcrumbSchema items={breadcrumbItems} />
       <FAQPageSchema faqs={faqs} />
       <MarketingNav currentPath="/blog" />
 
       <article className="max-w-4xl mx-auto px-6 py-12">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors mb-6"
-        >
-          <ArrowLeft size={14} /> Back to Hauler Business Guides
-        </Link>
+        <SemanticBreadcrumb items={breadcrumbItems} />
 
         {/* Header Eyebrow & Published Info */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
@@ -144,7 +134,10 @@ export default function RollOffTruckVsDumpTrailerPage() {
             Deciding between a <strong>roll-off truck vs dump trailer</strong> is the single biggest equipment fork in the road for anyone launching an independent waste hauling business. Choosing the wrong equipment can either bury your new company in unsustainable monthly debt or leave you with a setup that cannot keep up with commercial job sites.
           </p>
           <p>
-            A dedicated roll-off truck provides unmatched speed and power, but requires commercial CDL drivers and massive capital reserves. Meanwhile, modern gooseneck roll-off trailer systems have exploded in popularity among 1-to-3 truck operators because they deliver rapid cash flow with zero commercial driver license headaches.
+            A dedicated roll-off truck provides unmatched speed and power, but requires commercial CDL drivers and massive capital reserves. Meanwhile, modern gooseneck roll-off trailer systems have exploded in popularity among 1-to-3 truck operators because they deliver rapid cash flow with zero commercial driver license headaches. If you are structuring your business entity and capitalization plan, read our complete{' '}
+            <Link href="/blog/how-to-start-a-dumpster-rental-business" className="text-[#ea580c] font-semibold hover:underline">
+              starting a dumpster rental business guide
+            </Link>.
           </p>
           <p>
             Here is an honest breakdown of the pros, cons, and financial realities of both setups to help you invest wisely.
@@ -210,11 +203,15 @@ export default function RollOffTruckVsDumpTrailerPage() {
               Dispatch Drivers with Zero App Installs via RollOS
             </h3>
             <p className="text-xs md:text-sm text-[#556658] leading-relaxed mb-5">
-              Whether you run 1 dump trailer or 5 tandem-axle roll-off rigs,{' '}
+              Whether you run 1 dump trailer or 5 tandem-axle roll-off rigs, dedicated{' '}
               <Link href="/" className="text-[#1f2d26] font-bold underline">
-                RollOS dumpster rental software
+                roll off dumpster software
               </Link>{' '}
-              keeps your dispatches organized. Send routes directly to your driver’s phone via secure SMS with 1-tap navigation and photo proof. No app store downloads required.
+              keeps your dispatches organized. With our built-in{' '}
+              <Link href="/features/driver-routes" className="text-[#ea580c] font-bold underline">
+                dumpster driver routing software
+              </Link>
+              , dispatchers send daily stops directly to the driver’s phone via secure SMS web links—featuring 1-tap turn-by-turn navigation and delivery photo proof with zero app store downloads.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/features/dispatch-board" className="btn btn-orange text-xs">

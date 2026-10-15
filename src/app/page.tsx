@@ -12,6 +12,7 @@ import {
   PhoneCall,
   MessageSquare,
   Building2,
+  Scale,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';
 import { ScreenshotLightbox } from '@/components/screenshot-lightbox';
@@ -330,29 +331,57 @@ export default function Home() {
       </section>
 
       {/* 6. Core Features Strip */}
-      <section id="features" className="feature-strip">
+      <section id="features" className="feature-strip !grid-cols-1 sm:!grid-cols-2 lg:!grid-cols-4 px-6 gap-6">
         {[
           {
             icon: Globe,
             title: '24/7 Online Booking Widget',
+            keyword: 'dumpster rental online booking system',
+            href: '/features/online-booking',
             text: 'Capture dumpster orders while you sleep. Give homeowners an intuitive 60-second checkout that checks ZIP codes and collects rental fees upfront.',
           },
           {
             icon: Truck,
             title: 'Visual Roll Off Dispatch Board',
+            keyword: 'roll-off dispatch software',
+            href: '/features/dispatch-board',
             text: 'Move jobs from booked to delivered to picked up with drag-and-drop simplicity. Assign drivers, record swap containers, and keep bins rolling.',
           },
           {
             icon: MousePointer2,
-            title: 'Driver SMS Magic Links (No App Required)',
+            title: 'Driver SMS Magic Links',
+            keyword: 'dumpster driver routing software',
+            href: '/features/driver-routes',
             text: 'Send your driver a secure one-click link. They open turn-by-turn navigation, snap driveway drop photos, and record scale landfill tickets on their phone.',
           },
+          {
+            icon: Scale,
+            title: 'Scale Tickets & Tonnage Invoicing',
+            keyword: 'dumpster tonnage billing software',
+            href: '/features/tonnage-billing',
+            text: 'Snap landfill weight slips to auto-calculate overage fees, attach slip photos, and charge customer cards on file without awkward phone calls.',
+          },
         ].map((f) => (
-          <div key={f.title}>
-            <f.icon size={26} className="text-[#ea580c]" />
-            <h3>{f.title}</h3>
-            <p style={{ fontSize: 14, lineHeight: 1.6 }}>{f.text}</p>
-          </div>
+          <Link
+            key={f.href}
+            href={f.href}
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            title={f.keyword}
+          >
+            <div>
+              <f.icon size={26} className="text-[#ea580c] mb-3 group-hover:scale-110 transition-transform" />
+              <h3 className="text-base font-bold text-[#1f2d26] mb-1 group-hover:text-[#ea580c] transition-colors">
+                {f.title}
+              </h3>
+              <p style={{ fontSize: 13, lineHeight: 1.6 }} className="text-[#556658] mb-3">
+                {f.text}
+              </p>
+            </div>
+            <div className="pt-2 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore {f.keyword}</span>
+              <ArrowRight size={13} />
+            </div>
+          </Link>
         ))}
       </section>
 
@@ -393,6 +422,165 @@ export default function Home() {
             With RollOS, your customers pay a standard $12 online reservation fee at checkout to guarantee their delivery date.
             You keep 100% of your base rental rate, extra day charges, and weight overages.
           </p>
+        </div>
+
+        {/* Free Operator Resources & Benchmarks Section */}
+        <div className="mb-14">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <div className="eyebrow text-xs font-bold text-[#8a9d73] uppercase tracking-wider mb-2">
+              FREE HAULER TOOLKIT &amp; BENCHMARKS
+            </div>
+            <h3 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26]">
+              Free Operator Resources &amp; Benchmarks
+            </h3>
+            <p className="text-xs md:text-sm text-[#556658] mt-2">
+              Free calculators, legal contract templates, and transparent software comparisons to help you run a more profitable roll-off business.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
+            <Link
+              href="/tools/tonnage-calculator"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Interactive Tool</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  Tonnage Calculator
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Calculate cubic yard weights across dirt, concrete, shingles, and debris to set safe payload limits.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Use dumpster tonnage calculator</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/tools/savings-calculator"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">ROI Benchmark</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  Software Savings Calculator
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  See how much you save each month compared to paying $350+/mo recurring software bills.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Try dumpster rental software savings calculator</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/templates/dumpster-rental-contract"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Legal Defense</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  Rental Agreement Template
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Free attorney-drafted agreement with driveway damage waivers, overload clauses, and waste terms.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Download dumpster rental contract template</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/templates/dumpster-invoice"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Billing Template</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  Commercial Invoice Template
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Professional itemized invoice outline with scale ticket breakdowns, extra day fees, and contractor terms.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Get dumpster rental invoice template</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs/docket"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Platform Comparison</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  RollOS vs Docket
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Detailed comparison breakdown of pricing, mobile driver workflow, onboarding fees, and lock-in contracts.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Read RollOS vs Docket comparison</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs/servicecore"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Software Review</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  RollOS vs ServiceCore
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Why independent roll-off haulers choose simple, affordable software over expensive legacy septic platforms.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Read RollOS vs ServiceCore review</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+          </div>
+
+          <div className="mt-8 p-6 bg-[#f8faf7] border border-[#d8e2cf] rounded-2xl text-center text-xs md:text-sm text-[#556658]">
+            <div className="font-bold text-[#1f2d26] mb-2 uppercase tracking-wider text-xs">
+              Operator Knowledge Hub &amp; Growth Benchmarks
+            </div>
+            <p className="max-w-2xl mx-auto mb-3 leading-relaxed">
+              Explore practical, numbers-driven{' '}
+              <Link
+                href="/blog"
+                className="font-bold text-[#ea580c] hover:underline inline-flex items-center gap-1"
+              >
+                dumpster rental business guides
+                <ArrowRight size={13} />
+              </Link>{' '}
+              written specifically for independent 1–5 truck roll-off haulers:
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold">
+              <Link href="/blog/how-to-start-a-dumpster-rental-business" className="text-[#3b533f] hover:text-[#ea580c] underline">
+                Startup Costs &amp; Equipment Blueprint →
+              </Link>
+              <Link href="/blog/how-to-price-dumpster-rentals" className="text-[#3b533f] hover:text-[#ea580c] underline">
+                Pricing Formula &amp; Tonnage Calculator →
+              </Link>
+              <Link href="/blog/dumpster-rental-profit-margins" className="text-[#3b533f] hover:text-[#ea580c] underline">
+                Operator Profit Margins &amp; Benchmarks →
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Clean Column & Checkbox Pricing Matrix */}
@@ -798,6 +986,18 @@ export default function Home() {
           <div className="text-xs md:text-sm text-[#8ca58b] flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-medium">
             <span>✓ $0/month free plan · Keep 100% rental money · Setup in 3 minutes · Zero contracts</span>
           </div>
+        </div>
+
+        <div className="mt-8 text-center text-xs md:text-sm text-[#556658]">
+          Built specifically for independent roll-off fleets. Learn more{' '}
+          <Link href="/about" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+            about our story and mission
+          </Link>
+          , or{' '}
+          <Link href="/contact" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+            contact our founder directly
+          </Link>{' '}
+          for a free 1-on-1 dispatch setup.
         </div>
       </section>
 

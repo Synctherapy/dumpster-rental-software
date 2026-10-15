@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema } from '@/components/schema-org';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { WhatsAppButton, SupportEmailButton } from '@/components/founder-contact';
 
 export const metadata = {
@@ -25,7 +25,7 @@ export const metadata = {
 export default function AboutPage() {
   const breadcrumbItems = [
     { name: 'Home', item: '/' },
-    { name: 'About', item: '/about' },
+    { name: 'About RollOS', item: '/about' },
   ];
 
   const organizationSchema = {
@@ -54,16 +54,10 @@ export default function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
-      <BreadcrumbSchema items={breadcrumbItems} />
       <MarketingNav currentPath="/about" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors mb-6"
-        >
-          <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-        </Link>
+        <SemanticBreadcrumb items={breadcrumbItems} />
 
         {/* Header Section */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
@@ -183,7 +177,23 @@ export default function AboutPage() {
           <div className="p-8 rounded-2xl bg-[#f4f7f1] border border-[#dde4d4]">
             <h2 className="text-xl font-bold text-[#1f2d26] mb-3">Who RollOS Is Built For</h2>
             <p className="text-sm text-[#556658] leading-relaxed mb-4">
-              RollOS is laser-focused on <strong>independent roll-off dumpster rental companies operating 1 to 5 trucks</strong>. Whether you run mini 10-yard driveway-friendly trailers or full tandem-axle roll-off rigs hauling 20, 30, and 40-yard commercial bins, RollOS gives you complete booking, dispatch, driver communication, and scale-ticket billing out of the box.
+              RollOS is laser-focused on <strong>independent roll-off dumpster rental companies operating 1 to 5 trucks</strong>. Whether you run mini 10-yard driveway-friendly trailers or full tandem-axle roll-off rigs hauling 20, 30, and 40-yard commercial bins, RollOS equips your fleet with a 24/7{' '}
+              <Link href="/features/online-booking" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                dumpster rental online booking system
+              </Link>
+              , a visual{' '}
+              <Link href="/features/dispatch-board" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                roll-off dispatch software
+              </Link>{' '}
+              board, zero-app{' '}
+              <Link href="/features/driver-routes" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                dumpster driver routing software
+              </Link>
+              , and automated{' '}
+              <Link href="/features/tonnage-billing" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                dumpster tonnage billing software
+              </Link>{' '}
+              out of the box.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="px-3 py-1 rounded-full bg-white border border-[#d2dec3] text-xs font-semibold text-[#405442]">
@@ -211,7 +221,19 @@ export default function AboutPage() {
               Want a personal walkthrough or have yard questions?
             </h2>
             <p className="text-sm text-[#556658] leading-relaxed mb-6">
-              I love talking with haulers about container turns, local landfill workflows, and fleet scheduling. Reach out directly on WhatsApp or email me anytime.
+              I love talking with haulers about container turns, local landfill workflows, and fleet scheduling. Reach out directly through our{' '}
+              <Link href="/contact" className="font-semibold text-[#ea580c] hover:underline">
+                contact and direct founder line
+              </Link>
+              , or review our{' '}
+              <Link href="/pricing" className="font-semibold text-[#ea580c] hover:underline">
+                transparent software pricing
+              </Link>{' '}
+              and free{' '}
+              <Link href="/tools" className="font-semibold text-[#ea580c] hover:underline">
+                hauler calculation tools
+              </Link>
+              .
             </p>
 
             <div className="flex flex-wrap items-center gap-3">

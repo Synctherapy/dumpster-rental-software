@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, DollarSign, Layers, Zap } from 'lucide-react';
+import { ArrowRight, DollarSign, Layers, Zap } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -40,14 +41,13 @@ export default function SavingsCalculatorPage() {
       <MarketingNav currentPath="/tools" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="mb-4">
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Free Hauler Tools
-          </Link>
-        </div>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Free Tools', item: '/tools' },
+            { name: 'Dumpster Software Savings Calculator', item: '/tools/savings-calculator' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           FREE OPERATIONAL HAULER TOOL · SOFTWARE SAVINGS & ROI
@@ -147,11 +147,18 @@ export default function SavingsCalculatorPage() {
             Ready to test RollOS alongside your current dispatch system?
           </h3>
           <p className="text-sm text-[#556658] max-w-xl mx-auto mb-6 leading-relaxed">
-            Try the live dispatch board and customer booking widget free. No sales calls, no contracts, and no credit card required.
+            Try the modern all-in-one{' '}
+            <Link href="/" className="font-bold underline decoration-[#ea580c] text-[#1f2d26] hover:text-[#ea580c]">
+              roll off dumpster software
+            </Link>{' '}
+            with live dispatch board and customer booking widget free. No sales calls, no contracts, and no credit card required.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/features" className="btn btn-secondary">
-              Explore All Features
+            <Link href="/" className="btn btn-secondary">
+              roll off dumpster software
+            </Link>
+            <Link href="/pricing" className="btn btn-secondary">
+              View Transparent Pricing
             </Link>
             <Link href="/signup" className="btn btn-orange">
               Start Free Demo <ArrowRight size={14} />

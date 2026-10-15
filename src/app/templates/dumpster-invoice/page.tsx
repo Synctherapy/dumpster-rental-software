@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { ArrowLeft, Scale, ShieldCheck, CreditCard } from 'lucide-react';
+import { Scale, ShieldCheck, CreditCard } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { InvoiceTemplateView } from '@/components/invoice-template-view';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -49,43 +49,13 @@ export default function InvoiceTemplatePage() {
 
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="print-hide">
-          {/* Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="mb-4">
-            <ol className="flex items-center gap-2 text-xs text-[#687864]">
-              <li>
-                <Link href="/" className="hover:text-[#ea580c] transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li className="text-[#a4b39c]">/</li>
-              <li>
-                <Link href="/templates" className="hover:text-[#ea580c] transition-colors">
-                  Templates
-                </Link>
-              </li>
-              <li className="text-[#a4b39c]">/</li>
-              <li className="font-semibold text-[#1f2d26] truncate">
-                Dumpster Rental Invoice Template
-              </li>
-            </ol>
-          </nav>
-
-          {/* Back-Navigation Links */}
-          <div className="flex items-center gap-3 mb-6 text-xs font-semibold text-[#687864]">
-            <Link
-              href="/templates"
-              className="inline-flex items-center gap-1.5 hover:text-[#ea580c] transition-colors"
-            >
-              <ArrowLeft size={14} /> Back to Free Hauler Templates
-            </Link>
-            <span className="text-[#cbd5c4]">·</span>
-            <Link
-              href="/"
-              className="hover:text-[#ea580c] transition-colors"
-            >
-              RollOS Hauler Platform
-            </Link>
-          </div>
+          <SemanticBreadcrumb
+            items={[
+              { name: 'Home', item: '/' },
+              { name: 'Templates', item: '/templates' },
+              { name: 'Dumpster Rental Invoice Template', item: '/templates/dumpster-invoice' },
+            ]}
+          />
 
           <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
             FREE OPERATIONAL HAULER BILLING TEMPLATES · 2026 COMMERCIAL STANDARD

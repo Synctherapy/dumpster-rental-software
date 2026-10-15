@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Zap, Truck, Star } from 'lucide-react';
+import { ArrowRight, Check, X, DollarSign, Smartphone } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -33,14 +34,13 @@ export default function DocketComparisonPage() {
       <MarketingNav currentPath="/vs" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-          </Link>
-        </div>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Comparisons', item: '/vs' },
+            { name: 'RollOS vs Docket', item: '/vs/docket' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           IN-DEPTH SOFTWARE REVIEW & COMPARISON · 2026 EDITION
@@ -51,7 +51,14 @@ export default function DocketComparisonPage() {
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
           Choosing between <strong>RollOS</strong> and <strong>Docket</strong> comes down to operational velocity and cost.
-          Docket is an enterprise platform (part of ServiceCore) that requires scheduling sales demos, paying high recurring monthly subscriptions (~$299+/mo), and forcing drivers to download mobile apps from the App Store.
+          If you are shopping for modern{' '}
+          <Link
+            href="/"
+            className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
+          >
+            dumpster rental software
+          </Link>
+          , Docket and RollOS take two fundamentally different approaches. Docket is an enterprise platform (part of ServiceCore) that requires scheduling sales demos, paying high recurring monthly subscriptions (~$299+/mo), and forcing drivers to download mobile apps from the App Store.
           RollOS is a high-speed, booking-first tool where setup takes 3 minutes, drivers use instant SMS links, and you keep 100% of your rental money.
         </p>
 
@@ -63,7 +70,11 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built specifically for independent roll-off haulers (1–15 trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Free plan includes 24/7 online booking and SMS driver links (customer pays a $12 reservation fee at checkout). You keep 100% of your rental revenue.
+              Built specifically for independent roll-off haulers (1–15 trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Includes our 24/7{' '}
+              <Link href="/features/online-booking" className="text-[#ea580c] font-semibold hover:underline">
+                dumpster rental online booking system
+              </Link>{' '}
+              and SMS driver links (customer pays a $12 reservation fee at checkout). You keep 100% of your rental revenue.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
@@ -225,6 +236,12 @@ export default function DocketComparisonPage() {
               </p>
             </div>
           </div>
+          <p className="text-xs text-[#556658] leading-relaxed">
+            Want to see how much your specific fleet can recover? Run your numbers in our interactive{' '}
+            <Link href="/tools/savings-calculator" className="text-[#ea580c] font-bold hover:underline">
+              dumpster rental software savings calculator
+            </Link>.
+          </p>
         </div>
 
         {/* Deep Dive 2: Driver App Friction */}
@@ -236,7 +253,11 @@ export default function DocketComparisonPage() {
             </h3>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
-            Every roll-off business owner knows the friction of getting drivers to install and use mobile apps:
+            When choosing{' '}
+            <Link href="/features/driver-routes" className="text-[#ea580c] font-semibold hover:underline">
+              dumpster driver routing software
+            </Link>
+            , every roll-off business owner knows the friction of getting drivers to install and use mobile apps:
           </p>
           <ul className="space-y-3 text-sm text-[#475569] mb-4">
             <li className="flex items-start gap-2">

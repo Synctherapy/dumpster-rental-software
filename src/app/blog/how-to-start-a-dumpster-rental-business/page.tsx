@@ -1,21 +1,15 @@
 import Link from 'next/link';
 import {
-  ArrowLeft,
   ArrowRight,
   ShieldCheck,
-  DollarSign,
-  Truck,
-  CheckCircle2,
   Calendar,
   Clock,
   User,
-  Wrench,
-  FileText,
-  Calculator,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema, FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
 
 export const metadata = {
   title: 'How to Start a Dumpster Rental Business (2026 Step-by-Step Guide)',
@@ -65,17 +59,11 @@ export default function HowToStartDumpsterBusinessPage() {
         datePublished="2026-10-15"
         dateModified="2026-10-15"
       />
-      <BreadcrumbSchema items={breadcrumbItems} />
       <FAQPageSchema faqs={faqs} />
       <MarketingNav currentPath="/blog" />
 
       <article className="max-w-4xl mx-auto px-6 py-12">
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors mb-6"
-        >
-          <ArrowLeft size={14} /> Back to Hauler Business Guides
-        </Link>
+        <SemanticBreadcrumb items={breadcrumbItems} />
 
         {/* Header Eyebrow & Published Info */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
@@ -197,7 +185,11 @@ export default function HowToStartDumpsterBusinessPage() {
             2. Choosing Your Equipment: Roll-Off Truck vs. Dump Trailer
           </h2>
           <p className="text-base text-[#4a5f4e] leading-relaxed mb-4">
-            One of the first major decisions is whether to invest in a dedicated roll-off truck (hooklift or cable hoist) or a roll-off dump trailer pulled by a 1-ton pickup.
+            One of the first major decisions is whether to invest in a dedicated roll-off truck (hooklift or cable hoist) or a roll-off dump trailer pulled by a 1-ton pickup. Read our comprehensive{' '}
+            <Link href="/blog/roll-off-truck-vs-dump-trailer" className="text-[#ea580c] font-semibold hover:underline">
+              roll-off truck vs dump trailer equipment guide
+            </Link>{' '}
+            for a side-by-side breakdown of upfront capital, non-CDL advantages, and daily container turn speeds.
           </p>
           <ul className="space-y-3 my-4 text-sm md:text-base text-[#3d4f42]">
             <li className="flex items-start gap-2.5">
@@ -227,7 +219,10 @@ export default function HowToStartDumpsterBusinessPage() {
             3. Container Sizing: What Roll-Off Sizes Should You Buy First?
           </h2>
           <p className="text-base text-[#4a5f4e] leading-relaxed mb-4">
-            Don’t buy random container sizes. The bulk of residential and contractor demand is concentrated in two sizes:
+            Don’t buy random container sizes. The bulk of residential and contractor demand is concentrated in two sizes. To calculate your exact rental rates and landfill overage thresholds for each container size, check our{' '}
+            <Link href="/blog/how-to-price-dumpster-rentals" className="text-[#ea580c] font-semibold hover:underline">
+              how to price dumpster rentals formula
+            </Link>:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
             <div className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
@@ -265,9 +260,9 @@ export default function HowToStartDumpsterBusinessPage() {
             <li>
               • <strong>Driveway Liability Waivers:</strong> Homeowners often claim an old driveway crack was caused by your container. You must require customers to sign a liability agreement before delivery. You can download our free{' '}
               <Link href="/templates/dumpster-rental-contract" className="text-[#ea580c] font-bold underline">
-                Dumpster Rental Contract Template &amp; Property Waiver
+                dumpster rental contract template
               </Link>{' '}
-              to protect your business.
+              and driveway property damage waiver to protect your business.
             </li>
           </ul>
         </section>
@@ -294,11 +289,15 @@ export default function HowToStartDumpsterBusinessPage() {
               Start Taking Dumpster Bookings 24/7 with $0 Monthly Software Bills
             </h3>
             <p className="text-xs md:text-sm text-[#556658] leading-relaxed mb-5">
-              Legacy software companies like Docket and ServiceCore charge $300 to $500/month plus $1,000+ onboarding fees. With{' '}
+              Legacy software companies like Docket and ServiceCore charge $300 to $500/month plus $1,000+ onboarding fees. With RollOS{' '}
               <Link href="/" className="text-[#1f2d26] font-bold underline">
-                RollOS dumpster rental software
+                dumpster rental software
               </Link>
-              , independent haulers start 100% free with a 24/7 customer booking widget, visual drag-and-drop dispatch board, and SMS driver links. Your customer pays a standard $12 reservation lock fee, and you keep 100% of your rental money.
+              , independent haulers start 100% free with a 24/7 customer booking widget, visual drag-and-drop{' '}
+              <Link href="/features/dispatch-board" className="text-[#ea580c] font-bold underline">
+                roll-off dispatch software
+              </Link>
+              , and SMS driver links. Your customer pays a standard $12 reservation lock fee, and you keep 100% of your rental money.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link href="/signup" className="btn btn-orange text-xs">

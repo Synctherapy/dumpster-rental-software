@@ -174,57 +174,114 @@ export function ContractTemplateView() {
           How to Enforce and Use This Dumpster Rental Contract in 2026
         </h2>
         <p className="text-sm text-[#556658] leading-relaxed">
-          Running a roll-off hauling business without a legally binding agreement exposes you to tens of thousands of dollars in property damage lawsuits, unpaid overweight dump slips, and illegal hazardous waste dumping fees. Here is how top operators protect themselves:
+          Running a roll-off hauling business without a legally binding agreement exposes you to tens of thousands of dollars in property damage lawsuits, unpaid overweight dump slips, and illegal hazardous waste dumping fees. Here is how top operators enforce each key clause:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
             <h3 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
               <ShieldAlert size={16} className="text-[#ea580c]" />
-              1. Photograph Drop & Pick
+              Section 1: Property Damage & Photo Proof
             </h3>
-            <p className="text-xs text-[#687864] leading-relaxed">
+            <p className="text-xs text-[#687864] leading-relaxed mb-3">
               Always have drivers snap timestamped photos of the driveway surface prior to placement and immediately after retrieval. This proves pre-existing cracks weren’t caused by your roll-off wheels.
             </p>
-          </div>
-
-          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-            <h3 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-[#ea580c]" />
-              2. Keep Cards on File
-            </h3>
-            <p className="text-xs text-[#687864] leading-relaxed">
-              Never let a customer pay only cash upfront without a secondary card pre-authorization. When an unexpected wet-mattress or brick load comes in 2 tons over, you need automatic billing rights.
+            <p className="text-xs text-[#415346] leading-relaxed">
+              RollOS equips your fleet with 1-tap{' '}
+              <Link
+                href="/features/driver-routes"
+                className="font-semibold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+              >
+                dumpster driver routing software
+              </Link>{' '}
+              with photo proof so drivers take required pre-drop and post-pickup pictures directly from their mobile web browser.
             </p>
           </div>
 
           <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
             <h3 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
               <FileText size={16} className="text-[#ea580c]" />
-              3. Digital E-Signatures
+              Section 2: Prohibited Items & Invoicing
             </h3>
-            <p className="text-xs text-[#687864] leading-relaxed">
-              Paper clipboards get soaked in mud and lost in truck cabs. Modern haulers embed this exact contract directly into their 60-second online customer checkout flow.
+            <p className="text-xs text-[#687864] leading-relaxed mb-3">
+              Never let a customer dump unauthorized hazmat or tires without clear recourse. When items are detected at the transfer station, bill remediation fees quickly.
+            </p>
+            <p className="text-xs text-[#415346] leading-relaxed">
+              Attach photo evidence and itemized surcharges using our companion{' '}
+              <Link
+                href="/templates/dumpster-invoice"
+                className="font-semibold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+              >
+                itemized roll-off invoice sheet
+              </Link>{' '}
+              to eliminate customer confusion and card chargebacks.
+            </p>
+          </div>
+
+          <div className="p-5 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
+            <h3 className="text-sm font-bold text-[#1f2d26] mb-2 flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-[#ea580c]" />
+              Section 3: Weight Limits & Overage Math
+            </h3>
+            <p className="text-xs text-[#687864] leading-relaxed mb-3">
+              Never let a customer pay only cash upfront without a secondary card pre-authorization. When an unexpected wet-mattress or brick load comes in 2 tons over, you need automatic billing rights.
+            </p>
+            <p className="text-xs text-[#415346] leading-relaxed">
+              Before invoicing disposal overages, verify exact tare and gross net weight on our free{' '}
+              <Link
+                href="/tools/tonnage-calculator"
+                className="font-semibold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+              >
+                dumpster tonnage calculator
+              </Link>{' '}
+              to guarantee dispute-proof scale math.
             </p>
           </div>
         </div>
 
         {/* Reverse Silo CTA */}
-        <div className="p-8 bg-[#eef3e6] border border-[#d2dec3] rounded-2xl text-center my-8">
+        <div className="p-8 bg-[#eef3e6] border border-[#d2dec3] rounded-2xl text-center my-8 shadow-sm">
           <div className="eyebrow text-xs font-bold text-[#577242] uppercase tracking-wider mb-2">
             AUTOMATE CONTRACTS & ZERO PAPERWORK
           </div>
           <h3 className="text-xl md:text-2xl font-extrabold text-[#1f2d26] mb-3">
             Want to collect digital waivers automatically before every drop?
           </h3>
-          <p className="text-sm text-[#556658] max-w-xl mx-auto mb-6 leading-relaxed">
-            RollOS puts this entire agreement into your 60-second online customer booking checkout. Customers check the waiver box and sign before paying their $12 reservation fee. You keep 100% of your rental money and sleep easy with signed digital liability proof.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/" className="btn btn-orange">
-              Explore Roll Off Dumpster Software <ArrowRight size={14} />
+          <p className="text-sm text-[#556658] max-w-2xl mx-auto mb-6 leading-relaxed">
+            RollOS embeds this entire agreement directly into a 24/7{' '}
+            <Link
+              href="/features/online-booking"
+              className="font-bold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+            >
+              dumpster rental online booking system
             </Link>
-            <Link href="/signup" className="btn btn-secondary">
+            . Customers check the waiver box and legally sign before container delivery. When billing after retrieval, use our matching{' '}
+            <Link
+              href="/templates/dumpster-invoice"
+              className="font-bold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+            >
+              dumpster rental invoice template
+            </Link>
+            , or run your complete hauling business with dedicated{' '}
+            <Link
+              href="/"
+              className="font-bold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+            >
+              dumpster rental software
+            </Link>
+            .
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href="/" className="btn btn-orange text-xs md:text-sm font-bold py-3 px-5">
+              Explore dumpster rental software <ArrowRight size={14} />
+            </Link>
+            <Link href="/features/online-booking" className="btn btn-secondary text-xs md:text-sm font-bold py-3 px-5">
+              dumpster rental online booking system
+            </Link>
+            <Link href="/templates/dumpster-invoice" className="btn btn-secondary text-xs md:text-sm font-bold py-3 px-5">
+              dumpster rental invoice template
+            </Link>
+            <Link href="/signup" className="btn btn-dark text-xs md:text-sm font-bold py-3 px-5">
               Start Free Demo
             </Link>
           </div>

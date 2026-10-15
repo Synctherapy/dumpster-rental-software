@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, X, Shield, DollarSign, Smartphone, Truck, Box } from 'lucide-react';
+import { ArrowRight, Check, X, Box } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -33,14 +34,13 @@ export default function DRSComparisonPage() {
       <MarketingNav currentPath="/vs" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-          </Link>
-        </div>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Comparisons', item: '/vs' },
+            { name: 'RollOS vs DRS', item: '/vs/dumpster-rental-systems' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           IN-DEPTH SOFTWARE REVIEW & COMPARISON · 2026 EDITION
@@ -50,9 +50,19 @@ export default function DRSComparisonPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          Dumpster Rental Systems (DRS) is an established software platform in the waste industry. However, DRS charges
-          <strong>$195.95 to $279.95 every month</strong> and artificially caps your fleet size (the $195 plan only allows up to 20 containers).
-          RollOS provides modern 24/7 online booking, visual dispatching, and SMS driver routing with <strong>unlimited containers</strong> on our $0/month Free and $29/month Starter plans.
+          Dumpster Rental Systems (DRS) is an established{' '}
+          <Link
+            href="/"
+            className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
+          >
+            dumpster rental software
+          </Link>{' '}
+          platform in the waste industry. However, DRS charges <strong>$195.95 to $279.95 every month</strong> and artificially caps your fleet size (the $195 plan only allows up to 20 containers).
+          RollOS provides a modern{' '}
+          <Link href="/features/online-booking" className="text-[#ea580c] font-semibold hover:underline">
+            dumpster rental online booking system
+          </Link>
+          , visual dispatching, and SMS driver routing with <strong>unlimited containers</strong> on our $0/month Free and $29/month Starter plans.
         </p>
 
         {/* Executive Summary Cards */}
@@ -191,7 +201,7 @@ export default function DRSComparisonPage() {
           <div className="p-4 bg-[#f8faf6] rounded-xl text-xs space-y-2 mb-4 text-[#334155]">
             <p>• If you own 18 dumpsters, you pay <strong>$195.95/month ($2,351/year)</strong>.</p>
             <p>• The moment you buy 3 more containers to take on a new roofing contractor, you cross 20 cans and your software bill jumps to <strong>$279.95/month ($3,359/year)</strong>.</p>
-            <p>• With RollOS, you have <strong>zero container caps</strong>. You can run 5, 25, or 50 cans on our Free ($0/mo) or Starter ($29/mo) plans without ever paying a container penalty.</p>
+            <p>• With RollOS, you have <strong>zero container caps</strong>. You can run 5, 25, or 50 cans on our Free ($0/mo) or Starter ($29/mo) plans without ever paying a container penalty. Review our transparent <Link href="/pricing" className="text-[#ea580c] font-bold hover:underline">dumpster rental software pricing</Link> for complete details.</p>
           </div>
         </div>
 

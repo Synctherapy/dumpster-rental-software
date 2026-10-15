@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, FileText, Receipt, ShieldCheck, CheckCircle2, ArrowUpRight, PenTool, AlertTriangle } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -89,6 +90,12 @@ export default function TemplatesHubPage() {
 
       {/* Hero Section */}
       <section className="max-w-5xl mx-auto px-6 pt-12 pb-8">
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Templates', item: '/templates' },
+          ]}
+        />
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           FREE LEGAL & BUSINESS TEMPLATES · ROLL-OFF OPERATIONAL HUBS
         </div>
@@ -350,11 +357,14 @@ export default function TemplatesHubPage() {
             Eliminate lost clipboards, illegible signatures, and disputed invoices. RollOS puts your terms in front of every customer automatically.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/signup" className="btn btn-orange">
-              Start Free Demo <ArrowRight size={14} />
+            <Link href="/" className="btn btn-secondary">
+              dumpster rental software
             </Link>
             <Link href="/features" className="btn btn-secondary">
               Explore All Features
+            </Link>
+            <Link href="/signup" className="btn btn-orange">
+              Start Free Demo <ArrowRight size={14} />
             </Link>
           </div>
         </div>

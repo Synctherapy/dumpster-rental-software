@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, DollarSign, Scale, ArrowUpRight, CheckCircle2, Zap } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -87,6 +88,12 @@ export default function ToolsHubPage() {
 
       {/* Hero / Above The Fold */}
       <section className="max-w-5xl mx-auto px-6 pt-12 pb-8">
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Free Tools', item: '/tools' },
+          ]}
+        />
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           FREE ROLL-OFF HAULER TOOLS & CALCULATORS · TOPICAL AUTHORITY HUB
         </div>
@@ -316,11 +323,14 @@ export default function ToolsHubPage() {
             Stop losing hours every week to manual paperwork, phone tags, and invoice calculations. Set up your fleet in 3 minutes.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/signup" className="btn btn-orange">
-              Automate This Math with RollOS — Free to start <ArrowRight size={14} />
+            <Link href="/" className="btn btn-secondary">
+              roll off dumpster software
             </Link>
             <Link href="/pricing" className="btn btn-secondary">
               View Transparent Pricing
+            </Link>
+            <Link href="/signup" className="btn btn-orange">
+              Automate This Math with RollOS — Free to start <ArrowRight size={14} />
             </Link>
           </div>
         </div>

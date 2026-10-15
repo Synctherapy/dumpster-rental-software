@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft,
   ArrowRight,
   CreditCard,
   CheckCircle2,
@@ -9,6 +8,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -69,14 +69,15 @@ export default function TonnageBillingFeaturePage() {
 
       <MarketingNav currentPath="/features" />
 
-      {/* Breadcrumb */}
+      {/* Semantic Breadcrumbs */}
       <div className="max-w-5xl mx-auto px-6 pt-8 pb-4">
-        <Link
-          href="/features"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-        >
-          <ArrowLeft size={14} /> Back to All Features
-        </Link>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Features', item: '/features' },
+            { name: 'Scale Tickets & Tonnage Billing', item: '/features/tonnage-billing' },
+          ]}
+        />
       </div>
 
       {/* Hero Section */}
@@ -259,6 +260,88 @@ export default function TonnageBillingFeaturePage() {
             <p className="text-xs text-[#556658] leading-relaxed">
               Because credit cards are securely tokenized through Stripe Connect at initial online booking, you can charge balances without asking the customer for their card numbers over an awkward phone call.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Connected Pillars / Internal Linking */}
+      <section className="max-w-5xl mx-auto px-6 py-12 border-t border-[#e2e8da]">
+        <div className="text-center max-w-xl mx-auto mb-8">
+          <h3 className="text-xl font-bold text-[#1f2d26]">Where Does The Order Go Next?</h3>
+          <p className="text-xs text-[#556658]">
+            Automated tonnage invoicing completes the cycle started by customer online booking and mobile dispatch. Part of our unified <Link href="/" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">dumpster rental software</Link> platform:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/features/online-booking"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 01</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                24/7 Online Booking Widget
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Customers book dumpsters online and authorize credit cards on file for automated overage charges.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore dumpster rental online booking system</span>
+              <ArrowRight size={13} />
+            </div>
+          </Link>
+
+          <Link
+            href="/features/dispatch-board"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 02</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                Visual Roll-Off Dispatch Board
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Track full cans, schedule live container swaps, and dispatch final pickups across your fleet.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore roll-off dispatch software</span>
+              <ArrowRight size={13} />
+            </div>
+          </Link>
+
+          <Link
+            href="/features/driver-routes"
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl hover:border-[#ea580c] transition-colors block group shadow-sm flex flex-col justify-between"
+          >
+            <div>
+              <div className="text-xs font-bold text-[#ea580c] mb-1">PILLAR 03</div>
+              <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                1-Tap Driver SMS Routes
+              </h4>
+              <p className="text-xs text-[#556658] leading-relaxed mb-4">
+                Drivers capture scale ticket photos at the landfill directly from their SMS route link.
+              </p>
+            </div>
+            <div className="text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Explore dumpster driver routing software</span>
+              <ArrowRight size={13} />
+            </div>
+          </Link>
+        </div>
+
+        {/* Reciprocal link to Mother Ship */}
+        <div className="mt-8 p-4 bg-[#f8faf7] border border-[#d8e2cf] rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-[#556658]">
+          <span>Part of the complete RollOS operations suite for independent haulers:</span>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="font-bold text-[#1f2d26] hover:text-[#ea580c] underline">
+              Return to RollOS Dumpster Rental Software Homepage →
+            </Link>
+            <Link href="/features" className="font-bold text-[#ea580c] hover:underline">
+              All Features Hub →
+            </Link>
           </div>
         </div>
       </section>

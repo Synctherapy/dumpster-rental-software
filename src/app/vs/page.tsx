@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Zap } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
@@ -102,6 +103,12 @@ export default function CompareHubPage() {
 
       {/* Hero Section */}
       <section className="max-w-5xl mx-auto px-6 pt-12 pb-8">
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Comparisons', item: '/vs' },
+          ]}
+        />
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           COMPETITIVE BENCHMARKS & REVIEWS · 2026 EDITION
         </div>

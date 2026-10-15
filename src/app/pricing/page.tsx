@@ -14,7 +14,7 @@ import {
 import { MarketingNav } from '@/components/marketing-nav';
 import { PricingMatrix } from '@/components/pricing-matrix';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema } from '@/components/schema-org';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 
 export const metadata = {
   title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
@@ -28,21 +28,15 @@ export const metadata = {
 export default function PricingPage() {
   return (
     <main className="marketing">
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', item: '/' },
-          { name: 'Pricing', item: '/pricing' },
-        ]}
-      />
       <MarketingNav currentPath="/pricing" />
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-        >
-          <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-        </Link>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Software Pricing', item: '/pricing' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginTop: 16, marginBottom: 8 }}>
           SIMPLE, TRANSPARENT HAULER PRICING
@@ -67,7 +61,15 @@ export default function PricingPage() {
             </h2>
           </div>
           <p className="text-sm text-[#556658] leading-relaxed mb-6">
-            Legacy software providers charge independent haulers hundreds of dollars every month before you haul your first bin. Here is how the annual math breaks down:
+            Legacy software providers charge independent haulers hundreds of dollars every month before you haul your first bin. See our side-by-side{' '}
+            <Link href="/vs/docket" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+              RollOS vs Docket comparison
+            </Link>{' '}
+            and{' '}
+            <Link href="/vs/servicecore" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+              RollOS vs ServiceCore review
+            </Link>{' '}
+            to see how the annual overhead breaks down:
           </p>
 
           <div className="overflow-hidden">
@@ -83,7 +85,9 @@ export default function PricingPage() {
               </thead>
               <tbody>
                 <tr>
-                  <td className="font-bold text-[#dc2626]">Docket / ServiceCore</td>
+                  <td className="font-bold text-[#dc2626]">
+                    <Link href="/vs/docket" className="hover:underline text-[#dc2626]">Docket</Link> / <Link href="/vs/servicecore" className="hover:underline text-[#dc2626]">ServiceCore</Link>
+                  </td>
                   <td className="text-[#dc2626] font-mono">$350+ / mo</td>
                   <td className="text-[#dc2626] font-mono">$1,200 – $1,500</td>
                   <td className="text-[#dc2626] font-bold font-mono">$5,400 – $5,700 / yr</td>
@@ -234,7 +238,11 @@ export default function PricingPage() {
                 </span>
               </div>
               <p className="text-xs text-[#475569] leading-relaxed mb-3">
-                When repeat contractors call or text you, enter them onto your visual dispatch board with <strong>$0 platform fees forever</strong> on Starter. Just 1 contractor pull pays for the software for the entire month while saving you $3,600+/yr vs legacy tools.
+                When repeat contractors call or text you, enter them onto your{' '}
+                <Link href="/features/dispatch-board" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                  visual roll-off dispatch board
+                </Link>{' '}
+                with <strong>$0 platform fees forever</strong> on Starter. Just 1 contractor pull pays for the software for the entire month while saving you $3,600+/yr vs legacy tools.
               </p>
             </div>
             <div className="text-[11px] font-semibold text-[#166534]">
@@ -264,13 +272,44 @@ export default function PricingPage() {
                 Card on File for Scale Tickets
               </h4>
               <p className="text-xs text-[#475569] leading-relaxed mb-3">
-                Customer payment cards are tokenized and saved on file at checkout via Stripe Connect. When landfill scale tickets show overages, charge the exact amount in 1 click without chasing checks or awkward calls.
+                Customer payment cards are tokenized and saved on file at checkout via Stripe Connect. With automated{' '}
+                <Link href="/features/tonnage-billing" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                  dumpster tonnage billing software
+                </Link>
+                , when landfill scale tickets show overages, charge the exact amount in 1 click without chasing checks or awkward calls.
               </p>
             </div>
             <div className="text-[11px] font-semibold text-[#166534]">
               ✓ Automatic overage math at your custom rate
             </div>
           </div>
+        </div>
+
+        {/* Operator Financial Benchmarks & Setup Line */}
+        <div className="mt-8 p-6 bg-[#f8faf7] border border-[#d8e2cf] rounded-2xl text-xs md:text-sm text-[#475569] leading-relaxed flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="font-bold text-[#1f2d26] text-sm">
+              Want to benchmark your business numbers before choosing a plan?
+            </div>
+            <p className="text-xs text-[#64748b]">
+              Read our operator blueprints on{' '}
+              <Link href="/blog/dumpster-rental-profit-margins" className="font-bold text-[#ea580c] hover:underline">
+                dumpster rental profit margins
+              </Link>{' '}
+              and{' '}
+              <Link href="/blog/how-to-price-dumpster-rentals" className="font-bold text-[#ea580c] hover:underline">
+                how to price dumpster rentals
+              </Link>
+              , or calculate your fleet ROI with our free{' '}
+              <Link href="/tools/savings-calculator" className="font-bold text-[#ea580c] hover:underline">
+                dumpster rental software savings calculator
+              </Link>
+              .
+            </p>
+          </div>
+          <Link href="/contact" className="btn btn-secondary text-xs py-2 px-4 whitespace-nowrap shrink-0">
+            Contact Support &amp; Founder Line
+          </Link>
         </div>
 
         {/* Clear Truth & Transparency Box */}
@@ -303,7 +342,7 @@ export default function PricingPage() {
               Start Free Demo <ArrowRight size={14} />
             </Link>
             <Link href="/" className="btn btn-secondary">
-              Back to Home
+              Explore Dumpster Rental Software
             </Link>
           </div>
         </div>

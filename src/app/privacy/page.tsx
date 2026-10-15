@@ -45,7 +45,7 @@ export default function PrivacyPage() {
         reviewed by counsel before the site takes live payments.
       </p>
       <Link href="/" className="btn">
-        Back to RollOS
+        Return to RollOS Dumpster Rental Software
       </Link>
     </main>
   );

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { Footer } from '@/components/footer';
-import { BreadcrumbSchema } from '@/components/schema-org';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { WhatsAppButton, SupportEmailButton } from '@/components/founder-contact';
 
 export const metadata = {
@@ -24,7 +24,7 @@ export const metadata = {
 export default function ContactPage() {
   const breadcrumbItems = [
     { name: 'Home', item: '/' },
-    { name: 'Contact', item: '/contact' },
+    { name: 'Contact & Support', item: '/contact' },
   ];
 
   const contactPageSchema = {
@@ -57,16 +57,10 @@ export default function ContactPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
       />
-      <BreadcrumbSchema items={breadcrumbItems} />
       <MarketingNav currentPath="/contact" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors mb-6"
-        >
-          <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-        </Link>
+        <SemanticBreadcrumb items={breadcrumbItems} />
 
         {/* Header */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
@@ -176,7 +170,10 @@ export default function ContactPage() {
               <div className="font-bold text-[#1f2d26] mb-1">Platform Inquiries</div>
               <p className="text-[#556658] text-xs leading-relaxed">
                 RollOS Dumpster Rental Software<br />
-                Operated by Daryl Stubbs<br />
+                Operated by Daryl Stubbs ·{' '}
+                <Link href="/about" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                  About Our Mission
+                </Link><br />
                 Domain: rolloffdumpstersoftware.com
               </p>
             </div>
@@ -200,7 +197,11 @@ export default function ContactPage() {
               Do I have to talk to someone to use RollOS?
             </h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              No. RollOS is 100% self-serve. You can sign up, create an account, connect Stripe, and embed your booking widget in 3 minutes without ever speaking to us. Support is here whenever you want it.
+              No. RollOS is 100% self-serve. You can sign up, create an account, connect Stripe, and embed your{' '}
+              <Link href="/features/online-booking" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                dumpster rental online booking system
+              </Link>{' '}
+              in 3 minutes without ever speaking to us. Support is here whenever you want it.
             </p>
           </div>
 
@@ -210,9 +211,26 @@ export default function ContactPage() {
               Can you help me set up my service area ZIP codes and dumpster sizes?
             </h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              Yes, absolutely. Just send me your price list or website via email or WhatsApp and I will help you dial in your 10, 15, 20, 30, or 40-yard container rules and delivery radius at zero charge.
+              Yes, absolutely. Just send me your price list or website via email or WhatsApp and I will help you dial in your 10, 15, 20, 30, or 40-yard container rules and delivery radius at zero charge under our{' '}
+              <Link href="/pricing" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
+                free plan
+              </Link>
+              .
             </p>
           </div>
+        </div>
+
+        {/* Exploratory Links Bridge */}
+        <div className="mt-8 p-6 bg-[#f8faf7] border border-[#d8e2cf] rounded-2xl text-center text-xs md:text-sm text-[#556658]">
+          <span>Looking to explore the platform first? Browse </span>
+          <Link href="/features" className="font-bold text-[#ea580c] hover:underline">
+            all software features
+          </Link>
+          <span> or test our free </span>
+          <Link href="/tools/tonnage-calculator" className="font-bold text-[#ea580c] hover:underline">
+            dumpster tonnage calculator
+          </Link>
+          <span>.</span>
         </div>
       </div>
 

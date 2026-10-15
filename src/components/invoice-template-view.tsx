@@ -269,7 +269,14 @@ export function InvoiceTemplateView() {
                 3. Mathematical Pro-Rated Transparency
               </h3>
               <p className="text-xs text-[#687864] leading-relaxed">
-                Always show the arithmetic clearly: <code>(Net Weight - Included Tons) × Per-Ton Rate</code>. When customers see that 3,720 lbs converts directly to 1.86 tons at $85.00/ton ($0.0425/lb), confusion dissolves. Transparent itemization removes the emotional sticker shock that causes angry phone calls.
+                Always show the arithmetic clearly: <code>(Net Weight - Included Tons) × Per-Ton Rate</code>. When customers see that 3,720 lbs converts directly to 1.86 tons at $85.00/ton ($0.0425/lb), confusion dissolves. Transparent itemization removes the emotional sticker shock that causes angry phone calls. You can verify net weights beforehand on our free{' '}
+                <Link
+                  href="/tools/tonnage-calculator"
+                  className="text-[#ea580c] font-semibold underline hover:text-[#c2410c]"
+                >
+                  dumpster tonnage calculator
+                </Link>{' '}
+                to ensure zero customer billing disputes.
               </p>
             </div>
 
@@ -279,7 +286,14 @@ export function InvoiceTemplateView() {
                 4. Pre-Authorized Agreement Cross-Reference
               </h3>
               <p className="text-xs text-[#687864] leading-relaxed">
-                Your invoice must reference the signed rental agreement and quote the specific overage clause authorizing post-disposal card billing (see our free <Link href="/templates/dumpster-rental-contract" className="text-[#ea580c] font-semibold underline hover:text-[#c2410c]">dumpster rental contract and damage waiver template</Link>). In the event of a dispute, submitting the invoice alongside the signed digital waiver wins merchant representation over 94% of the time.
+                Your invoice must reference the signed rental agreement and quote the specific overage clause authorizing post-disposal card billing (see our free{' '}
+                <Link
+                  href="/templates/dumpster-rental-contract"
+                  className="text-[#ea580c] font-semibold underline hover:text-[#c2410c]"
+                >
+                  dumpster rental contract template
+                </Link>
+                ). In the event of a dispute, submitting the invoice alongside the signed digital waiver wins merchant representation over 94% of the time.
               </p>
             </div>
           </div>
@@ -418,20 +432,46 @@ export function InvoiceTemplateView() {
             Stop Calculating Overage Invoices by Hand
           </h3>
           <p className="text-sm text-[#556658] max-w-2xl mx-auto mb-6 leading-relaxed">
-            RollOS eliminates manual invoicing entirely. When your driver drops at the landfill, they snap a single smartphone photo of the certified scale slip. RollOS automatically parses the ticket, computes the exact poundage overage, charges the customer’s card on file via Stripe, and emails this dispute-proof itemized receipt instantly.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+            RollOS eliminates manual invoicing entirely. Instead of running scale math manually on paper slips, independent haulers use our automated{' '}
             <Link
               href="/features/tonnage-billing"
-              className="btn btn-orange text-sm font-bold px-6 py-3"
+              className="font-bold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
             >
-              See Automated Tonnage Billing <ArrowRight size={15} />
+              dumpster tonnage billing software
+            </Link>
+            . When your driver drops at the landfill, they snap a single smartphone photo of the certified scale slip. RollOS automatically computes exact poundage overages, links the ticket to your{' '}
+            <Link
+              href="/templates/dumpster-rental-contract"
+              className="font-bold text-[#1f2d26] underline decoration-[#ea580c] hover:text-[#ea580c] transition-colors"
+            >
+              dumpster rental contract template
+            </Link>
+            , and charges the customer&apos;s pre-authorized card on file via Stripe.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/features/tonnage-billing"
+              className="btn btn-orange text-xs md:text-sm font-bold px-5 py-3 inline-flex items-center gap-2"
+            >
+              dumpster tonnage billing software <ArrowRight size={15} />
+            </Link>
+            <Link
+              href="/tools/tonnage-calculator"
+              className="btn btn-secondary text-xs md:text-sm font-bold px-5 py-3"
+            >
+              dumpster tonnage calculator
+            </Link>
+            <Link
+              href="/templates/dumpster-rental-contract"
+              className="btn btn-secondary text-xs md:text-sm font-bold px-5 py-3"
+            >
+              dumpster rental contract template
             </Link>
             <Link
               href="/pricing"
-              className="btn btn-secondary text-sm font-bold px-6 py-3"
+              className="btn btn-dark text-xs md:text-sm font-bold px-5 py-3"
             >
-              View Simple RollOS Pricing
+              View Simple Pricing
             </Link>
           </div>
         </div>

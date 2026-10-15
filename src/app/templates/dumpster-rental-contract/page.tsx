@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { ContractTemplateView } from '@/components/contract-template-view';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -40,14 +40,13 @@ export default function ContractTemplatePage() {
       <MarketingNav currentPath="/templates" />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="mb-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-[#687864] hover:text-[#ea580c] transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Roll Off Dumpster Software
-          </Link>
-        </div>
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Templates', item: '/templates' },
+            { name: 'Dumpster Rental Contract Template', item: '/templates/dumpster-rental-contract' },
+          ]}
+        />
 
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           FREE OPERATIONAL HAULER TEMPLATES · LEGAL WAIVER

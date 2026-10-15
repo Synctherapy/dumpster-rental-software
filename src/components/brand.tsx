@@ -2,7 +2,7 @@ import { Layers2 } from 'lucide-react';
 import Link from 'next/link';
 export function Brand({ href = '/' }: { href?: string }) {
   return (
-    <Link href={href} className="brand" aria-label="RollOS home">
+    <Link href={href} className="brand" aria-label="RollOS Dumpster Rental Software" title="RollOS Dumpster Rental Software">
       <span className="brand-mark">
         <Layers2 size={20} />
       </span>

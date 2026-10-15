@@ -42,7 +42,7 @@ export default function SaasTerms() {
         These terms are a starter. Have them reviewed before you accept a paying subscriber.
       </p>
       <Link href="/" className="btn">
-        Back to RollOS
+        Return to RollOS Dumpster Rental Software
       </Link>
     </main>
   );

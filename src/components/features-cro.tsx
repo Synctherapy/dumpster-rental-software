@@ -25,72 +25,96 @@ export const STANDOUT_12_FEATURES = [
     title: '24/7 Self-Service Booking Widget',
     desc: 'Homeowners and contractors book online from your website, select sizes, and pay upfront while you sleep.',
     badge: 'Core Feature',
+    href: '/features/online-booking',
+    linkText: 'Explore dumpster rental online booking system',
   },
   {
     icon: Truck,
     title: 'Visual Drag-and-Drop Dispatch',
     desc: 'Assign drop-offs, swaps, and pickups across drivers on a fast visual board that eliminates dry-erase clutter.',
     badge: 'Operations',
+    href: '/features/dispatch-board',
+    linkText: 'Explore roll-off dispatch software',
   },
   {
     icon: Smartphone,
     title: 'Zero-App Driver SMS Routing',
     desc: 'Drivers get daily manifest links via SMS. Opens instantly in browser with 1-tap GPS and photo proof capture.',
     badge: 'Driver Loved',
+    href: '/features/driver-routes',
+    linkText: 'Explore dumpster driver routing software',
   },
   {
     icon: Scale,
     title: 'Scale Ticket & Tonnage Billing',
     desc: 'Snap a landfill scale slip photo. RollOS calculates overweight tons and automatically bills card on file.',
     badge: 'Revenue Protection',
+    href: '/features/tonnage-billing',
+    linkText: 'Explore dumpster tonnage billing software',
   },
   {
     icon: Sliders,
     title: 'Real-Time Container Inventory',
     desc: 'Track every can: Delivered, In Yard, Swapped, or Overdue. Never accidentally double-book a 20-yarder.',
     badge: 'Inventory',
+    href: '/features/dispatch-board',
+    linkText: 'Track container fleet inventory',
   },
   {
     icon: ShieldCheck,
     title: 'Digital Damage Waiver Signing',
     desc: 'Collect legal liability e-signatures during checkout to protect against driveway damage claims & disputes.',
     badge: 'Legal Defense',
+    href: '/templates/dumpster-rental-contract',
+    linkText: 'Download dumpster rental contract template',
   },
   {
     icon: Calendar,
     title: 'Google & Apple Calendar Sync',
     desc: 'Deliveries and pickups push automatically to your phone calendar via real-time iCal feed.',
     badge: 'Starter Plan',
+    href: '/pricing',
+    linkText: 'View Starter Plan calendar sync',
   },
   {
     icon: MessageSquare,
     title: 'Automated Customer SMS Updates',
     desc: 'Keep customers in the loop with automated "Driver En Route" and "Dumpster Delivered" text alerts.',
     badge: 'Customer CX',
+    href: '/features/driver-routes',
+    linkText: 'Learn driver & customer SMS alerts',
   },
   {
     icon: Star,
     title: 'Automated 2-Way Google Reviews',
     desc: 'Automatically text happy customers review links right after pickup to dominate local Google Maps search.',
     badge: 'Growth Engine',
+    href: '/pricing',
+    linkText: 'Explore Growth tier review automation',
   },
   {
     icon: Banknote,
     title: 'Offline Cash & Check Logging',
     desc: 'Record in-person contractor payments, commercial trade balances, and offline settlements in one ledger.',
     badge: 'Flexible Billing',
+    href: '/pricing',
+    linkText: 'View offline payment logging',
   },
   {
     icon: CreditCard,
     title: 'Instant Stripe Connect Direct Payouts',
     desc: 'Funds deposit directly into your business bank account. No middleman withholding your cash flow.',
     badge: 'Fast Cash',
+    href: '/features/online-booking',
+    linkText: 'See Stripe Connect payouts',
   },
   {
     icon: DollarSign,
     title: 'Custom Landfill Surcharges & Board Fees',
     desc: 'Add optional driveway protection wood boards ($25) or county dump fuel surcharges with 1 click.',
     badge: 'Margin Boost',
+    href: '/tools/tonnage-calculator',
+    linkText: 'Use dumpster tonnage calculator',
   },
 ];
 
@@ -100,23 +124,30 @@ export function StandoutFeaturesGrid() {
       {STANDOUT_12_FEATURES.map((feat) => {
         const Icon = feat.icon;
         return (
-          <div
+          <Link
             key={feat.title}
-            className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] transition-all flex flex-col justify-between"
+            href={feat.href}
+            className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all flex flex-col justify-between group"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="p-2.5 rounded-xl bg-[#eef3e6] text-[#2d4034]">
+                <span className="p-2.5 rounded-xl bg-[#eef3e6] text-[#2d4034] group-hover:bg-[#ffedd5] group-hover:text-[#ea580c] transition-colors">
                   <Icon size={20} />
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#687864] bg-[#f2f6ee] px-2.5 py-1 rounded-full border border-[#dde4d4]">
                   {feat.badge}
                 </span>
               </div>
-              <h3 className="text-base font-bold text-[#1f2d26] mb-2">{feat.title}</h3>
+              <h3 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                {feat.title}
+              </h3>
               <p className="text-xs text-[#556658] leading-relaxed">{feat.desc}</p>
             </div>
-          </div>
+            <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>{feat.linkText}</span>
+              <ArrowRight size={13} />
+            </div>
+          </Link>
         );
       })}
     </div>

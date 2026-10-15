@@ -20,6 +20,7 @@ import {
   HaulerPersonas,
   FeaturesFAQSection,
 } from '@/components/features-cro';
+import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -73,7 +74,7 @@ export default function FeaturesHubPage() {
         'Direct credit card deposits into your bank via Stripe Connect',
         'Collect customer liability damage waiver signatures during checkout',
       ],
-      linkText: 'Explore Online Booking',
+      linkText: 'Explore Dumpster Rental Online Booking System',
     },
     {
       title: 'Visual Drag-and-Drop Dispatch',
@@ -91,7 +92,7 @@ export default function FeaturesHubPage() {
         'Visual calendar view showing upcoming drop-offs, swaps, and final pickups',
         'Container serial number and GPS drop-location tracking',
       ],
-      linkText: 'Explore Dispatch Board',
+      linkText: 'Explore Roll-Off Dispatch Software',
     },
     {
       title: '1-Tap Driver SMS Routes',
@@ -109,7 +110,7 @@ export default function FeaturesHubPage() {
         'Photo proof of placement capture to prevent false driveway damage claims',
         'Driver scale ticket snapshot upload directly from the transfer station',
       ],
-      linkText: 'Explore Driver SMS Routing',
+      linkText: 'Explore Dumpster Driver Routing Software',
     },
     {
       title: 'Scale Tickets & Tonnage Invoicing',
@@ -127,7 +128,7 @@ export default function FeaturesHubPage() {
         '1-click customer credit card charging via Stripe Connect—no awkward phone calls',
         'Itemized line items for extended rental days and hazardous waste penalties',
       ],
-      linkText: 'Explore Tonnage Billing',
+      linkText: 'Explore Dumpster Tonnage Billing Software',
     },
   ];
 
@@ -140,8 +141,18 @@ export default function FeaturesHubPage() {
 
       <MarketingNav currentPath="/features" />
 
+      {/* Semantic Breadcrumbs */}
+      <div className="max-w-5xl mx-auto px-6 pt-8 pb-2">
+        <SemanticBreadcrumb
+          items={[
+            { name: 'Home', item: '/' },
+            { name: 'Features', item: '/features' },
+          ]}
+        />
+      </div>
+
       {/* Hero Section */}
-      <section className="max-w-5xl mx-auto px-6 pt-12 pb-8">
+      <section className="max-w-5xl mx-auto px-6 pt-6 pb-8">
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
           ROLLOS SOFTWARE PLATFORM · COMPLETE ROLL-OFF SUITE
         </div>
@@ -149,7 +160,7 @@ export default function FeaturesHubPage() {
           Every tool you need to run, dispatch, and scale your dumpster fleet.
         </h1>
         <p className="text-lg text-[#556658] leading-relaxed mb-6 max-w-3xl">
-          Most waste software is clunky, overpriced, and built for massive septic pumpers. RollOS is built from the ground up for independent roll-off operations: fast to set up, dirt simple for drivers, and engineered to capture 24/7 bookings, automate dispatch, and collect tonnage fees.
+          Most waste software is clunky, overpriced, and built for massive septic pumpers. <Link href="/" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">RollOS dumpster rental software</Link> is built from the ground up for independent roll-off operations: fast to set up, dirt simple for drivers, and engineered to capture 24/7 bookings, automate dispatch, and collect tonnage fees.
         </p>
 
         {/* Dual Primary & Secondary CTAs */}

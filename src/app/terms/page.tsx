@@ -45,7 +45,7 @@ export default function Terms() {
         should not be shared.
       </p>
       <Link href="/" className="btn">
-        Back to RollOS
+        Return to RollOS Dumpster Rental Software
       </Link>
     </main>
   );
