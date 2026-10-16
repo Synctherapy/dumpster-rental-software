@@ -10,7 +10,6 @@ import {
   Check,
   ArrowUpRight,
   Sparkles,
-  Zap,
   CheckCircle2,
   Building2,
   Truck,
@@ -18,12 +17,13 @@ import {
   ShieldCheck,
   PhoneCall,
   MessageSquare,
-  Clock,
   ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Modal } from './ui/dialog';
 import type { Workspace } from '@/lib/types';
+import { api } from '@/lib/client';
 
 export function GrowthHub({
   data,
@@ -38,6 +38,7 @@ export function GrowthHub({
   const [websiteRequested, setWebsiteRequested] = useState(false);
   const [showGbpModal, setShowGbpModal] = useState(false);
   const [gbpRequested, setGbpRequested] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
   const [contractorName, setContractorName] = useState('');
   const [copiedContractorLink, setCopiedContractorLink] = useState(false);
   const [socialTab, setSocialTab] = useState<'facebook' | 'instagram' | 'google' | 'sms'>('facebook');
@@ -708,10 +709,31 @@ export function GrowthHub({
           ) : (
             <form
               className="form-stack"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setWebsiteRequested(true);
-                notify('Website request received! We will be in touch within 24 hours.');
+                setPurchasing(true);
+                try {
+                  const res = await api<{ url: string }>('/api/billing', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      addon: 'website',
+                      company: data.organization.name,
+                      phone: data.organization.phone,
+                      success_url: `${window.location.origin}/growth?purchased=website`,
+                      cancel_url: `${window.location.origin}/growth`,
+                    }),
+                  });
+                  if (res.url) {
+                    window.location.assign(res.url);
+                    return;
+                  }
+                  setWebsiteRequested(true);
+                  notify('Website request received! We will be in touch within 24 hours.');
+                } catch (err) {
+                  notify((err as Error).message || 'Failed to initiate checkout', true);
+                } finally {
+                  setPurchasing(false);
+                }
               }}
             >
               <label className="field">
@@ -727,11 +749,12 @@ export function GrowthHub({
                 <input placeholder="e.g. Austin, Round Rock, Cedar Park" required />
               </label>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '12px' }}>
-                <Button type="button" variant="ghost" onClick={() => setShowWebsiteModal(false)}>
+                <Button type="button" variant="ghost" disabled={purchasing} onClick={() => setShowWebsiteModal(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="orange">
-                  Lock in $299 Website Offer
+                <Button type="submit" variant="orange" disabled={purchasing}>
+                  {purchasing ? <Loader2 className="spin" size={14} /> : null}
+                  Checkout Website Setup ($299)
                 </Button>
               </div>
             </form>
@@ -763,10 +786,31 @@ export function GrowthHub({
           ) : (
             <form
               className="form-stack"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setGbpRequested(true);
-                notify('Google 3-Pack optimization request submitted!');
+                setPurchasing(true);
+                try {
+                  const res = await api<{ url: string }>('/api/billing', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                      addon: 'gbp',
+                      company: data.organization.name,
+                      phone: data.organization.phone,
+                      success_url: `${window.location.origin}/growth?purchased=gbp`,
+                      cancel_url: `${window.location.origin}/growth`,
+                    }),
+                  });
+                  if (res.url) {
+                    window.location.assign(res.url);
+                    return;
+                  }
+                  setGbpRequested(true);
+                  notify('Google 3-Pack optimization request submitted!');
+                } catch (err) {
+                  notify((err as Error).message || 'Failed to initiate checkout', true);
+                } finally {
+                  setPurchasing(false);
+                }
               }}
             >
               <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: '12px', borderRadius: '8px' }}>
@@ -786,11 +830,12 @@ export function GrowthHub({
                 <input placeholder="e.g. google.com/maps/... or 123 Main St" required />
               </label>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '12px' }}>
-                <Button type="button" variant="ghost" onClick={() => setShowGbpModal(false)}>
+                <Button type="button" variant="ghost" disabled={purchasing} onClick={() => setShowGbpModal(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" variant="primary">
-                  Order Google 3-Pack Kit ($79)
+                <Button type="submit" variant="primary" disabled={purchasing}>
+                  {purchasing ? <Loader2 className="spin" size={14} /> : null}
+                  Checkout Google 3-Pack ($79)
                 </Button>
               </div>
             </form>

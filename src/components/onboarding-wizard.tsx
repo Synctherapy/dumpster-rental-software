@@ -19,8 +19,6 @@ import {
   Rocket,
   Sparkles,
   Trash2,
-  Truck,
-  Zap,
 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';

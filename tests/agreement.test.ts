@@ -12,30 +12,42 @@ req.cache[serverOnlyPath] = {
 } as unknown as NodeModule;
 
 import type * as AgreementModule from '../src/lib/server/agreement';
-import type * as SeedModule from '../src/lib/seed';
 import type * as SignRouteModule from '../src/app/api/agreement/[id]/sign/route';
 import type * as SendWaiverRouteModule from '../src/app/api/jobs/[id]/send-waiver/route';
+import type * as StoreModule from '../src/lib/server/store';
 
 const { getJobAgreement } = req('../src/lib/server/agreement') as typeof AgreementModule;
-const { seed } = req('../src/lib/seed') as typeof SeedModule;
+const { readDemo } = req('../src/lib/server/store') as typeof StoreModule;
 const { POST: signHandler } = req('../src/app/api/agreement/[id]/sign/route') as typeof SignRouteModule;
 const { POST: sendWaiverHandler } = req('../src/app/api/jobs/[id]/send-waiver/route') as typeof SendWaiverRouteModule;
 
 test('getJobAgreement retrieves populated agreement data for an existing job in demo store', async () => {
-  const seeded = seed();
-  const sampleJob = seeded.jobs[0];
-  assert.ok(sampleJob, 'Sample job exists in seed');
+  const demoData = await readDemo();
+  const sampleJob = demoData.jobs[0];
+  assert.ok(sampleJob, 'Sample job exists in demo store');
 
   const agreementData = await getJobAgreement(sampleJob.id);
   assert.ok(agreementData, 'Agreement data is returned');
   assert.equal(agreementData.job.id, sampleJob.id);
   assert.equal(agreementData.job.customer_name, sampleJob.customer_name);
-  assert.equal(agreementData.organization.name, seeded.organization.name);
+  assert.equal(agreementData.organization.name, demoData.organization.name);
   assert.ok(agreementData.rentalDays >= 1, 'Rental days is computed correctly');
   assert.ok(agreementData.pricingRule.overage_per_ton_cents > 0, 'Pricing rule has overage rate');
   assert.ok(agreementData.job.signature.name, 'Customer signature name is present');
   assert.ok(agreementData.job.signature.timestamp, 'Signature timestamp is present');
   assert.ok(agreementData.job.signature.ip, 'Signature IP is present');
+
+  // Verify privacy leak protection
+  const org = agreementData.organization as unknown as Record<string, unknown>;
+  assert.equal(org.stripe_connect_account_id, undefined, 'stripe_connect_account_id must not leak');
+  assert.equal(org.stripe_subscription_id, undefined, 'stripe_subscription_id must not leak');
+  assert.equal(org.twilio_phone_sid, undefined, 'twilio_phone_sid must not leak');
+  assert.equal(org.calendar_token, undefined, 'calendar_token must not leak');
+  assert.equal(
+    (org.pricing_config as Record<string, unknown> | undefined)?.calendar_token,
+    undefined,
+    'pricing_config.calendar_token must not leak',
+  );
 });
 
 test('getJobAgreement returns null for non-existent job id', async () => {
@@ -44,8 +56,8 @@ test('getJobAgreement returns null for non-existent job id', async () => {
 });
 
 test('POST /api/agreement/[id]/sign records customer e-signature and marks job signed', async () => {
-  const seeded = seed();
-  const sampleJob = seeded.jobs[0];
+  const demoData = await readDemo();
+  const sampleJob = demoData.jobs[0];
 
   const reqObj = new Request(`http://localhost:3000/api/agreement/${sampleJob.id}/sign`, {
     method: 'POST',
@@ -69,8 +81,8 @@ test('POST /api/agreement/[id]/sign records customer e-signature and marks job s
 });
 
 test('POST /api/jobs/[id]/send-waiver generates sms notification with agreement link', async () => {
-  const seeded = seed();
-  const sampleJob = seeded.jobs[0];
+  const demoData = await readDemo();
+  const sampleJob = demoData.jobs[0];
 
   const reqObj = new Request(`http://localhost:3000/api/jobs/${sampleJob.id}/send-waiver`, {
     method: 'POST',

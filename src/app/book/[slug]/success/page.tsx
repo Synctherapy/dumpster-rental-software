@@ -18,8 +18,18 @@ export default async function Success({
   try {
     if (session_id) {
       const orgData = await publicOrganization(slug).catch(() => null);
-      const requestOptions = orgData?.organization?.stripe_connect_account_id
-        ? { stripeAccount: orgData.organization.stripe_connect_account_id }
+      let connectAccountId: string | undefined = undefined;
+      if (orgData?.organization?.id) {
+        const { admin } = await import('@/lib/server/supabase');
+        const { data: dbOrg } = await admin()
+          .from('organizations')
+          .select('stripe_connect_account_id')
+          .eq('id', orgData.organization.id)
+          .single();
+        connectAccountId = dbOrg?.stripe_connect_account_id ?? undefined;
+      }
+      const requestOptions = connectAccountId
+        ? { stripeAccount: connectAccountId }
         : undefined;
       const session = await stripe().checkout.sessions.retrieve(
         session_id,

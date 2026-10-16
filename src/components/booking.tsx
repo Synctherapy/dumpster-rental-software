@@ -18,6 +18,7 @@ import {
   Zap,
   CreditCard,
   X,
+  Phone,
 } from 'lucide-react';
 import { Dumpster } from './brand';
 import { Button } from './ui/button';
@@ -215,6 +216,14 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     setBusy(true);
     setError('');
     try {
+      if (data && !data.demo && !data.organization?.stripe_connected && !data.organization?.stripe_connect_account_id) {
+        setError(
+          `Online card payments are currently being configured for this location. Please call ${
+            data.organization.phone || 'our dispatch office'
+          } to lock in your rental date directly!`
+        );
+        return;
+      }
       const normalizedPhone = normalizePhone(customer.customer_phone);
       const normalizedZip = normalizePostalCode(zip);
       const result = await api<{ job?: Job; url?: string; demo: boolean }>('/api/jobs', {
@@ -577,6 +586,34 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   >
                     COMMERCIAL ACCOUNT
                   </span>
+                </div>
+              )}
+              {data && !data.demo && !data.organization?.stripe_connected && !data.organization?.stripe_connect_account_id && (
+                <div
+                  role="alert"
+                  style={{
+                    background: '#fffbeb',
+                    border: '1px solid #fde68a',
+                    borderRadius: '10px',
+                    padding: '14px 16px',
+                    marginBottom: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                  }}
+                >
+                  <Phone size={20} style={{ color: '#d97706', flexShrink: 0 }} />
+                  <div style={{ flex: 1, fontSize: '13px', color: '#92400e', lineHeight: 1.5 }}>
+                    <strong>Notice:</strong> Online card payments are currently being configured for this location. Please call{' '}
+                    <a
+                      href={`tel:${data.organization.phone || ''}`}
+                      style={{ fontWeight: 700, color: '#b45309', textDecoration: 'underline' }}
+                    >
+                      {data.organization.phone || 'our dispatch office'}
+                    </a>{' '}
+                    to lock in your rental date directly!
+                  </div>
                 </div>
               )}
               <div className="steps">
@@ -1138,6 +1175,25 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   <Button variant="primary" type="submit" form="customer-form">
                     Review booking <ArrowRight size={14} />
                   </Button>
+                ) : !data.demo && !data.organization?.stripe_connected && !data.organization?.stripe_connect_account_id ? (
+                  <a
+                    href={`tel:${data.organization.phone || ''}`}
+                    className="btn btn-primary"
+                    style={{
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      background: '#d97706',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      padding: '10px 18px',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Phone size={14} /> Call {data.organization.phone || 'Office'} to Lock in Date
+                  </a>
                 ) : (
                   <Button variant="primary" type="submit" form="confirm-form" disabled={busy}>
                     {busy ? <Loader2 size={14} className="spin" /> : <LockKeyhole size={13} />}{' '}

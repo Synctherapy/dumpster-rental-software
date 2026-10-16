@@ -29,6 +29,61 @@ type RouteData = {
   organization?: { name: string; subscription_status: string; is_paid_plan: boolean };
   demo: boolean;
 };
+
+interface QueuedDriverAction {
+  id: string;
+  jobId: string;
+  patch: Record<string, unknown>;
+  photoBase64?: string;
+  photoName?: string;
+  photoType?: string;
+  pickupPhotoBase64?: string;
+  pickupPhotoName?: string;
+  pickupPhotoType?: string;
+  timestamp: number;
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function base64ToFile(base64: string, filename: string, mimeType: string): File {
+  const arr = base64.split(',');
+  const bstr = atob(arr[1] || arr[0]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mimeType });
+}
+
+function createQueuedAction(
+  jobId: string,
+  patch: Record<string, unknown>,
+  opts: {
+    photoBase64?: string;
+    photoName?: string;
+    photoType?: string;
+    pickupPhotoBase64?: string;
+    pickupPhotoName?: string;
+    pickupPhotoType?: string;
+  }
+): QueuedDriverAction {
+  return {
+    id: Math.random().toString(36).slice(2),
+    jobId,
+    patch,
+    ...opts,
+    timestamp: Date.now(),
+  };
+}
+
 export function DriverRoute({ token }: { token: string }) {
   const [data, setData] = useState<RouteData | null>(null);
   const [error, setError] = useState('');
@@ -42,23 +97,228 @@ export function DriverRoute({ token }: { token: string }) {
   const [filterTab, setFilterTab] = useState<'active' | 'all' | 'dispatched' | 'delivered' | 'picked_up'>('active');
   const [sortBy, setSortBy] = useState<'delivery' | 'pickup' | 'customer'>('delivery');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isOnline, setIsOnline] = useState(true);
-  const reload = useCallback(() => api<RouteData>(`/api/driver/${token}`).then(setData), [token]);
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
+  const queueKey = `rollos_driver_queue_${token}`;
+  const cacheKey = `rollos_driver_cached_${token}`;
+  const [pendingCount, setPendingCount] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    try {
+      const rawQueue = localStorage.getItem(queueKey);
+      if (rawQueue) {
+        const q = JSON.parse(rawQueue);
+        return Array.isArray(q) ? q.length : 0;
+      }
+    } catch {}
+    return 0;
+  });
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const reload = useCallback(async () => {
+    try {
+      const res = await api<RouteData>(`/api/driver/${token}`);
+      setData(res);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(res));
+        } catch {}
+      }
+      return res;
+    } catch (err) {
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached) as RouteData;
+            setData(parsed);
+            return parsed;
+          } catch {}
+        }
+      }
+      throw err;
+    }
+  }, [token, cacheKey]);
+
+  const syncOfflineQueue = useCallback(async () => {
+    if (typeof window === 'undefined') return;
+    const rawQueue = localStorage.getItem(queueKey);
+    if (!rawQueue) {
+      setPendingCount(0);
+      return;
+    }
+    let queue: QueuedDriverAction[] = [];
+    try {
+      queue = JSON.parse(rawQueue);
+    } catch {
+      return;
+    }
+    if (!queue.length) {
+      setPendingCount(0);
+      return;
+    }
+
+    setIsSyncing(true);
+    let synced = 0;
+    const remaining: QueuedDriverAction[] = [];
+
+    for (const item of queue) {
+      try {
+        const patch = { ...item.patch };
+        if (item.photoBase64 && item.photoName && item.photoType) {
+          const file = base64ToFile(item.photoBase64, item.photoName, item.photoType);
+          const form = new FormData();
+          form.set('photo', file);
+          form.set('job_id', item.jobId);
+          form.set('token', token);
+          const { url } = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
+          patch.proof_url = url;
+        }
+        if (item.pickupPhotoBase64 && item.pickupPhotoName && item.pickupPhotoType) {
+          const file = base64ToFile(item.pickupPhotoBase64, item.pickupPhotoName, item.pickupPhotoType);
+          const form = new FormData();
+          form.set('photo', file);
+          form.set('job_id', item.jobId);
+          form.set('token', token);
+          const { url } = await api<{ url: string }>('/api/upload', { method: 'POST', body: form });
+          patch.pickup_proof_url = url;
+        }
+        await api(`/api/driver/${token}`, {
+          method: 'POST',
+          body: JSON.stringify({ job_id: item.jobId, ...patch }),
+        });
+        synced++;
+      } catch {
+        remaining.push(item);
+      }
+    }
+
+    try {
+      localStorage.setItem(queueKey, JSON.stringify(remaining));
+    } catch {}
+    setPendingCount(remaining.length);
+    setIsSyncing(false);
+
+    if (synced > 0) {
+      setMessage(`All ${synced} offline stop(s) synchronized with dispatch!`);
+      await reload().catch(() => {});
+    }
+  }, [token, queueKey, reload]);
+
   useEffect(() => {
-    reload().catch((e) => setError(e.message));
-    const handleOnline = () => setIsOnline(true);
+    let ignore = false;
+    const fetchRoute = async () => {
+      try {
+        await reload();
+      } catch (e: unknown) {
+        if (!ignore) {
+          setError(e instanceof Error ? e.message : String(e));
+        }
+      }
+    };
+    void fetchRoute();
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncOfflineQueue();
+    };
     const handleOffline = () => setIsOnline(false);
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    const interval = setInterval(() => {
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        syncOfflineQueue();
+      }
+    }, 20000);
+
     return () => {
+      ignore = true;
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
     };
-  }, [reload]);
+  }, [reload, syncOfflineQueue, queueKey]);
+
+  const queueActionOffline = async (job: Job, patch: Record<string, unknown>) => {
+    let photoBase64: string | undefined;
+    let photoName: string | undefined;
+    let photoType: string | undefined;
+    let pickupPhotoBase64: string | undefined;
+    let pickupPhotoName: string | undefined;
+    let pickupPhotoType: string | undefined;
+
+    if (patch.status === 'delivered' && photos[job.id]) {
+      try {
+        photoBase64 = await fileToBase64(photos[job.id]);
+        photoName = photos[job.id].name;
+        photoType = photos[job.id].type;
+      } catch {}
+    }
+
+    if (patch.status === 'picked_up' && photos['pickup-' + job.id]) {
+      try {
+        pickupPhotoBase64 = await fileToBase64(photos['pickup-' + job.id]);
+        pickupPhotoName = photos['pickup-' + job.id].name;
+        pickupPhotoType = photos['pickup-' + job.id].type;
+      } catch {}
+    }
+
+    const queuedItem = createQueuedAction(job.id, patch, {
+      photoBase64,
+      photoName,
+      photoType,
+      pickupPhotoBase64,
+      pickupPhotoName,
+      pickupPhotoType,
+    });
+
+    let queue: QueuedDriverAction[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(queueKey);
+        if (raw) queue = JSON.parse(raw);
+      } catch {}
+      queue.push(queuedItem);
+      try {
+        localStorage.setItem(queueKey, JSON.stringify(queue));
+      } catch {}
+      setPendingCount(queue.length);
+    }
+
+    // Optimistically update local state so driver can continue immediately
+    setData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        jobs: prev.jobs.map((j) => {
+          if (j.id !== job.id) return j;
+          return {
+            ...j,
+            ...patch,
+            status: (patch.status as Job['status']) ?? j.status,
+            delivered_at: patch.status === 'delivered' ? new Date().toISOString() : j.delivered_at,
+            picked_up_at: patch.status === 'picked_up' ? new Date().toISOString() : j.picked_up_at,
+            tons_actual: typeof patch.tons_actual === 'number' ? patch.tons_actual : j.tons_actual,
+          };
+        }),
+      };
+    });
+
+    setMessage('Stop recorded offline on your device. It will automatically sync to dispatch once cellular signal returns.');
+  };
+
   const action = async (job: Job, patch: Record<string, unknown>) => {
     setBusy(job.id);
     setError('');
     setMessage('');
+
+    const offlineDetected = typeof navigator !== 'undefined' && !navigator.onLine;
+    if (offlineDetected) {
+      await queueActionOffline(job, patch);
+      setBusy(null);
+      return;
+    }
+
     try {
       if (patch.status === 'delivered') {
         const form = new FormData();
@@ -89,7 +349,17 @@ export function DriverRoute({ token }: { token: string }) {
             : 'Actual tonnage saved.',
       );
     } catch (e) {
-      setError((e as Error).message);
+      const isNetworkErr =
+        e instanceof TypeError ||
+        (e as Error).message?.includes('fetch') ||
+        (e as Error).message?.includes('Network') ||
+        (typeof navigator !== 'undefined' && !navigator.onLine);
+
+      if (isNetworkErr) {
+        await queueActionOffline(job, patch);
+      } else {
+        setError((e as Error).message);
+      }
     } finally {
       setBusy(null);
     }
@@ -137,31 +407,35 @@ export function DriverRoute({ token }: { token: string }) {
           )}
 
           {/* Offline indicator banner */}
-          {!isOnline && (
+          {(!isOnline || pendingCount > 0 || isSyncing) && (
             <div
               style={{
-                background: data.organization?.is_paid_plan ? '#2e4334' : '#fff3cd',
-                color: data.organization?.is_paid_plan ? 'white' : '#856404',
+                background: !isOnline ? '#2e4334' : isSyncing ? '#1e3a8a' : '#14532d',
+                color: 'white',
                 padding: '10px 14px',
                 borderRadius: 8,
                 marginBottom: 16,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 10,
                 fontSize: 12,
-                border: data.organization?.is_paid_plan ? '1px solid #415a49' : '1px solid #ffeeba',
+                border: '1px solid rgba(255,255,255,0.15)',
               }}
             >
-              <WifiOff size={16} />
+              {!isOnline ? <WifiOff size={16} /> : <Loader2 size={16} className={isSyncing ? 'spin' : ''} />}
               <div>
-                <strong>Offline Mode:</strong>{' '}
-                {data.organization?.is_paid_plan ? (
+                {!isOnline ? (
                   <span>
-                    Your active route is cached locally on your device. Actions will sync once cellular connectivity returns.
+                    <strong>Offline Mode:</strong> No cellular connection. You can continue updating stops; your actions are saved locally and will auto-sync to dispatch when signal returns.
+                    {pendingCount > 0 && ` (${pendingCount} stop update${pendingCount > 1 ? 's' : ''} queued)`}
+                  </span>
+                ) : isSyncing ? (
+                  <span>
+                    <strong>Auto-Syncing:</strong> Uploading {pendingCount} offline stop update{pendingCount > 1 ? 's' : ''} to dispatch...
                   </span>
                 ) : (
                   <span>
-                    No internet connection detected. Upgrade to RollOS Pro for full offline route synchronization at remote landfills.
+                    <strong>Signal Restored:</strong> {pendingCount} stop update{pendingCount > 1 ? 's' : ''} queued for auto-sync.
                   </span>
                 )}
               </div>

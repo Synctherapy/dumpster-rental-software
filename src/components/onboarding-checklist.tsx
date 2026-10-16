@@ -1,20 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import {
   CheckCircle2,
   Circle,
-  ExternalLink,
   ChevronDown,
   ChevronUp,
   Sparkles,
   Rocket,
-  ArrowRight,
-  Share2,
-  CreditCard,
-  Settings,
-  Globe,
+  AlertTriangle,
   X,
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -23,12 +17,14 @@ import type { Workspace } from '@/lib/types';
 interface OnboardingChecklistProps {
   data: Workspace;
   onOpenWizard: (step?: 1 | 2 | 3) => void;
+  onAddContainers?: () => void;
   notify: (message: string, error?: boolean) => void;
 }
 
 export function OnboardingChecklist({
   data,
   onOpenWizard,
+  onAddContainers,
   notify,
 }: OnboardingChecklistProps) {
   const storageKey = `checklist_state_${data.organization.id}`;
@@ -98,7 +94,9 @@ export function OnboardingChecklist({
       title: 'Create account & workspace',
       desc: 'Account active and operational',
       done: true,
+      highlight: false,
       action: null,
+      actionLabel: '',
     },
     {
       id: 'settings',
@@ -107,14 +105,33 @@ export function OnboardingChecklist({
         ? `${data.pricing_rules.length} dumpster sizes active across ${data.pricing_rules[0].service_zips.length} ZIP codes`
         : 'Confirm the areas you service and your starting dumpster rental rates',
       done: hasPricingAndZips,
+      highlight: false,
       action: () => onOpenWizard(1),
       actionLabel: hasPricingAndZips ? 'Edit' : 'Configure',
+    },
+    {
+      id: 'fleet',
+      title: 'Add your dumpster fleet',
+      desc: data.containers.length > 0
+        ? `${data.containers.length} container${data.containers.length === 1 ? '' : 's'} registered in fleet (${data.containers.filter((c) => c.status === 'yard').length} in yard ready to rent)`
+        : '⚠️ Required: 0 containers added. You must add dumpsters or sizes will display as "Fully Booked" on your public booking page!',
+      done: data.containers.length > 0,
+      highlight: data.containers.length === 0,
+      action: () => {
+        if (onAddContainers) {
+          onAddContainers();
+        } else {
+          window.location.href = '/inventory';
+        }
+      },
+      actionLabel: data.containers.length > 0 ? 'Fleet' : 'Add Fleet',
     },
     {
       id: 'test_drive',
       title: 'Test your live booking page',
       desc: 'See exactly what homeowners see when they quote & book online',
       done: testedBooking,
+      highlight: false,
       action: () => {
         setTestedBooking(true);
         updateState({ testedBooking: true });
@@ -128,6 +145,7 @@ export function OnboardingChecklist({
       title: 'Put booking URL on Facebook, Instagram, or Google',
       desc: 'Get your link in front of local homeowners and contractors',
       done: sharedLink,
+      highlight: false,
       action: () => {
         setSharedLink(true);
         updateState({ sharedLink: true });
@@ -140,6 +158,7 @@ export function OnboardingChecklist({
       title: 'Connect Stripe for card deposits',
       desc: hasStripe ? 'Connected and receiving direct payouts' : 'Accept credit cards automatically with 100% upfront deposits',
       done: hasStripe,
+      highlight: false,
       action: () => {
         window.location.href = '/settings';
       },
@@ -272,15 +291,21 @@ export function OnboardingChecklist({
                 justifyContent: 'space-between',
                 padding: '10px 14px',
                 borderRadius: '8px',
-                background: item.done ? 'rgba(240, 253, 244, 0.6)' : '#f8fafc',
+                background: item.highlight
+                  ? '#fffbeb'
+                  : item.done
+                  ? 'rgba(240, 253, 244, 0.6)'
+                  : '#f8fafc',
                 border: '1px solid',
-                borderColor: item.done ? '#bbf7d0' : '#e2e8f0',
+                borderColor: item.highlight ? '#f59e0b' : item.done ? '#bbf7d0' : '#e2e8f0',
                 gap: '12px',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                 {item.done ? (
                   <CheckCircle2 size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+                ) : item.highlight ? (
+                  <AlertTriangle size={18} style={{ color: '#d97706', flexShrink: 0 }} />
                 ) : (
                   <Circle size={18} style={{ color: '#94a3b8', flexShrink: 0 }} />
                 )}
@@ -289,13 +314,14 @@ export function OnboardingChecklist({
                     style={{
                       fontSize: '13px',
                       fontWeight: 600,
-                      color: item.done ? '#14532d' : '#1e293b',
-                      textDecoration: item.done ? 'none' : 'none',
+                      color: item.highlight ? '#92400e' : item.done ? '#14532d' : '#1e293b',
                     }}
                   >
                     {item.title}
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b' }}>{item.desc}</div>
+                  <div style={{ fontSize: '11.5px', color: item.highlight ? '#b45309' : '#64748b' }}>
+                    {item.desc}
+                  </div>
                 </div>
               </div>
 
@@ -307,7 +333,7 @@ export function OnboardingChecklist({
                     padding: '5px 12px',
                     minHeight: '28px',
                     fontWeight: 600,
-                    background: item.done ? '#ffffff' : '#166534',
+                    background: item.done ? '#ffffff' : item.highlight ? '#d97706' : '#166534',
                     color: item.done ? '#334155' : '#ffffff',
                     border: item.done ? '1px solid #cbd5e1' : 'none',
                   }}

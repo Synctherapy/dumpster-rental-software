@@ -114,7 +114,7 @@ test('POST /api/webhooks/twilio handles inbound SMS forwarding and TwiML respons
   assert.ok(inboundLog, 'Inbound SMS should be logged in notifications_log');
 });
 
-test('POST /api/webhooks/twilio handles inbound Voice call forwarding with Dial TwiML', async () => {
+test('POST /api/webhooks/twilio handles inbound Voice call forwarding with Dial TwiML containing action callback', async () => {
   const dedicatedNumber = '+15128429102';
   await mutateDemo((d) => {
     d.organization.twilio_phone_number = dedicatedNumber;
@@ -138,7 +138,47 @@ test('POST /api/webhooks/twilio handles inbound Voice call forwarding with Dial 
   assert.equal(res.headers.get('content-type'), 'text/xml');
 
   const text = await res.text();
-  assert.match(text, /<Response><Dial timeout="20">\+15125550100<\/Dial><\/Response>/);
+  assert.match(
+    text,
+    /<Response><Dial timeout="20" action="\/api\/webhooks\/twilio\?type=voice_action">\+15125550100<\/Dial><\/Response>/,
+  );
+});
+
+test('POST /api/webhooks/twilio handles voice action callback with DialCallStatus=no-answer and sends auto-textback', async () => {
+  const dedicatedNumber = '+15128429102';
+  const callerPhone = '+15129997766';
+  await mutateDemo((d) => {
+    d.organization.twilio_phone_number = dedicatedNumber;
+    d.organization.phone = '+15125550100';
+    d.organization.slug = 'greenline';
+  });
+
+  const body = new URLSearchParams({
+    CallSid: 'CA1234567890abcdef',
+    From: callerPhone,
+    To: dedicatedNumber,
+    DialCallStatus: 'no-answer',
+  }).toString();
+
+  const req = new Request('http://localhost:3000/api/webhooks/twilio?type=voice_action', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  });
+
+  const res = await twilioWebhookPost(req);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'text/xml');
+
+  const text = await res.text();
+  assert.equal(text, '<Response/>');
+
+  // Verify missed call auto-reply was recorded in notifications_log
+  const demoState = await readDemo();
+  const missedCallLog = demoState.notifications_log.find(
+    (n) => n.template === 'missed_call_autoreply' && n.channel === 'sms' && n.to === callerPhone,
+  );
+  assert.ok(missedCallLog, 'Missed call SMS auto-reply should be logged in notifications_log');
 });
 
 test('Inactivity cron warns at 40 days and releases phone at 45 days in reminders route', async () => {

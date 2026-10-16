@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Check, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, X, ArrowRight } from 'lucide-react';
 
 interface FeatureItem {
   name: string;

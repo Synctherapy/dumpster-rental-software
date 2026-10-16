@@ -21,6 +21,9 @@ const {
   STARTER_SUBSCRIPTION_CENTS,
   GROWTH_SUBSCRIPTION_CENTS,
   SUBSCRIPTION_CENTS,
+  STARTER_TRIAL_DAYS,
+  WEBSITE_SETUP_CENTS,
+  GBP_3PACK_SETUP_CENTS,
 } = req('../src/lib/pricing') as typeof PricingModule;
 const {
   changeJob,
@@ -36,6 +39,9 @@ test('tiered subscription pricing constants are correctly defined', () => {
   assert.equal(STARTER_SUBSCRIPTION_CENTS, 2900); // $29/mo
   assert.equal(GROWTH_SUBSCRIPTION_CENTS, 14900); // $149/mo
   assert.equal(SUBSCRIPTION_CENTS, 2900);
+  assert.equal(STARTER_TRIAL_DAYS, 14); // 14-day free trial
+  assert.equal(WEBSITE_SETUP_CENTS, 29900); // $299 one-time website
+  assert.equal(GBP_3PACK_SETUP_CENTS, 7900); // $79 one-time Google 3-pack
 });
 
 test('offline payment gating rejects when organization subscription is inactive', async () => {
@@ -227,10 +233,61 @@ test('POST /api/billing route activates subscription in demo mode', async () => 
   const res = await billingHandler(billingReq);
   assert.equal(res.status, 200);
   const json = (await res.json()) as { url: string };
-  assert.ok(json.url.includes('/settings?billing=success'));
+  assert.ok(json.url.includes('billing=success'));
 
   const after = await readDemo();
   assert.equal(after.organization.subscription_status, 'active');
+});
+
+test('POST /api/billing route supports 14-day trial on Starter plan', async () => {
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'inactive';
+  });
+
+  const req = new Request('http://localhost:3000/api/billing', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: 'starter' }),
+  });
+
+  const res = await billingHandler(req);
+  assert.equal(res.status, 200);
+  const json = (await res.json()) as { url: string };
+  assert.ok(json.url.includes('billing=success'));
+
+  const after = await readDemo();
+  assert.equal(after.organization.subscription_status, 'active');
+});
+
+test('POST /api/billing route supports one-time add-on purchases (Website $299 & GBP $79)', async () => {
+  await mutateDemo((d) => {
+    d.organization.website_addon = false;
+    d.organization.gbp_addon = false;
+  });
+
+  // Website Add-on
+  const reqWeb = new Request('http://localhost:3000/api/billing', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ addon: 'website' }),
+  });
+  const resWeb = await billingHandler(reqWeb);
+  assert.equal(resWeb.status, 200);
+
+  let after = await readDemo();
+  assert.equal(after.organization.website_addon, true);
+
+  // GBP Add-on
+  const reqGbp = new Request('http://localhost:3000/api/billing', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ addon: 'gbp' }),
+  });
+  const resGbp = await billingHandler(reqGbp);
+  assert.equal(resGbp.status, 200);
+
+  after = await readDemo();
+  assert.equal(after.organization.gbp_addon, true);
 });
 
 test('POST /api/settings rejects disabling customer fee when plan is inactive', async () => {

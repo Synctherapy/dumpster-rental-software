@@ -7,6 +7,9 @@ export const BOARDS_PLATFORM_SHARE_CENTS = 900;
 export const STARTER_SUBSCRIPTION_CENTS = 2900;
 export const GROWTH_SUBSCRIPTION_CENTS = 14900;
 export const SUBSCRIPTION_CENTS = STARTER_SUBSCRIPTION_CENTS;
+export const STARTER_TRIAL_DAYS = 14;
+export const WEBSITE_SETUP_CENTS = 29900;
+export const GBP_3PACK_SETUP_CENTS = 7900;
 
 export function rentalDays(delivery: string, pickup: string) {
   const days = (Date.parse(pickup + 'T00:00:00Z') - Date.parse(delivery + 'T00:00:00Z')) / 86400000;

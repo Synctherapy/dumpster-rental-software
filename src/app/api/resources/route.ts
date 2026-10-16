@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo } from '@/lib/server/store';
-import { identity, maybeIdentity } from '@/lib/server/supabase';
+import { maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 const schema = z.discriminatedUnion('kind', [

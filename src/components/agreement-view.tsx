@@ -33,6 +33,15 @@ export function AgreementView({ data }: { data: AgreementData }) {
   const formatMoney = (cents: number) => money(cents, currency);
   const refCode = job.id.slice(0, 8).toUpperCase();
 
+  const getProofSrc = (url: string) => {
+    if (url.startsWith('/api/proof/')) {
+      const key = job.booking_key || job.id;
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}key=${encodeURIComponent(key)}`;
+    }
+    return url;
+  };
+
   const tireRate = formatMoney(surcharges.tire_cents ?? 2500);
   const mattressRate = formatMoney(surcharges.mattress_cents ?? 5000);
   const freonRate = formatMoney(surcharges.freon_cents ?? 7500);
@@ -619,7 +628,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
                     <CheckCircle2 size={13} className="text-[#16a34a]" /> 1. Drop-Off / Placement Photo
                   </span>
                   <img
-                    src={job.proof_url}
+                    src={getProofSrc(job.proof_url)}
                     alt="Drop condition proof"
                     className="w-full h-40 object-cover rounded border border-[#e2e9dc]"
                   />
@@ -635,7 +644,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
                     <CheckCircle2 size={13} className="text-[#16a34a]" /> 2. Pick-Up / Retrieval Photo
                   </span>
                   <img
-                    src={job.pickup_proof_url}
+                    src={getProofSrc(job.pickup_proof_url)}
                     alt="Pickup condition proof"
                     className="w-full h-40 object-cover rounded border border-[#e2e9dc]"
                   />
@@ -651,7 +660,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
                     <CheckCircle2 size={13} className="text-[#16a34a]" /> 3. Certified Scale Ticket
                   </span>
                   <img
-                    src={job.scale_ticket_url}
+                    src={getProofSrc(job.scale_ticket_url)}
                     alt="Landfill scale ticket"
                     className="w-full h-40 object-cover rounded border border-[#e2e9dc]"
                   />

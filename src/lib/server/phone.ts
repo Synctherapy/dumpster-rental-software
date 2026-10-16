@@ -80,8 +80,13 @@ export async function ensureOrganizationPhone(orgId: string): Promise<string | n
   }
 
   if (!phoneNumber) {
-    phoneNumber = '+1512555' + Math.floor(1000 + Math.random() * 9000).toString();
-    phoneSid = 'mock_sid_' + randomUUID();
+    if (isDemo()) {
+      phoneNumber = '+1512555' + Math.floor(1000 + Math.random() * 9000).toString();
+      phoneSid = 'mock_sid_' + randomUUID();
+    } else {
+      console.warn(`[Twilio Provisioning] Unable to provision dedicated phone number for organization ${orgId}. No number was acquired.`);
+      return null;
+    }
   }
 
   await db
@@ -148,11 +153,12 @@ export async function checkAndTriggerPhoneProvisioning(orgId: string): Promise<s
     if (d.organization.id !== orgId) return null;
     if (d.organization.twilio_phone_number) return d.organization.twilio_phone_number;
 
+    const hasActiveSubscription = d.organization.subscription_status === 'active';
     const hasStripe = Boolean(d.organization.stripe_connect_account_id);
     const hasContainer = d.containers.some((c) => c.org_id === orgId);
     const hasPhone = Boolean(d.organization.phone && d.organization.phone.trim().length >= 7);
 
-    if (hasStripe && hasContainer && hasPhone) {
+    if (hasActiveSubscription && hasStripe && hasContainer && hasPhone) {
       return await ensureOrganizationPhone(orgId);
     }
     return null;
@@ -161,12 +167,13 @@ export async function checkAndTriggerPhoneProvisioning(orgId: string): Promise<s
   const db = admin();
   const { data: org } = await db
     .from('organizations')
-    .select('id, twilio_phone_number, stripe_connect_account_id, phone')
+    .select('id, twilio_phone_number, stripe_connect_account_id, phone, subscription_status')
     .eq('id', orgId)
     .single();
 
   if (!org || org.twilio_phone_number) return org?.twilio_phone_number ?? null;
 
+  const hasActiveSubscription = org.subscription_status === 'active';
   const hasStripe = Boolean(org.stripe_connect_account_id);
   const hasPhone = Boolean(org.phone && org.phone.trim().length >= 7);
 
@@ -177,7 +184,7 @@ export async function checkAndTriggerPhoneProvisioning(orgId: string): Promise<s
 
   const hasContainer = (count ?? 0) > 0;
 
-  if (hasStripe && hasContainer && hasPhone) {
+  if (hasActiveSubscription && hasStripe && hasContainer && hasPhone) {
     return await ensureOrganizationPhone(orgId);
   }
   return null;

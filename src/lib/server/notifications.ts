@@ -23,7 +23,7 @@ export async function claimNotification(
     dedupe_key: `${org_id}:${job_id ?? to}:${channel}:${template}${
       template.includes('reminder') || template === 'driver_invite'
         ? ':' + new Date().toISOString().slice(0, 10)
-        : template.includes('inbound')
+        : template.includes('inbound') || template.includes('missed_call') || template.includes('autoreply')
           ? ':' + randomUUID()
           : ''
     }`,

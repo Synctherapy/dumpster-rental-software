@@ -570,6 +570,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     setOnboardingWizardStep(step || 1);
                     setOnboardingWizardOpen(true);
                   }}
+                  onAddContainers={() => setBulkContainerModal(true)}
                   notify={notify}
                 />
               )}

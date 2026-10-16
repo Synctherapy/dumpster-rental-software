@@ -3,7 +3,7 @@ import { book } from '@/lib/server/jobs';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 export async function POST(request: Request) {
   try {
-    assertSameOrigin(request);
+    assertSameOrigin(request, { allowCrossSiteEmbed: true });
     return NextResponse.json(
       await book(
         await request.json(),

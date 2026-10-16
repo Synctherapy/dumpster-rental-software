@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   CreditCard,
   Building2,
-  DollarSign,
   ArrowRight,
   Info,
   Lock,
@@ -15,7 +14,6 @@ import {
   HelpCircle,
   Clock,
   Calendar,
-  Check,
   Wallet,
 } from 'lucide-react';
 import { Dumpster } from '@/components/brand';

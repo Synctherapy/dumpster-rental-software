@@ -174,11 +174,20 @@ export async function book(input: unknown, ip: string, origin: string) {
     }
     return { job: result.job, demo: true };
   }
-  if (!org.stripe_connect_account_id) throw new Error('This hauler has not connected Stripe yet.');
-  const client = stripe();
-  const account = await client.accounts.retrieve(org.stripe_connect_account_id);
-  if (!account.charges_enabled) throw new Error('This hauler must finish Stripe onboarding first.');
   const db = admin();
+  let connectAccountId = (org as { stripe_connect_account_id?: string }).stripe_connect_account_id;
+  if (!connectAccountId) {
+    const { data: orgData } = await db
+      .from('organizations')
+      .select('stripe_connect_account_id')
+      .eq('id', org.id)
+      .single();
+    connectAccountId = orgData?.stripe_connect_account_id;
+  }
+  if (!connectAccountId) throw new Error('This hauler has not connected Stripe yet.');
+  const client = stripe();
+  const account = await client.accounts.retrieve(connectAccountId);
+  if (!account.charges_enabled) throw new Error('This hauler must finish Stripe onboarding first.');
   const reservation = await db.rpc('reserve_booking', { p_job: job });
   if (reservation.error) throw new Error(reservation.error.message);
   const saved = reservation.data as Job;
@@ -188,7 +197,7 @@ export async function book(input: unknown, ip: string, origin: string) {
     const previous = await client.checkout.sessions.retrieve(
       saved.stripe_checkout_session_id,
       {},
-      { stripeAccount: org.stripe_connect_account_id },
+      { stripeAccount: connectAccountId },
     );
     if (previous.status === 'open' && previous.payment_status !== 'paid')
       return { url: previous.url, demo: false };
@@ -238,6 +247,18 @@ export async function book(input: unknown, ip: string, origin: string) {
               },
             ]
           : []),
+        ...(price.taxCents > 0
+          ? [
+              {
+                price_data: {
+                  currency: currencyCode,
+                  unit_amount: price.taxCents,
+                  product_data: { name: `Sales Tax (${price.taxPercent}%)` },
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
       ],
       payment_intent_data: {
         application_fee_amount: price.fee,
@@ -249,7 +270,7 @@ export async function book(input: unknown, ip: string, origin: string) {
       cancel_url: `${origin}/book/${org.slug}?cancelled=true`,
     },
     {
-      stripeAccount: org.stripe_connect_account_id,
+      stripeAccount: connectAccountId,
       idempotencyKey: `checkout-${saved.id}`,
     },
   );

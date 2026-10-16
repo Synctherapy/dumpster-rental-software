@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Check, MessageSquare, ShieldCheck, ArrowRight, UserCheck } from 'lucide-react';
+import { Check, Mail, MessageSquare, ShieldCheck, UserCheck } from 'lucide-react';
 
 const DEFAULT_WHATSAPP_MSG = encodeURIComponent(
   'Hi, I saw RollOS dumpster software and have a quick question / would like a walkthrough.'

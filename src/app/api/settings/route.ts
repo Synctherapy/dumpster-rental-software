@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
-import { identity, maybeIdentity, admin } from '@/lib/server/supabase';
+import { maybeIdentity, admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { isValidPostalCode, normalizePostalCode } from '@/lib/types';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
@@ -92,6 +92,9 @@ export async function POST(request: Request) {
           throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
         }
         const feeEnabled = input.customer_fee_enabled ?? true;
+        const existingCalendarToken =
+          d.organization.calendar_token ||
+          (d.organization.pricing_config as { calendar_token?: string } | undefined)?.calendar_token;
         Object.assign(d.organization, {
           name: input.name,
           phone: input.phone,
@@ -113,8 +116,12 @@ export async function POST(request: Request) {
             operating_days: input.operating_days,
             tax_rate_percent: input.tax_rate_percent ?? 0,
             landfill_surcharges: input.landfill_surcharges ?? d.organization.landfill_surcharges,
+            ...(existingCalendarToken ? { calendar_token: existingCalendarToken } : {}),
           },
         });
+        if (existingCalendarToken) {
+          d.organization.calendar_token = existingCalendarToken;
+        }
         d.pricing_rules = normalizedRules.map((r) => ({
           ...r,
           id: `rule-${r.size_yards}`,
@@ -132,13 +139,16 @@ export async function POST(request: Request) {
     // Check if organization has an active paid subscription to remove the $12 fee
     const { data: orgData } = await db
       .from('organizations')
-      .select('subscription_status')
+      .select('subscription_status, pricing_config')
       .eq('id', member.org_id)
       .single();
     const isPaid = orgData?.subscription_status === 'active';
     if (input.customer_fee_enabled === false && !isPaid) {
       throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
     }
+    const existingCalendarToken =
+      (orgData?.pricing_config as { calendar_token?: string } | undefined)?.calendar_token;
+
     const sanitizedInput = {
       ...input,
       customer_fee_enabled: input.customer_fee_enabled ?? true,
@@ -149,6 +159,23 @@ export async function POST(request: Request) {
       p_input: sanitizedInput,
     });
     if (error) throw new Error(error.message);
+
+    if (existingCalendarToken) {
+      const { data: savedOrg } = await admin()
+        .from('organizations')
+        .select('pricing_config')
+        .eq('id', member.org_id)
+        .single();
+      const currentConfig = (savedOrg?.pricing_config || {}) as Record<string, unknown>;
+      if (currentConfig.calendar_token !== existingCalendarToken) {
+        currentConfig.calendar_token = existingCalendarToken;
+        await admin()
+          .from('organizations')
+          .update({ pricing_config: currentConfig })
+          .eq('id', member.org_id);
+      }
+    }
+
     await checkAndTriggerPhoneProvisioning(member.org_id).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (e) {

@@ -6,7 +6,10 @@ export function failure(error: unknown) {
     { status: message === 'UNAUTHORIZED' ? 401 : message === 'FORBIDDEN' ? 403 : 400 },
   );
 }
-export function assertSameOrigin(request: Request) {
+export function assertSameOrigin(request: Request, options?: { allowCrossSiteEmbed?: boolean }) {
+  if (options?.allowCrossSiteEmbed) {
+    return;
+  }
   const secFetchSite = request.headers.get('sec-fetch-site');
   if (secFetchSite && secFetchSite === 'cross-site') {
     throw new Error('FORBIDDEN');

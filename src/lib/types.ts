@@ -9,9 +9,12 @@ export interface Organization {
   timezone: string;
   currency?: string; // 'usd' | 'cad'
   stripe_connect_account_id: string | null;
+  stripe_connected?: boolean;
   subscription_status?: string;
   stripe_subscription_id?: string | null;
   is_paid_plan?: boolean;
+  website_addon?: boolean;
+  gbp_addon?: boolean;
   twilio_phone_number?: string | null;
   twilio_phone_sid?: string | null;
   last_booking_at?: string | null;

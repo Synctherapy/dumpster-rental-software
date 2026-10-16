@@ -8,11 +8,7 @@ import {
   Loader2,
   Check,
   Sparkles,
-  Globe,
-  MapPin,
-  Building2,
   ShieldCheck,
-  Zap,
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
@@ -46,10 +42,14 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
     setStep(2);
   };
 
-  const handleFinalSubmit = async (e?: React.FormEvent) => {
+  const handleFinalSubmit = async (e?: React.FormEvent, skipUpsells = false) => {
     if (e) e.preventDefault();
     setBusy(true);
     setError('');
+
+    const useWebsite = skipUpsells ? false : addWebsite;
+    const useGbp = skipUpsells ? false : addGbp;
+    const needsCheckout = selectedPlan === 'starter' || useWebsite || useGbp;
 
     try {
       const result = await api<{
@@ -62,19 +62,41 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
           action: signup ? 'signup' : 'login',
           email,
           password,
-          ...(signup ? { name, company, city, plan: selectedPlan, website_upsell: addWebsite, gbp_upsell: addGbp } : {}),
+          ...(signup ? { name, company, city, plan: selectedPlan, website_upsell: useWebsite, gbp_upsell: useGbp } : {}),
         }),
       });
+
+      if (needsCheckout) {
+        try {
+          const billingRes = await api<{ url: string }>('/api/billing', {
+            method: 'POST',
+            body: JSON.stringify({
+              plan: selectedPlan,
+              website: useWebsite,
+              gbp: useGbp,
+              email,
+              company,
+              success_url: `${window.location.origin}/dashboard?onboarding=true&billing=success`,
+              cancel_url: `${window.location.origin}/dashboard?onboarding=true&billing=cancelled`,
+            }),
+          });
+          if (billingRes.url) {
+            window.location.assign(billingRes.url);
+            return;
+          }
+        } catch (billingErr) {
+          console.warn('Billing checkout initiation failed, continuing to dashboard:', billingErr);
+        }
+      }
 
       if (result.confirmation) {
         setConfirmation(true);
       } else {
         window.location.href = signup ? '/dashboard?onboarding=true' : '/dashboard';
       }
-    } catch {
-      // Graceful fallback: If Supabase auth network call fails or isn't set up yet,
-      // direct directly into sandbox dashboard so hauler is never blocked by a spinner
-      window.location.href = signup ? '/dashboard?onboarding=true' : '/dashboard';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      setError(msg);
     } finally {
       setBusy(false);
     }
@@ -319,7 +341,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '11px', fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Free Forever
+                      Free Forever · No Credit Card Required
                     </div>
                     <div style={{ fontSize: '18px', fontWeight: 800, color: '#1f2d26' }}>Free Plan</div>
                   </div>
@@ -342,6 +364,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     <Check size={13} color="#16a34a" /> Driveway Damage Waivers & Digital Signatures
                   </div>
                 </div>
+                <div style={{ marginTop: '10px', fontSize: '11px', color: '#166534', background: '#f0fdf4', padding: '6px 10px', borderRadius: '6px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Check size={12} color="#16a34a" /> <strong>$0 Forever:</strong> No credit card needed. Jump straight into your workspace.
+                </div>
               </div>
 
               {/* Plan 2: Starter Plan ($29/mo) with 14-Day Free Trial */}
@@ -361,7 +386,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                 }}
               >
                 <span style={{ position: 'absolute', top: -10, right: 14, background: '#ea580c', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
-                  14-DAY FREE TRIAL
+                  14-DAY FREE TRIAL · $0 DUE TODAY
                 </span>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
                   <div style={{ minWidth: 0 }}>
@@ -393,6 +418,9 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Check size={13} color="#16a34a" /> <strong>Calendar Sync:</strong> 2-Way Google Calendar & Apple iCal feed
                   </div>
+                </div>
+                <div style={{ marginTop: '10px', fontSize: '11px', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldCheck size={13} color="#0284c7" /> <span>Card required for trial · <strong>$0.00 charged today</strong> · 3-day reminder email before renewal.</span>
                 </div>
               </div>
 
@@ -538,24 +566,52 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
               </div>
 
               {/* Order Summary */}
-              <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', width: '100%', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ color: '#64748b' }}>Plan:</span>
-                  <span style={{ fontWeight: 600 }}>{selectedPlan === 'starter' ? 'Starter ($29/mo · 14-day free trial)' : 'Free Plan ($0/mo)'}</span>
-                </div>
-                {(addWebsite || addGbp) && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#ea580c' }}>
-                    <span>Selected Add-ons:</span>
-                    <span style={{ fontWeight: 700 }}>${(addWebsite ? 299 : 0) + (addGbp ? 79 : 0)} one-time</span>
+              {(() => {
+                const addonTotal = (addWebsite ? 299 : 0) + (addGbp ? 79 : 0);
+                const isTrial = selectedPlan === 'starter';
+                const hasAddons = addWebsite || addGbp;
+
+                return (
+                  <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', width: '100%', boxSizing: 'border-box' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ color: '#64748b' }}>Software Plan:</span>
+                      <span style={{ fontWeight: 600 }}>
+                        {isTrial ? 'Starter ($29/mo · 14-day free trial)' : 'Free Plan ($0/mo forever)'}
+                      </span>
+                    </div>
+                    {hasAddons && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#ea580c' }}>
+                        <span>One-Time Add-ons:</span>
+                        <span style={{ fontWeight: 700 }}>${addonTotal}</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '6px', fontWeight: 800 }}>
+                      <span>Due Today:</span>
+                      <span style={{ color: hasAddons ? '#ea580c' : '#166534', fontSize: '13px' }}>
+                        {hasAddons
+                          ? `$${addonTotal}.00`
+                          : isTrial
+                          ? '$0.00 (14-day trial)'
+                          : '$0.00 (No card required)'}
+                      </span>
+                    </div>
+
+                    {isTrial ? (
+                      <div style={{ marginTop: '10px', fontSize: '11px', color: '#166534', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 10px', borderRadius: '8px', lineHeight: 1.45 }}>
+                        🔒 <strong>14-Day Free Trial:</strong> $0.00 charged today for software. We will email you a reminder 3 days before your trial ends. Cancel anytime in 1 click from your settings.
+                      </div>
+                    ) : hasAddons ? (
+                      <div style={{ marginTop: '10px', fontSize: '11px', color: '#0369a1', background: '#f0f9ff', border: '1px solid #bae6fd', padding: '8px 10px', borderRadius: '8px', lineHeight: 1.45 }}>
+                        💳 <strong>One-Time Setup Payment:</strong> You are only charged today for your selected launch add-on. Your software plan remains 100% free with $0 monthly bills.
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '10px', fontSize: '11px', color: '#15803d', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 10px', borderRadius: '8px', lineHeight: 1.45 }}>
+                        ✨ <strong>Zero Credit Card Required:</strong> Launch your workspace immediately with free 24/7 online booking and visual dispatch whiteboard.
+                      </div>
+                    )}
                   </div>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0', paddingTop: '6px', marginTop: '6px', fontWeight: 800 }}>
-                  <span>Due Today:</span>
-                  <span style={{ color: (addWebsite || addGbp) ? '#ea580c' : '#166534' }}>
-                    {(addWebsite || addGbp) ? `$${(addWebsite ? 299 : 0) + (addGbp ? 79 : 0)}` : '$0.00'}
-                  </span>
-                </div>
-              </div>
+                );
+              })()}
 
               {error && <div className="error-box" role="alert">{error}</div>}
 
@@ -576,7 +632,13 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   }}
                 >
                   {busy ? <Loader2 className="spin" size={15} /> : null}
-                  Start Getting Clients Today
+                  {selectedPlan === 'free' && !addWebsite && !addGbp
+                    ? 'Launch Free Workspace (No CC Required)'
+                    : selectedPlan === 'starter' && !addWebsite && !addGbp
+                    ? 'Start 14-Day Free Trial ($0 Today)'
+                    : selectedPlan === 'starter'
+                    ? `Continue to Checkout ($${(addWebsite ? 299 : 0) + (addGbp ? 79 : 0)} Today · 14-Day Trial)`
+                    : `Continue to Checkout ($${(addWebsite ? 299 : 0) + (addGbp ? 79 : 0)} Today · $0/mo)`}
                   <ArrowRight size={14} style={{ flexShrink: 0, marginLeft: '6px' }} />
                 </Button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -588,11 +650,11 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                     onClick={() => {
                       setAddWebsite(false);
                       setAddGbp(false);
-                      handleFinalSubmit();
+                      handleFinalSubmit(undefined, true);
                     }}
                     style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}
                   >
-                    Skip offers & launch free
+                    Skip offers & launch {selectedPlan === 'starter' ? '14-day trial' : 'free'}
                   </button>
                 </div>
               </div>

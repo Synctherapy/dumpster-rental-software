@@ -20,6 +20,11 @@ export async function POST(request: Request) {
             d.organization.name = String(body.company).trim();
             d.organization.slug = generateCleanSlug(String(body.company), body.city ? String(body.city) : undefined);
           }
+          if (body.plan === 'starter' || body.plan === 'growth') {
+            d.organization.subscription_status = 'active';
+          }
+          if (body.website_upsell) d.organization.website_addon = true;
+          if (body.gbp_upsell) d.organization.gbp_addon = true;
         }).catch(() => {});
       }
       return NextResponse.json({
@@ -48,45 +53,24 @@ export async function POST(request: Request) {
     if (!input.email || !input.password) throw new Error('Email and password are required.');
     if (input.action === 'signup') {
       if (!input.company || !input.name) throw new Error('Your name and company are required.');
-      try {
-        const appOrigin =
-          process.env.APP_URL ||
-          request.headers.get('origin') ||
-          (request.headers.get('x-forwarded-host')
-            ? `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('x-forwarded-host')}`
-            : null) ||
-          new URL(request.url).origin;
+      const appOrigin =
+        process.env.APP_URL ||
+        request.headers.get('origin') ||
+        (request.headers.get('x-forwarded-host')
+          ? `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('x-forwarded-host')}`
+          : null) ||
+        new URL(request.url).origin;
 
-        const { data, error } = await Promise.race([
-          db.auth.signUp({
-            email: input.email,
-            password: input.password,
-            options: {
-              data: { name: input.name, company: input.company, city: input.city },
-              emailRedirectTo: `${appOrigin}/auth/callback`,
-            },
-          }),
-          new Promise<{ data: null; error: Error }>((_, reject) =>
-            setTimeout(() => reject(new Error('Auth timed out. Continuing in sandbox.')), 6000),
-          ),
-        ]);
-        if (error) throw error;
-        return NextResponse.json({ confirmation: !data?.session, ok: true });
-      } catch (authErr) {
-        console.warn('Supabase auth failed or timed out, falling back to sandbox:', authErr);
-        await mutateDemo((d) => {
-          if (input.name) d.users[0].name = String(input.name).trim();
-          if (input.company) {
-            d.organization.name = String(input.company).trim();
-            d.organization.slug = generateCleanSlug(String(input.company), input.city);
-          }
-        }).catch(() => {});
-        return NextResponse.json({
-          ok: true,
-          demo: true,
-          message: 'Welcome to your workspace!',
-        });
-      }
+      const { data, error } = await db.auth.signUp({
+        email: input.email,
+        password: input.password,
+        options: {
+          data: { name: input.name, company: input.company, city: input.city },
+          emailRedirectTo: `${appOrigin}/auth/callback`,
+        },
+      });
+      if (error) return failure(error);
+      return NextResponse.json({ confirmation: !data?.session, ok: true });
     }
     const { error } = await db.auth.signInWithPassword({
       email: input.email,

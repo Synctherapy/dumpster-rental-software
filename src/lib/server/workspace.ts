@@ -86,11 +86,35 @@ export async function workspace(): Promise<Workspace> {
     throw err;
   }
 }
+function cleanPublicOrganization<T extends Record<string, unknown>>(rawOrg: T) {
+  const rawConfig = (rawOrg.pricing_config || {}) as Record<string, unknown>;
+  const cleanPricingConfig = { ...rawConfig };
+  delete cleanPricingConfig.calendar_token;
+
+  const hasStripeConnected = Boolean(rawOrg.stripe_connect_account_id);
+
+  const {
+    calendar_token: _calToken,
+    stripe_connect_account_id: _stripeAccountId,
+    twilio_phone_sid: _twilioPhoneSid,
+    ...restOrg
+  } = rawOrg;
+  void _calToken;
+  void _stripeAccountId;
+  void _twilioPhoneSid;
+
+  return {
+    ...restOrg,
+    stripe_connected: hasStripeConnected,
+    pricing_config: cleanPricingConfig,
+  };
+}
+
 export async function publicOrganization(slug: string) {
   if (isDemo()) {
     const d = await readDemo();
     return {
-      organization: { ...d.organization, slug },
+      organization: cleanPublicOrganization({ ...d.organization, slug }),
       pricing_rules: d.pricing_rules,
       demo: true,
     };
@@ -105,11 +129,11 @@ export async function publicOrganization(slug: string) {
     try {
       const d = await readDemo();
       return {
-        organization: {
+        organization: cleanPublicOrganization({
           ...d.organization,
           slug,
           name: d.organization.slug === slug ? d.organization.name : (d.organization.name || 'Demo Hauler'),
-        },
+        }),
         pricing_rules: d.pricing_rules,
         demo: true,
       };
@@ -122,5 +146,5 @@ export async function publicOrganization(slug: string) {
     .select('*')
     .eq('org_id', organization.id);
   if (ruleError) throw ruleError;
-  return { organization, pricing_rules: pricing_rules!, demo: false };
+  return { organization: cleanPublicOrganization(organization), pricing_rules: pricing_rules!, demo: false };
 }

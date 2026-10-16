@@ -140,3 +140,52 @@ test('money formatter supports both USD and CAD', () => {
   assert.ok(usd.includes('425'));
   assert.ok(cad.includes('425'));
 });
+
+test('publicOrganization and public route omit calendar_token, stripe_connect_account_id, and twilio_phone_sid', async () => {
+  const { createRequire } = await import('node:module');
+  const req = createRequire(import.meta.url);
+  const serverOnlyPath = req.resolve('server-only');
+  req.cache[serverOnlyPath] = {
+    id: serverOnlyPath,
+    filename: serverOnlyPath,
+    loaded: true,
+    exports: {},
+  } as unknown as NodeModule;
+
+  const { publicOrganization } = req('../src/lib/server/workspace');
+  const { GET: publicHandler } = req('../src/app/api/public/[slug]/route');
+
+  const pubData = await publicOrganization('demo');
+  const org = pubData.organization;
+  assert.equal(org.calendar_token, undefined, 'calendar_token must be stripped');
+  assert.equal(org.stripe_connect_account_id, undefined, 'stripe_connect_account_id must be stripped');
+  assert.equal(org.twilio_phone_sid, undefined, 'twilio_phone_sid must be stripped');
+  assert.equal(org.pricing_config?.calendar_token, undefined, 'pricing_config.calendar_token must be stripped');
+
+  const reqObj = new Request('http://localhost:3000/api/public/demo');
+  const res = await publicHandler(reqObj, { params: Promise.resolve({ slug: 'demo' }) });
+  assert.equal(res.status, 200);
+  const json = await res.json();
+  assert.equal(json.organization.calendar_token, undefined);
+  assert.equal(json.organization.stripe_connect_account_id, undefined);
+  assert.equal(json.organization.twilio_phone_sid, undefined);
+  assert.equal(json.organization.pricing_config?.calendar_token, undefined);
+});
+
+test('GET /api/proof/[id] rejects unauthenticated access when key is missing or invalid', async () => {
+  const { createRequire } = await import('node:module');
+  const req = createRequire(import.meta.url);
+  const serverOnlyPath = req.resolve('server-only');
+  req.cache[serverOnlyPath] = {
+    id: serverOnlyPath,
+    filename: serverOnlyPath,
+    loaded: true,
+    exports: {},
+  } as unknown as NodeModule;
+
+  const { GET: proofHandler } = req('../src/app/api/proof/[id]/route');
+
+  const reqNoKey = new Request('http://localhost:3000/api/proof/proof-uuid-1');
+  const resNoKey = await proofHandler(reqNoKey, { params: Promise.resolve({ id: 'proof-uuid-1' }) });
+  assert.equal(resNoKey.status, 403);
+});

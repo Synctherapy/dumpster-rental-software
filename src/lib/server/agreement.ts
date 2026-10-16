@@ -11,13 +11,32 @@ export interface AgreementData {
   currency: string;
 }
 
+function toPublicAgreementOrg(rawOrg: Partial<Organization>): Organization {
+  const cfg = (rawOrg?.pricing_config || {}) as Record<string, unknown>;
+  const cleanPricingConfig = { ...cfg };
+  delete cleanPricingConfig.calendar_token;
+
+  return {
+    id: rawOrg.id,
+    name: rawOrg.name,
+    phone: rawOrg.phone || '',
+    slug: rawOrg.slug,
+    timezone: rawOrg.timezone,
+    currency: rawOrg.currency || cfg.currency || 'usd',
+    prohibited_items: rawOrg.prohibited_items || cfg.prohibited_items,
+    landfill_surcharges: rawOrg.landfill_surcharges || cfg.landfill_surcharges,
+    operating_days: rawOrg.operating_days || cfg.operating_days,
+    pricing_config: cleanPricingConfig,
+  } as Organization;
+}
+
 export async function getJobAgreement(jobId: string): Promise<AgreementData | null> {
   if (isDemo()) {
     const demoData = await readDemo();
     const job = demoData.jobs.find((j) => j.id === jobId);
     if (!job) return null;
 
-    const organization = demoData.organization;
+    const organization = toPublicAgreementOrg(demoData.organization);
     const pricingRule =
       job.pricing_snapshot ||
       demoData.pricing_rules.find((r) => r.size_yards === job.size_yards) || {
@@ -63,7 +82,7 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
       const demoData = await readDemo();
       const demoJob = demoData.jobs.find((j) => j.id === jobId);
       if (!demoJob) return null;
-      const organization = demoData.organization;
+      const organization = toPublicAgreementOrg(demoData.organization);
       const pricingRule =
         demoJob.pricing_snapshot ||
         demoData.pricing_rules.find((r) => r.size_yards === demoJob.size_yards) || {
@@ -99,16 +118,17 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
 
   const { data: organization, error: orgError } = await db
     .from('organizations')
-    .select('*')
+    .select('id, name, phone, slug, timezone, pricing_config')
     .eq('id', job.org_id)
     .single();
 
   if (orgError || !organization) return null;
+  const publicOrg = toPublicAgreementOrg(organization);
 
   const pricingRule: PricingRule =
     job.pricing_snapshot || {
       id: 'snapshot',
-      org_id: organization.id,
+      org_id: publicOrg.id,
       size_yards: job.size_yards,
       base_price_cents: job.price_cents,
       included_days: 7,
@@ -123,14 +143,14 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
   const diffDays = Math.max(1, Math.round((pickupTime - deliveryTime) / (1000 * 60 * 60 * 24)));
 
   const currency = (
-    organization.currency ||
-    organization.pricing_config?.currency ||
+    publicOrg.currency ||
+    publicOrg.pricing_config?.currency ||
     'usd'
   ).toUpperCase();
 
   return {
     job: job as Job,
-    organization: organization as Organization,
+    organization: publicOrg,
     pricingRule,
     rentalDays: diffDays,
     currency,

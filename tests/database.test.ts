@@ -402,4 +402,48 @@ test('dedicated twilio numbers migration adds columns and index to organizations
   }
 });
 
+async function consolidatedDatabase() {
+  const db = new PGlite();
+  await db.exec(`
+ create role anon; create role authenticated; create role service_role bypassrls;
+ create schema auth; create schema storage;
+ create table auth.users(id uuid primary key,raw_user_meta_data jsonb,email text);
+ create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+ grant usage on schema public,auth to authenticated,anon,service_role;
+ alter default privileges in schema public grant select,insert,update,delete on tables to authenticated,service_role;
+ `);
+  const sql = await readFile('supabase/migrations/202610160001_consolidated_production.sql', 'utf8');
+  await db.exec(sql.replace('create extension if not exists pgcrypto;', ''));
+  return db;
+}
+
+test('consolidated production migration applies cleanly and populates email on create_hauler', async () => {
+  const db = await consolidatedDatabase();
+  try {
+    const owner = randomUUID();
+    const testEmail = 'hauler@example.com';
+    await db.query('insert into auth.users(id,raw_user_meta_data,email) values($1,$2,$3)', [
+      owner,
+      { name: 'Consolidated Owner', company: 'Consolidated Hauler' },
+      testEmail,
+    ]);
+    const user = (
+      await db.query<{ id: string; email: string; role: string }>(
+        'select id, email, role from public.users where id = $1',
+        [owner],
+      )
+    ).rows[0];
+    assert.equal(user.id, owner);
+    assert.equal(user.email, testEmail);
+    assert.equal(user.role, 'owner');
+
+    const org = (await db.query<{ id: string }>('select id from public.organizations')).rows[0].id;
+    assert.ok(org);
+  } finally {
+    await db.close();
+  }
+});
+
+
 
