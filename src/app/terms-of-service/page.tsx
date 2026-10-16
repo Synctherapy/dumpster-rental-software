@@ -19,8 +19,9 @@ export default function SaasTerms() {
       <h1>Software Subscription Terms of Service</h1>
       <p>
         These Software Subscription Terms of Service (&ldquo;Agreement&rdquo;) constitute a legally binding agreement
-        between RollOS (&ldquo;Provider&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;) and the
-        independent roll-off dumpster hauling business, contractor, or operator (&ldquo;Subscriber&rdquo;, &ldquo;Hauler&rdquo;,
+        between <strong>Sync Therapy</strong> (&ldquo;Company&rdquo;, &ldquo;Provider&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;,
+        or &ldquo;our&rdquo;), doing business as <strong>RollOS</strong> (&ldquo;RollOS&rdquo;, &ldquo;rolloffdumpstersoftware.com&rdquo;),
+        and the independent roll-off dumpster hauling business, contractor, or operator (&ldquo;Subscriber&rdquo;, &ldquo;Hauler&rdquo;,
         or &ldquo;you&rdquo;) subscribing to or accessing the RollOS cloud platform, booking widget, and dispatch software.
       </p>
 
@@ -96,27 +97,45 @@ export default function SaasTerms() {
         promotional SMS messages in violation of TCPA or CTIA messaging guidelines.
       </p>
 
-      <h2>7. Cancellation, Downgrades & Account Closure</h2>
+      <h2>7. SMS Messaging Terms & Carrier Compliance</h2>
+      <p>
+        RollOS includes automated SMS functionality allowing Subscribers to send real-time operational notifications to their customers
+        and drivers. By enabling or using the SMS features, Subscriber and end users agree to the following terms:
+      </p>
+      <ul style={{ margin: '10px 0 16px 24px', lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746' }}>
+        <li><strong>Program Description:</strong> Operational and transactional alerts including booking confirmations, dispatch updates, driver tracking links, delivery/pickup receipts, invoice reminders, and customer service textbacks.</li>
+        <li><strong>Opt-In Consent:</strong> End users consent to receive SMS notifications by submitting their phone number through online booking widgets, quote requests, or phone orders.</li>
+        <li><strong>Opt-Out:</strong> Users may opt out at any time by replying <strong>STOP</strong> to any message. A single confirmation text will be sent verifying the opt-out.</li>
+        <li><strong>Help & Support:</strong> For assistance, users may reply <strong>HELP</strong> to any message or contact support at <a href="mailto:support@rolloffdumpstersoftware.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>support@rolloffdumpstersoftware.com</a> or +1 (250) 812-8698.</li>
+        <li><strong>Rates & Frequency:</strong> Message frequency varies based on transaction and rental activity. Message and data rates may apply. Carriers are not liable for delayed or undelivered messages.</li>
+      </ul>
+
+      <h2>8. Cancellation, Downgrades & Account Closure</h2>
       <p>
         Subscriber may cancel or downgrade their subscription at any time directly through the RollOS Settings portal.
         Upon cancellation, paid subscription features remain fully active through the conclusion of the current billing cycle.
         Subscriber may request a full export of their customer lists and job archives prior to account termination.
       </p>
 
-      <h2>8. Limitation of Liability</h2>
+      <h2>9. Limitation of Liability</h2>
       <p>
         To the fullest extent permitted by law, RollOS provides the software on an &ldquo;as is&rdquo; and &ldquo;as available&rdquo;
-        basis. In no event shall RollOS, its founders, directors, or employees be liable for indirect, punitive, incidental,
+        basis. In no event shall Sync Therapy, RollOS, its founders, directors, or employees be liable for indirect, punitive, incidental,
         or consequential damages, including loss of business profits, vehicle downtime, or customer claims. Provider&rsquo;s
         maximum aggregate liability under this Agreement is strictly limited to the subscription fees paid by Subscriber in the
         three (3) months preceding the incident.
       </p>
 
-      <h2>9. Questions & Support</h2>
+      <h2>10. Questions & Support</h2>
       <p>
-        If you have questions regarding these Subscription Terms or need assistance with your RollOS account, contact our support
-        team via your dashboard or email support@rolloffdumpstersoftware.com.
+        If you have questions regarding these Subscription Terms or need assistance with your RollOS account, contact:
       </p>
+      <div style={{ lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746', margin: '12px 0 24px' }}>
+        <strong>Sync Therapy (DBA RollOS)</strong><br />
+        132, 328 Wale Rd, Colwood, BC V9B 1J2, Canada<br />
+        Email: <a href="mailto:darylstubbs11@gmail.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>darylstubbs11@gmail.com</a> / <a href="mailto:support@rolloffdumpstersoftware.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>support@rolloffdumpstersoftware.com</a><br />
+        Phone: +1 (250) 812-8698
+      </div>
 
       <Link href="/" className="btn">
         Return to RollOS Dumpster Rental Software
