@@ -17,8 +17,8 @@ export default function PrivacyPage() {
       </div>
       <h1>Privacy Policy</h1>
       <p>
-        This Privacy Policy explains how <strong>Sync Therapy</strong> (&ldquo;Company&rdquo;, &ldquo;we&rdquo;,
-        &ldquo;us&rdquo;, or &ldquo;our&rdquo;), doing business as <strong>RollOS</strong> (&ldquo;RollOS&rdquo;),
+        This Privacy Policy explains how <strong>Daryl Stubbs</strong> (&ldquo;Company&rdquo;, &ldquo;we&rdquo;,
+        &ldquo;us&rdquo;, or &ldquo;our&rdquo;), doing business as <strong>Sync Therapy</strong> and <strong>RollOS</strong> (&ldquo;RollOS&rdquo;),
         collects, uses, and safeguards information when you visit or use <strong>rolloffdumpstersoftware.com</strong>
         (and <strong>dumpster-rental-software.vercel.app</strong>), our dumpster rental management platform, booking widgets,
         and customer communication services.
@@ -86,7 +86,7 @@ export default function PrivacyPage() {
         For questions or requests regarding this Privacy Policy or your personal data, please contact:
       </p>
       <div style={{ lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746', margin: '12px 0 24px' }}>
-        <strong>Sync Therapy (DBA RollOS)</strong><br />
+        <strong>Daryl Stubbs (DBA Sync Therapy / RollOS)</strong><br />
         Attention: Privacy & Compliance Officer<br />
         132, 328 Wale Rd, Colwood, BC V9B 1J2, Canada<br />
         Email: <a href="mailto:darylstubbs11@gmail.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>darylstubbs11@gmail.com</a> / <a href="mailto:support@rolloffdumpstersoftware.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>support@rolloffdumpstersoftware.com</a><br />

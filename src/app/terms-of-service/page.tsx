@@ -19,8 +19,8 @@ export default function SaasTerms() {
       <h1>Software Subscription Terms of Service</h1>
       <p>
         These Software Subscription Terms of Service (&ldquo;Agreement&rdquo;) constitute a legally binding agreement
-        between <strong>Sync Therapy</strong> (&ldquo;Company&rdquo;, &ldquo;Provider&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;,
-        or &ldquo;our&rdquo;), doing business as <strong>RollOS</strong> (&ldquo;RollOS&rdquo;, &ldquo;rolloffdumpstersoftware.com&rdquo;),
+        between <strong>Daryl Stubbs</strong> (&ldquo;Company&rdquo;, &ldquo;Provider&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;,
+        or &ldquo;our&rdquo;), doing business as <strong>Sync Therapy</strong> and <strong>RollOS</strong> (&ldquo;RollOS&rdquo;, &ldquo;rolloffdumpstersoftware.com&rdquo;),
         and the independent roll-off dumpster hauling business, contractor, or operator (&ldquo;Subscriber&rdquo;, &ldquo;Hauler&rdquo;,
         or &ldquo;you&rdquo;) subscribing to or accessing the RollOS cloud platform, booking widget, and dispatch software.
       </p>
@@ -131,7 +131,7 @@ export default function SaasTerms() {
         If you have questions regarding these Subscription Terms or need assistance with your RollOS account, contact:
       </p>
       <div style={{ lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746', margin: '12px 0 24px' }}>
-        <strong>Sync Therapy (DBA RollOS)</strong><br />
+        <strong>Daryl Stubbs (DBA Sync Therapy / RollOS)</strong><br />
         132, 328 Wale Rd, Colwood, BC V9B 1J2, Canada<br />
         Email: <a href="mailto:darylstubbs11@gmail.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>darylstubbs11@gmail.com</a> / <a href="mailto:support@rolloffdumpstersoftware.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>support@rolloffdumpstersoftware.com</a><br />
         Phone: +1 (250) 812-8698

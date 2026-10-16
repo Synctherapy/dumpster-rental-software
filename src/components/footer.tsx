@@ -229,7 +229,7 @@ export function Footer() {
       <div className="border-t border-[#1a2920] bg-[#080e0a]">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#7b9180]">
           <div>
-            © {currentYear} RollOS (rolloffdumpstersoftware.com). Operated by Sync Therapy (DBA RollOS). Built specifically for independent roll-off dumpster operators.
+            © {currentYear} RollOS (rolloffdumpstersoftware.com). Operated by Daryl Stubbs (DBA Sync Therapy / RollOS). Built specifically for independent roll-off dumpster operators.
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-xs">
