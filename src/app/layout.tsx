@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { StickyConversionBar } from '@/components/mobile-sticky-cta';
 
-const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
+const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING !== 'false';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://rolloffdumpstersoftware.com'),
