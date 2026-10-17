@@ -103,3 +103,64 @@ export async function sendSms(
   await finishNotification(log.id, status);
   return status;
 }
+
+export async function notifyAdminSignup(details: {
+  name?: string;
+  company?: string;
+  city?: string;
+  email?: string;
+  plan?: string;
+}) {
+  const ntfyTopic = process.env.NTFY_TOPIC;
+  const adminPhone = process.env.ADMIN_ALERT_PHONE;
+  if (!ntfyTopic && !adminPhone) return;
+
+  const name = details.name?.trim() || 'New hauler';
+  const company = details.company?.trim() || 'Unspecified Company';
+  const location = details.city?.trim() ? ` (${details.city.trim()})` : '';
+  const email = details.email ? `\nEmail: ${details.email}` : '';
+  const plan = details.plan ? `\nPlan: ${details.plan.toUpperCase()}` : '';
+
+  const body = `🎉 New RollOS Signup!\n${name} from ${company}${location}${plan}${email}`;
+
+  // 1. Free instant push notification via ntfy.sh
+  if (ntfyTopic) {
+    try {
+      await fetch(`https://ntfy.sh/${ntfyTopic}`, {
+        method: 'POST',
+        headers: {
+          Title: 'New RollOS Signup!',
+          Priority: 'high',
+          Tags: 'tada,truck,moneybag',
+          ...(process.env.APP_URL ? { Click: `${process.env.APP_URL}/dashboard` } : {}),
+        },
+        body: `${name} from ${company}${location}${plan}${email}`,
+      });
+    } catch (err) {
+      console.error('[Admin Alert] Failed to send ntfy push notification:', err);
+    }
+  }
+
+  // 2. Optional SMS via Twilio if configured
+  if (
+    adminPhone &&
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_FROM_NUMBER
+  ) {
+    try {
+      await twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN,
+      ).messages.create({
+        to: adminPhone,
+        from: process.env.TWILIO_FROM_NUMBER,
+        body,
+      });
+    } catch (err) {
+      console.error('[Admin Alert] Failed to send signup SMS to admin:', err);
+    }
+  } else if (adminPhone && !ntfyTopic) {
+    console.log(`[Admin Signup Alert to ${adminPhone}]: ${body}`);
+  }
+}

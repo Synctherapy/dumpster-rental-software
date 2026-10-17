@@ -4,6 +4,7 @@ import { isDemo, mutateDemo } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { generateCleanSlug } from '@/lib/city-zips';
+import { notifyAdminSignup } from '@/lib/server/notifications';
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +27,14 @@ export async function POST(request: Request) {
           if (body.website_upsell) d.organization.website_addon = true;
           if (body.gbp_upsell) d.organization.gbp_addon = true;
         }).catch(() => {});
+
+        await notifyAdminSignup({
+          name: body.name ? String(body.name) : undefined,
+          company: body.company ? String(body.company) : undefined,
+          city: body.city ? String(body.city) : undefined,
+          email: body.email ? String(body.email) : undefined,
+          plan: body.plan ? String(body.plan) : undefined,
+        }).catch(() => {});
       }
       return NextResponse.json({
         ok: true,
@@ -42,6 +51,7 @@ export async function POST(request: Request) {
         name: z.string().trim().min(2).max(80).optional(),
         company: z.string().trim().min(2).max(80).optional(),
         city: z.string().trim().max(80).optional(),
+        plan: z.string().optional(),
       })
       .parse(body);
 
@@ -70,6 +80,15 @@ export async function POST(request: Request) {
         },
       });
       if (error) return failure(error);
+
+      await notifyAdminSignup({
+        name: input.name,
+        company: input.company,
+        city: input.city,
+        email: input.email,
+        plan: input.plan || (body?.plan ? String(body.plan) : undefined),
+      }).catch((err) => console.error('Admin signup notification error:', err));
+
       return NextResponse.json({ confirmation: !data?.session, ok: true });
     }
     const { error } = await db.auth.signInWithPassword({
