@@ -567,7 +567,7 @@ export default function Home() {
                 dumpster rental business guides
                 <ArrowRight size={13} />
               </Link>{' '}
-              written specifically for independent 1–5 truck roll-off haulers:
+              written specifically for small and mid-size roll-off haulers (1–25+ trucks):
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold">
               <Link href="/blog/how-to-start-a-dumpster-rental-business" className="text-[#3b533f] hover:text-[#ea580c] underline">

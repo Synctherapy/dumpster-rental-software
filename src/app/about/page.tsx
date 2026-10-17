@@ -14,9 +14,9 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { WhatsAppButton, SupportEmailButton } from '@/components/founder-contact';
 
 export const metadata = {
-  title: 'About Us — Built for Independent Roll-Off Haulers',
+  title: 'About RollOS — Dumpster Rental Software for Small & Mid-Size Haulers',
   description:
-    'Learn why RollOS was built: honest, modern, booking-first roll-off dumpster software for 1–5 truck independent haulers with zero bloated enterprise fees or lock-in contracts.',
+    'RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/about',
   },
@@ -33,13 +33,18 @@ export default function AboutPage() {
     '@type': 'AboutPage',
     name: 'About RollOS',
     description:
-      'The story, mission, and principles behind RollOS dumpster rental software for independent roll-off haulers.',
+      'RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.',
     url: 'https://rolloffdumpstersoftware.com/about',
     mainEntity: {
       '@type': 'Organization',
       '@id': 'https://rolloffdumpstersoftware.com/#organization',
       name: 'RollOS',
+      alternateName: 'RollOS Dumpster Rental Software',
       url: 'https://rolloffdumpstersoftware.com',
+      foundingDate: '2026',
+      email: 'support@rolloffdumpstersoftware.com',
+      description:
+        'RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.',
       sameAs: [
         'https://www.linkedin.com/company/rollos',
         'https://www.youtube.com/@RollOSSoftware',
@@ -54,8 +59,10 @@ export default function AboutPage() {
       ],
       founder: {
         '@type': 'Person',
+        '@id': 'https://rolloffdumpstersoftware.com/#founder',
         name: 'Daryl Stubbs',
         jobTitle: 'Founder & Software Engineer',
+        url: 'https://rolloffdumpstersoftware.com/about',
       },
     },
   };
@@ -73,15 +80,15 @@ export default function AboutPage() {
 
         {/* Header Section */}
         <div className="eyebrow" style={{ color: '#82956d', marginBottom: 12 }}>
-          OUR STORY &amp; MISSION · YOUR TECHNICAL PARTNER IN ROLL-OFF OPERATIONS
+          OUR STORY &amp; MISSION · BUILT FOR SMALL &amp; MID-SIZE ROLL-OFF FLEETS (1–25+ TRUCKS)
         </div>
 
         <h1 className="text-3xl md:text-5xl font-extrabold text-[#20302a] mb-6 tracking-tight leading-tight">
-          Software built hand-in-hand with independent roll-off haulers.
+          Software built hand-in-hand with small and mid-size roll-off haulers.
         </h1>
 
         <p className="text-lg md:text-xl text-[#556658] leading-relaxed mb-12">
-          Independent roll-off haulers don’t need another $400/month corporate enterprise tool with bloated menus. You need fast, honest software that captures bookings while you sleep, and a dedicated software partner who will adapt the platform to fit your yard.
+          <strong>RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.</strong> Purpose-built for residential, commercial construction (C&amp;D), and regional roll-off companies, RollOS replaces manual phone quoting and bloated $400+/month enterprise contracts with a fast, modern operating system that scales with your yard.
         </p>
 
         {/* Narrative Section */}
@@ -189,7 +196,7 @@ export default function AboutPage() {
           <div className="p-8 rounded-2xl bg-[#f4f7f1] border border-[#dde4d4]">
             <h2 className="text-xl font-bold text-[#1f2d26] mb-3">Who RollOS Is Built For</h2>
             <p className="text-sm text-[#556658] leading-relaxed mb-4">
-              RollOS is laser-focused on <strong>independent roll-off dumpster rental companies operating 1 to 5 trucks</strong>. Whether you run mini 10-yard driveway-friendly trailers or full tandem-axle roll-off rigs hauling 20, 30, and 40-yard commercial bins, RollOS equips your fleet with a 24/7{' '}
+              RollOS is purpose-built for <strong>small and mid-size roll-off dumpster rental companies operating from 1 to 25+ trucks</strong>. Whether you run mini 10-yard driveway-friendly trailers or multi-truck tandem-axle roll-off fleets hauling 15, 20, 30, and 40-yard commercial construction (C&amp;D) bins, RollOS equips your yard with a 24/7{' '}
               <Link href="/features/online-booking" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
                 dumpster rental online booking system
               </Link>
@@ -209,16 +216,16 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               <span className="px-3 py-1 rounded-full bg-white border border-[#d2dec3] text-xs font-semibold text-[#405442]">
-                1–5 Truck Operators
+                Small &amp; Mid-Size Fleets (1–25+ Trucks)
               </span>
               <span className="px-3 py-1 rounded-full bg-white border border-[#d2dec3] text-xs font-semibold text-[#405442]">
-                Driveway Roll-Off Trailers
+                Commercial C&amp;D &amp; Residential Haulers
               </span>
               <span className="px-3 py-1 rounded-full bg-white border border-[#d2dec3] text-xs font-semibold text-[#405442]">
                 Hooklift &amp; Cable Hoist Trucks
               </span>
               <span className="px-3 py-1 rounded-full bg-white border border-[#d2dec3] text-xs font-semibold text-[#405442]">
-                Independent Waste Haulers
+                Driveway Roll-Off Trailers
               </span>
             </div>
           </div>

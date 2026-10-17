@@ -123,7 +123,7 @@ export default function DumpsterRentalProfitMarginsPage() {
             </Link>.
           </p>
           <p>
-            Below is an honest, data-backed breakdown of realistic revenue, cost structures, and profit benchmarks for independent 1-to-5 truck roll-off fleets.
+            Below is an honest, data-backed breakdown of realistic revenue, cost structures, and profit benchmarks for small and mid-size (1 to 25+ truck) roll-off fleets.
           </p>
         </div>
 

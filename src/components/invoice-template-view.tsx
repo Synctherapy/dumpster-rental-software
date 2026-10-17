@@ -387,7 +387,7 @@ export function InvoiceTemplateView() {
             </div>
           </div>
           <p className="text-sm text-[#556658] leading-relaxed">
-            Most independent roll-off operators with 1 to 5 trucks start out managing invoices on Excel spreadsheets, Word templates, or generic QuickBooks forms. While this feels free, it is quietly one of the most expensive operational leaks in waste management:
+            Most small and mid-size roll-off operators (1 to 25+ trucks) start out managing invoices on Excel spreadsheets, Word templates, or generic QuickBooks forms. While this feels free, it is quietly one of the most expensive operational leaks in waste management:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">

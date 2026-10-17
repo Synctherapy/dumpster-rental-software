@@ -70,7 +70,7 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built specifically for independent roll-off haulers (1–15 trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Includes our 24/7{' '}
+              Built specifically for small and mid-size roll-off haulers (1–25+ trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Includes our 24/7{' '}
               <Link href="/features/online-booking" className="text-[#ea580c] font-semibold hover:underline">
                 dumpster rental online booking system
               </Link>{' '}
@@ -290,7 +290,7 @@ export default function DocketComparisonPage() {
             <div>
               <strong className="text-[#ea580c] text-base block mb-2">Choose RollOS if:</strong>
               <ul className="space-y-2 list-disc pl-4 text-white">
-                <li>You are an independent roll-off hauler running 1–15 trucks.</li>
+                <li>You are a small or mid-size roll-off hauler running 1–25+ trucks.</li>
                 <li>You want to get dumpster bookings and revenue while you sleep with a 24/7 website widget.</li>
                 <li>You want to keep 100% of your rental money and stop paying bloated software bills.</li>
                 <li>You want drivers to use fast SMS links with zero app downloads or login headaches.</li>

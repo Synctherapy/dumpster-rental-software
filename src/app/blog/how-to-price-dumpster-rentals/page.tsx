@@ -108,7 +108,7 @@ export default function HowToPriceDumpsterRentalsPage() {
         {/* Intro - Kyle Roof first 100 words exact match */}
         <div className="text-base md:text-lg text-[#3d4f42] leading-relaxed space-y-5 mb-10">
           <p>
-            Understanding <strong>how to price dumpster rentals</strong> is the single most critical factor determining whether your waste hauling company generates healthy 20%+ net margins or bleeds cash on fuel and tipping fees. For realistic revenue models and full P&amp;L benchmarks across 1–5 trucks, see our breakdown of{' '}
+            Understanding <strong>how to price dumpster rentals</strong> is the single most critical factor determining whether your waste hauling company generates healthy 20%+ net margins or bleeds cash on fuel and tipping fees. For realistic revenue models and full P&amp;L benchmarks across 1–25+ trucks, see our breakdown of{' '}
             <Link href="/blog/dumpster-rental-profit-margins" className="text-[#ea580c] font-semibold hover:underline">
               dumpster rental profit margins
             </Link>.

@@ -59,7 +59,7 @@ const articles = [
     title: 'Dumpster Rental Profit Margins: Real Financial Benchmarks for Haulers',
     slug: '/blog/dumpster-rental-profit-margins',
     excerpt:
-      'Real financial benchmarks for 1–5 truck operators: 45–60% gross margins, 15–25% net profit, monthly container turnover, and a realistic Year 1 P&L model.',
+      'Real financial benchmarks for small and mid-size operators (1–25+ trucks): 45–60% gross margins, 15–25% net profit, monthly container turnover, and a realistic P&L model.',
     readTime: '11 min read',
     date: 'Oct 2026',
     category: 'Financial Benchmarks',
@@ -90,7 +90,7 @@ export default function BlogHubPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-12 max-w-3xl">
-          Practical, numbers-driven blueprints built specifically for independent roll-off operators running 1 to 5 trucks. No corporate fluff—just real benchmarks, startup roadmaps, and pricing strategies.
+          Practical, numbers-driven blueprints built specifically for small and mid-size roll-off operators running 1 to 25+ trucks. No corporate fluff—just real benchmarks, startup roadmaps, and pricing strategies.
         </p>
 
         {/* Article Cards Grid */}

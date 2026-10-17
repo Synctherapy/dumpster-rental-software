@@ -147,7 +147,7 @@ export function FounderNoteSection() {
               }}
             >
               <UserCheck size={13} color="#628f34" />
-              DIRECT TALK · BUILT FOR 1–5 TRUCK INDEPENDENT HAULERS
+              DIRECT TALK · BUILT FOR SMALL &amp; MID-SIZE HAULERS (1–25+ TRUCKS)
             </div>
 
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26] mb-4 tracking-tight leading-snug">
@@ -156,7 +156,7 @@ export function FounderNoteSection() {
 
             <div className="space-y-4 text-sm md:text-[15px] text-[#475569] leading-relaxed">
               <p>
-                If you run 1 to 5 roll-off trucks, you know how legacy dumpster software operates. They force you into a 45-minute sales demo, make you sign a 12-month contract, and charge you $300 to $500 every month—even during the winter when construction slows down.
+                Whether you run 1 truck or a 25-truck regional roll-off fleet, you know how legacy dumpster software operates. They force you into a 45-minute sales demo, make you sign a 12-month contract, and charge you $300 to $500+ every month—even during the winter when construction slows down.
               </p>
               <p>
                 <strong>We believe independent haulers deserve better.</strong> That’s why RollOS offers a $0/month free plan to capture new online bookings while you sleep. Your customer pays a standard $12 reservation lock fee at online checkout (just like an Airbnb or flight), and you keep 100% of your rental money, extra day fees, and tonnage overages.

@@ -8,7 +8,10 @@ export function SoftwareApplicationSchema() {
         '@type': 'Organization',
         '@id': 'https://rolloffdumpstersoftware.com/#organization',
         name: 'RollOS',
+        alternateName: 'RollOS Dumpster Rental Software',
         url: 'https://rolloffdumpstersoftware.com',
+        foundingDate: '2026',
+        email: 'support@rolloffdumpstersoftware.com',
         logo: {
           '@type': 'ImageObject',
           '@id': 'https://rolloffdumpstersoftware.com/#logo',
@@ -16,7 +19,28 @@ export function SoftwareApplicationSchema() {
           caption: 'RollOS Logo',
         },
         description:
-          'RollOS provides all-in-one roll-off dumpster rental software, 24/7 online booking, visual multi-truck dispatching, and automated tonnage billing for small and mid-size waste haulers.',
+          'RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.',
+        founder: {
+          '@type': 'Person',
+          '@id': 'https://rolloffdumpstersoftware.com/#founder',
+          name: 'Daryl Stubbs',
+          jobTitle: 'Founder & Software Engineer',
+          url: 'https://rolloffdumpstersoftware.com/about',
+        },
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer support',
+          email: 'support@rolloffdumpstersoftware.com',
+          url: 'https://rolloffdumpstersoftware.com/contact',
+          availableLanguage: 'English',
+        },
+        knowsAbout: [
+          'Roll-Off Dumpster Rental Software',
+          'Waste Management Dispatch Software',
+          'Online Dumpster Booking Systems',
+          'Landfill Scale Ticket & Tonnage Billing',
+          'Roll-Off Container Fleet Inventory Management',
+        ],
         sameAs: [
           'https://www.linkedin.com/company/rollos',
           'https://www.youtube.com/@RollOSSoftware',
