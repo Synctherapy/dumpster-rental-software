@@ -291,6 +291,24 @@ export function Footer() {
             </a>
             <span className="text-[#334639]">•</span>
             <a
+              href="https://alternativeto.net/software/rollos/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              AlternativeTo
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
+              href="https://www.saashub.com/rollos-alternatives"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              SaaSHub
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
               href="https://www.facebook.com/rollosdumpsterrentalsoftware"
               target="_blank"
               rel="noopener noreferrer"

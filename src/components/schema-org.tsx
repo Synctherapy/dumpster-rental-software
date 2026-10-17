@@ -21,6 +21,8 @@ export function SoftwareApplicationSchema() {
           'https://www.linkedin.com/company/rollos',
           'https://www.g2.com/products/rollos/reviews',
           'https://www.crunchbase.com/organization/rollos-e3d4',
+          'https://alternativeto.net/software/rollos/',
+          'https://www.saashub.com/rollos-alternatives',
           'https://www.facebook.com/rollosdumpsterrentalsoftware',
         ],
       },
@@ -47,6 +49,8 @@ export function SoftwareApplicationSchema() {
         sameAs: [
           'https://www.g2.com/products/rollos/reviews',
           'https://www.crunchbase.com/organization/rollos-e3d4',
+          'https://alternativeto.net/software/rollos/',
+          'https://www.saashub.com/rollos-alternatives',
           'https://www.linkedin.com/company/rollos',
           'https://www.facebook.com/rollosdumpsterrentalsoftware',
         ],
