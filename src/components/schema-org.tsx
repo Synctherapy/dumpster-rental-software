@@ -19,6 +19,7 @@ export function SoftwareApplicationSchema() {
           'RollOS provides all-in-one roll-off dumpster rental software, 24/7 online booking, visual multi-truck dispatching, and automated tonnage billing for small and mid-size waste haulers.',
         sameAs: [
           'https://www.linkedin.com/company/rollos',
+          'https://www.youtube.com/@RollOSSoftware',
           'https://www.g2.com/products/rollos/reviews',
           'https://www.trustpilot.com/review/rolloffdumpstersoftware.com',
           'https://www.crunchbase.com/organization/rollos-e3d4',
@@ -54,6 +55,7 @@ export function SoftwareApplicationSchema() {
           'https://alternativeto.net/software/rollos/',
           'https://www.saashub.com/rollos-alternatives',
           'https://www.linkedin.com/company/rollos',
+          'https://www.youtube.com/@RollOSSoftware',
           'https://www.facebook.com/rollosdumpsterrentalsoftware',
         ],
         image: 'https://rolloffdumpstersoftware.com/images/screenshots/roll-off-dumpster-dispatch-board-software.png',

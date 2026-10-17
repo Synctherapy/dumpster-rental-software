@@ -273,6 +273,15 @@ export function Footer() {
             </a>
             <span className="text-[#334639]">•</span>
             <a
+              href="https://www.youtube.com/@RollOSSoftware"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              YouTube
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
               href="https://www.g2.com/products/rollos/reviews"
               target="_blank"
               rel="noopener noreferrer"
