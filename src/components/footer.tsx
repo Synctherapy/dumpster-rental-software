@@ -262,6 +262,42 @@ export function Footer() {
             <Link href="/terms-of-service" className="hover:text-white transition-colors">
               Terms
             </Link>
+            <span className="text-[#334639]">•</span>
+            <a
+              href="https://www.linkedin.com/company/rollos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              LinkedIn
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
+              href="https://www.g2.com/products/rollos/reviews"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              G2 Reviews
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
+              href="https://www.crunchbase.com/organization/rollos-e3d4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Crunchbase
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
+              href="https://www.facebook.com/rollosdumpsterrentalsoftware"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Facebook
+            </a>
           </div>
         </div>
       </div>

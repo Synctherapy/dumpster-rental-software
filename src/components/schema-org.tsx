@@ -16,10 +16,12 @@ export function SoftwareApplicationSchema() {
           caption: 'RollOS Logo',
         },
         description:
-          'RollOS provides all-in-one dumpster rental software, online booking, and visual dispatching for independent roll-off haulers.',
+          'RollOS provides all-in-one roll-off dumpster rental software, 24/7 online booking, visual multi-truck dispatching, and automated tonnage billing for small and mid-size waste haulers.',
         sameAs: [
-          'https://en.wikipedia.org/wiki/Software_as_a_service',
-          'https://www.wikidata.org/wiki/Q1254596',
+          'https://www.linkedin.com/company/rollos',
+          'https://www.g2.com/products/rollos/reviews',
+          'https://www.crunchbase.com/organization/rollos-e3d4',
+          'https://www.facebook.com/rollosdumpsterrentalsoftware',
         ],
       },
       {
@@ -40,8 +42,14 @@ export function SoftwareApplicationSchema() {
         applicationSubCategory: 'Waste Management Logistics & Roll-Off Dispatch Software',
         operatingSystem: 'Web browser, iOS Safari, Android Chrome',
         description:
-          'All-in-one roll off dumpster rental software for independent haulers. 24/7 online booking, visual dispatching, driver SMS routing, and automated tonnage billing.',
+          'All-in-one roll off dumpster rental software for small and mid-size haulers. 24/7 online booking, visual multi-truck dispatching, driver SMS routing, and automated tonnage billing.',
         url: 'https://rolloffdumpstersoftware.com',
+        sameAs: [
+          'https://www.g2.com/products/rollos/reviews',
+          'https://www.crunchbase.com/organization/rollos-e3d4',
+          'https://www.linkedin.com/company/rollos',
+          'https://www.facebook.com/rollosdumpsterrentalsoftware',
+        ],
         image: 'https://rolloffdumpstersoftware.com/images/screenshots/roll-off-dumpster-dispatch-board-software.png',
         about: [
           {

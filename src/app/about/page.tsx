@@ -40,6 +40,12 @@ export default function AboutPage() {
       '@id': 'https://rolloffdumpstersoftware.com/#organization',
       name: 'RollOS',
       url: 'https://rolloffdumpstersoftware.com',
+      sameAs: [
+        'https://www.linkedin.com/company/rollos',
+        'https://www.g2.com/products/rollos/reviews',
+        'https://www.crunchbase.com/organization/rollos-e3d4',
+        'https://www.facebook.com/rollosdumpsterrentalsoftware',
+      ],
       founder: {
         '@type': 'Person',
         name: 'Daryl Stubbs',
