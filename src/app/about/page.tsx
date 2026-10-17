@@ -45,6 +45,7 @@ export default function AboutPage() {
         'https://www.youtube.com/@RollOSSoftware',
         'https://www.g2.com/products/rollos/reviews',
         'https://sourceforge.net/software/product/RollOS/',
+        'https://slashdot.org/software/p/RollOS/',
         'https://www.trustpilot.com/review/rolloffdumpstersoftware.com',
         'https://www.crunchbase.com/organization/rollos-e3d4',
         'https://alternativeto.net/software/rollos/',

@@ -300,6 +300,15 @@ export function Footer() {
             </a>
             <span className="text-[#334639]">•</span>
             <a
+              href="https://slashdot.org/software/p/RollOS/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Slashdot
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
               href="https://www.trustpilot.com/review/rolloffdumpstersoftware.com"
               target="_blank"
               rel="noopener noreferrer"
