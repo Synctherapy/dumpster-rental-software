@@ -282,6 +282,15 @@ export function Footer() {
             </a>
             <span className="text-[#334639]">•</span>
             <a
+              href="https://www.trustpilot.com/review/rolloffdumpstersoftware.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Trustpilot
+            </a>
+            <span className="text-[#334639]">•</span>
+            <a
               href="https://www.crunchbase.com/organization/rollos-e3d4"
               target="_blank"
               rel="noopener noreferrer"

@@ -43,6 +43,7 @@ export default function AboutPage() {
       sameAs: [
         'https://www.linkedin.com/company/rollos',
         'https://www.g2.com/products/rollos/reviews',
+        'https://www.trustpilot.com/review/rolloffdumpstersoftware.com',
         'https://www.crunchbase.com/organization/rollos-e3d4',
         'https://alternativeto.net/software/rollos/',
         'https://www.saashub.com/rollos-alternatives',
