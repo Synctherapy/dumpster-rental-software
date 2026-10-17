@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { stripe } from '@/lib/server/stripe';
 import { admin } from '@/lib/server/supabase';
-import { sendSms } from '@/lib/server/notifications';
+import { sendSms, notifyAdminPurchase } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
 import { recordBookingOccurred } from '@/lib/server/jobs';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
@@ -141,6 +141,13 @@ export async function POST(request: Request) {
             `🚨 RollOS Alert: ${customerName} purchased ${itemsPurchased.join(' + ')} (${totalPaid}). Contact: ${contactInfo}`,
           ).catch(() => {});
         }
+
+        await notifyAdminPurchase({
+          customerName,
+          items: itemsPurchased,
+          totalPaid,
+          contactInfo,
+        }).catch(() => {});
       }
     }
 

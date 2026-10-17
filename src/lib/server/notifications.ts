@@ -110,6 +110,8 @@ export async function notifyAdminSignup(details: {
   city?: string;
   email?: string;
   plan?: string;
+  website_addon?: boolean;
+  gbp_addon?: boolean;
 }) {
   const ntfyTopic = process.env.NTFY_TOPIC;
   const adminPhone = process.env.ADMIN_ALERT_PHONE;
@@ -121,7 +123,12 @@ export async function notifyAdminSignup(details: {
   const email = details.email ? `\nEmail: ${details.email}` : '';
   const plan = details.plan ? `\nPlan: ${details.plan.toUpperCase()}` : '';
 
-  const body = `🎉 New RollOS Signup!\n${name} from ${company}${location}${plan}${email}`;
+  const addons: string[] = [];
+  if (details.website_addon) addons.push('24/7 Booking Website ($299)');
+  if (details.gbp_addon) addons.push('Google Maps 3-Pack ($79)');
+  const addonsText = addons.length > 0 ? `\nAdd-ons Selected: ${addons.join(', ')}` : '';
+
+  const body = `🎉 New RollOS Signup!\n${name} from ${company}${location}${plan}${addonsText}${email}`;
 
   // 1. Free instant push notification via ntfy.sh
   if (ntfyTopic) {
@@ -134,7 +141,7 @@ export async function notifyAdminSignup(details: {
           Tags: 'tada,truck,moneybag',
           ...(process.env.APP_URL ? { Click: `${process.env.APP_URL}/dashboard` } : {}),
         },
-        body: `${name} from ${company}${location}${plan}${email}`,
+        body: `${name} from ${company}${location}${plan}${addonsText}${email}`,
       });
     } catch (err) {
       console.error('[Admin Alert] Failed to send ntfy push notification:', err);
@@ -162,5 +169,33 @@ export async function notifyAdminSignup(details: {
     }
   } else if (adminPhone && !ntfyTopic) {
     console.log(`[Admin Signup Alert to ${adminPhone}]: ${body}`);
+  }
+}
+
+export async function notifyAdminPurchase(details: {
+  customerName: string;
+  items: string[];
+  totalPaid: string;
+  contactInfo: string;
+}) {
+  const ntfyTopic = process.env.NTFY_TOPIC;
+  if (!ntfyTopic) return;
+
+  const title = `New Paid Order (${details.totalPaid})`;
+  const body = `${details.customerName} purchased:\n• ${details.items.join('\n• ')}\nTotal: ${details.totalPaid}\nContact: ${details.contactInfo}`;
+
+  try {
+    await fetch(`https://ntfy.sh/${ntfyTopic}`, {
+      method: 'POST',
+      headers: {
+        Title: title,
+        Priority: 'urgent',
+        Tags: 'moneybag,gem,tada',
+        ...(process.env.APP_URL ? { Click: `${process.env.APP_URL}/dashboard` } : {}),
+      },
+      body,
+    });
+  } catch (err) {
+    console.error('[Admin Alert] Failed to send ntfy purchase alert:', err);
   }
 }

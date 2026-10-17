@@ -34,6 +34,8 @@ export async function POST(request: Request) {
           city: body.city ? String(body.city) : undefined,
           email: body.email ? String(body.email) : undefined,
           plan: body.plan ? String(body.plan) : undefined,
+          website_addon: Boolean(body.website_upsell),
+          gbp_addon: Boolean(body.gbp_upsell),
         }).catch(() => {});
       }
       return NextResponse.json({
@@ -87,6 +89,8 @@ export async function POST(request: Request) {
         city: input.city,
         email: input.email,
         plan: input.plan || (body?.plan ? String(body.plan) : undefined),
+        website_addon: Boolean(body?.website_upsell),
+        gbp_addon: Boolean(body?.gbp_upsell),
       }).catch((err) => console.error('Admin signup notification error:', err));
 
       return NextResponse.json({ confirmation: !data?.session, ok: true });
