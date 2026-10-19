@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ClickableImage } from '@/components/ui/clickable-image';
 import {
   ArrowRight,
   CreditCard,
@@ -84,17 +85,19 @@ export default function OnlineBookingFeaturePage() {
         {/* Hero Screenshot */}
         <div className="bg-white p-3 md:p-5 rounded-3xl border border-[#dde4d4] shadow-md mb-12">
           <div className="rounded-2xl overflow-hidden border border-[#e5ebd9]">
-            <Image
+            <ClickableImage
               src="/images/screenshots/dumpster-rental-online-booking-system.png"
               alt="RollOS dumpster rental online booking system checkout interface"
               width={1440}
               height={900}
               priority
               className="w-full h-auto object-cover"
+              badge="Online Booking System"
+              caption="Actual live booking widget view: ZIP validation, container sizing, calendar date selection, and upfront card payment."
             />
           </div>
           <div className="p-3 text-center text-xs text-[#6e8071]">
-            Actual live booking widget view: ZIP validation, container sizing, calendar date selection, and upfront card payment.
+            Actual live booking widget view: ZIP validation, container sizing, calendar date selection, and upfront card payment. (Click to inspect full resolution)
           </div>
         </div>
       </section>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ClickableImage } from '@/components/ui/clickable-image';
 import {
   ArrowRight,
   Layers,
@@ -110,17 +111,19 @@ export default function DispatchBoardFeaturePage() {
         {/* Main Board Screenshot */}
         <div className="bg-white p-3 md:p-5 rounded-3xl border border-[#dde4d4] shadow-md mb-12">
           <div className="rounded-2xl overflow-hidden border border-[#e5ebd9]">
-            <Image
+            <ClickableImage
               src="/images/screenshots/roll-off-dumpster-dispatch-board-software.png"
               alt="RollOS visual roll-off dumpster dispatch board software interface"
               width={1440}
               height={900}
               priority
               className="w-full h-auto object-cover"
+              badge="Visual Dispatch Board"
+              caption="Visual drag-and-drop dispatch board: live container assignments, driver columns, and real-time status indicators."
             />
           </div>
           <div className="p-3 text-center text-xs text-[#6e8071]">
-            Visual drag-and-drop dispatch board: live container assignments, driver columns, and real-time status indicators.
+            Visual drag-and-drop dispatch board: live container assignments, driver columns, and real-time status indicators. (Click to inspect full resolution)
           </div>
         </div>
       </section>
@@ -186,12 +189,14 @@ export default function DispatchBoardFeaturePage() {
           </div>
 
           <div className="rounded-2xl overflow-hidden border border-[#d8e2cf] shadow-md">
-            <Image
+            <ClickableImage
               src="/images/screenshots/roll-off-container-delivery-pickup-calendar.png"
               alt="Roll-off container delivery and pickup calendar dispatch view"
               width={1200}
               height={750}
               className="w-full h-auto object-cover"
+              badge="Delivery & Pickup Calendar"
+              caption="Roll-off container delivery and pickup calendar dispatch view: drag stops and resequence driver routes."
             />
           </div>
         </div>

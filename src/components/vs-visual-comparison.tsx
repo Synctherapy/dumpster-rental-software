@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Check, X, Sparkles, Monitor, ShieldCheck } from 'lucide-react';
+import { ClickableImage } from '@/components/ui/clickable-image';
 
 export interface VsVisualComparisonProps {
   competitorName: string;
@@ -84,13 +85,16 @@ export function VsVisualComparison({
                 </span>
               </div>
               <div className="relative aspect-[16/10] w-full bg-slate-100">
-                <Image
+                <ClickableImage
                   src={rollosScreenshot}
                   alt={rollosScreenshotAlt}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover object-top"
                   loading="lazy"
+                  badge="RollOS Live Interface"
+                  caption={rollosScreenshotAlt}
+                  containerClassName="w-full h-full"
                 />
               </div>
             </div>
@@ -130,13 +134,16 @@ export function VsVisualComparison({
                 </span>
               </div>
               <div className="relative aspect-[16/10] w-full bg-slate-100">
-                <Image
+                <ClickableImage
                   src={competitorScreenshot}
                   alt={competitorScreenshotAlt}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover object-top"
                   loading="lazy"
+                  badge={`${competitorName} Preview`}
+                  caption={competitorScreenshotAlt}
+                  containerClassName="w-full h-full"
                 />
               </div>
             </div>
@@ -171,13 +178,16 @@ export function VsVisualComparison({
         {/* Infographic Graphic Container */}
         <figure className="relative w-full rounded-2xl overflow-hidden border border-[#dde4d4] bg-white shadow-md">
           <div className="relative aspect-[16/9] w-full">
-            <Image
+            <ClickableImage
               src={infographicSrc}
               alt={infographicAlt}
               fill
               sizes="(max-width: 1200px) 100vw, 1100px"
               className="object-contain bg-slate-900"
               loading="lazy"
+              badge={infographicBadge}
+              caption={infographicCaption}
+              containerClassName="w-full h-full"
             />
           </div>
           <figcaption className="p-4 bg-[#f8faf6] border-t border-[#dde4d4] text-xs text-[#556658] leading-relaxed">

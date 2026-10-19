@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ClickableImage } from '@/components/ui/clickable-image';
 import {
   ArrowRight,
   CreditCard,
@@ -105,17 +106,19 @@ export default function TonnageBillingFeaturePage() {
         {/* Main Screenshot / Visual */}
         <div className="bg-white p-3 md:p-5 rounded-3xl border border-[#dde4d4] shadow-md mb-12">
           <div className="rounded-2xl overflow-hidden border border-[#e5ebd9]">
-            <Image
+            <ClickableImage
               src="/images/screenshots/dumpster-fleet-inventory-management-software.png"
               alt="RollOS automated dumpster tonnage billing and scale ticket reconciliation software"
               width={1440}
               height={900}
               priority
               className="w-full h-auto object-cover"
+              badge="Inventory & Tonnage Reconciliation"
+              caption="Automated overage calculations: certified scale ticket attachment, net ton deduction, and instant card on file charging."
             />
           </div>
           <div className="p-3 text-center text-xs text-[#6e8071]">
-            Automated overage calculations: certified scale ticket attachment, net ton deduction, and instant card on file charging.
+            Automated overage calculations: certified scale ticket attachment, net ton deduction, and instant card on file charging. (Click to inspect full resolution)
           </div>
         </div>
       </section>

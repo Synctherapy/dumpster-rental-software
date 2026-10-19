@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ClickableImage } from '@/components/ui/clickable-image';
 import {
   ArrowRight,
   Globe,
@@ -298,17 +299,17 @@ export default function FeaturesHubPage() {
 
               {/* Image Side */}
               <div className="flex-1 w-full">
-                <Link href={pillar.slug} className="block group">
-                  <div className="rounded-2xl overflow-hidden border border-[#d8e2cf] shadow-md group-hover:shadow-lg transition-all group-hover:border-[#ea580c]">
-                    <Image
-                      src={pillar.image}
-                      alt={`${pillar.title} roll-off software interface preview`}
-                      width={1200}
-                      height={750}
-                      className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                    />
-                  </div>
-                </Link>
+                <div className="rounded-2xl overflow-hidden border border-[#d8e2cf] shadow-md hover:shadow-lg transition-all hover:border-[#ea580c]">
+                  <ClickableImage
+                    src={pillar.image}
+                    alt={`${pillar.title} roll-off software interface preview`}
+                    width={1200}
+                    height={750}
+                    badge={pillar.title}
+                    caption={`${pillar.title} — ${pillar.description}`}
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
               </div>
             </div>
           );

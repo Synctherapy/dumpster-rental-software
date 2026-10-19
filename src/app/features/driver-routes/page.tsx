@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ClickableImage } from '@/components/ui/clickable-image';
 import {
   ArrowRight,
   Smartphone,
@@ -112,17 +113,19 @@ export default function DriverRoutesFeaturePage() {
         {/* Driver App Screenshot */}
         <div className="bg-white p-3 md:p-5 rounded-3xl border border-[#dde4d4] shadow-md mb-12">
           <div className="rounded-2xl overflow-hidden border border-[#e5ebd9] max-w-2xl mx-auto">
-            <Image
+            <ClickableImage
               src="/images/screenshots/mobile-driver-sms-delivery-proof-app.png"
               alt="RollOS mobile driver SMS delivery proof interface running on smartphone"
               width={1000}
               height={800}
               priority
               className="w-full h-auto object-cover"
+              badge="Driver Mobile Web Interface"
+              caption="Driver mobile web link: 1-tap directions, photo proof of delivery, and instant status updates without installing any app."
             />
           </div>
           <div className="p-3 text-center text-xs text-[#6e8071]">
-            Driver mobile web link: 1-tap directions, photo proof of delivery, and instant status updates without installing any app.
+            Driver mobile web link: 1-tap directions, photo proof of delivery, and instant status updates without installing any app. (Click to inspect full resolution)
           </div>
         </div>
       </section>

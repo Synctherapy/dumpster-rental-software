@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { ClickableImage } from '@/components/ui/clickable-image';
 
 export interface BlogCroInfographicProps {
   badge: string;
@@ -45,13 +46,16 @@ export function BlogCroInfographic({
       {/* Visual Image Container */}
       <figure className="relative w-full rounded-2xl overflow-hidden border border-[#dde4d4] bg-slate-950 shadow-md">
         <div className="relative aspect-[16/9] w-full">
-          <Image
+          <ClickableImage
             src={src}
             alt={alt}
             fill
             sizes="(max-width: 1200px) 100vw, 1100px"
             className="object-contain"
             loading="lazy"
+            badge={badge}
+            caption={caption}
+            containerClassName="w-full h-full"
           />
         </div>
         <figcaption className="p-4 bg-[#f8faf6] border-t border-[#dde4d4] text-xs text-[#556658] leading-relaxed">
