@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { ArrowRight, Check, X, DollarSign, Smartphone } from 'lucide-react';
+import { ArrowRight, Check, X, DollarSign } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'CurbWaste Reviews, Pricing & Alternatives (2026 Comparison)',
+  title: 'CurbWaste Reviews & CurbWaste Pricing (2026): ERP vs. RollOS',
   description:
-    'Compare CurbWaste reviews, pricing, and alternatives for roll-off haulers. See CurbWaste custom enterprise fees vs RollOS transparent $0–$149/mo plans.',
+    'Read verified CurbWaste reviews and CurbWaste pricing ($300-$600+/mo + $1,500 setup) vs RollOS ($0/mo Free Plan) for 1 to 25+ truck roll-off haulers.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/vs/curbwaste',
   },
@@ -24,7 +24,7 @@ export default function CurbWasteComparisonPage() {
         url: 'https://rolloffdumpstersoftware.com/vs/curbwaste',
         name: 'CurbWaste Reviews, Pricing, and Top Alternatives for Haulers',
         description:
-          'Deep operational review comparing CurbWaste reviews, enterprise pricing, and alternatives against RollOS for roll-off dumpster businesses.',
+          'Read verified CurbWaste reviews and CurbWaste pricing ($300-$600+/mo + $1,500 setup) vs RollOS ($0/mo Free Plan) for 1 to 25+ truck roll-off haulers.',
       },
       {
         '@type': 'FAQPage',
@@ -35,47 +35,15 @@ export default function CurbWasteComparisonPage() {
             name: 'How much does CurbWaste software cost per month?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'CurbWaste does not publish transparent pricing on their website. They operate on custom enterprise quotes based on fleet size and truck count, typically costing several hundred dollars per month plus mandatory onboarding fees.',
+              text: 'CurbWaste pricing uses custom quote-based licensing that typically runs $300 to $600+ per month depending on fleet size, plus a $1,000 to $3,000+ implementation setup fee.',
             },
           },
           {
             '@type': 'Question',
-            name: 'Does CurbWaste charge mandatory setup or onboarding fees?',
+            name: 'What is the best CurbWaste alternative for roll-off dumpsters?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Yes. Enterprise waste software platforms like CurbWaste frequently require paid onboarding and data migration packages ranging from $1,000 to $3,000+ alongside multi-week implementation schedules.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'What is the top CurbWaste alternative for roll-off dumpsters?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'RollOS is the top-rated CurbWaste alternative for roll-off haulers operating 1 to 25+ trucks. RollOS offers public pricing ($0 Free, $29 Starter, $149 Growth), instant 3-minute self-serve onboarding, driver SMS magic links, and automated scale ticket overage billing.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'Is there a fleet size or driver minimum for CurbWaste?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'CurbWaste is engineered primarily for larger municipal, commercial, and residential haulers with dedicated IT or dispatcher resources, often requiring driver or truck minimums. RollOS supports agile 1 to 25+ truck operations with zero user or fleet minimums.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'How does the CurbWaste driver app compare to SMS links?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'CurbWaste relies on a native mobile application requiring App Store downloads, account setup, and device compatibility checks. RollOS uses instant SMS magic links that open directly in mobile browsers with turn-by-turn navigation and zero App Store friction.',
-            },
-          },
-          {
-            '@type': 'Question',
-            name: 'Does CurbWaste provide 24/7 self-service online customer booking?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'CurbWaste focuses heavily on back-office ERP and contractor portals, whereas RollOS includes an embeddable, 60-second public online booking engine where homeowners and commercial contractors can reserve dumpsters and pay 24/7.',
+              text: 'RollOS is the #1 alternative for independent roll-off haulers running 1 to 25+ trucks, outperforming enterprise ERPs like CurbWaste, Docket, and Hauler Hero as well as flat-rate tools like iCans and Bin Boss with a permanent $0/month Free Plan.',
             },
           },
         ],
@@ -109,16 +77,19 @@ export default function CurbWasteComparisonPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          <strong>CurbWaste reviews</strong> and <strong>curbwaste pricing</strong> reflect an enterprise-grade waste ERP with quote-only pricing and driver minimums, prompting 1 to 25+ truck roll-off haulers to choose agile alternatives like{' '}
+          <strong>CurbWaste reviews</strong> and <strong>CurbWaste pricing</strong> benchmarks reflect an enterprise-grade CurbWaste waste management software ERP with quote-only licensing (~$300 to $600+/month), $1,000 to $3,000+ setup fee packages, and driver minimums—prompting 1 to 25+ truck roll-off haulers to choose agile alternatives like{' '}
           <Link
             href="/"
             className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
           >
             RollOS
-          </Link>. While CurbWaste is built for complex municipal fleets and multi-facility waste networks, independent roll-off operators need transparent monthly pricing, 3-minute setup, and friction-free driver dispatch.
+          </Link>. While CurbWaste is built for complex municipal fleets and material recovery facilities (MRFs), independent <strong>dumpster rental businesses</strong> need transparent roll-off software pricing, 3-minute setup, 24/7 online ordering, and friction-free SMS driver dispatch.
         </p>
 
-        {/* Executive Summary Cards */}
+        {/* Executive Overview: RollOS vs. CurbWaste */}
+        <h2 className="text-2xl font-bold text-[#1f2d26] mb-4">
+          Executive Overview: RollOS vs. CurbWaste
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="p-6 bg-white border-2 border-[#ea580c] rounded-2xl shadow-sm relative">
             <div className="inline-block px-3 py-1 rounded-full bg-[#ffedd5] text-[#c2410c] text-xs font-bold mb-3">
@@ -126,7 +97,7 @@ export default function CurbWasteComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Designed from the ground up for 1 to 25+ truck roll-off operations. Transparent pricing with our $0/month Free tier ($12 customer reservation fee at checkout, 0% hauler commission, 1-click absorb toggle), Starter ($29/mo), and Growth ($149/mo). Get set up in 3 minutes with zero sales demos.
+              Designed from the ground up for 1 to 25+ truck dumpster rental operations. Transparent <strong>dumpster rental software cost</strong> with our <strong>$0/month Free Plan</strong> ($12 customer reservation fee at checkout, 0% hauler commission, unlimited orders), Starter ($29/mo), and Growth ($149/mo). Get set up in 3 minutes with zero sales demo calls, 1-tap SMS driver routing, and automated billing for landfill tipping fee overages.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
@@ -139,7 +110,7 @@ export default function CurbWasteComparisonPage() {
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Driver SMS magic links (zero App Store friction)
               </li>
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> 1-Tap scale ticket photo & automatic overage billing
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Automated billing for landfill tipping fee overages
               </li>
             </ul>
           </div>
@@ -148,22 +119,22 @@ export default function CurbWasteComparisonPage() {
             <div className="inline-block px-3 py-1 rounded-full bg-[#f1f5f9] text-[#475569] text-xs font-bold mb-3">
               ENTERPRISE WASTE ERP
             </div>
-            <h3 className="text-xl font-bold text-[#1f2d26] mb-2">CurbWaste (curbwaste.com)</h3>
+            <h3 className="text-xl font-bold text-[#1f2d26] mb-2">CurbWaste</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              A high-profile enterprise SaaS platform catering to municipal collection, multi-site transfer stations, and large hauling corporations. Relies on custom enterprise sales reps, annual commitments, and paid onboarding packages.
+              A venture-backed enterprise SaaS platform catering to municipal collection, commercial front-load routes, and large hauling corporations. Relies on quote-gated sales demos, annual contract terms, native App Store driver app installs, and paid onboarding packages ($1,000–$3,000+).
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
                 <X size={16} className="text-[#dc2626] flex-shrink-0" /> Quote-only pricing (estimated $300 – $600+/mo)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> $1,000 – $3,000+ mandatory onboarding fees
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> $1,000 – $3,000+ mandatory setup fees
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Long implementation cycles and multi-week training
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Annual contract terms typical
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Mandatory mobile app downloads for drivers
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Driver app downloads required on App Store
               </li>
             </ul>
           </div>
@@ -174,43 +145,43 @@ export default function CurbWasteComparisonPage() {
           <SavingsCalculator showTitle={true} />
         </div>
 
-        {/* Kyle Roof Group B: H2 Section 1 */}
+        {/* Section 1: Pricing Breakdown */}
         <div className="my-12">
           <h2 className="text-2xl font-bold text-[#1f2d26] mb-4">
             CurbWaste Pricing and Implementation Fees Breakdown
           </h2>
           <p className="text-sm text-[#475569] leading-relaxed mb-6">
-            Investigating <strong>curbwaste pricing</strong> reveals an enterprise pricing structure designed for corporate waste operations rather than independent haulers. Unlike modern cloud software with self-serve checkout, CurbWaste requires:
+            Investigating <strong>CurbWaste pricing</strong> reveals an enterprise licensing structure built for corporate waste operations rather than small haulers and mid-sized <strong>dumpster rental owners</strong>:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h4 className="font-bold text-[#1f2d26] text-sm mb-1">Quote-Gated Licensing</h4>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Quote-Gated Monthly Licensing (~$300 to $600+/Mo)</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Pricing is determined by sales representatives based on truck count, user seats, and service modules, making software budgeting unpredictable.
+                Pricing is determined by sales reps based on truck count, office user seats, and ERP modules, making budgeting unpredictable for a growing dumpster company.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h4 className="font-bold text-[#1f2d26] text-sm mb-1">Mandatory Implementation Fees</h4>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Mandatory Implementation & Setup Fee ($1,000 to $3,000+)</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Onboarding packages often add $1,000 to $3,000+ for database configuration, user provisioning, and staff training sessions.
+                Onboarding packages add $1,000 to $3,000+ for database configuration and multi-week staff training, whereas RollOS charges a $0 setup fee.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h4 className="font-bold text-[#1f2d26] text-sm mb-1">Annual Contract Commitments</h4>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Annual Contract Commitments</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Contracts often lock haulers into 12-month agreements, creating financial risk if rental volume fluctuates seasonally.
+                Enterprise systems like CurbWaste, Hauler Hero, AMCS, and Basestation typically lock haulers into 12-to-36 month agreements, creating financial risk when winter construction volume slows down.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Feature & Pricing Breakdown Table */}
+        {/* Section 2: Comparison Table */}
         <div className="my-12">
           <h2 className="text-2xl font-bold text-[#1f2d26] mb-4">
-            CurbWaste vs RollOS: Direct Feature Comparison
+            CurbWaste vs. RollOS: Direct Feature Comparison
           </h2>
           <p className="text-sm text-[#475569] leading-relaxed mb-6">
-            Compare key operational metrics between CurbWaste and RollOS for managing roll-off container workflows:
+            Compare key operational metrics between CurbWaste waste management software and RollOS dumpster rental software for managing 10 to 40-yard dumpsters:
           </p>
           <div className="overflow-x-auto rounded-xl border border-[#dde4d4]">
             <table className="compare-table">
@@ -232,31 +203,38 @@ export default function CurbWasteComparisonPage() {
                   <td className="text-[#b54848] font-semibold">Custom Quote (~$300 – $600+/mo)</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Setup & Onboarding Fees</td>
+                  <td className="font-semibold">Setup Fee & Onboarding</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">$0 (Self-serve in 3 min)</td>
                   <td className="text-[#b54848]">$1,000 – $3,000+ typical</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Time to Live Dispatch</td>
-                  <td className="highlight-col text-[#2e7d32] font-bold">Under 3 minutes</td>
+                  <td className="highlight-col text-[#2e7d32] font-bold">Under 3 minutes (Instant live demo)</td>
                   <td className="text-[#b54848]">2 to 4 weeks implementation</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Access</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
-                    1-Tap SMS Magic Links (0 app install)
+                    1-Tap SMS Magic Links (0 App Store install)
                   </td>
-                  <td>Native App Store / Play Store app</td>
+                  <td>Native App Store / Play Store driver app</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Customer Online Booking Engine</td>
+                  <td className="font-semibold">24/7 Online Ordering & Customer Portal</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
-                    Included (60s live checkout widget)
+                    Included (60s checkout + contractor account portal)
                   </td>
-                  <td>Contractor portal / Custom integration</td>
+                  <td>Back-office CSR entry / Enterprise portal</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Scale Ticket Capture & Auto-Overage</td>
+                  <td className="font-semibold">Box Tracker & Inventory Tracking</td>
+                  <td className="highlight-col font-semibold text-[#2e7d32]">
+                    Serialized container tracking & yard board
+                  </td>
+                  <td>Enterprise fleet asset tracking</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">Scale Ticket & Dump Fees Billing</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     1-Tap photo upload & automated card charge
                   </td>
@@ -274,7 +252,7 @@ export default function CurbWasteComparisonPage() {
           </div>
         </div>
 
-        {/* Kyle Roof Group B: H2 Section 2 */}
+        {/* Section 3: Reviews */}
         <div className="p-8 bg-white border border-[#dde4d4] rounded-2xl shadow-sm mb-10">
           <div className="flex items-center gap-3 mb-4">
             <DollarSign className="text-[#ea580c]" size={24} />
@@ -283,77 +261,49 @@ export default function CurbWasteComparisonPage() {
             </h2>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
-            Industry feedback on <strong>curbwaste reviews</strong> across Capterra and G2 highlights strong praise for their modern UI compared to legacy 1990s desktop software. However, independent haulers cite distinct challenges:
+            Industry feedback on <strong>CurbWaste reviews</strong> across G2, Capterra, and Waste Dive highlights strong praise for its modern UI compared to legacy 1990s desktop tools like <Link href="/vs/trash-flow" className="text-[#ea580c] font-semibold hover:underline">Trash Flow software</Link>. However, independent roll-off haulers cite distinct challenges:
           </p>
           <ul className="space-y-3 text-sm text-[#475569] mb-4">
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
-              <span><strong>The Strengths:</strong> CurbWaste provides a clean, modern interface, two-way QuickBooks integration, and robust support for commercial route accounting and multi-division operations.</span>
+              <span><strong>The Strengths:</strong> Clean modern interface, two-way QuickBooks and QuickBooks Online integration, and robust reporting for multi-division commercial trash routes.</span>
             </li>
             <li className="flex items-start gap-2">
               <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>High Cost for Roll-Off Only:</strong> If your company focuses purely on roll-off dumpster rentals (10 to 40-yard bins), you end up paying for municipal routing and complex waste ERP modules you never touch.</span>
+              <span><strong>High Cost for Pure Roll-Off & Junk Removal:</strong> If your dumpster rental business focuses on hauling 10, 20, 30, and 40-yard roll-off containers or junk removal, you end up paying $5,000+/year for municipal ERP modules you never use.</span>
             </li>
             <li className="flex items-start gap-2">
               <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>Slow Implementation:</strong> Haulers who need to get rolling immediately lose weeks to onboarding calls, spreadsheet formatting, and system configurations.</span>
+              <span><strong>Driver App Friction:</strong> Forcing drivers to log into a native mobile app at rural landfills causes delays, whereas RollOS sends a 1-tap SMS browser link with Google/Apple Maps route optimization, service address notes, dumpster placement photo capture, and instant scale ticket uploads.</span>
             </li>
           </ul>
         </div>
 
-        {/* Kyle Roof Group B: H2 Section 3 */}
-        <div className="p-8 bg-white border border-[#dde4d4] rounded-2xl shadow-sm mb-10">
-          <div className="flex items-center gap-3 mb-4">
-            <Smartphone className="text-[#ea580c]" size={24} />
-            <h2 className="text-xl font-bold text-[#1f2d26]">
-              Why 1 to 25+ Truck Operators Seek CurbWaste Alternatives
-            </h2>
-          </div>
-          <p className="text-sm text-[#475569] leading-relaxed mb-4">
-            Small and mid-size roll-off haulers searching for <strong>curbwaste alternatives</strong> want lean, fast software that generates immediate return on investment:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#f8faf6] rounded-xl text-xs mb-4">
-            <div className="p-4 bg-white border border-[#e2ebd8] rounded-lg">
-              <strong className="text-[#1f2d26] text-sm block mb-1">CurbWaste Enterprise Model:</strong>
-              <p className="text-[#64748b] leading-relaxed">
-                $3,600 – $7,200+ annual software bill, $1,500+ onboarding, mandatory driver app installations, and multi-week setup cycles.
-              </p>
-            </div>
-            <div className="p-4 bg-white border border-[#cbe1b8] rounded-lg">
-              <strong className="text-[#2e7d32] text-sm block mb-1">RollOS Agile Model:</strong>
-              <p className="text-[#47603c] leading-relaxed">
-                $0/mo (Free) or $29/mo (Starter). Zero setup fees. 3-minute self-serve start. Instant SMS magic links for drivers. Recover $4,000+ in annual software overhead directly into your operating margins.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* When to Choose Verdict */}
+        {/* Section 4: Verdict */}
         <div className="p-8 bg-[#1f2621] text-white rounded-2xl mb-12">
-          <h2 className="text-2xl font-bold mb-4">The Verdict: When to Choose RollOS vs CurbWaste</h2>
+          <h2 className="text-2xl font-bold mb-4">The Verdict: When to Choose RollOS vs. CurbWaste</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-[#cbd5cc] leading-relaxed">
             <div>
               <strong className="text-white text-base block mb-2">Choose CurbWaste if:</strong>
               <ul className="space-y-2 list-disc pl-4">
-                <li>You are an enterprise waste corporation operating residential garbage routes and transfer stations.</li>
-                <li>You have a dedicated IT department and budget for $1,000+ onboarding packages.</li>
-                <li>You require multi-year enterprise contracts and custom ERP integrations.</li>
+                <li>You are a 30+ truck enterprise waste corporation operating municipal garbage routes and transfer stations.</li>
+                <li>You have budget for a $1,000–$3,000+ setup fee.</li>
+                <li>You want multi-year enterprise contracts.</li>
               </ul>
             </div>
             <div>
               <strong className="text-[#ea580c] text-base block mb-2">Choose RollOS if:</strong>
               <ul className="space-y-2 list-disc pl-4 text-white">
-                <li>You manage a 1 to 25+ truck roll-off hauling business and value high operational speed.</li>
-                <li>You want transparent pricing with $0/mo Free or $29/mo Starter plans.</li>
-                <li>You want your drivers to receive routes via instant SMS links with zero App Store friction.</li>
-                <li>You want to capture 24/7 online bookings with a 60-second customer checkout widget.</li>
-                <li>You want automated landfill scale ticket capture and immediate card overage billing.</li>
+                <li>You manage a 1 to 25+ truck roll-off hauling business.</li>
+                <li>You value transparent pricing ($0/mo Free or $29/mo Starter).</li>
+                <li>You want drivers to receive routes via 1-tap SMS links with zero App Store friction.</li>
+                <li>You need automated billing for landfill scale tickets via Stripe card processing.</li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* Kyle Roof Group C: 6 H3 FAQs */}
+        {/* Section 5: FAQs */}
         <div className="p-8 bg-white border border-[#dde4d4] rounded-2xl shadow-sm mb-12">
           <h2 className="text-2xl font-bold text-[#1f2d26] mb-6">
             Frequently Asked Questions: CurbWaste Software
@@ -364,57 +314,25 @@ export default function CurbWasteComparisonPage() {
                 How much does CurbWaste software cost per month?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                CurbWaste uses custom quote-based pricing that varies by truck count and fleet size, typically running several hundred dollars per month plus setup fees.
+                CurbWaste pricing uses custom quote-based licensing that typically runs $300 to $600+ per month depending on fleet size, plus a $1,000 to $3,000+ implementation setup fee.
               </p>
             </div>
             <div>
               <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                Does CurbWaste charge mandatory setup or onboarding fees?
+                What is the best CurbWaste alternative for roll-off dumpsters?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                Yes. Implementation and onboarding packages for enterprise waste systems like CurbWaste commonly range from $1,000 to $3,000+ for data import and team training.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                What is the top CurbWaste alternative for roll-off dumpsters?
-              </h3>
-              <p className="text-sm text-[#556658] leading-relaxed">
-                RollOS is the leading alternative for independent roll-off haulers running 1 to 25+ trucks. RollOS features transparent pricing ($0 Free, $29 Starter, $149 Growth), instant SMS driver links, and automated scale overage billing.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                Is there a fleet size or driver minimum for CurbWaste?
-              </h3>
-              <p className="text-sm text-[#556658] leading-relaxed">
-                CurbWaste is engineered primarily for larger commercial and municipal fleets and often enforces driver or truck minimums. RollOS has zero fleet minimums and serves haulers running from 1 truck to 25+ trucks.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                How does the CurbWaste driver app compare to SMS links?
-              </h3>
-              <p className="text-sm text-[#556658] leading-relaxed">
-                CurbWaste uses native mobile apps requiring app store downloads, user credentials, and regular updates. RollOS sends drivers encrypted SMS web links that open instantly in any mobile browser with zero app installation.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                Does CurbWaste provide 24/7 self-service online customer booking?
-              </h3>
-              <p className="text-sm text-[#556658] leading-relaxed">
-                CurbWaste focuses on back-office operations and contractor portals, whereas RollOS includes an embeddable 60-second online booking engine that allows homeowners and contractors to order dumpsters around the clock.
+                RollOS is the #1 alternative for independent roll-off haulers running 1 to 25+ trucks, outperforming enterprise ERPs like CurbWaste, <Link href="/vs/docket" className="text-[#ea580c] font-semibold hover:underline">Docket</Link>, and Hauler Hero as well as flat-rate tools like <Link href="/vs/icans" className="text-[#ea580c] font-semibold hover:underline">iCans</Link> and <Link href="/vs/bin-boss" className="text-[#ea580c] font-semibold hover:underline">Bin Boss</Link> with a permanent $0/month Free Plan.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Kyle Roof Spoke-to-Spoke Comparison Silo */}
+        {/* Spoke-to-Spoke Comparison Silo */}
         <div className="p-6 bg-white border border-[#dde4d4] rounded-2xl mb-8 shadow-sm">
-          <h3 className="text-base font-bold text-[#1f2d26] mb-3">
+          <h2 className="text-base font-bold text-[#1f2d26] mb-3">
             Compare Other Roll-Off Dumpster Rental Software Alternatives
-          </h3>
+          </h2>
           <p className="text-xs text-[#556658] mb-4 leading-relaxed">
             Evaluating multiple platforms? Explore our side-by-side operational reviews against other major waste and dumpster software providers:
           </p>
