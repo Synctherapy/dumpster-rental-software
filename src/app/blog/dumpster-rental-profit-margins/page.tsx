@@ -14,6 +14,7 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { BlogCroInfographic } from '@/components/blog-cro-infographic';
 
 export const metadata = {
   title: 'Dumpster Rental Profit Margins: How Much Do Haulers Actually Make?',
@@ -159,6 +160,19 @@ export default function DumpsterRentalProfitMarginsPage() {
             </div>
           </div>
         </section>
+
+        {/* Visual Profit Margins Infographic & CRO Callout */}
+        <BlogCroInfographic
+          badge="HAULER REVENUE WATERFALL & BENCHMARKS"
+          title="Dumpster Rental Profit Margins: Revenue vs. Costs Breakdown"
+          description="See how a typical $450 dumpster haul breaks down across landfill tipping fees, diesel fuel, equipment overhead, and clean net profit."
+          src="/images/infographics/dumpster-rental-profit-margins-breakdown.jpg"
+          alt="Dumpster rental profit margin waterfall chart showing revenue breakdown between landfill tipping fees fuel overhead and net profit"
+          caption="Figure 1: Financial breakdown of average roll-off dumpster rental profitability. Direct job costs (landfill disposal and diesel) average 40%, fixed equipment overhead consumes ~28%, leaving 33% ($150) in clean net profit per container turn."
+          ctaTitle="Stop Leaking Profit on Landfill Weight Overages"
+          ctaSubtitle="RollOS automatically calculates and collects overweight fees from customer credit cards so your net profit stays protected."
+          ctaButtonText="Start Free on RollOS ($0/mo)"
+        />
 
         {/* Section 2: Realistic 1-Truck Annual P&L */}
         <section className="mb-12">

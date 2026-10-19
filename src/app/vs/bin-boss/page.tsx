@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, DollarSign } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -148,6 +149,36 @@ export default function BinBossComparisonPage() {
             </ul>
           </div>
         </div>
+
+        {/* Visual Interface & Workflow Comparison */}
+        <VsVisualComparison
+          competitorName="Bin Boss"
+          competitorTagline="Bin Boss offers flat $99/mo dispatching, but charges an extra +$40/mo for online booking, requires native mobile app downloads for drivers, and relies on manual weight calculations for excess dump fees."
+          competitorScreenshot="/images/competitors/bin-boss-preview.png"
+          competitorScreenshotAlt="Bin Boss dumpster rental software website homepage and dispatch software preview"
+          competitorBulletPoints={[
+            "Flat $99/mo base subscription, regardless of fleet utilization",
+            "+$40/month add-on fee required for online customer booking",
+            "Requires driver app download from Apple / Google Play with login credentials",
+            "Manual landfill tipping fee and scale overage calculation",
+          ]}
+          rollosTagline="Modern roll-off dumpster software with a permanent $0/month Free Plan, included 24/7 online booking, instant 1-tap SMS driver links, and automated tonnage billing."
+          rollosScreenshot="/images/screenshots/dumpster-rental-online-booking-system.png"
+          rollosScreenshotAlt="RollOS online dumpster booking system checkout widget showing 10 to 40 yard dumpster sizes and instant pricing"
+          rollosBulletPoints={[
+            "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
+            "Included 24/7 online customer booking engine (zero add-on fees)",
+            "Instant 1-tap SMS driver magic links — zero App Store downloads",
+            "Automated landfill scale ticket overage billing",
+          ]}
+          infographicSrc="/images/infographics/rollos-vs-bin-boss-driver-app-friction.jpg"
+          infographicAlt="Bin Boss driver app download friction vs RollOS instant mobile web dispatch magic links"
+          infographicBadge="DRIVER APP & FIELD WORKFLOW BREAKDOWN"
+          infographicTitle="Zero App Store Friction: 1-Tap SMS Magic Links vs. Forced Driver App Downloads"
+          infographicDescription="Eliminate driver app update errors, forgotten Apple/Google passwords, and phone compatibility headaches. RollOS drivers get route sheets and drop-off photo proof via a secure, instant SMS web link."
+          infographicCaption="Figure 1: Driver dispatch workflow comparison. Bin Boss requires drivers to download native apps from the App Store and manage credentials, while RollOS dispatches drivers with a 1-tap SMS magic link that opens instantly in mobile browsers with turn-by-turn navigation and photo proof."
+          infographicCtaHeadline="Stop fighting driver app downloads and password resets."
+        />
 
         {/* Interactive Savings Calculator */}
         <div className="my-12">

@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, DollarSign } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -140,6 +141,36 @@ export default function TrashFlowComparisonPage() {
             </ul>
           </div>
         </div>
+
+        {/* Visual Interface & Workflow Comparison */}
+        <VsVisualComparison
+          competitorName="Trash Flow"
+          competitorTagline="Trash Flow originated in the 1990s as on-premise Windows software, requiring dedicated office PC hardware, manual database backups, per-workstation license fees ($900–$4,150+), and complex VPNs."
+          competitorScreenshot="/images/competitors/trash-flow-preview.png"
+          competitorScreenshotAlt="Trash Flow waste management software website homepage and modular system preview"
+          competitorBulletPoints={[
+            "Legacy on-premise Windows PC and server architecture",
+            "$900 to $4,150+ upfront workstation licenses + add-ons",
+            "Manual database backups and vulnerability to office hardware failure",
+            "Requires remote desktop or VPNs to access outside the office",
+          ]}
+          rollosTagline="100% modern cloud-native roll-off dumpster software. Accessible on any smartphone, iPad, Mac, or PC with zero hardware installations, automated cloud backups, and a permanent $0/mo Free Plan."
+          rollosScreenshot="/images/screenshots/rollos-homepage-live.png"
+          rollosScreenshotAlt="RollOS cloud dumpster rental software homepage showing modern multi-device dispatching"
+          rollosBulletPoints={[
+            "100% cloud-native web platform — access anywhere on any device",
+            "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
+            "Automatic cloud backups and continuous real-time sync",
+            "Instant 1-tap SMS driver links — zero App Store installs",
+          ]}
+          infographicSrc="/images/infographics/rollos-vs-trash-flow-cloud-vs-legacy.jpg"
+          infographicAlt="Trash Flow legacy on-premise Windows server vs RollOS 100% cloud dumpster rental software"
+          infographicBadge="CLOUD VS ON-PREMISE ARCHITECTURE BREAKDOWN"
+          infographicTitle="100% Cloud-Native Software vs. Outdated 1990s On-Premise Windows Servers"
+          infographicDescription="Say goodbye to dusty office servers, lost database backups, and sluggish Remote Desktop logins. RollOS gives your dispatchers and drivers instantaneous cloud access anywhere."
+          infographicCaption="Figure 1: Architecture comparison of Trash Flow vs RollOS. Trash Flow confines your dumpster dispatching to physical office Windows PCs with manual backups, while RollOS runs securely in the cloud across phones, tablets, and desktops with automated sync."
+          infographicCtaHeadline="Upgrade from 1990s desktop software to modern cloud dispatch."
+        />
 
         {/* Interactive Savings Calculator */}
         <div className="my-12">

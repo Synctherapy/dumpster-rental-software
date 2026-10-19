@@ -10,6 +10,7 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { BlogCroInfographic } from '@/components/blog-cro-infographic';
 
 export const metadata = {
   title: 'Roll-Off Truck vs. Dump Trailer: Equipment Guide for Dumpster Startups',
@@ -161,6 +162,19 @@ export default function RollOffTruckVsDumpTrailerPage() {
             </li>
           </ul>
         </section>
+
+        {/* Visual Equipment ROI Infographic & CRO Callout */}
+        <BlogCroInfographic
+          badge="EQUIPMENT ROI & FLEET SCALABILITY"
+          title="Roll-Off Truck vs. Dump Trailer: Operational & Financial ROI Breakdown"
+          description="Compare upfront investment ($12k–$20k vs $65k–$140k), container capacity (1 box vs 15–30+ boxes), and scalability between pickup trailers and commercial roll-off trucks."
+          src="/images/infographics/roll-off-truck-vs-dump-trailer-roi-comparison.jpg"
+          alt="Roll-off truck vs dump trailer operational and financial ROI comparison infographic"
+          caption="Figure 1: Equipment comparison for dumpster rental startups. Dump trailers offer an accessible low-risk entry with non-CDL operation, while dedicated roll-off trucks deliver maximum speed and scalable container density as your fleet expands."
+          ctaTitle="Dispatch Dumpsters from Any Truck or Trailer"
+          ctaSubtitle="Whether you run a 1-ton pickup with a dump trailer or a 10-truck commercial roll-off fleet, RollOS dispatches drivers with 1-tap SMS web links."
+          ctaButtonText="Start Free on RollOS ($0/mo)"
+        />
 
         {/* Section 2: CDL vs Non-CDL */}
         <section className="mb-12">

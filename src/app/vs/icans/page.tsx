@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, DollarSign, Smartphone } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -148,6 +149,36 @@ export default function ICansComparisonPage() {
             </ul>
           </div>
         </div>
+
+        {/* Visual Interface & Workflow Comparison */}
+        <VsVisualComparison
+          competitorName="iCans"
+          competitorTagline="Founded by American AF Dumpsters to provide single-screen dispatching and route optimization, but gates automated SMS texting behind their $159/mo Plus tier and routes payments through Tiger Payment Solutions."
+          competitorScreenshot="/images/competitors/icans-preview.png"
+          competitorScreenshotAlt="iCans dumpster software website homepage and dispatch software preview"
+          competitorBulletPoints={[
+            "$99/mo (Base) to $159/mo (Plus) tiered software cost",
+            "Automated customer & driver SMS gated to $159/mo tier",
+            "Requires driver app download from Apple / Google Play",
+            "Tiger Payment Solutions gateway lock-in",
+          ]}
+          rollosTagline="Modern web-based dumpster dispatch and 24/7 online booking engine built specifically for independent haulers operating 1 to 25+ trucks. Free forever tier with zero setup fee."
+          rollosScreenshot="/images/screenshots/roll-off-dumpster-dispatch-board-software.png"
+          rollosScreenshotAlt="RollOS roll-off dumpster dispatch board software showing visual status columns and driver assignment"
+          rollosBulletPoints={[
+            "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
+            "Instant 1-tap SMS driver links — zero App Store installs",
+            "Direct Stripe Connect integration with instant payouts & Apple Pay",
+            "Automated landfill scale ticket overage billing",
+          ]}
+          infographicSrc="/images/infographics/rollos-vs-icans-sms-dispatch-workflow.jpg"
+          infographicAlt="Roll-off dumpster software dispatch workflow comparison: legacy paywalled SMS vs RollOS 1-tap SMS magic link"
+          infographicBadge="SMS DISPATCH & FIELD WORKFLOW BREAKDOWN"
+          infographicTitle="Zero-Friction 1-Tap Driver SMS Dispatch vs. Paywalled Notifications"
+          infographicDescription="See why modern roll-off dumpster haulers eliminate native driver app downloads and avoid $159/mo SMS paywalls by dispatching drivers via instant mobile web links."
+          infographicCaption="Figure 1: Comparison of roll-off dumpster dispatch workflows. Legacy platforms gate automated SMS notifications behind $159/mo tiers and force drivers through app store logins, while RollOS includes instant 1-tap SMS magic links on all tiers including the $0/mo Free Plan."
+          infographicCtaHeadline="Ready to stop paying $159/mo just to text your drivers?"
+        />
 
         {/* Interactive Savings Calculator */}
         <div className="my-12">

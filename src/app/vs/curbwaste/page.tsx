@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, DollarSign } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -139,6 +140,36 @@ export default function CurbWasteComparisonPage() {
             </ul>
           </div>
         </div>
+
+        {/* Visual Interface & Workflow Comparison */}
+        <VsVisualComparison
+          competitorName="CurbWaste"
+          competitorTagline="CurbWaste positions itself as an enterprise waste ERP, requiring long sales demos, quote-gated pricing ($300-$600+/mo), mandatory $1,000–$3,000+ onboarding fees, and annual lock-in contracts."
+          competitorScreenshot="/images/competitors/curbwaste-preview.png"
+          competitorScreenshotAlt="CurbWaste waste management software website homepage and enterprise platform preview"
+          competitorBulletPoints={[
+            "Quote-gated enterprise pricing (~$300 to $600+/mo baseline)",
+            "Mandatory $1,000 to $3,000+ onboarding & implementation fees",
+            "Multi-month sales cycles and annual lock-in contracts",
+            "Built for enterprise municipal haulers and transfer stations",
+          ]}
+          rollosTagline="Self-serve roll-off dumpster software designed for 1 to 25+ truck haulers. Permanent $0/month Free Plan, zero setup fees, instant Stripe payouts, and 5-minute setup."
+          rollosScreenshot="/images/screenshots/rollos-pricing-live.png"
+          rollosScreenshotAlt="RollOS transparent pricing page showing $0 Free Plan, $29 Starter, and $149 Growth plans"
+          rollosBulletPoints={[
+            "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
+            "Zero setup fee, zero onboarding fee, and cancel anytime flexibility",
+            "Self-serve setup in under 5 minutes without mandatory sales demos",
+            "Instant 1-tap SMS driver links — zero App Store downloads",
+          ]}
+          infographicSrc="/images/infographics/rollos-vs-curbwaste-pricing-contracts.jpg"
+          infographicAlt="CurbWaste enterprise pricing and lock-in contracts vs RollOS modern self-serve $0 dumpster software"
+          infographicBadge="ENTERPRISE OVERHEAD VS SELF-SERVE BREAKDOWN"
+          infographicTitle="Modern Self-Serve Freedom ($0/mo) vs. Enterprise Lock-In ($500+/mo & Contracts)"
+          infographicDescription="Why pay thousands in mandatory onboarding fees and locked contracts for enterprise modules you will never use? RollOS delivers high-speed roll-off dispatching without enterprise bloat."
+          infographicCaption="Figure 1: Commercial comparison of CurbWaste vs RollOS. CurbWaste requires $500–$1,200/mo subscriptions, $2,500 setup fees, and annual contracts, while RollOS provides a $0/mo Free Plan with zero setup fees, 0% commission, and cancel-anytime terms."
+          infographicCtaHeadline="Escape expensive enterprise contracts and setup fees."
+        />
 
         {/* Interactive Savings Calculator */}
         <div className="my-12">

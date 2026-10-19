@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, DollarSign, Smartphone } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { SavingsCalculator } from '@/components/savings-calculator';
+import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
@@ -116,6 +117,36 @@ export default function DocketComparisonPage() {
             </ul>
           </div>
         </div>
+
+        {/* Visual Interface & Workflow Comparison */}
+        <VsVisualComparison
+          competitorName="Docket"
+          competitorTagline="Docket (now owned by ServiceCore) targets larger municipal haulers and multi-division fleets with quote-based pricing (~$299+/mo), mandatory sales demos, setup fees, and App Store driver downloads."
+          competitorScreenshot="/images/competitors/docket-preview.png"
+          competitorScreenshotAlt="Docket dumpster rental software website homepage and dispatch software preview"
+          competitorBulletPoints={[
+            "Estimated $250 to $350+ monthly base fee with quote gating",
+            "Hauler absorbs 100% of software overhead with no free tier",
+            "Mandatory App Store & Google Play driver app downloads",
+            "Higher payment processing rates (~3.0% + 30¢)",
+          ]}
+          rollosTagline="Built specifically for 1 to 25+ truck roll-off haulers. $0/month Free Plan ($12 checkout fee paid by customer), 1-tap SMS driver links, direct Stripe card rates, and automated landfill scale ticket billing."
+          rollosScreenshot="/images/screenshots/dumpster-rental-tonnage-invoice-scale-ticket.png"
+          rollosScreenshotAlt="RollOS dumpster rental invoice and automated landfill scale ticket tonnage overage billing system"
+          rollosBulletPoints={[
+            "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
+            "Instant 1-tap SMS driver magic links — zero App Store downloads",
+            "Direct Stripe Connect rates (2.9% + 30¢) with Apple Pay and Instant Payouts",
+            "Automated landfill scale ticket overage billing",
+          ]}
+          infographicSrc="/images/infographics/rollos-vs-docket-scale-ticket-tonnage-billing.jpg"
+          infographicAlt="Automated landfill scale ticket and tonnage billing engine workflow comparison: manual paperwork vs RollOS instant automation"
+          infographicBadge="TONNAGE BILLING & DISPATCH WORKFLOW BREAKDOWN"
+          infographicTitle="Automated Landfill Scale Ticket & Tonnage Billing Engine"
+          infographicDescription="Stop chasing lost tonnage fees and late checks. Drivers capture scale tickets in seconds, and RollOS calculates the overage and bills the customer's card on file with zero manual invoicing."
+          infographicCaption="Figure 1: Comparison of landfill scale ticket reconciliation workflows. Manual invoicing and expensive legacy subscriptions cause missed fees and delayed payments, while RollOS provides instant scale ticket capture, automatic overage calculation, and direct customer billing."
+          infographicCtaHeadline="Ready to stop leaking money on landfill overweight fees?"
+        />
 
         {/* Interactive Savings Calculator Embedded */}
         <div className="my-12">

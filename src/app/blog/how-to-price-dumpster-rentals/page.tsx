@@ -14,6 +14,7 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { BlogCroInfographic } from '@/components/blog-cro-infographic';
 
 export const metadata = {
   title: 'How to Price Dumpster Rentals for Customers: Complete Hauler Formula',
@@ -164,6 +165,19 @@ export default function HowToPriceDumpsterRentalsPage() {
             </div>
           </div>
         </section>
+
+        {/* Visual Pricing Architecture Infographic & CRO Callout */}
+        <BlogCroInfographic
+          badge="HAULER PRICING ARCHITECTURE & AUTOMATION"
+          title="The 3-Tier Dumpster Rental Pricing Architecture for Roll-Off Haulers"
+          description="Master the 3-pillar pricing model: base rental packages, protective included tonnage caps, and automated scale overage collection via Stripe."
+          src="/images/infographics/dumpster-rental-pricing-formula-architecture.jpg"
+          alt="The 3-tier dumpster rental pricing architecture showing base rental package included tonnage cap and automatic overage protection"
+          caption="Figure 1: The universal roll-off dumpster pricing formula. Every successful quote bundles a base 7-day rental period with a defined tonnage allowance (e.g. 2 tons), backed by automated card charging for weight overages upon landfill scale ticket weigh-in."
+          ctaTitle="Lock in Your Tonnage Rates and Get Paid Online"
+          ctaSubtitle="RollOS provides instant 60-second online customer booking with transparent pricing and automatic scale overage invoicing."
+          ctaButtonText="Start Free on RollOS ($0/mo)"
+        />
 
         {/* Section 2: National Price Averages by Size */}
         <section className="mb-12">

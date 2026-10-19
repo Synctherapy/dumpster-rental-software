@@ -10,6 +10,7 @@ import { MarketingNav } from '@/components/marketing-nav';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 import { FAQPageSchema, ArticleSchema } from '@/components/schema-org';
+import { BlogCroInfographic } from '@/components/blog-cro-infographic';
 
 export const metadata = {
   title: 'How to Start a Dumpster Rental Business (2026 Step-by-Step Guide)',
@@ -178,6 +179,19 @@ export default function HowToStartDumpsterBusinessPage() {
             </table>
           </div>
         </section>
+
+        {/* Visual Launch Roadmap Infographic & CRO Callout */}
+        <BlogCroInfographic
+          badge="HAULER LAUNCH BLUEPRINT"
+          title="How to Start a Dumpster Rental Business: The 5-Phase Launch Roadmap"
+          description="Follow the operational roadmap: legal formation, equipment acquisition, landfill tipping accounts, free dispatch software setup, and contractor customer acquisition."
+          src="/images/infographics/how-to-start-dumpster-rental-business-roadmap.jpg"
+          alt="How to start a dumpster rental business 5-phase hauler launch roadmap infographic"
+          caption="Figure 1: The complete 5-phase roadmap for starting a profitable roll-off dumpster rental business. Avoid expensive $2,500 software setups early on by running your first truck on RollOS's $0/month Free Plan."
+          ctaTitle="Launch Your Dumpster Rental Business in 5 Minutes"
+          ctaSubtitle="Start with RollOS's permanent $0/month Free Plan ($12 checkout fee paid by customer). Unlimited bookings, instant driver SMS, and 0% commission."
+          ctaButtonText="Start Free on RollOS ($0/mo)"
+        />
 
         {/* Section 2: Equipment */}
         <section className="mb-12">
