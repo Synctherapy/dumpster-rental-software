@@ -111,6 +111,26 @@ export const NAV_SECTIONS: NavSection[] = [
         desc: 'Why haulers switch from Docket’s $300/mo fee',
       },
       {
+        name: 'vs. iCans',
+        href: '/vs/icans',
+        desc: 'Zero-friction SMS routing vs $159/mo paywall',
+      },
+      {
+        name: 'vs. Bin Boss',
+        href: '/vs/bin-boss',
+        desc: '1-tap web dispatch vs forced driver app installs',
+      },
+      {
+        name: 'vs. CurbWaste',
+        href: '/vs/curbwaste',
+        desc: '$0/mo Free Plan vs enterprise lock-in & setup fees',
+      },
+      {
+        name: 'vs. Trash Flow',
+        href: '/vs/trash-flow',
+        desc: '100% cloud platform vs 1990s desktop Windows PC',
+      },
+      {
         name: 'vs. ServiceCore',
         href: '/vs/servicecore',
         desc: 'Built for roll-off dumpsters, not septic trucks',
@@ -124,6 +144,38 @@ export const NAV_SECTIONS: NavSection[] = [
         name: 'All Comparisons',
         href: '/vs',
         desc: 'Compare RollOS side-by-side with alternatives',
+        isAllLink: true,
+      },
+    ],
+  },
+  {
+    id: 'guides',
+    label: 'Guides',
+    items: [
+      {
+        name: 'Dumpster Profit Margins',
+        href: '/blog/dumpster-rental-profit-margins',
+        desc: 'Real financial benchmarks: gross vs net margins per haul',
+      },
+      {
+        name: 'How to Price Dumpsters',
+        href: '/blog/how-to-price-dumpster-rentals',
+        desc: 'Base rental, included tons & automated overage formula',
+      },
+      {
+        name: 'Starting a Dumpster Business',
+        href: '/blog/how-to-start-a-dumpster-rental-business',
+        desc: 'Startup costs, equipment, licensing & launch roadmap',
+      },
+      {
+        name: 'Roll-Off Truck vs Trailer',
+        href: '/blog/roll-off-truck-vs-dump-trailer',
+        desc: 'Equipment ROI, non-CDL setups & container capacity',
+      },
+      {
+        name: 'All Hauler Guides',
+        href: '/blog',
+        desc: 'Complete library of roll-off business guides',
         isAllLink: true,
       },
     ],
@@ -145,6 +197,7 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
     tools: false,
     templates: false,
     compare: false,
+    guides: false,
   });
 
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -254,7 +307,8 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
             const isOpen = activeDropdown === section.id;
             const isSectionActive =
               activePath?.startsWith(`/${section.id}`) ||
-              (section.id === 'compare' && activePath?.startsWith('/vs'));
+              (section.id === 'compare' && activePath?.startsWith('/vs')) ||
+              (section.id === 'guides' && activePath?.startsWith('/blog'));
 
             return (
               <Fragment key={section.id}>
@@ -318,15 +372,6 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
               </Fragment>
             );
           })}
-
-          {/* Guides / Blog Link */}
-          <Link
-            href="/blog"
-            className={`nav-link-direct ${activePath?.startsWith('/blog') ? 'active' : ''}`}
-            role="menuitem"
-          >
-            Guides
-          </Link>
         </div>
 
         {/* Right Actions: Log In + Start Free Demo */}
@@ -434,18 +479,6 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
               </Fragment>
             );
           })}
-
-          {/* Direct Guides Link in Mobile */}
-          <div className="marketing-mobile-section">
-            <Link
-              href="/blog"
-              className="marketing-mobile-direct-link"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span>Hauler Guides &amp; Blog</span>
-              <ArrowRight size={15} className="text-[#647867]" />
-            </Link>
-          </div>
         </div>
 
         {/* Drawer Footer Actions */}

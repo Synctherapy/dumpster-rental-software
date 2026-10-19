@@ -85,15 +85,35 @@ export function Footer() {
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
               Compare Platforms
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/vs" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  All Comparisons
+                <Link href="/vs" className="text-[#cbd5cc] hover:text-white transition-colors font-semibold">
+                  All Comparisons Hub
                 </Link>
               </li>
               <li>
                 <Link href="/vs/docket" className="text-[#cbd5cc] hover:text-white transition-colors">
                   vs. Docket
+                </Link>
+              </li>
+              <li>
+                <Link href="/vs/icans" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  vs. iCans
+                </Link>
+              </li>
+              <li>
+                <Link href="/vs/bin-boss" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  vs. Bin Boss
+                </Link>
+              </li>
+              <li>
+                <Link href="/vs/curbwaste" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  vs. CurbWaste
+                </Link>
+              </li>
+              <li>
+                <Link href="/vs/trash-flow" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  vs. Trash Flow
                 </Link>
               </li>
               <li>
@@ -133,15 +153,35 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 5: Business Templates */}
+          {/* Column 5: Business Guides & Templates */}
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-[#22c55e] pl-2.5">
-              Business Templates
+              Guides &amp; Templates
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/templates" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  View All Templates
+                <Link href="/blog" className="text-[#cbd5cc] hover:text-white transition-colors font-semibold">
+                  All Hauler Guides
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/dumpster-rental-profit-margins" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Dumpster Profit Margins
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/how-to-price-dumpster-rentals" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  How to Price Dumpsters
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/how-to-start-a-dumpster-rental-business" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Starting a Dumpster Business
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog/roll-off-truck-vs-dump-trailer" className="text-[#cbd5cc] hover:text-white transition-colors">
+                  Truck vs. Dump Trailer
                 </Link>
               </li>
               <li>
@@ -151,12 +191,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/templates/dumpster-invoice" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Dumpster Invoice Template
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-[#cbd5cc] hover:text-white transition-colors">
-                  Hauler Business Guides
+                  Dumpster Invoice Maker
                 </Link>
               </li>
             </ul>

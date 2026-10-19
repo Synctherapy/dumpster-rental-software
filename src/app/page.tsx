@@ -535,20 +535,96 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/vs/servicecore"
+              href="/vs/icans"
               className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
             >
               <div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Software Review</div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Workflow Comparison</div>
                 <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
-                  RollOS vs ServiceCore
+                  RollOS vs iCans
                 </h4>
                 <p className="text-xs text-[#556658] leading-relaxed">
-                  Why independent roll-off haulers choose simple, affordable software over expensive legacy septic platforms.
+                  Compare 1-tap driver SMS routing ($0/mo included) vs iCans $159/mo SMS tier and Tiger Payment gate.
                 </p>
               </div>
               <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                <span>Read RollOS vs ServiceCore review</span>
+                <span>Read RollOS vs iCans comparison</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs/bin-boss"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Driver Usability</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  RollOS vs Bin Boss
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Eliminate App Store driver app friction and avoid +$40/mo website add-on fees.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Read RollOS vs Bin Boss review</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs/curbwaste"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Pricing &amp; Contracts</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  RollOS vs CurbWaste
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Why small haulers avoid $500–$1,200/mo enterprise fees and multi-year contracts.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Read RollOS vs CurbWaste review</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs/trash-flow"
+              className="p-5 bg-white border border-[#dde4d4] rounded-2xl shadow-sm hover:border-[#ea580c] hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#ea580c] mb-1">Cloud vs Desktop</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  RollOS vs Trash Flow
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Upgrade from 1990s on-premise Windows desktop servers to modern cloud roll-off SaaS.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Read RollOS vs Trash Flow review</span>
+                <ArrowRight size={13} />
+              </div>
+            </Link>
+
+            <Link
+              href="/vs"
+              className="p-5 bg-[#f8faf6] border-2 border-dashed border-[#ea580c] rounded-2xl shadow-sm hover:bg-white hover:shadow-md transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-[#2e7d32] mb-1">All Alternatives</div>
+                <h4 className="text-base font-bold text-[#1f2d26] mb-2 group-hover:text-[#ea580c] transition-colors">
+                  View All Comparisons
+                </h4>
+                <p className="text-xs text-[#556658] leading-relaxed">
+                  Full comparison matrix covering Docket, ServiceCore, DRS, iCans, Bin Boss, CurbWaste, and Trash Flow.
+                </p>
+              </div>
+              <div className="pt-4 text-xs font-bold text-[#ea580c] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span>Explore all 7 software comparisons</span>
                 <ArrowRight size={13} />
               </div>
             </Link>
@@ -578,6 +654,9 @@ export default function Home() {
               </Link>
               <Link href="/blog/dumpster-rental-profit-margins" className="text-[#3b533f] hover:text-[#ea580c] underline">
                 Operator Profit Margins &amp; Benchmarks →
+              </Link>
+              <Link href="/blog/roll-off-truck-vs-dump-trailer" className="text-[#3b533f] hover:text-[#ea580c] underline">
+                Roll-Off Truck vs. Dump Trailer Guide →
               </Link>
             </div>
           </div>
