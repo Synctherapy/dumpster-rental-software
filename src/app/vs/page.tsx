@@ -36,6 +36,38 @@ export default function CompareHubPage() {
         {
           '@type': 'ListItem',
           position: 2,
+          name: 'RollOS vs iCans Dumpster Software',
+          url: 'https://rolloffdumpstersoftware.com/vs/icans',
+          description:
+            'Compare RollOS vs iCans: Pricing ($0/mo vs $99-$159/mo), SMS restrictions, payment gateway lock-in, and 1-tap driver SMS links.',
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'RollOS vs Bin Boss Software',
+          url: 'https://rolloffdumpstersoftware.com/vs/bin-boss',
+          description:
+            'Compare RollOS vs Bin Boss: Pricing ($0-$29/mo vs $99/mo + $40 site add-on), driver app store downloads vs SMS magic links, and scale overages.',
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: 'RollOS vs CurbWaste',
+          url: 'https://rolloffdumpstersoftware.com/vs/curbwaste',
+          description:
+            'Compare RollOS vs CurbWaste: Enterprise quote-gated fees ($1,000-$3,000+ setup) vs transparent $0-$149/mo plans and 3-minute self-serve start.',
+        },
+        {
+          '@type': 'ListItem',
+          position: 5,
+          name: 'RollOS vs Trash Flow Software',
+          url: 'https://rolloffdumpstersoftware.com/vs/trash-flow',
+          description:
+            'Compare RollOS vs Trash Flow: Modern cloud SaaS vs legacy on-premise Windows desktop server licensing ($900-$4,150+ setup and per-seat fees).',
+        },
+        {
+          '@type': 'ListItem',
+          position: 6,
           name: 'RollOS vs Dumpster Rental Systems (DRS)',
           url: 'https://rolloffdumpstersoftware.com/vs/dumpster-rental-systems',
           description:
@@ -43,7 +75,7 @@ export default function CompareHubPage() {
         },
         {
           '@type': 'ListItem',
-          position: 3,
+          position: 7,
           name: 'RollOS vs ServiceCore',
           url: 'https://rolloffdumpstersoftware.com/vs/servicecore',
           description:
@@ -57,7 +89,7 @@ export default function CompareHubPage() {
     {
       name: 'Docket Software',
       slug: '/vs/docket',
-      badge: 'Most Common Enterprise Alternative',
+      badge: 'Enterprise Alternative',
       summary:
         'Docket charges ~$299+/mo with mandatory sales demos, ~3.0% processing rates, and requires drivers to download native App Store apps. RollOS starts free at $0/mo with instant SMS web links.',
       savings: 'Save $3,500 – $5,000 / year',
@@ -65,6 +97,54 @@ export default function CompareHubPage() {
       setupFee: '$500 – $1,500 mandatory',
       driverApp: 'App Store / Play Store download',
       fleetCap: 'Tiered pricing by fleet size',
+    },
+    {
+      name: 'iCans Dumpster Software',
+      slug: '/vs/icans',
+      badge: 'High Search Competition',
+      summary:
+        'iCans charges $99 to $159/mo and locks SMS text messaging behind their $159/mo tier alongside Tiger Payment Solutions lock-in. RollOS offers $0/mo Free and $29/mo Starter with SMS links included.',
+      savings: 'Save $1,200 – $1,900 / year',
+      price: '$99 – $159/month',
+      setupFee: '$0',
+      driverApp: 'App Store download required',
+      fleetCap: 'Flat monthly tiers',
+    },
+    {
+      name: 'Bin Boss Software',
+      slug: '/vs/bin-boss',
+      badge: 'High Advertiser Bid ($47/click)',
+      summary:
+        'Bin Boss charges $99/mo flat plus $40/mo for a website, requiring drivers to download native mobile apps. RollOS provides free booking widgets, driver SMS links, and automated scale overage billing.',
+      savings: 'Save $1,200 – $1,600 / year',
+      price: '$99/month (+ $40/mo website)',
+      setupFee: '$0',
+      driverApp: 'App Store / Play Store download',
+      fleetCap: 'Unlimited users',
+    },
+    {
+      name: 'CurbWaste',
+      slug: '/vs/curbwaste',
+      badge: 'Enterprise Waste ERP',
+      summary:
+        'CurbWaste charges custom quote-based pricing (~$300–$600+/mo) with $1,000–$3,000+ onboarding and driver minimums. RollOS offers transparent $0–$149/mo plans and 3-minute self-serve start.',
+      savings: 'Save $4,000 – $7,000 / year',
+      price: 'Custom Quote (~$300+/mo)',
+      setupFee: '$1,000 – $3,000+ mandatory',
+      driverApp: 'App Store download required',
+      fleetCap: 'Enforces driver/truck minimums',
+    },
+    {
+      name: 'Trash Flow (Ivy Computer)',
+      slug: '/vs/trash-flow',
+      badge: 'Legacy Desktop Server Software',
+      summary:
+        'Trash Flow requires $900–$4,150+ in upfront modular software licenses, per-seat user fees, and on-premise Windows servers. RollOS is 100% cloud SaaS starting at $0/month with zero server hardware.',
+      savings: 'Save $4,000+ in setup & licensing',
+      price: '$900 – $4,150+ license (+12%/yr)',
+      setupFee: 'Hardware & setup costs',
+      driverApp: 'Printed sheets / add-ons',
+      fleetCap: 'Per-seat user licensing',
     },
     {
       name: 'Dumpster Rental Systems (DRS)',
