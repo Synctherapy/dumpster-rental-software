@@ -305,7 +305,7 @@ export default function DumpsterRentalProfitMarginsPage() {
                 Launch Savings Calculator <ArrowRight size={13} />
               </Link>
               <Link href="/pricing" className="btn btn-secondary text-xs">
-                View Pricing ($0, $29, $149)
+                View Pricing ($0, $29, $99)
               </Link>
             </div>
           </div>

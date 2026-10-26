@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       await mutateDemo((d) => {
         const isPaidPlan = d.organization.subscription_status === 'active';
         if (input.customer_fee_enabled === false && !isPaidPlan) {
-          throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+          throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($99/mo) plan.');
         }
         const feeEnabled = input.customer_fee_enabled ?? true;
         const existingCalendarToken =
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
       .single();
     const isPaid = orgData?.subscription_status === 'active';
     if (input.customer_fee_enabled === false && !isPaid) {
-      throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.');
+      throw new Error('Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($99/mo) plan.');
     }
     const existingCalendarToken =
       (orgData?.pricing_config as { calendar_token?: string } | undefined)?.calendar_token;

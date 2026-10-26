@@ -572,6 +572,28 @@ export function DriverRoute({ token }: { token: string }) {
                 </span>
               </div>
 
+              {job.is_swap && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '10px 12px',
+                    background: '#ecfdf5',
+                    border: '1px solid #6ee7b7',
+                    borderRadius: 8,
+                    color: '#065f46',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span>
+                    🔄 DUMP &amp; RETURN SWAP: Pull {job.swapped_from_container_label || 'full container'} &amp; drop replacement {job.size_yards}yd container
+                  </span>
+                </div>
+              )}
+
               {/* Specific Container Unit ID & Yard Stencil Selector */}
               <div style={{ marginTop: 12, marginBottom: 12, padding: 12, background: '#f5f8ef', borderRadius: 8, border: '1px solid #d4dfc7' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -1031,20 +1053,85 @@ export function DriverRoute({ token }: { token: string }) {
                     <div
                       style={{
                         marginTop: 8,
-                        padding: '6px 10px',
+                        padding: '8px 10px',
                         background: '#fef3c7',
                         border: '1px solid #fde68a',
                         borderRadius: 6,
                         fontSize: 11,
                         color: '#92400e',
                         fontWeight: 600,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
                       }}
                     >
-                      <AlertTriangle size={13} />
-                      Exceeds {job.tons_included} included tons by {(Number(weights[job.id] ?? job.tons_actual ?? 0) - job.tons_included).toFixed(2)} tons. Please attach scale ticket above for automated overage billing.
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <AlertTriangle size={13} style={{ flexShrink: 0 }} />
+                        <span>
+                          Exceeds {job.tons_included} included tons by {(Number(weights[job.id] ?? job.tons_actual ?? 0) - job.tons_included).toFixed(2)} tons. Please attach scale ticket for automated overage billing.
+                        </span>
+                      </div>
+                      {!job.scale_ticket_url && (
+                        <div style={{ marginTop: 8 }}>
+                          <label
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              background: '#d97706',
+                              color: '#ffffff',
+                              fontWeight: 700,
+                              fontSize: 11,
+                              padding: '7px 12px',
+                              borderRadius: 6,
+                              cursor: busy === job.id ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            <Camera size={13} />
+                            <span>📸 Snap Landfill Weight Slip Now</span>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,application/pdf"
+                              capture="environment"
+                              disabled={busy === job.id}
+                              style={{ display: 'none' }}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setPhotos({ ...photos, ['ticket-' + job.id]: file });
+                                setPhotoPreviews({
+                                  ...photoPreviews,
+                                  ['ticket-' + job.id]: URL.createObjectURL(file),
+                                });
+                                setBusy(job.id);
+                                try {
+                                  const form = new FormData();
+                                  form.set('photo', file);
+                                  form.set('job_id', job.id);
+                                  form.set('token', token);
+                                  const { url } = await api<{ url: string }>('/api/upload', {
+                                    method: 'POST',
+                                    body: form,
+                                  });
+                                  await api(`/api/driver/${token}`, {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                      job_id: job.id,
+                                      scale_ticket_url: url,
+                                      ...(weights[job.id] !== undefined && weights[job.id] !== ''
+                                        ? { tons_actual: Number(weights[job.id]) }
+                                        : {}),
+                                    }),
+                                  });
+                                  await reload();
+                                  setMessage('Scale ticket & disposal weight saved.');
+                                } catch (err) {
+                                  setError((err as Error).message);
+                                } finally {
+                                  setBusy(null);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      )}
                     </div>
                   )}
                   <small style={{ color: '#7a8e74', fontSize: 10, marginTop: 4, display: 'block' }}>

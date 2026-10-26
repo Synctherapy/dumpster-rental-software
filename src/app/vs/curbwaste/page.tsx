@@ -98,11 +98,11 @@ export default function CurbWasteComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Designed from the ground up for 1 to 25+ truck dumpster rental operations. Transparent <strong>dumpster rental software cost</strong> with our <strong>$0/month Free Plan</strong> ($12 customer reservation fee at checkout, 0% hauler commission, unlimited orders), Starter ($29/mo), and Growth ($149/mo). Get set up in 3 minutes with zero sales demo calls, 1-tap SMS driver routing, and automated billing for landfill tipping fee overages.
+              Designed from the ground up for 1 to 25+ truck dumpster rental operations. Transparent <strong>dumpster rental software cost</strong> with our <strong>$0/month Free Plan</strong> ($12 customer reservation fee at checkout, 0% hauler commission, unlimited orders), Starter ($29/mo), and Growth ($99/mo). Get set up in 3 minutes with zero sales demo calls, 1-tap SMS driver routing, and automated billing for landfill tipping fee overages.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($149/mo)
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($99/mo)
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> $0 onboarding fees · 3-minute self-serve start
@@ -155,7 +155,7 @@ export default function CurbWasteComparisonPage() {
           ]}
           rollosTagline="Self-serve roll-off dumpster software designed for 1 to 25+ truck haulers. Permanent $0/month Free Plan, zero setup fees, instant Stripe payouts, and 5-minute setup."
           rollosScreenshot="/images/screenshots/rollos-pricing-live.png"
-          rollosScreenshotAlt="RollOS transparent pricing page showing $0 Free Plan, $29 Starter, and $149 Growth plans"
+          rollosScreenshotAlt="RollOS transparent pricing page showing $0 Free Plan, $29 Starter, and $99 Growth plans"
           rollosBulletPoints={[
             "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
             "Zero setup fee, zero onboarding fee, and cancel anytime flexibility",
@@ -229,7 +229,7 @@ export default function CurbWasteComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 (Free) · $29 (Starter) · $149 (Growth)
+                    $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
                   <td className="text-[#b54848] font-semibold">Custom Quote (~$300 – $600+/mo)</td>
                 </tr>

@@ -20,6 +20,7 @@ import type * as SettingsRouteModule from '../src/app/api/settings/route';
 const {
   STARTER_SUBSCRIPTION_CENTS,
   GROWTH_SUBSCRIPTION_CENTS,
+  WINTER_HOLD_SUBSCRIPTION_CENTS,
   SUBSCRIPTION_CENTS,
   STARTER_TRIAL_DAYS,
   WEBSITE_SETUP_CENTS,
@@ -37,7 +38,8 @@ const { POST: settingsHandler } = req('../src/app/api/settings/route') as typeof
 
 test('tiered subscription pricing constants are correctly defined', () => {
   assert.equal(STARTER_SUBSCRIPTION_CENTS, 2900); // $29/mo
-  assert.equal(GROWTH_SUBSCRIPTION_CENTS, 14900); // $149/mo
+  assert.equal(GROWTH_SUBSCRIPTION_CENTS, 9900); // $99/mo
+  assert.equal(WINTER_HOLD_SUBSCRIPTION_CENTS, 1000); // $10/mo Winter Yard Hold
   assert.equal(SUBSCRIPTION_CENTS, 2900);
   assert.equal(STARTER_TRIAL_DAYS, 14); // 14-day free trial
   assert.equal(WEBSITE_SETUP_CENTS, 29900); // $299 one-time website
@@ -65,7 +67,7 @@ test('offline payment gating rejects when organization subscription is inactive'
       },
       {
         message:
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
       },
     );
 
@@ -77,7 +79,7 @@ test('offline payment gating rejects when organization subscription is inactive'
       },
       {
         message:
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
       },
     );
   }
@@ -122,7 +124,7 @@ test('container swap rejects when subscription is not active', async () => {
       await swapContainer(job.id, {}, 'http://localhost:3000');
     },
     {
-      message: 'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+      message: 'Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.',
     },
   );
 });
@@ -259,6 +261,26 @@ test('POST /api/billing route supports 14-day trial on Starter plan', async () =
   assert.equal(after.organization.subscription_status, 'active');
 });
 
+test('POST /api/billing with winter_hold sets subscription_status to winter_hold in demo mode', async () => {
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'active';
+  });
+
+  const req = new Request('http://localhost:3000/api/billing', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: 'winter_hold' }),
+  });
+
+  const res = await billingHandler(req);
+  assert.equal(res.status, 200);
+  const json = (await res.json()) as { url: string };
+  assert.ok(json.url.includes('billing=success'));
+
+  const after = await readDemo();
+  assert.equal(after.organization.subscription_status, 'winter_hold');
+});
+
 test('POST /api/billing route supports one-time add-on purchases (Website $299 & GBP $79)', async () => {
   await mutateDemo((d) => {
     d.organization.website_addon = false;
@@ -323,7 +345,7 @@ test('POST /api/settings rejects disabling customer fee when plan is inactive', 
   const json = (await res.json()) as { error: string };
   assert.equal(
     json.error,
-    'Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($149/mo) plan.',
+    'Disabling the $12 reservation fee requires an active Starter ($29/mo) or Growth ($99/mo) plan.',
   );
 });
 

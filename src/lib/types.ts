@@ -111,6 +111,9 @@ export interface Job {
   booking_key: string;
   pricing_snapshot: PricingRule;
   is_swap?: boolean;
+  is_commercial?: boolean;
+  swap_parent_job_id?: string | null;
+  swapped_from_container_label?: string | null;
   payment_type?: string | null;
   signed_by_customer?: boolean;
 }

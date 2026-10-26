@@ -17,9 +17,9 @@ import { Footer } from '@/components/footer';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 
 export const metadata = {
-  title: 'Dumpster Rental Software Pricing — Free, $29/mo & $149/mo Plans',
+  title: 'Dumpster Rental Software Pricing — Free, $29/mo & $99/mo Plans',
   description:
-    'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for contractor rates, or $149/mo Growth Fleet for Missed-Call SMS Auto-Textback and VIP Contractor Net-30 Portal.',
+    'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for contractor rates, or $99/mo Growth Fleet for Missed-Call SMS Auto-Textback and VIP Contractor Net-30 Portal, plus a $10/mo Winter Yard Hold for seasonal haulers.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/pricing',
   },
@@ -108,10 +108,10 @@ export default function PricingPage() {
                   <td>Contractor accounts add-on & $0 fees on offline orders</td>
                 </tr>
                 <tr className="bg-[#f8faf6]">
-                  <td className="font-bold text-[#065f46]">RollOS Growth Fleet ($149 / mo)</td>
-                  <td className="font-mono font-bold text-[#065f46]">$149 / mo</td>
+                  <td className="font-bold text-[#065f46]">RollOS Growth Fleet ($99 / mo)</td>
+                  <td className="font-mono font-bold text-[#065f46]">$99 / mo</td>
                   <td className="font-bold text-[#065f46]">$0 (Instant self-serve)</td>
-                  <td className="font-bold font-mono text-[#065f46]">$1,788 / yr ($3,600+ saved)</td>
+                  <td className="font-bold font-mono text-[#065f46]">$1,188 / yr ($4,200+ saved)</td>
                   <td>Missed-call SMS textback, VIP Contractor Net-30 portal & multi-truck routing</td>
                 </tr>
               </tbody>
@@ -119,12 +119,12 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Growth Fleet ($149/mo) High-ROI Feature Showcase */}
+        {/* Growth Fleet ($99/mo) High-ROI Feature Showcase */}
         <div className="mt-10 p-6 md:p-8 bg-gradient-to-br from-[#192720] to-[#121c17] text-white rounded-2xl border border-[#2a3c31] shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="inline-flex items-center gap-2 bg-[#23382c] text-[#86efac] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-[#345341]">
               <Sparkles size={14} />
-              Growth Fleet Plan ($149/mo) · High-ROI Automation
+              Growth Fleet Plan ($99/mo) · High-ROI Automation
             </div>
             <div className="text-xs text-[#a3b899] font-medium">
               Saves 2–3 lost rentals/mo ($900–$1,500 extra revenue)
@@ -132,7 +132,7 @@ export default function PricingPage() {
           </div>
 
           <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
-            Two features that make the $149/mo plan pay for itself in week one.
+            Two features that make the $99/mo plan pay for itself in week one.
           </h3>
           <p className="text-sm md:text-base text-[#b8c9b9] leading-relaxed max-w-3xl mb-8">
             Independent haulers lose thousands each month while behind the wheel or juggling commercial roofers. Growth Fleet automates your front-office phone and contractor accounts so you capture every single dollar.
@@ -175,7 +175,7 @@ export default function PricingPage() {
               </div>
 
               <div className="text-[11px] font-semibold text-[#86efac] flex items-center gap-1.5">
-                <CheckCircle2 size={14} /> Included in Growth Fleet ($149/mo)
+                <CheckCircle2 size={14} /> Included in Growth Fleet ($99/mo)
               </div>
             </div>
 
@@ -218,9 +218,27 @@ export default function PricingPage() {
               </div>
 
               <div className="text-[11px] font-semibold text-[#86efac] flex items-center gap-1.5">
-                <CheckCircle2 size={14} /> Included in Growth Fleet ($149/mo)
+                <CheckCircle2 size={14} /> Included in Growth Fleet ($99/mo)
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* $10/mo Winter Yard Hold Off-Season Freeze Guarantee */}
+        <div className="mt-8 p-6 bg-[#f0f9ff] border border-[#bae6fd] rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-3xl">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0369a1] bg-[#e0f2fe] px-2.5 py-0.5 rounded-full border border-[#7dd3fc]">
+              ❄️ Seasonal Hauler Off-Season Freeze Guarantee
+            </div>
+            <h3 className="text-base md:text-lg font-extrabold text-[#0c4a6e]">
+              $10/mo Winter Yard Hold — Never Pay Full Software Bills During Snow Season
+            </h3>
+            <p className="text-xs md:text-sm text-[#334155] leading-relaxed">
+              Hauling in the Midwest, Northeast, or northern markets where construction slows down between December and March? Pause your Starter or Growth plan with our <strong>$10/mo Winter Yard Hold</strong>. Your custom booking URL, VIP contractor accounts, historical customer records, and Google SEO pages stay 100% active while pausing dispatch billing until spring.
+            </p>
+          </div>
+          <div className="shrink-0 text-xs font-bold text-[#0369a1] bg-white px-4 py-2.5 rounded-xl border border-[#bae6fd] shadow-2xs">
+            ✓ 1-Click Winter Freeze in Settings
           </div>
         </div>
 

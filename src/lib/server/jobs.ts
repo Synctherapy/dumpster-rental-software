@@ -318,7 +318,7 @@ export async function changeJob(
       const demoData = await readDemo();
       if (demoData.organization.subscription_status !== 'active') {
         throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
     } else {
@@ -331,7 +331,7 @@ export async function changeJob(
         .single();
       if (orgData?.subscription_status !== 'active') {
         throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
     }
@@ -432,7 +432,7 @@ export async function changeJob(
       if (isOfflinePayment) {
         if (d.organization.subscription_status !== 'active') {
           throw new Error(
-            'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+            'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
           );
         }
         j.payment_type = rawPaymentType;
@@ -556,8 +556,8 @@ export async function changeJob(
 }
 export async function chargeInvoice(id: string) {
   const demo = isDemo();
-  if (demo)
-    return mutateDemo((d) => {
+  if (demo) {
+    const { payment, job, orgName, isNewCharge } = await mutateDemo((d) => {
       const job = d.jobs.find((j) => j.id === id);
       if (!job) throw new Error('Job not found');
       if (!['picked_up', 'completed'].includes(job.status))
@@ -568,7 +568,9 @@ export async function chargeInvoice(id: string) {
         throw new Error('Attach the landfill scale ticket before charging an overage.');
       const key = `invoice-${job.id}`;
       const existing = d.payments.find((p) => p.idempotency_key === key);
-      if (existing) return existing;
+      if (existing) {
+        return { payment: existing, job, orgName: d.organization.name, isNewCharge: false };
+      }
       const paid = d.payments
         .filter((p) => p.job_id === id && ['demo', 'succeeded'].includes(p.status))
         .reduce((s, p) => s + p.amount_cents - p.refunded_cents, 0);
@@ -587,8 +589,16 @@ export async function chargeInvoice(id: string) {
       };
       d.payments.push(payment);
       job.status = 'completed';
-      return payment;
+      return { payment, job, orgName: d.organization.name, isNewCharge: true };
     });
+    if (isNewCharge) {
+      const inv = invoice(job);
+      const appOrigin = process.env.APP_URL || 'http://localhost:3000';
+      const receiptSmsText = `Final receipt from ${orgName} for ${job.delivery_address}: $${(inv.total / 100).toFixed(2)} settled (${job.tons_actual ?? 0} tons recorded${inv.overage > 0 ? `, includes $${(inv.overage / 100).toFixed(2)} overage` : ''}). View itemized receipt & certified landfill scale ticket: ${appOrigin}/agreement/${job.id}`;
+      await sendSms(job.org_id, job.id, job.customer_phone, 'invoice_receipt', receiptSmsText);
+    }
+    return payment;
+  }
   const { db, member } = await identity();
   if (member.role !== 'owner') throw new Error('FORBIDDEN');
   const client = stripe();
@@ -657,6 +667,21 @@ export async function chargeInvoice(id: string) {
     );
   const { error } = await db.from('payments').select('id').eq('job_id', id);
   if (error) throw error;
+  try {
+    let orgName = 'RollOS Hauler';
+    try {
+      const { data: orgRow } = await db
+        .from('organizations')
+        .select('name')
+        .eq('id', member.org_id)
+        .single();
+      if (orgRow?.name) orgName = orgRow.name;
+    } catch {}
+    const inv = invoice(job);
+    const appOrigin = process.env.APP_URL || 'http://localhost:3000';
+    const receiptSmsText = `Final receipt from ${orgName} for ${job.delivery_address}: $${(inv.total / 100).toFixed(2)} settled (${job.tons_actual ?? 0} tons recorded${inv.overage > 0 ? `, includes $${(inv.overage / 100).toFixed(2)} overage` : ''}). View itemized receipt & certified landfill scale ticket: ${appOrigin}/agreement/${job.id}`;
+    await sendSms(job.org_id, job.id, job.customer_phone, 'invoice_receipt', receiptSmsText);
+  } catch {}
   return { stripe_payment_intent_id: pi.id, status: pi.status };
 }
 
@@ -681,13 +706,13 @@ export async function recordOfflinePayment(
     const demoData = await readDemo();
     if (demoData.organization.subscription_status !== 'active') {
       throw new Error(
-        'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
       );
     }
     return mutateDemo((d) => {
       if (d.organization.subscription_status !== 'active') {
         throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
       const job = d.jobs.find((j) => j.id === id);
@@ -721,7 +746,7 @@ export async function recordOfflinePayment(
 
   if (orgData?.subscription_status !== 'active') {
     throw new Error(
-      'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+      'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
     );
   }
 
@@ -780,14 +805,14 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     const demoData = await readDemo();
     if (demoData.organization.subscription_status !== 'active') {
       throw new Error(
-        'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+        'Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.',
       );
     }
 
     const result = await mutateDemo(async (d) => {
       if (d.organization.subscription_status !== 'active') {
         throw new Error(
-          'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
       const prevJob = d.jobs.find((j) => j.id === id);
@@ -813,8 +838,21 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
       const assignedDriverId = body.driver_id !== undefined ? body.driver_id : prevJob.driver_id;
       const initialStatus: JobStatus = assignedDriverId ? 'dispatched' : 'booked';
 
+      const replacementContainer = d.containers.find(
+        (c) =>
+          c.size_yards === targetSize &&
+          c.status === 'yard' &&
+          !c.current_job_id &&
+          c.id !== prevJob.container_id,
+      );
+      const swapJobId = randomUUID();
+      if (replacementContainer && initialStatus === 'dispatched') {
+        replacementContainer.status = 'on_site';
+        replacementContainer.current_job_id = swapJobId;
+      }
+
       const swapJob: Job = {
-        id: randomUUID(),
+        id: swapJobId,
         org_id: prevJob.org_id,
         customer_name: prevJob.customer_name,
         customer_phone: prevJob.customer_phone,
@@ -831,7 +869,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
         tons_actual: null,
         extra_day_cents: rule.extra_day_cents,
         driver_id: assignedDriverId ?? null,
-        container_id: null,
+        container_id: replacementContainer ? replacementContainer.id : null,
         notes: swapNotes,
         signature: {
           name: `${prevJob.customer_name} (Container Swap)`,
@@ -848,6 +886,9 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
         booking_key: randomUUID(),
         pricing_snapshot: rule,
         is_swap: true,
+        is_commercial: prevJob.is_commercial ?? true,
+        swap_parent_job_id: prevJob.id,
+        swapped_from_container_label: containerLabel,
       };
 
       d.jobs.unshift(swapJob);
@@ -882,7 +923,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
 
   if (orgData.subscription_status !== 'active') {
     throw new Error(
-      'Container swaps require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+      'Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.',
     );
   }
 
@@ -923,8 +964,18 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
   const assignedDriverId = body.driver_id !== undefined ? body.driver_id : prevJob.driver_id;
   const initialStatus: JobStatus = assignedDriverId ? 'dispatched' : 'booked';
 
+  const { data: yardContainers } = await admin()
+    .from('containers')
+    .select('*')
+    .eq('org_id', member.org_id)
+    .eq('size_yards', targetSize)
+    .eq('status', 'yard')
+    .is('current_job_id', null);
+  const replacementContainer = (yardContainers || []).find((c) => c.id !== prevJob.container_id);
+  const swapJobId = randomUUID();
+
   const swapJobRow: Record<string, unknown> = {
-    id: randomUUID(),
+    id: swapJobId,
     org_id: member.org_id,
     customer_name: prevJob.customer_name,
     customer_phone: prevJob.customer_phone,
@@ -941,7 +992,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     tons_actual: null,
     extra_day_cents: rule.extra_day_cents,
     driver_id: assignedDriverId ?? null,
-    container_id: null,
+    container_id: replacementContainer ? replacementContainer.id : null,
     notes: swapNotes,
     signature: {
       name: `${prevJob.customer_name} (Container Swap)`,
@@ -952,6 +1003,9 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     booking_key: randomUUID(),
     created_at: new Date().toISOString(),
     is_swap: true,
+    is_commercial: prevJob.is_commercial ?? true,
+    swap_parent_job_id: prevJob.id,
+    swapped_from_container_label: containerLabel,
   };
 
   let inserted: Job;
@@ -964,15 +1018,33 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
   if (insertAttempt.error) {
     const fallbackRow = { ...swapJobRow };
     delete fallbackRow.is_swap;
+    delete fallbackRow.is_commercial;
+    delete fallbackRow.swap_parent_job_id;
+    delete fallbackRow.swapped_from_container_label;
     const retry = await admin()
       .from('jobs')
       .insert(fallbackRow)
       .select('*')
       .single();
     if (retry.error) throw new Error(retry.error.message);
-    inserted = { ...(retry.data as Job), is_swap: true };
+    inserted = {
+      ...(retry.data as Job),
+      is_swap: true,
+      is_commercial: prevJob.is_commercial ?? true,
+      swap_parent_job_id: prevJob.id,
+      swapped_from_container_label: containerLabel,
+    };
   } else {
     inserted = insertAttempt.data as Job;
+  }
+
+  if (replacementContainer && initialStatus === 'dispatched') {
+    try {
+      await admin()
+        .from('containers')
+        .update({ status: 'on_site', current_job_id: inserted.id })
+        .eq('id', replacementContainer.id);
+    } catch {}
   }
 
   await recordBookingOccurred(member.org_id);

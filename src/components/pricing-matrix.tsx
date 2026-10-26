@@ -137,7 +137,7 @@ export function PricingMatrix() {
       ],
     },
     {
-      category: 'Growth & Contractor Automation ($149/mo Exclusive)',
+      category: 'Growth & Contractor Automation ($99/mo Exclusive)',
       features: [
         {
           name: 'Missed-Call SMS Auto-Textback (Instant Twilio text with booking link when driving)',
@@ -177,7 +177,7 @@ export function PricingMatrix() {
           name: 'Monthly Software Price',
           free: '$0 / month',
           starter: '$29 / month',
-          growth: '$149 / month',
+          growth: '$99 / month',
           bold: true,
         },
         {
@@ -191,6 +191,13 @@ export function PricingMatrix() {
           free: 'None (Cancel anytime)',
           starter: 'None (Cancel anytime)',
           growth: 'None (Cancel anytime)',
+        },
+        {
+          name: 'Seasonal Hauler Off-Season Freeze ($10/mo Winter Yard Hold)',
+          free: 'Always $0/mo',
+          starter: '$10/mo Winter Yard Hold',
+          growth: '$10/mo Winter Yard Hold',
+          highlight: true,
         },
       ],
     },
@@ -280,7 +287,7 @@ export function PricingMatrix() {
                 </div>
                 <div className="text-lg font-extrabold text-[#1f2d26]">Growth Fleet</div>
                 <div className="text-2xl font-black text-[#1f2d26] my-1">
-                  $149<span className="text-xs font-normal text-[#64748b]">/mo</span>
+                  $99<span className="text-xs font-normal text-[#64748b]">/mo</span>
                 </div>
                 <p className="text-[11px] text-[#475569] mb-3">Missed-call SMS textback, VIP Net-30 roofer portal &amp; fleet routing</p>
                 <Link
@@ -365,7 +372,7 @@ export function PricingMatrix() {
                 : 'text-[#475569]'
             }`}
           >
-            Growth ($149)
+            Growth ($99)
           </button>
         </div>
 
@@ -379,7 +386,7 @@ export function PricingMatrix() {
               : 'High Growth · Growth Fleet Plan'}
           </div>
           <div className="text-3xl font-black text-[#1f2d26]">
-            {mobilePlan === 'free' ? '$0' : mobilePlan === 'starter' ? '$29' : '$149'}
+            {mobilePlan === 'free' ? '$0' : mobilePlan === 'starter' ? '$29' : '$99'}
             <span className="text-xs font-normal text-[#64748b]">/month</span>
           </div>
           <p className="text-xs text-[#64748b] my-2">
@@ -399,7 +406,7 @@ export function PricingMatrix() {
               ? 'Start Free in 3 Mins'
               : mobilePlan === 'starter'
               ? 'Choose Starter ($29/mo)'
-              : 'Choose Growth ($149/mo)'}
+              : 'Choose Growth ($99/mo)'}
           </Link>
         </div>
 

@@ -513,6 +513,12 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     </Button>
                   )}
                   <Button asChild>
+                    <Link href={`/contractor/${data.organization.slug}`} target="_blank">
+                      <ShieldCheck size={13} />
+                      Contractor VIP Portal <ArrowUpRight size={12} />
+                    </Link>
+                  </Button>
+                  <Button asChild>
                     <Link href={`/book/${data.organization.slug}`} target="_blank">
                       <Globe size={13} />
                       Booking page <ArrowUpRight size={12} />

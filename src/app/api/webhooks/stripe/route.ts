@@ -68,11 +68,12 @@ export async function POST(request: Request) {
       const orgId = meta.org_id;
 
       if (session.mode === 'subscription' && orgId && session.subscription) {
+        const targetStatus = meta.plan === 'winter_hold' ? 'winter_hold' : 'active';
         if (isDemo()) {
           await mutateDemo((d) => {
             if (d.organization.id === orgId || !d.organization.stripe_subscription_id) {
               d.organization.stripe_subscription_id = session.subscription;
-              d.organization.subscription_status = 'active';
+              d.organization.subscription_status = targetStatus;
               if (meta.website === 'true') d.organization.website_addon = true;
               if (meta.gbp === 'true') d.organization.gbp_addon = true;
             }
@@ -81,12 +82,14 @@ export async function POST(request: Request) {
         if (db) {
           await db.from('organizations').update({
             stripe_subscription_id: session.subscription,
-            subscription_status: 'active',
+            subscription_status: targetStatus,
             ...(meta.website === 'true' ? { website_addon: true } : {}),
             ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
           }).eq('id', orgId);
         }
-        await checkAndTriggerPhoneProvisioning(orgId).catch(() => {});
+        if (targetStatus === 'active') {
+          await checkAndTriggerPhoneProvisioning(orgId).catch(() => {});
+        }
       } else if (orgId && (meta.website === 'true' || meta.gbp === 'true')) {
         if (isDemo()) {
           await mutateDemo((d) => {
@@ -109,7 +112,8 @@ export async function POST(request: Request) {
       if (meta.website === 'true') itemsPurchased.push('Done-For-You 24/7 Booking Website ($299)');
       if (meta.gbp === 'true') itemsPurchased.push('Google Maps 3-Pack Domination Kit ($79)');
       if (meta.plan === 'starter' && session.mode === 'subscription') itemsPurchased.push('Starter Plan (14-Day Free Trial)');
-      if (meta.plan === 'growth' && session.mode === 'subscription') itemsPurchased.push('Growth Fleet Plan ($149/mo)');
+      if (meta.plan === 'growth' && session.mode === 'subscription') itemsPurchased.push('Growth Fleet Plan ($99/mo)');
+      if (meta.plan === 'winter_hold' && session.mode === 'subscription') itemsPurchased.push('Winter Yard Hold ($10/mo)');
 
       if (itemsPurchased.length > 0 && orgId) {
         const customerName = meta.company || session.customer_details?.name || 'New Customer';

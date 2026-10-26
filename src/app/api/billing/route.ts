@@ -5,6 +5,7 @@ import { failure } from '@/lib/server/http';
 import {
   STARTER_SUBSCRIPTION_CENTS,
   GROWTH_SUBSCRIPTION_CENTS,
+  WINTER_HOLD_SUBSCRIPTION_CENTS,
   WEBSITE_SETUP_CENTS,
   GBP_3PACK_SETUP_CENTS,
   STARTER_TRIAL_DAYS,
@@ -65,7 +66,7 @@ function sanitizeRedirectUrl(
 export async function POST(request: Request) {
   try {
     let body: {
-      plan?: 'free' | 'starter' | 'growth';
+      plan?: 'free' | 'starter' | 'growth' | 'winter_hold';
       status?: string;
       addon?: 'website' | 'gbp';
       addons?: ('website' | 'gbp')[];
@@ -110,6 +111,8 @@ export async function POST(request: Request) {
       await mutateDemo((d) => {
         if (body?.status === 'inactive') {
           d.organization.subscription_status = 'inactive';
+        } else if (plan === 'winter_hold') {
+          d.organization.subscription_status = body?.status || 'winter_hold';
         } else if (plan === 'starter' || plan === 'growth' || (!plan && !hasWebsite && !hasGbp)) {
           d.organization.subscription_status = 'active';
         }
@@ -214,7 +217,11 @@ export async function POST(request: Request) {
       };
     }> = [];
 
-    const isSubscription = plan === 'starter' || plan === 'growth' || (!plan && !hasWebsite && !hasGbp);
+    const isSubscription =
+      plan === 'starter' ||
+      plan === 'growth' ||
+      plan === 'winter_hold' ||
+      (!plan && !hasWebsite && !hasGbp);
 
     if (plan === 'growth') {
       lineItems.push({
@@ -225,7 +232,21 @@ export async function POST(request: Request) {
           recurring: { interval: 'month' },
           product_data: {
             name: 'RollOS Growth Fleet',
-            description: '$149/month high-growth dumpster fleet automation. Cancel anytime.',
+            description: '$99/month high-growth dumpster fleet automation. Cancel anytime.',
+          },
+        },
+      });
+    } else if (plan === 'winter_hold') {
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency,
+          unit_amount: WINTER_HOLD_SUBSCRIPTION_CENTS,
+          recurring: { interval: 'month' },
+          product_data: {
+            name: 'RollOS Winter Yard Hold',
+            description:
+              '$10/month seasonal hold. Preserves your custom booking URL, customer data, and phone routing during winter months. Reactivate anytime.',
           },
         },
       });

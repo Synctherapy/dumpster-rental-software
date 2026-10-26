@@ -55,7 +55,7 @@ export default function CompareHubPage() {
           name: 'RollOS vs CurbWaste',
           url: 'https://rolloffdumpstersoftware.com/vs/curbwaste',
           description:
-            'Compare RollOS vs CurbWaste: Enterprise quote-gated fees ($1,000-$3,000+ setup) vs transparent $0-$149/mo plans and 3-minute self-serve start.',
+            'Compare RollOS vs CurbWaste: Enterprise quote-gated fees ($1,000-$3,000+ setup) vs transparent $0-$99/mo plans and 3-minute self-serve start.',
         },
         {
           '@type': 'ListItem',
@@ -127,7 +127,7 @@ export default function CompareHubPage() {
       slug: '/vs/curbwaste',
       badge: 'Enterprise Waste ERP',
       summary:
-        'CurbWaste charges custom quote-based pricing (~$300–$600+/mo) with $1,000–$3,000+ onboarding and driver minimums. RollOS offers transparent $0–$149/mo plans and 3-minute self-serve start.',
+        'CurbWaste charges custom quote-based pricing (~$300–$600+/mo) with $1,000–$3,000+ onboarding and driver minimums. RollOS offers transparent $0–$99/mo plans and 3-minute self-serve start.',
       savings: 'Save $4,000 – $7,000 / year',
       price: 'Custom Quote (~$300+/mo)',
       setupFee: '$1,000 – $3,000+ mandatory',

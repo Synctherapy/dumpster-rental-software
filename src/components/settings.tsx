@@ -2526,7 +2526,7 @@ export function Settings({
                           body: JSON.stringify({ plan: 'growth', status: 'active' }),
                         });
                         await reload();
-                        notify('Switched to Growth ($149/mo).');
+                        notify('Switched to Growth ($99/mo).');
                       } catch (e) {
                         notify((e as Error).message, true);
                       } finally {
@@ -2534,7 +2534,30 @@ export function Settings({
                       }
                     }}
                   >
-                    Growth ($149/mo)
+                    Growth ($99/mo)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={data.organization.subscription_status === 'winter_hold' ? 'primary' : 'ghost'}
+                    disabled={busy}
+                    style={{ fontSize: 12, padding: '6px 10px', minHeight: 30 }}
+                    onClick={async () => {
+                      setBusy(true);
+                      try {
+                        await api('/api/billing', {
+                          method: 'POST',
+                          body: JSON.stringify({ plan: 'winter_hold', status: 'winter_hold' }),
+                        });
+                        await reload();
+                        notify('Switched to Winter Yard Hold ($10/mo).');
+                      } catch (e) {
+                        notify((e as Error).message, true);
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    Winter Hold ($10/mo)
                   </Button>
                 </div>
               </div>
@@ -2619,7 +2642,7 @@ export function Settings({
                   Growth Fleet Plan
                 </h4>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#064e3b' }}>
-                  $149<span style={{ fontSize: 12, fontWeight: 500, color: '#047857' }}>/mo</span>
+                  $99<span style={{ fontSize: 12, fontWeight: 500, color: '#047857' }}>/mo</span>
                 </div>
               </div>
               <p style={{ fontSize: 11, color: '#047857', margin: '0 0 10px' }}>
@@ -2650,8 +2673,49 @@ export function Settings({
                 }}
               >
                 {data.organization.subscription_status === 'active'
-                  ? 'Switch to Growth Fleet ($149/mo)'
-                  : 'Start Growth Fleet Plan ($149/mo)'}
+                  ? 'Switch to Growth Fleet ($99/mo)'
+                  : 'Start Growth Fleet Plan ($99/mo)'}
+              </Button>
+            </div>
+
+            {/* Winter Yard Hold ($10/mo — Off-Season Freeze) */}
+            <div
+              style={{
+                border: '1px solid #bae6fd',
+                borderRadius: 10,
+                padding: '16px',
+                background: '#f0f9ff',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#0c4a6e' }}>
+                  Winter Yard Hold ($10/mo — Off-Season Freeze)
+                </h4>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#0c4a6e' }}>
+                  $10<span style={{ fontSize: 12, fontWeight: 500, color: '#0284c7' }}>/mo</span>
+                </div>
+              </div>
+              <p style={{ fontSize: 11.5, color: '#0369a1', margin: '0 0 14px', lineHeight: 1.6 }}>
+                Slowing down for December–March? Don&apos;t cancel and lose your custom booking link, SEO rankings, or contractor history. Freeze your account for $10/mo and reactivate in 1 click come spring.
+              </p>
+              <Button
+                style={{ width: '100%' }}
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    const { url } = await api<{ url: string }>('/api/billing', {
+                      method: 'POST',
+                      body: JSON.stringify({ plan: 'winter_hold' }),
+                    });
+                    window.location.assign(url);
+                  } catch (e) {
+                    notify((e as Error).message, true);
+                    setBusy(false);
+                  }
+                }}
+              >
+                Activate Winter Yard Hold ($10/mo)
               </Button>
             </div>
           </div>

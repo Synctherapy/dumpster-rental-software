@@ -71,7 +71,7 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built specifically for small and mid-size roll-off haulers (1–25+ trucks). Start free at $0/month, Starter at $29/month, or Growth at $149/month. Includes our 24/7{' '}
+              Built specifically for small and mid-size roll-off haulers (1–25+ trucks). Start free at $0/month, Starter at $29/month, or Growth at $99/month. Includes our 24/7{' '}
               <Link href="/features/online-booking" className="text-[#ea580c] font-semibold hover:underline">
                 dumpster rental online booking system
               </Link>{' '}
@@ -173,7 +173,7 @@ export default function DocketComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 (Free) · $29 (Starter) · $149 (Growth)
+                    $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
                   <td className="text-[#b54848] font-semibold">~$299+ / mo (Quote-based)</td>
                 </tr>

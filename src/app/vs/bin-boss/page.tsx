@@ -107,11 +107,11 @@ export default function BinBossComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Engineered specifically for 1 to 25+ truck <strong>dumpster rental businesses</strong>. Start on our <strong>$0/month Free Plan</strong> ($12 customer reservation fee, 0% hauler commission, 1-click absorb toggle), Starter ($29/mo), or Growth ($149/mo) on our transparent <Link href="/pricing" className="text-[#ea580c] font-semibold hover:underline">pricing page</Link>. Eliminates driver app friction with 1-tap SMS web links, includes a VIP contractor account customer portal, and triggers automated billing for landfill scale tickets.
+              Engineered specifically for 1 to 25+ truck <strong>dumpster rental businesses</strong>. Start on our <strong>$0/month Free Plan</strong> ($12 customer reservation fee, 0% hauler commission, 1-click absorb toggle), Starter ($29/mo), or Growth ($99/mo) on our transparent <Link href="/pricing" className="text-[#ea580c] font-semibold hover:underline">pricing page</Link>. Eliminates driver app friction with 1-tap SMS web links, includes a VIP contractor account customer portal, and triggers automated billing for landfill scale tickets.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($149/mo)
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($99/mo)
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> 1-Tap SMS web links (zero app store installs)
@@ -238,7 +238,7 @@ export default function BinBossComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 (Free) · $29 (Starter) · $149 (Growth)
+                    $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
                   <td className="font-semibold text-[#1f2d26]">$99 / month flat rate</td>
                 </tr>
@@ -273,7 +273,7 @@ export default function BinBossComparisonPage() {
                 <tr>
                   <td className="font-semibold">Contractor Account & Customer Portal</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
-                    Included ($29/mo Starter & $149/mo Growth)
+                    Included ($29/mo Starter & $99/mo Growth)
                   </td>
                   <td>Basic customer contact records</td>
                 </tr>

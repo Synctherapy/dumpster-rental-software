@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     template: '%s | RollOS',
   },
   description:
-    'Dumpster rental software for roll-off haulers. Free to start, then $29 or $149 a month. Online booking, dispatch, driver links, and tonnage billing. Stripe fees are separate.',
+    'Dumpster rental software for roll-off haulers. Free to start, then $29 or $99 a month. Online booking, dispatch, driver links, and tonnage billing. Stripe fees are separate.',
   openGraph: {
     title: 'Dumpster Rental Software for Roll-Off Haulers | RollOS',
     description:
-      'Dumpster rental software for roll-off haulers. Free to start, then $29 or $149 a month. Online booking, dispatch, driver links, and tonnage billing.',
+      'Dumpster rental software for roll-off haulers. Free to start, then $29 or $99 a month. Online booking, dispatch, driver links, and tonnage billing.',
     url: 'https://rolloffdumpstersoftware.com',
     siteName: 'RollOS',
     locale: 'en_US',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Dumpster Rental Software for Roll-Off Haulers | RollOS',
     description:
-      'Dumpster rental software for roll-off haulers. Free to start, then $29 or $149 a month. Online booking, dispatch, driver links, and tonnage billing.',
+      'Dumpster rental software for roll-off haulers. Free to start, then $29 or $99 a month. Online booking, dispatch, driver links, and tonnage billing.',
     images: ['/images/screenshots/roll-off-dumpster-dispatch-board-software.png'],
   },
   robots: allowIndexing

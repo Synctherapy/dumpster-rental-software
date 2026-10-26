@@ -93,6 +93,9 @@ export function seed(): Workspace {
       stripe_payment_method_id: null,
       booking_key: `seed-${i}`,
       pricing_snapshot: rule,
+      is_commercial: notes === 'Commercial demolition' || notes === 'Roofing project',
+      payment_type:
+        notes === 'Commercial demolition' || notes === 'Roofing project' ? 'net_30' : 'card',
     };
   });
   return {

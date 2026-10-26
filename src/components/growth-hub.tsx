@@ -90,15 +90,14 @@ export function GrowthHub({
     }
   };
 
-  const contractorLink = contractorName.trim()
-    ? `${bookingUrl}?contractor=${encodeURIComponent(contractorName.trim())}`
-    : `${bookingUrl}?contractor=Contractor`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const contractorLink = `${origin}/contractor/${data.organization.slug}?account=${encodeURIComponent(contractorName.trim() || 'Apex Roofing')}`;
 
   const copyContractorLink = async () => {
     try {
       await navigator.clipboard.writeText(contractorLink);
       setCopiedContractorLink(true);
-      notify('Contractor custom booking link copied to clipboard.');
+      notify('Contractor VIP 1-Tap Swap Portal link copied to clipboard.');
       setTimeout(() => setCopiedContractorLink(false), 3000);
     } catch {
       notify('Failed to copy. Please copy manually.', true);
@@ -457,16 +456,15 @@ export function GrowthHub({
           </span>
           <div>
             <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#1f2d26' }}>
-              Commercial Contractor Direct Booking Links
+              Contractor VIP 1-Tap Swap Portal &amp; Net-30 Link Generator
             </h3>
             <span style={{ fontSize: '12px', color: '#64748b' }}>
-              Give roofers, remodelers, and builders a custom link for instant 30-second dumpster orders.
+              Give roofers, remodelers, and builders a dedicated VIP portal for 1-tap swaps, zero-card drops, and consolidated monthly Net-30 statements.
             </span>
           </div>
         </div>
         <p style={{ fontSize: '13px', color: '#556658', lineHeight: 1.6, maxWidth: '780px', margin: '8px 0 16px 0' }}>
-          Tired of contractors texting you at 6:00 AM asking for a can? Generate a branded booking link for each contractor.
-          When they order, their company is automatically tagged, dispatch is notified with priority commercial routing, and 1-click dumpster swaps are ready on your board.
+          Tired of contractors texting you at 6:00 AM asking for a swap or complaining about 15 separate credit card receipts? Generate a dedicated <strong>VIP 1-Tap Swap Portal Link</strong> for each trade account. Foremen request dump-and-return swaps in 1 tap, and their bookkeeper gets one consolidated monthly Net-30 statement.
         </p>
 
         <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '16px', display: 'grid', gap: '14px' }}>
@@ -476,12 +474,12 @@ export function GrowthHub({
               <input
                 value={contractorName}
                 onChange={(e) => setContractorName(e.target.value)}
-                placeholder="e.g. Apex Roofing LLC or Miller Construction"
+                placeholder="e.g. Apex Roofing or Miller Construction"
                 style={{ background: '#ffffff' }}
               />
             </label>
             <label className="field" style={{ margin: 0 }}>
-              Generated Contractor Link
+              Contractor VIP 1-Tap Swap Portal Link
               <input
                 readOnly
                 value={contractorLink}
@@ -493,16 +491,16 @@ export function GrowthHub({
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#166534' }}>
               <ShieldCheck size={16} />
-              <span>Orders tag as <strong>{contractorName.trim() || 'Contractor Trade Account'}</strong> in dispatch board.</span>
+              <span>Swaps &amp; drops bill to <strong>{contractorName.trim() || 'Apex Roofing'}</strong> Consolidated Net-30 Statement.</span>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <Button onClick={copyContractorLink} variant="orange" style={{ fontSize: '12px' }}>
                 {copiedContractorLink ? <Check size={13} /> : <Copy size={13} />}
-                {copiedContractorLink ? 'Link Copied!' : 'Copy Contractor Link'}
+                {copiedContractorLink ? 'VIP Link Copied!' : 'Copy VIP Portal Link'}
               </Button>
-              <Button asChild variant="ghost" style={{ fontSize: '12px' }}>
-                <Link href={contractorLink} target="_blank">
-                  Test Link <ArrowUpRight size={13} />
+              <Button asChild variant="primary" style={{ fontSize: '12px', background: '#166534', color: '#fff' }}>
+                <Link href={`/contractor/${data.organization.slug}?account=${encodeURIComponent(contractorName.trim() || 'Apex Roofing')}`} target="_blank">
+                  Open VIP Contractor Portal <ArrowUpRight size={13} />
                 </Link>
               </Button>
             </div>
@@ -510,7 +508,7 @@ export function GrowthHub({
         </div>
       </section>
 
-      {/* Growth Fleet ($149/mo) Automation Engine: Missed-Call Textback & VIP Contractor Net-30 */}
+      {/* Growth Fleet ($99/mo) Automation Engine: Missed-Call Textback & VIP Contractor Net-30 */}
       <section
         className="panel"
         style={{
@@ -525,7 +523,7 @@ export function GrowthHub({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(214,239,124,0.15)', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', color: '#d6ef7c', fontWeight: 700, letterSpacing: '0.04em' }}>
             <Sparkles size={14} />
-            GROWTH FLEET AUTOMATION ($149/MO)
+            GROWTH FLEET AUTOMATION ($99/MO)
           </div>
           <span style={{ fontSize: '12px', color: '#86efac', fontWeight: 600 }}>
             🔥 Recovers 2–3 Lost Rentals/Mo ($900–$1,500 Extra Revenue)
@@ -589,7 +587,7 @@ export function GrowthHub({
 
             <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #284433', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#86efac' }}>
               <span>✓ Twilio instant integration</span>
-              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($149)</span>
+              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($99)</span>
             </div>
           </div>
 
@@ -647,7 +645,7 @@ export function GrowthHub({
 
             <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #284433', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#86efac' }}>
               <span>✓ Multi-truck route management</span>
-              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($149)</span>
+              <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($99)</span>
             </div>
           </div>
         </div>
@@ -671,13 +669,13 @@ export function GrowthHub({
               Ready to recover missed calls and lock in commercial accounts?
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
-              Upgrade to the Growth Fleet Plan ($149/mo) — just 1 recovered dumpster pays for 3 months.
+              Upgrade to the Growth Fleet Plan ($99/mo) — just 1 recovered dumpster pays for 4 months.
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <Button asChild variant="orange" style={{ fontSize: '13px', padding: '10px 18px' }}>
               <Link href="/settings">
-                Upgrade to Growth Fleet ($149/mo) <ArrowRight size={14} />
+                Upgrade to Growth Fleet ($99/mo) <ArrowRight size={14} />
               </Link>
             </Button>
           </div>

@@ -267,7 +267,7 @@ export default function RollOffTruckVsDumpTrailerPage() {
               Explore RollOS Platform <ArrowRight size={13} />
             </Link>
             <Link href="/pricing" className="btn btn-dark text-xs border border-[#2b4232]">
-              See Pricing ($0, $29, $149)
+              See Pricing ($0, $29, $99)
             </Link>
           </div>
         </div>

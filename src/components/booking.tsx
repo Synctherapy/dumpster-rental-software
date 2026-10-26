@@ -538,7 +538,7 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                   Demo booking · No real payment or delivery · Try Austin ZIP 78704
                 </div>
               )}
-              {contractorParam && (
+              {contractorParam ? (
                 <div
                   style={{
                     background: '#f0fdf4',
@@ -574,18 +574,51 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       </div>
                     </div>
                   </div>
-                  <span
+                  <Link
+                    href={`/contractor/${slug}?account=${encodeURIComponent(contractorParam)}`}
                     style={{
-                      fontSize: '11px',
-                      background: '#dcfce7',
-                      color: '#166534',
+                      fontSize: '11.5px',
+                      background: '#166534',
+                      color: '#ffffff',
                       fontWeight: 700,
-                      padding: '4px 10px',
+                      padding: '6px 12px',
                       borderRadius: '20px',
+                      textDecoration: 'none',
                     }}
                   >
-                    COMMERCIAL ACCOUNT
+                    Commercial Roofer or Contractor? Use the 1-Tap VIP Swap &amp; Net-30 Portal →
+                  </Link>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    background: '#f8faf6',
+                    border: '1px solid #dbe5d4',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    fontSize: '12px',
+                  }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#334839', fontWeight: 600 }}>
+                    <Truck size={14} style={{ color: '#4d7c0f' }} />
+                    Need multi-can jobsite drops or Net-30 billing?
                   </span>
+                  <Link
+                    href={`/contractor/${slug}`}
+                    style={{
+                      color: '#15803d',
+                      fontWeight: 700,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Commercial Roofer or Contractor? Use the 1-Tap VIP Swap &amp; Net-30 Portal →
+                  </Link>
                 </div>
               )}
               {data && !data.demo && !data.organization?.stripe_connected && !data.organization?.stripe_connect_account_id && (
@@ -1112,9 +1145,14 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                         <span style={{ fontWeight: 600 }}>{formatMoney(rule.base_price_cents)}</span>
                       </div>
                       {price?.reservationFee ? (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', color: '#4a5d4e' }}>
-                          <span>Guaranteed Delivery Date Reservation Fee:</span>
-                          <span style={{ fontWeight: 600 }}>{formatMoney(price.reservationFee)}</span>
+                        <div style={{ marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#4a5d4e' }}>
+                            <span>Guaranteed Delivery &amp; Container Lock:</span>
+                            <span style={{ fontWeight: 600 }}>{formatMoney(price.reservationFee)}</span>
+                          </div>
+                          <small style={{ display: 'block', fontSize: '10.5px', color: '#64748b' }}>
+                            Locks your container size &amp; delivery window in fleet inventory
+                          </small>
                         </div>
                       ) : null}
                       <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '5px', borderTop: '1px solid #dde4d4', fontWeight: 700, color: '#1f2d26' }}>
@@ -1239,8 +1277,13 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                 </div>
               )}
               {price && price.reservationFee > 0 && (
-                <div className="summary-line">
-                  <span>Priority dispatch & reservation</span>
+                <div className="summary-line" style={{ alignItems: 'flex-start' }}>
+                  <div>
+                    <span style={{ display: 'block' }}>Guaranteed Delivery &amp; Container Lock</span>
+                    <small style={{ display: 'block', fontSize: '10px', color: '#64748b', lineHeight: 1.3 }}>
+                      Locks your container size &amp; delivery window in fleet inventory
+                    </small>
+                  </div>
                   <strong>{formatMoney(price.reservationFee)}</strong>
                 </div>
               )}

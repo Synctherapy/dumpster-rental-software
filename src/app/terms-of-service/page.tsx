@@ -47,7 +47,7 @@ export default function SaasTerms() {
           ability to disable the customer reservation fee ($0 platform fee), two-way Google Calendar sync, and contractor custom rate sheets.
         </li>
         <li>
-          <strong>Growth Tier ($149/month):</strong> Unlocks automated customer delivery/pickup SMS notifications, Google 5-Star
+          <strong>Growth Tier ($99/month):</strong> Unlocks automated customer delivery/pickup SMS notifications, Google 5-Star
           review booster, custom branding, multi-yard management, and priority phone support.
         </li>
       </ul>

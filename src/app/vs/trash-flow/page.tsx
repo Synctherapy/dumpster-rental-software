@@ -99,11 +99,11 @@ export default function TrashFlowComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built specifically for 1 to 25+ truck roll-off hauler fleets. Start for $0/month on the <strong>Free Plan</strong> ($12 customer reservation fee, 0% hauler commission, unlimited orders, unlimited users, $0 setup fee), Starter ($29/mo), or Growth ($149/mo) on our software <Link href="/pricing" className="text-[#ea580c] font-semibold hover:underline">pricing page</Link>. Runs in any web browser on Mac, PC, iPad, or phone with zero server hardware, 1-tap SMS driver links, and automated billing for landfill dump fees.
+              Built specifically for 1 to 25+ truck roll-off hauler fleets. Start for $0/month on the <strong>Free Plan</strong> ($12 customer reservation fee, 0% hauler commission, unlimited orders, unlimited users, $0 setup fee), Starter ($29/mo), or Growth ($99/mo) on our software <Link href="/pricing" className="text-[#ea580c] font-semibold hover:underline">pricing page</Link>. Runs in any web browser on Mac, PC, iPad, or phone with zero server hardware, 1-tap SMS driver links, and automated billing for landfill dump fees.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($149/mo)
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($99/mo)
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Unlimited orders, unlimited users & zero setup fee
@@ -248,7 +248,7 @@ export default function TrashFlowComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 (Free) · $29 (Starter) · $149 (Growth)
+                    $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
                   <td>12%/yr support + $120/yr OSBU backup</td>
                 </tr>

@@ -174,7 +174,7 @@ export default function FeaturesHubPage() {
             <span>Test Live Booking Widget</span>
           </Link>
           <Link href="/pricing" className="text-xs text-[#556658] hover:text-[#1f2d26] underline ml-2">
-            View Transparent Pricing ($0, $29, $149/mo)
+            View Transparent Pricing ($0, $29, $99/mo)
           </Link>
         </div>
 
@@ -499,7 +499,7 @@ export default function FeaturesHubPage() {
               <ArrowRight size={14} />
             </Link>
             <Link href="/pricing" className="btn btn-secondary font-bold">
-              View Pricing ($0, $29, $149/mo)
+              View Pricing ($0, $29, $99/mo)
             </Link>
           </div>
         </div>

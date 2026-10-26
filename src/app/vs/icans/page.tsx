@@ -107,11 +107,11 @@ export default function ICansComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Built for 1 to 25+ truck roll-off hauler fleets. Transparent <strong>dumpster rental software cost</strong> with a <strong>$0/month Free Plan</strong> ($12 customer checkout fee, 0% hauler commission, unlimited orders, zero setup fee), Starter at $29/mo, or Growth at $149/mo. Includes instant 1-tap SMS driver links (zero App Store friction), a self-serve customer portal, direct Stripe card processing, and automated landfill tipping fee and scale ticket overage invoicing.
+              Built for 1 to 25+ truck roll-off hauler fleets. Transparent <strong>dumpster rental software cost</strong> with a <strong>$0/month Free Plan</strong> ($12 customer checkout fee, 0% hauler commission, unlimited orders, zero setup fee), Starter at $29/mo, or Growth at $99/mo. Includes instant 1-tap SMS driver links (zero App Store friction), a self-serve customer portal, direct Stripe card processing, and automated landfill tipping fee and scale ticket overage invoicing.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($149/mo)
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($99/mo)
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Unlimited orders & zero setup fee
@@ -244,7 +244,7 @@ export default function ICansComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 (Free) · $29 (Starter) · $149 (Growth)
+                    $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
                   <td className="text-[#b54848] font-semibold">$99/mo (Base) · $159/mo (Plus)</td>
                 </tr>

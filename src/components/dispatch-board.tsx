@@ -179,7 +179,7 @@ export function DispatchBoard({
                       aria-label={`Open ${job.customer_name} job`}
                     >
                       <div className="job-card-top">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                           <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd</span>
                           {job.is_swap && (
                             <span
@@ -198,6 +198,28 @@ export function DispatchBoard({
                               }}
                             >
                               🔄 SWAP
+                            </span>
+                          )}
+                          {(job.is_commercial ||
+                            job.payment_type === 'net_30' ||
+                            job.notes?.includes('VIP CONTRACTOR') ||
+                            job.notes?.includes('VIP Contractor')) && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#eff6ff',
+                                color: '#1d4ed8',
+                                border: '1px solid #bfdbfe',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              🏗️ VIP NET-30
                             </span>
                           )}
                         </div>
@@ -287,7 +309,7 @@ export function DispatchBoard({
                       <small>{j.delivery_address}</small>
                     </td>
                     <td>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <span className={`size-tag s${j.size_yards}`}>{j.size_yards} yd</span>
                         {j.is_swap && (
                           <span
@@ -306,6 +328,28 @@ export function DispatchBoard({
                             }}
                           >
                             🔄 SWAP
+                          </span>
+                        )}
+                        {(j.is_commercial ||
+                          j.payment_type === 'net_30' ||
+                          j.notes?.includes('VIP CONTRACTOR') ||
+                          j.notes?.includes('VIP Contractor')) && (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              background: '#eff6ff',
+                              color: '#1d4ed8',
+                              border: '1px solid #bfdbfe',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              letterSpacing: '0.02em',
+                            }}
+                          >
+                            🏗️ VIP NET-30
                           </span>
                         )}
                       </div>

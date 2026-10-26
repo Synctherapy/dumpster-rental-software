@@ -109,8 +109,8 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
   // 2. RollOS Annual Cost
   // Free: $0/mo (homeowner pays $12 booking fee at checkout)
   // Starter: $29/mo ($348/yr)
-  // Growth: $149/mo ($1,788/yr)
-  const rollosMonthlyCost = rollosPlan === 'free' ? 0 : rollosPlan === 'starter' ? 29 : 149;
+  // Growth: $99/mo ($1,188/yr)
+  const rollosMonthlyCost = rollosPlan === 'free' ? 0 : rollosPlan === 'starter' ? 29 : 99;
   const rollosAnnualCost = rollosMonthlyCost * 12;
 
   // 3. Direct Hard Software Savings (for SaaS comparisons)
@@ -335,7 +335,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
                     : 'bg-white text-[#556658] border-[#cbd5c4] hover:bg-[#f1f5ee]'
                 }`}
               >
-                Fleet ($149/mo)
+                Fleet ($99/mo)
                 <span className="block text-[10px] font-normal opacity-80 mt-0.5">
                   Multi-driver Fleet
                 </span>
@@ -348,7 +348,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               {rollosPlan === 'starter' &&
                 'Starter Plan ($29/mo): Adds offline cash/check logging & calendar sync. Customer pays $12 fee.'}
               {rollosPlan === 'growth' &&
-                'Fleet Plan ($149/mo): Adds unlimited driver logins & multi-truck dispatch. Customer pays $12 fee.'}
+                'Fleet Plan ($99/mo): Adds unlimited driver logins & multi-truck dispatch. Customer pays $12 fee.'}
             </p>
           </div>
         </div>

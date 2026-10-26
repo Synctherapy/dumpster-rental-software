@@ -198,8 +198,76 @@ export function JobDrawer({
             🔄 SWAP
           </span>
         )}
+        {(job.is_commercial ||
+          job.payment_type === 'net_30' ||
+          job.notes?.includes('VIP CONTRACTOR') ||
+          job.notes?.includes('VIP Contractor')) && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 700,
+              background: '#eff6ff',
+              color: '#1d4ed8',
+              border: '1px solid #bfdbfe',
+              padding: '2px 8px',
+              borderRadius: 4,
+            }}
+          >
+            🏗️ VIP NET-30 TRADE ACCOUNT
+          </span>
+        )}
         <strong style={{ fontSize: 19 }}>{money(job.price_cents)}</strong>
       </div>
+      {(job.is_commercial ||
+        job.payment_type === 'net_30' ||
+        job.notes?.includes('VIP CONTRACTOR') ||
+        job.notes?.includes('VIP Contractor')) && (
+        <div
+          style={{
+            marginBottom: 14,
+            padding: '10px 12px',
+            borderRadius: 8,
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.4 }}>
+            <strong style={{ display: 'block', fontSize: 12.5 }}>
+              Commercial Trade Account ({job.customer_name})
+            </strong>
+            <span>Billed to consolidated monthly Net-30 statement · 1-Tap Swap enabled</span>
+          </div>
+          <a
+            href={`/contractor/${data.organization.slug}?account=${encodeURIComponent(job.customer_name)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn"
+            style={{
+              fontSize: 11.5,
+              fontWeight: 700,
+              padding: '6px 10px',
+              background: '#1d4ed8',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 6,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            Open Contractor Portal & Net-30 Statement <ExternalLink size={11} />
+          </a>
+        </div>
+      )}
       <section className="drawer-section">
         <h3>Customer & delivery</h3>
         <p style={{ fontSize: 12, lineHeight: 1.8, color: '#7a8980' }}>
@@ -466,6 +534,38 @@ export function JobDrawer({
               Overage fee: <b>{money(total.overage)}</b>.
               {!scaleTicket && !job.scale_ticket_url ? ' Attach the landfill scale ticket below to charge the card on file.' : ' Scale ticket attached. Click below to charge the card on file.'}
             </span>
+            {!scaleTicket && !job.scale_ticket_url && (
+              <div style={{ marginTop: 8 }}>
+                <label
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: '#d97706',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: 11,
+                    padding: '7px 12px',
+                    borderRadius: 6,
+                    cursor: busy ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <span>📸 Snap / Attach Landfill Weight Slip Now (Prevents Chargebacks)</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,application/pdf"
+                    capture="environment"
+                    disabled={busy}
+                    style={{ display: 'none' }}
+                    onChange={(e) => e.target.files?.[0] && void upload(e.target.files[0], 'scale_ticket')}
+                  />
+                </label>
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: '#78350f', marginTop: 6, fontStyle: 'italic' }}>
+              Certified weight slip is automatically attached to the customer&apos;s final SMS receipt.
+            </div>
           </div>
         )}
         {tons !== '' && Number(tons) <= job.tons_included && (
@@ -1076,7 +1176,7 @@ export function JobDrawer({
               <Lock size={20} style={{ flexShrink: 0 }} />
               <div style={{ fontSize: 13, lineHeight: 1.5 }}>
                 1-click contractor swaps require an active <strong>Starter ($29/mo)</strong> or{' '}
-                <strong>Growth Fleet ($149/mo)</strong> plan.
+                <strong>Growth Fleet ($99/mo)</strong> plan.
               </div>
             </div>
             <p style={{ fontSize: 13, color: '#566657', margin: 0, lineHeight: 1.6 }}>

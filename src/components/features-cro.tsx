@@ -269,7 +269,7 @@ export function HaulerPersonas() {
         'Automated 2-way Google review SMS',
         'White-label customer booking experience',
       ],
-      cta: 'Explore Growth Plan ($149/mo)',
+      cta: 'Explore Growth Plan ($99/mo)',
       href: '/pricing',
     },
   ];

@@ -46,8 +46,12 @@ export async function GET(request: Request) {
     }
     let processed = 0;
     for (const org of orgs) {
-      // 1. Dedicated phone number 45-day inactivity warning & release
-      if (org.twilio_phone_number && org.last_booking_at) {
+      // 1. Dedicated phone number 45-day inactivity warning & release (exempt during Winter Yard Hold)
+      if (
+        org.twilio_phone_number &&
+        org.last_booking_at &&
+        org.subscription_status !== 'winter_hold'
+      ) {
         const lastBookingTime = new Date(org.last_booking_at).getTime();
         const daysSinceBooking = (Date.now() - lastBookingTime) / (1000 * 60 * 60 * 24);
 

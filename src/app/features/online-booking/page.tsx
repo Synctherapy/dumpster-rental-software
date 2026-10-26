@@ -338,7 +338,7 @@ export default function OnlineBookingFeaturePage() {
               Create Your Free Account <ArrowRight size={14} />
             </Link>
             <Link href="/pricing" className="btn btn-secondary">
-              View Pricing ($0, $29, $149/mo)
+              View Pricing ($0, $29, $99/mo)
             </Link>
           </div>
         </div>

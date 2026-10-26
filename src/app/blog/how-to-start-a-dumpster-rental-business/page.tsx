@@ -353,7 +353,7 @@ export default function HowToStartDumpsterBusinessPage() {
               Explore RollOS Dumpster Software <ArrowRight size={13} />
             </Link>
             <Link href="/pricing" className="btn btn-dark text-xs border border-[#2b4232]">
-              View Transparent Pricing ($0, $29, $149)
+              View Transparent Pricing ($0, $29, $99)
             </Link>
           </div>
         </div>

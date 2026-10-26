@@ -334,7 +334,7 @@ export function QuickOrderModal({
             </div>
             <p style={{ margin: 0, fontSize: 12, color: '#78350f', lineHeight: 1.5 }}>
               Accepting offline payments (Cash, Check, Net 30) requires an active{' '}
-              <strong>Starter ($29/mo)</strong> or <strong>Growth ($149/mo)</strong> plan. Please
+              <strong>Starter ($29/mo)</strong> or <strong>Growth ($99/mo)</strong> plan. Please
               select <strong>Credit / Debit Card (Stripe)</strong> or{' '}
               <Link
                 href="/settings"

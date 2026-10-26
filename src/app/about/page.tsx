@@ -166,7 +166,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-[#1f2d26] mb-2">2. Zero Contract Lock-In</h3>
                 <p className="text-sm text-[#556658] leading-relaxed">
-                  Start with a 100% free plan ($0/mo) to capture online bookings while you sleep. If you upgrade to Starter ($29/mo) or Growth ($149/mo), billing is month-to-month with 1-click cancellation. No annual handcuffs, no termination fees.
+                  Start with a 100% free plan ($0/mo) to capture online bookings while you sleep. If you upgrade to Starter ($29/mo) or Growth ($99/mo), billing is month-to-month with 1-click cancellation. No annual handcuffs, no termination fees.
                 </p>
               </div>
 

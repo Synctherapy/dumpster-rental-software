@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
       if (isOfflinePayment && org.subscription_status !== 'active') {
         throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
 
@@ -191,7 +191,7 @@ export async function POST(request: Request) {
         ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
       if (isOfflinePayment && org.subscription_status !== 'active') {
         throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($149/mo) plan.',
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
         );
       }
 

@@ -150,11 +150,11 @@ export function SoftwareApplicationSchema() {
           {
             '@type': 'Offer',
             name: 'Growth Plan',
-            price: '149',
+            price: '99',
             priceCurrency: 'USD',
             priceSpecification: {
               '@type': 'UnitPriceSpecification',
-              price: '149',
+              price: '99',
               priceCurrency: 'USD',
               unitText: 'MONTH',
             },
