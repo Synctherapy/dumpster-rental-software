@@ -2,7 +2,7 @@ import { WorkspaceApp } from '@/components/workspace-app';
 
 export const metadata = {
   robots: { index: false, follow: false },
-  title: 'Get More Clients | RollOS',
+  title: 'Get More Clients',
   description: 'Reputation booster, website embed, local SEO, and client acquisition tools.',
 };
 

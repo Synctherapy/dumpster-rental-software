@@ -5,7 +5,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill Format',
+  title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill',
   description:
     'Free commercial roll-off dumpster rental invoice template for haulers. Itemize base rental, extra days, certified scale slip weights, tare/gross math, and dispute-proof overages.',
   alternates: {

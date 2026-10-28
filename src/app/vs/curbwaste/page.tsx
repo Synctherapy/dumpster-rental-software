@@ -7,7 +7,7 @@ import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'CurbWaste Reviews & CurbWaste Pricing (2026): ERP vs. RollOS',
+  title: 'CurbWaste Reviews & Pricing: Free Self-Serve Cloud Alternative',
   description:
     'Read verified CurbWaste reviews and CurbWaste pricing ($300-$600+/mo + $1,500 setup) vs RollOS ($0/mo Free Plan) for 1 to 25+ truck roll-off haulers.',
   alternates: {

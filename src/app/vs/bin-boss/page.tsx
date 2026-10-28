@@ -7,7 +7,7 @@ import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Bin Boss Software vs. RollOS: 2026 Roll-Off Pricing & Review',
+  title: 'Bin Boss Software Reviews & Pricing: Top Dumpster Software Alternative',
   description:
     'Compare Bin Boss software ($99/mo) vs RollOS ($0/mo Free Plan). See why dumpster rental owners switch for automated billing, dump fees, and SMS dispatch.',
   alternates: {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Brand } from '@/components/brand';
 
 export const metadata = {
-  title: 'Privacy Policy | RollOS Dumpster Rental Software',
+  title: 'Privacy Policy',
   description: 'What RollOS collects from haulers and from their customers, and why.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/privacy',

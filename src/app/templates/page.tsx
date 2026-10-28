@@ -5,7 +5,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Free Dumpster Rental Legal & Business Templates | RollOS',
+  title: 'Free Dumpster Rental Legal & Business Templates',
   description:
     'Free contract agreements, liability waivers, and commercial invoice templates built for roll-off dumpster haulers. Protect your fleet and automate digital signatures.',
   alternates: {

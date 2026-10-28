@@ -5,7 +5,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Rental Contract Template — Free Hauler Agreement & Property Waiver',
+  title: 'Dumpster Rental Contract & Agreement Template — Free Waiver Format',
   description:
     'Free, copy-pasteable roll off dumpster rental contract agreement template. Complete with driveway damage waivers, prohibited hazardous waste clauses, and tonnage overage terms.',
   alternates: {

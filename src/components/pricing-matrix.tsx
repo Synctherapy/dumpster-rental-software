@@ -237,7 +237,10 @@ export function PricingMatrix() {
     <div className="w-full my-8">
       {/* 1. Desktop & Tablet View (Never Scrolls Horizontally) */}
       <div className="hidden md:block rounded-2xl border border-[#dde4d4] bg-white shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse table-fixed">
+        <table
+          className="w-full text-left border-collapse table-fixed whitespace-normal"
+          style={{ whiteSpace: 'normal' }}
+        >
           <colgroup>
             <col style={{ width: '40%' }} />
             <col style={{ width: '20%' }} />

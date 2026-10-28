@@ -16,7 +16,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Rental Business Guides & Industry Blueprints | RollOS Blog',
+  title: 'Dumpster Rental Business Guides & Industry Blueprints',
   description:
     'Practical, operator-tested guides for independent roll-off dumpster haulers. Learn startup costs, pricing formulas, truck vs trailer equipment, and profit margins.',
   alternates: {

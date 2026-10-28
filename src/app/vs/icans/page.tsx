@@ -7,7 +7,7 @@ import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'iCans Dumpster Software: 2026 Pricing, Demo & Top Alternatives | RollOS',
+  title: 'iCans Dumpster Software: 2026 Pricing, Demo & Top Alternative',
   description:
     'Compare iCans dumpster software ($99-$159/mo) vs RollOS ($0/mo Free Plan). See how small haulers get unlimited orders, SMS routing, and card processing.',
   alternates: {

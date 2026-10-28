@@ -6,7 +6,7 @@ import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Rental Software Comparisons (2026 Reviews) — RollOS vs Competitors',
+  title: 'Dumpster Rental Software Comparisons (2026 Reviews) — Top Competitors',
   description:
     'Compare RollOS against Docket, ServiceCore, and Dumpster Rental Systems (DRS). Transparent pricing from $0/month, driver SMS links, and 24/7 online booking.',
   alternates: {

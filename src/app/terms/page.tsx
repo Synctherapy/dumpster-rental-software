@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Brand } from '@/components/brand';
 
 export const metadata = {
-  title: 'Customer Dumpster Rental Terms & Conditions | RollOS',
+  title: 'Customer Dumpster Rental Terms & Conditions',
   description: 'Standard dumpster rental terms, property access, weight allowances, prohibited materials, and damage waivers.',
   robots: { index: false, follow: false },
 };

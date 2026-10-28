@@ -14,7 +14,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { WhatsAppButton, SupportEmailButton } from '@/components/founder-contact';
 
 export const metadata = {
-  title: 'About RollOS — Dumpster Rental Software for Small & Mid-Size Haulers',
+  title: 'About Our Team — Dumpster Rental Software for Haulers',
   description:
     'RollOS is a cloud-based roll-off dumpster rental, online booking, and fleet dispatch software built for small and mid-size waste haulers operating from 1 to 25+ trucks.',
   alternates: {

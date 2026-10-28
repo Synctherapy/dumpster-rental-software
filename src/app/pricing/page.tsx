@@ -17,7 +17,7 @@ import { Footer } from '@/components/footer';
 import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 
 export const metadata = {
-  title: 'Dumpster Rental Software Pricing — Free, $29/mo & $99/mo Plans',
+  title: 'Dumpster Rental Software Pricing & Costs — Free, $29 & $99 Plans',
   description:
     'Transparent dumpster rental software pricing. Start free at $0/month to get bookings while you sleep, $29/mo Starter for contractor rates, or $99/mo Growth Fleet for Missed-Call SMS Auto-Textback and VIP Contractor Net-30 Portal, plus a $10/mo Winter Yard Hold for seasonal haulers.',
   alternates: {

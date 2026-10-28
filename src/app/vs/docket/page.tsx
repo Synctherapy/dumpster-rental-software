@@ -7,7 +7,7 @@ import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'RollOS vs Docket Dumpster Software (2026 In-Depth Review) — Pricing & Features',
+  title: 'Docket Dumpster Software Reviews & Pricing: Best 2026 Alternative',
   description:
     'Comprehensive comparison of RollOS vs Docket dumpster software. Compare hidden pricing vs $0/mo Free / $29 Starter, driver SMS links vs App Store apps, and online booking.',
   alternates: {

@@ -5,7 +5,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Free Roll-Off Dumpster Business Tools & Calculators | RollOS',
+  title: 'Free Roll-Off Dumpster Business Tools & Calculators',
   description:
     'Free operational calculators and profitability tools for roll-off dumpster haulers. Calculate landfill tonnage overages, estimate software ROI, and protect your margins.',
   alternates: {

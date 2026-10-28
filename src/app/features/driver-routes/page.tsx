@@ -15,7 +15,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Driver Routing Software — 1-Tap SMS Links | RollOS',
+  title: 'Dumpster Driver Routing Software — 1-Tap SMS Links (No App)',
   description:
     'Dispatch roll-off drivers via 1-tap SMS web links with zero app store downloads. Turn-by-turn navigation, delivery photo proof, gate codes, and scale ticket uploads.',
   alternates: {

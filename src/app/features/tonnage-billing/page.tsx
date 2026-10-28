@@ -13,7 +13,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Tonnage Billing Software — Scale Ticket Invoicing | RollOS',
+  title: 'Dumpster Tonnage Billing Software — Scale Ticket Overages',
   description:
     'Automate disposal overage calculations and scale ticket invoicing. Attach landfill scale slips to customer invoices and charge credit cards on file with 1 click.',
   alternates: {

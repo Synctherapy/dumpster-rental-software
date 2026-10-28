@@ -26,7 +26,7 @@ import { CheckoutReceiptPreview } from '@/components/checkout-receipt-preview';
 import { FounderNoteSection } from '@/components/founder-contact';
 
 export const metadata = {
-  title: 'Dumpster Rental Software — Free Online Booking & Dispatch | RollOS',
+  title: 'Dumpster Rental Software — Free Online Booking & Dispatch',
   description:
     'Dumpster rental software that books jobs and collects payments while you sleep. Free 24/7 online booking widget, visual dispatch board, and SMS driver routes. $0/mo free plan.',
   alternates: {

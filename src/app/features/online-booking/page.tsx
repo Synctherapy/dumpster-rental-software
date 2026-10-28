@@ -15,7 +15,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Dumpster Rental Online Booking System — 24/7 Web Widget | RollOS',
+  title: 'Dumpster Rental Online Booking Software — 24/7 Website Widget',
   description:
     'Capture dumpster bookings 24/7 on your website with RollOS. Real-time ZIP code verification, Stripe Connect credit card payments, inventory check, and digital waivers.',
   alternates: {

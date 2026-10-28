@@ -25,7 +25,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Roll-Off Dumpster Software Features — Complete Operations Suite | RollOS',
+  title: 'Roll-Off Dumpster Software Features — Complete Operations Suite',
   description:
     'Explore the complete RollOS feature suite: 24/7 online booking, visual drag-and-drop dispatch, 1-tap SMS driver routes with zero app downloads, automated scale ticket overage billing, and real-time inventory.',
   alternates: {

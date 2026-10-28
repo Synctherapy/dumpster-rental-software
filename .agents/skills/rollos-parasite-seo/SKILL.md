@@ -19,7 +19,7 @@ Every parasite article across every platform MUST corroborate these exact facts 
 - **Pricing Tiers:**
   - **$0/month Free Plan:** 0% hauler commission; customer pays a flat $12 online checkout reservation fee (with 1-click "Absorb Fee" toggle).
   - **$29/month Starter Plan:** Includes 14-day free trial, commercial contractor Net-30 accounts, manual phone order dispatch, and $0-fee offline cash/check logging.
-  - **$149/month Growth Fleet Plan:** Multi-driver fleet automation, missed-call SMS auto-textback, and white-label contractor portals.
+  - **$99/month Growth Fleet Plan:** Multi-driver fleet automation, missed-call SMS auto-textback, and VIP Contractor Net-30 portals (plus $10/month Winter Yard Hold for seasonal haulers).
 - **Core Differentiators:**
   1. **60-Second 24/7 Online Booking Widget** (1-line embed or direct hosted link `rolloffdumpstersoftware.com/book/yourcompany`).
   2. **Visual Drag-and-Drop Dispatch Board** with serialized container yard inventory tracking.

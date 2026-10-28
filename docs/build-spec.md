@@ -1,12 +1,12 @@
 # Dumpster Rental SaaS — Vibe-Coded Build Spec
 
 Product: booking-first dumpster rental platform. Wedge: "the booking page that never sleeps."
-Monetization: 2 plans — Starter ($29/mo) and Growth Fleet ($149/mo). Customer pays $12 reservation fee at checkout. Hauler keeps 100% of dumpster rental revenue with 0% platform commission. The customer pays the base rental up front.
+Monetization: 2 plans — Starter ($29/mo) and Growth Fleet ($99/mo). Customer pays $12 reservation fee at checkout. Hauler keeps 100% of dumpster rental revenue with 0% platform commission. The customer pays the base rental up front.
 Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 
 ## Locked decisions
 
-- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Billing ($29/mo Starter, $149/mo Growth) + optional Stripe Connect (Express accounts, $12 customer reservation fee, 0% hauler commission) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
+- **Stack:** Next.js (App Router) + Supabase (Postgres + Auth) + Stripe Billing ($29/mo Starter, $99/mo Growth) + optional Stripe Connect (Express accounts, $12 customer reservation fee, 0% hauler commission) + Twilio SMS + Tailwind + shadcn/ui. Deploy on Vercel.
 - **Start from a boilerplate**, not zero: a Next.js SaaS starter with Supabase auth + Stripe Connect already wired. This saves ~2 weeks and most of the dangerous code is pre-written.
 - **One repo, git from prompt one.** Phase boundary rule: commit + working build before switching tools. Never switch tools on a broken build.
 - **Stripe test mode** until Phase 4 acceptance criteria pass. Real money touches nothing before then.
@@ -73,7 +73,7 @@ Builder: solo, medium-level vibe coder. Pro on Antigravity, Claude Code, Codex.
 ## Phase 6 — Hauler onboarding + launch (Antigravity)
 
 **Prompt:**
-> Self-serve onboarding a non-technical hauler completes in under 30 minutes: sign up → Stripe Connect Express onboarding → set pricing rules (guided form: sizes offered, base prices, included days/tons, overage rates, service zips) → add containers (count by size) → invite drivers (SMS invite) → get booking link + embed snippet with copy button. Build the marketing landing page (the money page): headline targeting "dumpster rental software", live demo booking widget embedded, pricing section (Starter $29/mo or Growth $149/mo + $12 customer booking fee — weaponize 100% rental retention vs competitors' hidden fees), FAQ. Deploy to production on Vercel with custom domain. Pre-launch checklist: Stripe live keys, webhook endpoints registered, Twilio live number, env vars, error tracking (Sentry).
+> Self-serve onboarding a non-technical hauler completes in under 30 minutes: sign up → Stripe Connect Express onboarding → set pricing rules (guided form: sizes offered, base prices, included days/tons, overage rates, service zips) → add containers (count by size) → invite drivers (SMS invite) → get booking link + embed snippet with copy button. Build the marketing landing page (the money page): headline targeting "dumpster rental software", live demo booking widget embedded, pricing section (Starter $29/mo or Growth $99/mo + $12 customer booking fee — weaponize 100% rental retention vs competitors' hidden fees), FAQ. Deploy to production on Vercel with custom domain. Pre-launch checklist: Stripe live keys, webhook endpoints registered, Twilio live number, env vars, error tracking (Sentry).
 
 **Acceptance:** a stranger can sign up, configure, and take a real booking without talking to you. **Launch.**
 

@@ -6,7 +6,7 @@ import { SavingsCalculator } from '@/components/savings-calculator';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'RollOS vs ServiceCore (2026 Comparison) — Dumpster Software Review',
+  title: 'ServiceCore Dumpster Software Alternative: Dedicated Roll-Off Tools',
   description:
     'Compare RollOS vs ServiceCore for dumpster rentals. Why pay per-truck fees for bloated septic software? RollOS offers dedicated roll-off tools from $0/month.',
   alternates: {

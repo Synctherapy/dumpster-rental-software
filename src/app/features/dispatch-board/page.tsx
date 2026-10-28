@@ -13,7 +13,7 @@ import { SemanticBreadcrumb } from '@/components/semantic-breadcrumb';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Roll-Off Dispatch Software — Visual Drag & Drop Board | RollOS',
+  title: 'Roll-Off Dispatch Software — Visual Drag & Drop Whiteboard',
   description:
     'Manage roll-off containers, drivers, swaps, and pickups with an intuitive drag-and-drop dispatch board. Track container locations, eliminate whiteboards, and prevent double-booking.',
   alternates: {
