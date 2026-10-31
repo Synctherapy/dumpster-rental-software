@@ -8,8 +8,9 @@ export async function sendEmail(
   template: string,
   subject: string,
   text: string,
+  uniqueness?: string,
 ) {
-  const log = await claimNotification(org_id, job_id, to, template, 'email');
+  const log = await claimNotification(org_id, job_id, to, template, 'email', uniqueness);
   if (!log) return 'already_logged';
   let status = isDemo() ? 'demo' : 'not_configured';
   if (!isDemo() && process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {

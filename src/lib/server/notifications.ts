@@ -10,6 +10,13 @@ export async function claimNotification(
   to: string,
   template: string,
   channel: 'sms' | 'email',
+  /**
+   * What makes this message distinct when the template repeats for the same
+   * recipient. Purchase alerts pass the Stripe session id: without it the key
+   * was constant per organization, so every alert after the first was
+   * discarded as a duplicate and never sent.
+   */
+  uniqueness?: string,
 ) {
   const log: Notification = {
     id: randomUUID(),
@@ -21,11 +28,15 @@ export async function claimNotification(
     status: 'processing',
     sent_at: new Date().toISOString(),
     dedupe_key: `${org_id}:${job_id ?? to}:${channel}:${template}${
-      template.includes('reminder') || template === 'driver_invite'
-        ? ':' + new Date().toISOString().slice(0, 10)
-        : template.includes('inbound') || template.includes('missed_call') || template.includes('autoreply')
-          ? ':' + randomUUID()
-          : ''
+      uniqueness
+        ? ':' + uniqueness
+        : template.includes('reminder') || template === 'driver_invite'
+          ? ':' + new Date().toISOString().slice(0, 10)
+          : template.includes('inbound') ||
+              template.includes('missed_call') ||
+              template.includes('autoreply')
+            ? ':' + randomUUID()
+            : ''
     }`,
   };
   if (isDemo())
@@ -58,8 +69,9 @@ export async function sendSms(
   to: string,
   template: string,
   body: string,
+  uniqueness?: string,
 ) {
-  const log = await claimNotification(org_id, job_id, to, template, 'sms');
+  const log = await claimNotification(org_id, job_id, to, template, 'sms', uniqueness);
   if (!log) return 'already_logged';
   const demo = isDemo();
   let status = demo ? 'demo' : 'not_configured';
@@ -116,6 +128,13 @@ export async function notifyAdminSignup(details: {
   const ntfyTopic = process.env.NTFY_TOPIC;
   const adminPhone = process.env.ADMIN_ALERT_PHONE;
   if (!ntfyTopic && !adminPhone) return;
+  // These bypass sendSms, so they have to check demo mode themselves. The
+  // signup action is unauthenticated in demo, which made this an unmetered way
+  // to put real messages on the operator's bill.
+  if (isDemo()) {
+    console.log('[Admin Signup Alert suppressed in demo mode]');
+    return;
+  }
 
   const name = details.name?.trim() || 'New hauler';
   const company = details.company?.trim() || 'Unspecified Company';
@@ -180,6 +199,10 @@ export async function notifyAdminPurchase(details: {
 }) {
   const ntfyTopic = process.env.NTFY_TOPIC;
   if (!ntfyTopic) return;
+  if (isDemo()) {
+    console.log('[Admin Purchase Alert suppressed in demo mode]');
+    return;
+  }
 
   const title = `New Paid Order (${details.totalPaid})`;
   const body = `${details.customerName} purchased:\n• ${details.items.join('\n• ')}\nTotal: ${details.totalPaid}\nContact: ${details.contactInfo}`;

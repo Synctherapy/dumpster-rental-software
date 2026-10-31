@@ -14,7 +14,13 @@ req.cache[serverOnlyPath] = {
 import type * as TokensModule from '../src/lib/server/tokens';
 import type * as ContractorLinkModule from '../src/app/api/contractor-link/route';
 
-const { contractorToken, verifyContractorToken, driverToken, verifyDriverToken } = req(
+const {
+  contractorToken,
+  verifyContractorToken,
+  driverToken,
+  verifyDriverToken,
+  driverLinkTtlMs,
+} = req(
   '../src/lib/server/tokens',
 ) as typeof TokensModule;
 const { POST: contractorLinkPost } = req(
@@ -94,4 +100,31 @@ test('POST /api/contractor-link rejects a cross-site caller', async () => {
   });
   const res = await contractorLinkPost(request);
   assert.equal(res.status, 403);
+});
+
+test('driver links last 24 hours by default, and respect DRIVER_LINK_TTL_HOURS', () => {
+  const previous = process.env.DRIVER_LINK_TTL_HOURS;
+  try {
+    delete process.env.DRIVER_LINK_TTL_HOURS;
+    assert.equal(driverLinkTtlMs(), 24 * 3600000, 'default must match the documented 24 hours');
+
+    process.env.DRIVER_LINK_TTL_HOURS = '72';
+    assert.equal(driverLinkTtlMs(), 72 * 3600000);
+
+    // Out-of-range and nonsense values fall back rather than granting a long link.
+    for (const bad of ['0', '-5', '100000', 'forever', '']) {
+      process.env.DRIVER_LINK_TTL_HOURS = bad;
+      assert.equal(driverLinkTtlMs(), 24 * 3600000, `${bad || '(empty)'} must fall back to 24h`);
+    }
+  } finally {
+    if (previous === undefined) delete process.env.DRIVER_LINK_TTL_HOURS;
+    else process.env.DRIVER_LINK_TTL_HOURS = previous;
+  }
+});
+
+test('a driver token issued now expires within the configured window', () => {
+  const token = driverToken('org-1', 'driver-1');
+  const claim = verifyDriverToken(token);
+  const hours = (claim.exp - Date.now()) / 3600000;
+  assert.ok(hours > 23 && hours <= 24, `expected ~24h, got ${hours.toFixed(2)}h`);
 });

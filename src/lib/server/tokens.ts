@@ -7,7 +7,21 @@ function secret() {
   if (isDemo()) return 'local-demo-only-never-use-with-real-customer-data';
   throw new Error('DRIVER_TOKEN_SECRET must contain at least 32 characters.');
 }
-export function driverToken(org: string, driver: string, ttlMs: number = 30 * 86400000) {
+/**
+ * Driver links are bearer URLs sent over SMS that expose customer names,
+ * addresses and phone numbers, so they are short-lived. The README promises 24
+ * hours; the default was 30 days and every caller used the default. Dispatch
+ * sends a fresh link when a job is dispatched, and the daily reminder sends one
+ * for tomorrow's work, so a driver normally always has a current link. Raise
+ * DRIVER_LINK_TTL_HOURS if your crews need longer.
+ */
+export function driverLinkTtlMs() {
+  const hours = Number(process.env.DRIVER_LINK_TTL_HOURS);
+  if (Number.isFinite(hours) && hours >= 1 && hours <= 720) return hours * 3600000;
+  return 24 * 3600000;
+}
+
+export function driverToken(org: string, driver: string, ttlMs: number = driverLinkTtlMs()) {
   const payload = Buffer.from(JSON.stringify({ org, driver, exp: Date.now() + ttlMs })).toString(
     'base64url',
   );

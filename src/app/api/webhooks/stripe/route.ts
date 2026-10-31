@@ -132,6 +132,7 @@ export async function POST(request: Request) {
             'admin_addon_purchase',
             alertSubject,
             alertBody,
+            event.id,
           ).catch(() => {});
         }
 
@@ -143,6 +144,7 @@ export async function POST(request: Request) {
             adminPhone,
             'admin_addon_purchase',
             `🚨 RollOS Alert: ${customerName} purchased ${itemsPurchased.join(' + ')} (${totalPaid}). Contact: ${contactInfo}`,
+            event.id,
           ).catch(() => {});
         }
 
@@ -211,13 +213,20 @@ export async function POST(request: Request) {
     }
 
     if (event.type === 'invoice.payment_failed') {
-      const invoice = event.data.object as {
+      // Stripe moved the subscription off the invoice root in API 2025-03-31
+      // (basil); this SDK pins 2026-09-30 (endive), where it lives under
+      // parent.subscription_details. Reading the old location meant subId was
+      // always undefined, so no organization was ever marked past_due. The
+      // older shapes are kept for any event replayed from an older API version.
+      const invoice = event.data.object as Stripe.Invoice & {
         subscription?: string | { id?: string } | null;
       };
+      const parentSub = invoice.parent?.subscription_details?.subscription;
       const subId =
-        typeof invoice.subscription === 'string'
+        (typeof parentSub === 'string' ? parentSub : parentSub?.id) ??
+        (typeof invoice.subscription === 'string'
           ? invoice.subscription
-          : invoice.subscription?.id;
+          : invoice.subscription?.id);
       if (subId) {
         if (isDemo()) {
           await mutateDemo((d) => {
