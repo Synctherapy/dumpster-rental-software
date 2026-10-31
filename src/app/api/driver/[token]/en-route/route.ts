@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { verifyDriverToken } from '@/lib/server/tokens';
+import { verifyActiveDriverToken } from '@/lib/server/tokens';
 import { isDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { sendSms } from '@/lib/server/notifications';
@@ -7,10 +7,10 @@ import { assertSameOrigin, failure } from '@/lib/server/http';
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     assertSameOrigin(request);
-    const t = verifyDriverToken((await params).token);
+    const t = await verifyActiveDriverToken((await params).token);
     const { job_id } = await request.json();
     const job = isDemo()
-      ? (await readDemo()).jobs.find((j) => j.id === job_id)
+      ? (await readDemo(t.sid)).jobs.find((j) => j.id === job_id)
       : (
           await admin()
             .from('jobs')

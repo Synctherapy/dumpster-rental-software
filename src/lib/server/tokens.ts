@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { isDemo } from './store';
+import { isDemo, readDemo } from './store';
+import { admin } from './supabase';
 function secret() {
   const s = process.env.DRIVER_TOKEN_SECRET;
   if (s && s.length >= 32) return s;
@@ -79,13 +80,38 @@ export function latestActivePickup(
   return active.length ? active[active.length - 1] : null;
 }
 
-export function driverToken(org: string, driver: string, ttlMs: number = driverLinkTtlMs()) {
-  const payload = Buffer.from(JSON.stringify({ org, driver, exp: Date.now() + ttlMs })).toString(
-    'base64url',
-  );
+export function driverToken(
+  org: string,
+  driver: string,
+  ttlMs: number = driverLinkTtlMs(),
+  /**
+   * The demo sandbox this link belongs to. A driver opens the link on their own
+   * phone, which carries no sandbox cookie, so without this the link would read
+   * different sample data than the dashboard that issued it — and a
+   * cancellation made in the dashboard would appear to do nothing.
+   */
+  sandbox?: string | null,
+) {
+  const now = Date.now();
+  const payload = Buffer.from(
+    JSON.stringify({
+      org,
+      driver,
+      iat: now,
+      exp: now + ttlMs,
+      ...(sandbox ? { sid: sandbox } : {}),
+    }),
+  ).toString('base64url');
   return payload + '.' + createHmac('sha256', secret()).update(payload).digest('base64url');
 }
-export function verifyDriverToken(token: string): { org: string; driver: string; exp: number } {
+export function verifyDriverToken(token: string): {
+  org: string;
+  driver: string;
+  exp: number;
+  iat?: number;
+  /** The demo sandbox this link was issued from, if any. */
+  sid?: string;
+} {
   const [payload, signature] = token.split('.');
   if (!payload || !signature) throw new Error('Invalid driver link');
   const actual = Buffer.from(signature, 'base64url');
@@ -100,14 +126,52 @@ export function verifyDriverToken(token: string): { org: string; driver: string;
   return data;
 }
 
-export function contractorToken(
-  org: string,
-  account: string,
-  ttlMs: number = 90 * 86400000,
-) {
-  const payload = Buffer.from(
-    JSON.stringify({ org, account, exp: Date.now() + ttlMs }),
-  ).toString('base64url');
+const REVOKED_MESSAGE = 'This route link was cancelled. Ask your dispatcher for a new one.';
+
+/**
+ * Whether the hauler has cancelled this driver's links since the token was
+ * issued. A token minted before links carried an issue time has none, so once a
+ * driver has been revoked those older links are refused as well: the safe
+ * reading of "we do not know when this was issued" is "assume it is old".
+ */
+export async function assertDriverLinkActive(claim: {
+  org: string;
+  driver: string;
+  iat?: number;
+  sid?: string;
+}) {
+  let revokedAt: string | null | undefined;
+  if (isDemo()) {
+    const d = await readDemo(claim.sid);
+    revokedAt = d.users.find((u) => u.id === claim.driver)?.links_revoked_at ?? null;
+  } else {
+    const { data, error } = await admin()
+      .from('users')
+      .select('links_revoked_at')
+      .eq('id', claim.driver)
+      .eq('org_id', claim.org)
+      .maybeSingle();
+    // A driver who is no longer on this organization's crew has no route.
+    if (error || !data) throw new Error(REVOKED_MESSAGE);
+    revokedAt = data.links_revoked_at;
+  }
+  if (!revokedAt) return;
+  const revoked = Date.parse(revokedAt);
+  if (!Number.isFinite(revoked)) return;
+  if (claim.iat === undefined || claim.iat <= revoked) throw new Error(REVOKED_MESSAGE);
+}
+
+/** Signature, expiry and revocation in one step, for every route-link caller. */
+export async function verifyActiveDriverToken(token: string) {
+  const claim = verifyDriverToken(token);
+  await assertDriverLinkActive(claim);
+  return claim;
+}
+
+export function contractorToken(org: string, account: string, ttlMs: number = 90 * 86400000) {
+  const payload = Buffer.from(JSON.stringify({ org, account, exp: Date.now() + ttlMs })).toString(
+    'base64url',
+  );
   return payload + '.' + createHmac('sha256', secret()).update(payload).digest('base64url');
 }
 

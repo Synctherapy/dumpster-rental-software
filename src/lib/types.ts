@@ -56,6 +56,9 @@ export interface User {
   name: string;
   phone: string;
   role: Role;
+  email?: string | null;
+  /** Route links issued at or before this time are refused. */
+  links_revoked_at?: string | null;
 }
 export interface Container {
   id: string;

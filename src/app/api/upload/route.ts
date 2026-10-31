@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { isDemo, readDemo } from '@/lib/server/store';
 import { admin, identity } from '@/lib/server/supabase';
-import { verifyDriverToken } from '@/lib/server/tokens';
+import { verifyActiveDriverToken } from '@/lib/server/tokens';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
 export async function POST(request: Request) {
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     let org: string;
     let driver: string | null = null;
     if (token) {
-      const t = verifyDriverToken(String(token));
+      const t = await verifyActiveDriverToken(String(token));
       org = t.org;
       driver = t.driver;
     } else if (isDemo()) org = (await readDemo()).organization.id;

@@ -315,7 +315,7 @@ export async function changeJob(
   id: string,
   input: unknown,
   origin: string,
-  driverIdentity?: { org: string; driver: string },
+  driverIdentity?: { org: string; driver: string; sid?: string },
 ) {
   const patch = changeSchema.parse(input);
   const demo = isDemo();
@@ -368,6 +368,9 @@ export async function changeJob(
     throw new Error('FORBIDDEN');
   if (!demo && patch.status === 'completed')
     throw new Error('Use the invoice payment action to close this job.');
+  const demoSandbox = demo
+    ? (driverIdentity?.sid ?? (await import('./store').then((m) => m.getDemoSessionId())))
+    : null;
   if (demo) {
     job = await mutateDemo(async (d) => {
       const j = d.jobs.find((j) => j.id === id);
@@ -483,7 +486,7 @@ export async function changeJob(
       Object.assign(j, patch);
       j.price_cents = quote(j.pricing_snapshot, j.delivery_date, j.pickup_date, 100).total;
       return j;
-    });
+    }, demoSandbox ?? undefined);
   } else {
     const db = admin();
     let org: string;
@@ -545,7 +548,9 @@ export async function changeJob(
     }
   }
   if (patch.status === 'dispatched') {
-    const d = demo ? await import('./store').then((m) => m.readDemo()) : null;
+    const d = demo
+      ? await import('./store').then((m) => m.readDemo(demoSandbox ?? undefined))
+      : null;
     const driver = demo
       ? d!.users.find((u) => u.id === job.driver_id)
       : (await admin().from('users').select('*').eq('id', job.driver_id!).single()).data;
@@ -559,6 +564,7 @@ export async function changeJob(
           job.org_id,
           driver.id,
           driverLinkTtlForPickup(job.pickup_date),
+          demoSandbox,
         )}`,
       );
   }

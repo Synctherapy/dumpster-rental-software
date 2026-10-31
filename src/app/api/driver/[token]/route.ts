@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { verifyDriverToken } from '@/lib/server/tokens';
+import { verifyActiveDriverToken } from '@/lib/server/tokens';
 import { isDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { changeJob } from '@/lib/server/jobs';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 export async function GET(_: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
-    const t = verifyDriverToken((await params).token);
+    const t = await verifyActiveDriverToken((await params).token);
     if (isDemo()) {
-      const d = await readDemo();
+      const d = await readDemo(t.sid);
       return NextResponse.json({
         driver: d.users.find((u) => u.id === t.driver),
         jobs: d.jobs.filter(
@@ -34,10 +34,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
       .eq('driver_id', t.driver)
       .in('status', ['dispatched', 'delivered', 'picked_up']);
     if (error) throw error;
-    const { data: containers } = await db
-      .from('containers')
-      .select('*')
-      .eq('org_id', t.org);
+    const { data: containers } = await db.from('containers').select('*').eq('org_id', t.org);
     const { data: driver } = await db
       .from('users')
       .select('name')
@@ -67,7 +64,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     assertSameOrigin(request);
-    const t = verifyDriverToken((await params).token);
+    const t = await verifyActiveDriverToken((await params).token);
     const { job_id, ...patch } = await request.json();
     return NextResponse.json(
       await changeJob(job_id, patch, process.env.APP_URL || new URL(request.url).origin, t),
