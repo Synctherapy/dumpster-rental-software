@@ -140,6 +140,11 @@ export interface Notification {
   sent_at: string;
   dedupe_key?: string;
 }
+export interface SmsOptOut {
+  phone: string;
+  opted_out_at: string;
+  source?: string;
+}
 export interface Workspace {
   organization: Organization;
   users: User[];
@@ -148,6 +153,8 @@ export interface Workspace {
   payments: Payment[];
   pricing_rules: PricingRule[];
   notifications_log: Notification[];
+  /** Optional so demo files written before opt-out tracking still load. */
+  sms_opt_outs?: SmsOptOut[];
   demo: boolean;
 }
 export const statuses: JobStatus[] = [

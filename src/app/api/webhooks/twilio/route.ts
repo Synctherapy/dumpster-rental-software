@@ -4,6 +4,15 @@ import twilio from 'twilio';
 import { isDemo, readDemo, mutateDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { sendSms, finishNotification } from '@/lib/server/notifications';
+import {
+  OPT_OUT_KEYWORDS,
+  OPT_IN_KEYWORDS,
+  NO_AUTO_REPLY_KEYWORDS,
+  messageKeyword,
+  recordOptOut,
+  clearOptOut,
+  isOptedOut,
+} from '@/lib/server/opt-outs';
 import type { Notification, Organization } from '@/lib/types';
 
 function escapeXml(unsafe: string): string {
@@ -25,7 +34,6 @@ function escapeXml(unsafe: string): string {
   });
 }
 
-const BOT_OR_OPT_OUT_KEYWORDS = new Set(['STOP', 'UNSUBSCRIBE', 'CANCEL', 'QUIT', 'HELP']);
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const MAX_AUTO_REPLIES_PER_HOUR = 3;
 
@@ -113,10 +121,15 @@ export async function POST(request: Request) {
       const text = `RollOS Alert: Inbound message from ${From}: "${Body}"`;
       await sendSms(org.id, null, org.phone, 'inbound_forward', text);
 
-      // Check for carrier/bot opt-out keywords (case-insensitive)
-      const cleanBody = Body.trim().replace(/[!.,;:?]+$/, '').toUpperCase();
-      const isBotOrOptOut = BOT_OR_OPT_OUT_KEYWORDS.has(cleanBody);
-      const allowAutoReply = !isBotOrOptOut && checkAndRecordAutoReplyRateLimit(From);
+      // Honour the keyword the customer sent, and remember it.
+      const keyword = messageKeyword(Body);
+      if (OPT_OUT_KEYWORDS.has(keyword)) {
+        await recordOptOut(org.id, From);
+      } else if (OPT_IN_KEYWORDS.has(keyword)) {
+        await clearOptOut(org.id, From);
+      }
+      const allowAutoReply =
+        !NO_AUTO_REPLY_KEYWORDS.has(keyword) && checkAndRecordAutoReplyRateLimit(From);
 
       if (allowAutoReply) {
         const xml = `<Response><Message>Thank you! We have forwarded your message to ${escapeXml(org.name)}.</Message></Response>`;
@@ -147,7 +160,7 @@ export async function POST(request: Request) {
       let org: Organization | null = null;
       if (demo) {
         const d = await readDemo();
-        org = d.organization.twilio_phone_number === To ? d.organization : d.organization;
+        org = d.organization.twilio_phone_number === To ? d.organization : null;
       } else if (To) {
         const { data: foundOrg } = await admin()
           .from('organizations')
@@ -158,9 +171,11 @@ export async function POST(request: Request) {
       }
 
       if (org && From) {
-        const cleanFrom = From.trim().replace(/[!.,;:?]+$/, '').toUpperCase();
-        const isBotOrOptOut = BOT_OR_OPT_OUT_KEYWORDS.has(cleanFrom);
-        const allowAutoReply = !isBotOrOptOut && checkAndRecordAutoReplyRateLimit(From);
+        // This auto-text is promotional, so a number that has opted out must
+        // not receive it. The previous check tested the caller's phone number
+        // against the word STOP, which can never match.
+        const optedOut = await isOptedOut(org.id, From);
+        const allowAutoReply = !optedOut && checkAndRecordAutoReplyRateLimit(From);
 
         if (allowAutoReply) {
           const bookingUrl = `${process.env.APP_URL || url.origin}/book/${org.slug}`;
