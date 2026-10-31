@@ -74,13 +74,12 @@ export async function workspace(): Promise<Workspace> {
     } as Workspace;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : '';
-    if (
-      msg === 'UNAUTHORIZED' ||
-      msg.includes('UNAUTHORIZED') ||
-      msg.includes('membership') ||
-      msg.includes('TIMEOUT')
-    ) {
-      // Unauthenticated visitors or slow network get the interactive live demo sandbox
+    // A timeout is an outage, not a signed-out visitor. Serving the sample
+    // workspace here showed a real hauler someone else's business whenever the
+    // database took more than a few seconds to answer.
+    if (msg.includes('TIMEOUT')) throw err;
+    if (msg === 'UNAUTHORIZED' || msg.includes('UNAUTHORIZED') || msg.includes('membership')) {
+      // Unauthenticated visitors get the interactive live demo sandbox
       return readDemo();
     }
     throw err;
@@ -125,22 +124,11 @@ export async function publicOrganization(slug: string) {
     .select('id,name,slug,phone,timezone,pricing_config,stripe_connect_account_id')
     .eq('slug', slug)
     .single();
-  if (error || !organization) {
-    try {
-      const d = await readDemo();
-      return {
-        organization: cleanPublicOrganization({
-          ...d.organization,
-          slug,
-          name: d.organization.slug === slug ? d.organization.name : (d.organization.name || 'Demo Hauler'),
-        }),
-        pricing_rules: d.pricing_rules,
-        demo: true,
-      };
-    } catch {
-      throw new Error('Organization not found');
-    }
-  }
+  // An unknown slug is not found. It must not resolve to the demo business
+  // renamed to match, which turned any mistyped booking link into a bookable
+  // storefront for a company that does not exist. In demo mode the branch
+  // above answers first, so the no-signup demo is unaffected.
+  if (error || !organization) throw new Error('Organization not found');
   const { data: pricing_rules, error: ruleError } = await db
     .from('pricing_rules')
     .select('*')

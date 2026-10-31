@@ -30,8 +30,19 @@ export function isDemo() {
   }
 
   if (hasUrl || hasAnon || hasService) {
-    console.warn('Supabase configuration is incomplete (some keys are missing). Falling back to demo mode.');
-    return true;
+    // Fail closed. Falling back to demo mode here would turn a deployment that
+    // lost one environment variable into a public sandbox with authentication
+    // effectively off, which is the opposite of what README.md and CLAUDE.md
+    // both promise. Names only — never log the values.
+    const missing = [
+      hasUrl ? null : 'NEXT_PUBLIC_SUPABASE_URL',
+      hasAnon ? null : 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      hasService ? null : 'SUPABASE_SERVICE_ROLE_KEY',
+    ].filter(Boolean);
+    throw new Error(
+      `Supabase configuration is incomplete: ${missing.join(', ')} not set. ` +
+        'Set the missing values, or set ROLLOS_DEMO=true to run the demo deliberately.',
+    );
   }
 
   return true;
