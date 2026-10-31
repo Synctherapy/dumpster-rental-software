@@ -1,12 +1,12 @@
 // IndexNow URL submission script
-// Submits all site URLs to Bing, Yandex, and other search engines using the IndexNow API.
+// Submits all site URLs directly to Bing and the IndexNow central hub.
 
 const KEY = process.env.INDEXNOW_KEY || '798fbd580fd545afa4ffee7e3fd40dae';
 const HOST = (process.env.APP_URL ? new URL(process.env.APP_URL).host : 'rolloffdumpstersoftware.com').replace(/^https?:\/\//, '');
 const BASE_URL = `https://${HOST}`;
 
 const PATHS = [
-  '',
+  '/',
   '/features',
   '/features/online-booking',
   '/features/dispatch-board',
@@ -38,11 +38,16 @@ const PATHS = [
   '/terms-of-service',
 ];
 
-const urlList = PATHS.map((path) => `${BASE_URL}${path}`);
+const urlList = PATHS.map((path) => (path === '/' ? `${BASE_URL}/` : `${BASE_URL}${path}`));
+
+const ENDPOINTS = [
+  { name: 'Bing IndexNow', url: 'https://www.bing.com/IndexNow' },
+  { name: 'IndexNow Central Hub', url: 'https://api.indexnow.org/IndexNow' },
+];
 
 async function submitIndexNow() {
-  console.log(`Submitting ${urlList.length} URLs to IndexNow for host "${HOST}"...`);
-  console.log(`Key file: ${BASE_URL}/${KEY}.txt`);
+  console.log(`Submitting ${urlList.length} URLs for host "${HOST}"...`);
+  console.log(`Key file: ${BASE_URL}/${KEY}.txt\n`);
 
   const payload = {
     host: HOST,
@@ -51,29 +56,28 @@ async function submitIndexNow() {
     urlList,
   };
 
-  try {
-    const response = await fetch('https://api.indexnow.org/IndexNow', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-      },
-      body: JSON.stringify(payload),
-    });
+  for (const endpoint of ENDPOINTS) {
+    try {
+      console.log(`Sending to ${endpoint.name} (${endpoint.url})...`);
+      const response = await fetch(endpoint.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (response.status === 200) {
-      console.log('✅ IndexNow submission successful (HTTP 200: OK)!');
-    } else if (response.status === 202) {
-      console.log('✅ IndexNow submission accepted (HTTP 202: Accepted - key pending validation).');
-    } else {
-      const text = await response.text();
-      console.error(`⚠️ IndexNow responded with HTTP ${response.status}: ${response.statusText}`);
-      if (text) console.error(`Response details: ${text}`);
-      if (response.status === 403) {
-        console.warn('Note: 403 occurs if the key file is not yet deployed and live on your production domain.');
+      if (response.status === 200) {
+        console.log(`  ✅ [${endpoint.name}] HTTP 200: Successfully received and acknowledged!`);
+      } else if (response.status === 202) {
+        console.log(`  ✅ [${endpoint.name}] HTTP 202: Accepted (queued for processing).`);
+      } else {
+        const text = await response.text();
+        console.error(`  ⚠️ [${endpoint.name}] HTTP ${response.status}: ${response.statusText} ${text}`);
       }
+    } catch (err) {
+      console.error(`  ❌ Failed to send to ${endpoint.name}:`, err.message);
     }
-  } catch (err) {
-    console.error('Failed to submit to IndexNow:', err);
   }
 }
 
