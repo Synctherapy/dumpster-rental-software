@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
-import { failure } from '@/lib/server/http';
+import { assertSameOrigin, failure } from '@/lib/server/http';
 import { sendSms } from '@/lib/server/notifications';
 
 const signSchema = z.object({
@@ -10,17 +10,33 @@ const signSchema = z.object({
   accepted_terms: z.literal(true),
 });
 
+const ALREADY_SIGNED =
+  'This agreement has already been signed. Contact your hauler if the signature needs to be corrected.';
+
+/**
+ * The signer's address, for a document that may be produced in a dispute.
+ * `x-vercel-forwarded-for` is set by the platform and overwrites anything the
+ * client sends; the others are fallbacks for other hosting, where a determined
+ * client can influence the value.
+ */
+function clientIp(request: Request) {
+  return (
+    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'remote-client'
+  );
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    assertSameOrigin(request);
     const { id } = await params;
     const body = signSchema.parse(await request.json());
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      'remote-client';
+    const ip = clientIp(request);
 
     const timestamp = new Date().toISOString();
 
@@ -28,6 +44,7 @@ export async function POST(
       const updated = await mutateDemo((d) => {
         const job = d.jobs.find((j) => j.id === id);
         if (!job) throw new Error('Job not found');
+        if (job.signed_by_customer) throw new Error(ALREADY_SIGNED);
         job.signature = {
           name: body.signature_name,
           timestamp,
@@ -51,26 +68,10 @@ export async function POST(
       .eq('id', id)
       .single();
 
-    if (jobErr || !job) {
-      try {
-        const updated = await mutateDemo((d) => {
-          const j = d.jobs.find((jobItem) => jobItem.id === id);
-          if (!j) throw new Error('Job not found');
-          j.signature = {
-            name: body.signature_name,
-            timestamp,
-            ip,
-          };
-          j.signed_by_customer = true;
-          return { job: j, org: d.organization };
-        });
-        const smsText = `${updated.org?.name || 'Your dumpster rental'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
-        await sendSms(updated.org.id, id, updated.job.customer_phone, 'waiver_signed', smsText);
-        return NextResponse.json({ ok: true, job: updated.job });
-      } catch {
-        throw new Error('Job not found');
-      }
-    }
+    // A job that is not in this database is not found. It must never fall back
+    // to writing a signature into the demo workspace.
+    if (jobErr || !job) throw new Error('Job not found');
+    if (job.signed_by_customer) throw new Error(ALREADY_SIGNED);
 
     const updatedSignature = {
       name: body.signature_name,
@@ -78,6 +79,8 @@ export async function POST(
       ip,
     };
 
+    // `is('signed_by_customer', false)` makes this write-once even if two
+    // requests arrive at the same time: the second matches no row.
     const { data: saved, error: updateErr } = await db
       .from('jobs')
       .update({
@@ -85,10 +88,11 @@ export async function POST(
         signed_by_customer: true,
       })
       .eq('id', id)
+      .is('signed_by_customer', false)
       .select('*')
       .single();
 
-    if (updateErr) throw new Error(updateErr.message);
+    if (updateErr || !saved) throw new Error(ALREADY_SIGNED);
 
     const { data: org } = await db
       .from('organizations')

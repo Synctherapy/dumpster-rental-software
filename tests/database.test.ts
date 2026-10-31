@@ -28,6 +28,8 @@ async function database() {
   await db.exec(await readFile('supabase/migrations/202610110001_pickup_proof.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610140001_fix_payments_and_stripe_fees.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610140002_dedicated_twilio_numbers.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610310001_sms_opt_outs.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610310002_job_columns_behind_code.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
@@ -447,3 +449,99 @@ test('consolidated production migration applies cleanly and populates email on c
 
 
 
+
+test('job columns the application writes all exist, and the waiver gate is write-once', async () => {
+  const db = await database();
+  try {
+    const columns = await db.query<{ column_name: string; is_nullable: string; column_default: string | null }>(
+      `select column_name, is_nullable, column_default from information_schema.columns
+        where table_schema='public' and table_name='jobs'
+          and column_name in ('protective_boards','signed_by_customer','is_commercial',
+                              'swap_parent_job_id','swapped_from_container_label')`,
+    );
+    assert.equal(columns.rows.length, 5, 'all five previously missing columns must exist');
+
+    const gate = columns.rows.find((c) => c.column_name === 'signed_by_customer')!;
+    assert.equal(gate.is_nullable, 'NO', 'a nullable gate would defeat a write-once filter');
+
+    // The org, its owner row and default pricing rules are created by the
+    // trigger on auth.users, the same way the other tests in this file set up.
+    await db.query('insert into auth.users(id,raw_user_meta_data) values($1,$2)', [
+      randomUUID(),
+      { name: 'Test Owner', company: 'Writeonce Hauling' },
+    ]);
+    const orgId = (await db.query<{ id: string }>('select id from public.organizations')).rows[0].id;
+    await db.query("update pricing_rules set service_zips=array['78704'] where org_id=$1", [orgId]);
+    await db.query("insert into containers(id,org_id,label,size_yards) values($1,$2,'GL-200',20)", [
+      randomUUID(),
+      orgId,
+    ]);
+
+    // An online booking goes through reserve_booking, which must now persist
+    // both of the fields it previously dropped.
+    const booked = await db.query<{ reserve_booking: Record<string, unknown> }>(
+      'select public.reserve_booking($1)',
+      [
+        JSON.stringify({
+          id: randomUUID(),
+          org_id: orgId,
+          customer_name: 'Dana Reyes',
+          customer_phone: '+15125550123',
+          customer_email: 'dana@example.com',
+          delivery_address: '900 E 5th St, Austin, TX',
+          zip: '78704',
+          size_yards: 20,
+          delivery_date: today(),
+          pickup_date: addDays(today(), 7),
+          notes: '',
+          protective_boards: true,
+          signature: { name: 'Dana Reyes', timestamp: new Date().toISOString(), ip: '203.0.113.7' },
+          booking_key: randomUUID(),
+        }),
+      ],
+    );
+    const job = booked.rows[0].reserve_booking as { id: string; protective_boards: boolean; signed_by_customer: boolean };
+    assert.equal(job.protective_boards, true, 'a paid add-on must not be dropped on insert');
+    assert.equal(job.signed_by_customer, true, 'an online booking is signed when it is placed');
+
+    // A phone order starts unsigned; the first remote signature takes, the second does not.
+    const phoneJob = randomUUID();
+    await db.query(
+      `insert into public.jobs(id,org_id,customer_name,customer_phone,customer_email,delivery_address,
+         zip,size_yards,delivery_date,pickup_date,status,price_cents,deposit_cents,tons_included,
+         extra_day_cents,notes,signature,booking_key,pricing_snapshot,signed_by_customer)
+       values($1,$2,'Phone Caller','+15125550124','caller@example.com','1 Dispatch Way',
+         '78704',20,$3,$4,'booked',42500,42500,2,2000,'[Phone Order]',$5,$6,'{}'::jsonb,false)`,
+      [
+        phoneJob,
+        orgId,
+        today(),
+        addDays(today(), 7),
+        JSON.stringify({ name: 'Phone Caller (Phone Order)', timestamp: new Date().toISOString(), ip: 'dispatch-phone' }),
+        randomUUID(),
+      ],
+    );
+
+    const first = await db.query(
+      `update public.jobs set signature=$2, signed_by_customer=true
+        where id=$1 and signed_by_customer is false returning id`,
+      [phoneJob, JSON.stringify({ name: 'Phone Caller', timestamp: new Date().toISOString(), ip: '203.0.113.9' })],
+    );
+    assert.equal(first.rows.length, 1, 'the customer must be able to sign once');
+
+    const second = await db.query(
+      `update public.jobs set signature=$2, signed_by_customer=true
+        where id=$1 and signed_by_customer is false returning id`,
+      [phoneJob, JSON.stringify({ name: 'Imposter', timestamp: new Date().toISOString(), ip: '198.51.100.4' })],
+    );
+    assert.equal(second.rows.length, 0, 'a second signature must match no row');
+
+    const stored = await db.query<{ name: string }>(
+      `select signature->>'name' as name from public.jobs where id=$1`,
+      [phoneJob],
+    );
+    assert.equal(stored.rows[0].name, 'Phone Caller', 'the original signature must survive');
+  } finally {
+    await db.close();
+  }
+});
