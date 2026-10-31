@@ -8,17 +8,69 @@ function secret() {
   throw new Error('DRIVER_TOKEN_SECRET must contain at least 32 characters.');
 }
 /**
- * Driver links are bearer URLs sent over SMS that expose customer names,
- * addresses and phone numbers, so they are short-lived. The README promises 24
- * hours; the default was 30 days and every caller used the default. Dispatch
- * sends a fresh link when a job is dispatched, and the daily reminder sends one
- * for tomorrow's work, so a driver normally always has a current link. Raise
- * DRIVER_LINK_TTL_HOURS if your crews need longer.
+ * Driver links are bearer URLs sent over SMS that expose the customer names,
+ * addresses and phone numbers for that driver's own assigned jobs, so they
+ * expire. Seven days is the default because it matches the rental cycle: a
+ * driver delivers on day one and returns for the pickup about a week later, and
+ * the route screen is what they use for both. A 24-hour link dies before the
+ * pickup, which would make a driver's access depend on the daily reminder cron
+ * firing without fail every morning. With a week, dispatch and the daily
+ * reminder both refresh the link as a convenience rather than a requirement.
+ *
+ * This is only the fallback for when no job date is known. Prefer
+ * driverLinkTtlForPickup, which ends the link the day after the pickup it was
+ * sent for, so a 7-day rental gets an 8-day link and a 14-day rental gets 15.
+ *
+ * Set DRIVER_LINK_TTL_HOURS (1 to 720) to change the fallback.
+ *
+ * Note that this is a time limit, not revocation. Removing a driver does not
+ * invalidate a link already issued to them; it expires on its own.
  */
+export const DEFAULT_DRIVER_LINK_TTL_HOURS = 168;
+
 export function driverLinkTtlMs() {
   const hours = Number(process.env.DRIVER_LINK_TTL_HOURS);
   if (Number.isFinite(hours) && hours >= 1 && hours <= 720) return hours * 3600000;
-  return 24 * 3600000;
+  return DEFAULT_DRIVER_LINK_TTL_HOURS * 3600000;
+}
+
+export const MIN_DRIVER_LINK_MS = 24 * 3600000;
+export const MAX_DRIVER_LINK_MS = 720 * 3600000;
+
+/**
+ * How long a link sent for a particular job should live: through the day after
+ * its scheduled pickup, so the driver is covered for both the drop and the
+ * collection without needing a resend mid-rental.
+ *
+ * Floored at one day, so a same-day dispatch is not handed a link that expires
+ * within the hour, and capped at thirty, so a mistyped pickup date cannot mint
+ * a link that lasts a year. Dates are whole days with no time zone, so the end
+ * of the pickup day is taken as UTC midnight and rounded up a day, which errs
+ * on the side of the driver keeping access.
+ */
+export function driverLinkTtlForPickup(pickupDate?: string | null) {
+  if (!pickupDate || !/^\d{4}-\d{2}-\d{2}$/.test(pickupDate)) return driverLinkTtlMs();
+  const endOfPickupDay = Date.parse(`${pickupDate}T00:00:00Z`) + 2 * 86400000;
+  if (!Number.isFinite(endOfPickupDay)) return driverLinkTtlMs();
+  const remaining = endOfPickupDay - Date.now();
+  return Math.min(Math.max(remaining, MIN_DRIVER_LINK_MS), MAX_DRIVER_LINK_MS);
+}
+
+/** The latest pickup still ahead of a driver, for a link sent outside any one job. */
+export function latestActivePickup(
+  jobs: { driver_id?: string | null; status?: string; pickup_date?: string }[],
+  driverId: string,
+) {
+  const active = jobs
+    .filter(
+      (j) =>
+        j.driver_id === driverId &&
+        ['dispatched', 'delivered', 'picked_up'].includes(j.status ?? '') &&
+        typeof j.pickup_date === 'string',
+    )
+    .map((j) => j.pickup_date!)
+    .sort();
+  return active.length ? active[active.length - 1] : null;
 }
 
 export function driverToken(org: string, driver: string, ttlMs: number = driverLinkTtlMs()) {

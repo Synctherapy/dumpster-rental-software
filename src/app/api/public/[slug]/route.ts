@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { publicOrganization } from '@/lib/server/workspace';
 import { failure } from '@/lib/server/http';
+import { ensureDemoSessionId, isDemo } from '@/lib/server/store';
 export async function GET(_: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    // First call of the booking flow, so a visitor who never opens the
+    // dashboard still gets their own sandbox rather than the shared one.
+    if (isDemo()) await ensureDemoSessionId();
     const data = await publicOrganization((await params).slug);
     const org = (data.organization || {}) as Record<string, unknown>;
     const rawConfig = org.pricing_config

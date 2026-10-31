@@ -9,7 +9,7 @@ import { publicOrganization } from './workspace';
 import { stripe } from './stripe';
 import { sendSms } from './notifications';
 import { sendEmail } from './email';
-import { driverToken } from './tokens';
+import { driverToken, driverLinkTtlForPickup } from './tokens';
 import { validateProof } from './proofs';
 import { ensureOrganizationPhone } from './phone';
 
@@ -530,7 +530,11 @@ export async function changeJob(
         job.id,
         driver.phone,
         'driver_dispatch',
-        `Your next delivery: ${job.delivery_address}. Open your route: ${origin}/driver/${driverToken(job.org_id, driver.id)}`,
+        `Your next delivery: ${job.delivery_address}. Open your route: ${origin}/driver/${driverToken(
+          job.org_id,
+          driver.id,
+          driverLinkTtlForPickup(job.pickup_date),
+        )}`,
       );
   }
   if (patch.status === 'delivered' || patch.status === 'picked_up') {

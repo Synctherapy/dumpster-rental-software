@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { seed } from '../seed';
@@ -48,21 +49,55 @@ export function isDemo() {
   return true;
 }
 
+export const DEMO_SESSION_COOKIE = 'rollos_demo_session';
+const DEMO_SESSION_PATTERN = /^[a-zA-Z0-9_-]{8,64}$/;
+const DEMO_SESSION_MAX_AGE = 30 * 86400;
+
+/**
+ * Reads the visitor's private demo sandbox id.
+ *
+ * The id used to be accepted from an `x-demo-session` request header that the
+ * browser minted with Math.random(). Anyone could therefore name someone else's
+ * sandbox and read or write it, and two visitors could collide by chance. It is
+ * now a server-issued HttpOnly cookie only: callers cannot choose it.
+ */
 export async function getDemoSessionId(): Promise<string | null> {
   try {
-    const { cookies, headers } = await import('next/headers');
-    const headerStore = await headers();
-    const headerSession = headerStore.get('x-demo-session');
-    if (headerSession && /^[a-zA-Z0-9_-]{8,64}$/.test(headerSession)) {
-      return headerSession;
-    }
+    const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    const cookieSession = cookieStore.get('rollos_demo_session')?.value;
-    if (cookieSession && /^[a-zA-Z0-9_-]{8,64}$/.test(cookieSession)) {
+    const cookieSession = cookieStore.get(DEMO_SESSION_COOKIE)?.value;
+    if (cookieSession && DEMO_SESSION_PATTERN.test(cookieSession)) {
       return cookieSession;
     }
     return null;
   } catch {
+    return null;
+  }
+}
+
+/**
+ * Like getDemoSessionId, but issues a sandbox to a visitor who does not have
+ * one yet. Only callable where cookies can be set (route handlers and server
+ * actions); in a server component the write is ignored and the caller falls
+ * back to a read-only view of the shared sample data.
+ */
+export async function ensureDemoSessionId(): Promise<string | null> {
+  const existing = await getDemoSessionId();
+  if (existing) return existing;
+  const issued = randomUUID().replace(/-/g, '');
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    cookieStore.set(DEMO_SESSION_COOKIE, issued, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: DEMO_SESSION_MAX_AGE,
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return issued;
+  } catch {
+    // A server component cannot set cookies; the next API call will issue one.
     return null;
   }
 }

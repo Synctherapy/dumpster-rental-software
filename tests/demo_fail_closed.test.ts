@@ -91,3 +91,45 @@ test('ROLLOS_DEMO=true runs the demo deliberately, even with partial configurati
     () => assert.equal(isDemo(), true),
   );
 });
+
+test('two demo sandboxes do not see each other', async () => {
+  const { mutateDemo, readDemo } = req('../src/lib/server/store') as typeof StoreModule;
+  const a = 'sandbox-aaaaaaaaaaaaaaaa';
+  const b = 'sandbox-bbbbbbbbbbbbbbbb';
+
+  await mutateDemo((d) => {
+    d.organization.name = 'Alpha Hauling';
+  }, a);
+  await mutateDemo((d) => {
+    d.organization.name = 'Bravo Hauling';
+  }, b);
+
+  assert.equal((await readDemo(a)).organization.name, 'Alpha Hauling');
+  assert.equal((await readDemo(b)).organization.name, 'Bravo Hauling');
+
+  // A visitor who has no sandbox yet still sees the pristine sample business.
+  const seeded = (await readDemo('sandbox-cccccccccccccccc')).organization.name;
+  assert.equal(seeded, 'Greenline Hauling', 'a fresh sandbox starts from the seed');
+});
+
+test('a sandbox id is unguessable and never chosen by the caller', async () => {
+  const { DEMO_SESSION_COOKIE } = req('../src/lib/server/store') as typeof StoreModule;
+  assert.equal(DEMO_SESSION_COOKIE, 'rollos_demo_session');
+
+  // The id is only ever read from the HttpOnly cookie. Nothing in the source
+  // may read it back from a request header again.
+  const { readFile } = await import('node:fs/promises');
+  for (const file of [
+    'src/lib/server/store.ts',
+    'src/lib/client.ts',
+    'src/app/api/workspace/route.ts',
+  ]) {
+    const source = await readFile(file, 'utf8');
+    const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '');
+    assert.doesNotMatch(
+      code,
+      /x-demo-session/,
+      `${file} must not trust a caller-supplied sandbox id`,
+    );
+  }
+});

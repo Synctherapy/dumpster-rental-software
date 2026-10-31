@@ -6,7 +6,7 @@ import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
 import { releaseOrganizationPhone } from '@/lib/server/phone';
 import { addDays, type Job, type Organization, type User } from '@/lib/types';
-import { driverToken } from '@/lib/server/tokens';
+import { driverToken, driverLinkTtlForPickup } from '@/lib/server/tokens';
 
 function verifyCronAuth(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -140,7 +140,11 @@ export async function GET(request: Request) {
               job.id,
               driver.phone,
               'driver_pickup',
-              `Pickup tomorrow: ${job.delivery_address}. Open a fresh route link: ${origin}/driver/${driverToken(org.id, driver.id)}`,
+              `Pickup tomorrow: ${job.delivery_address}. Open a fresh route link: ${origin}/driver/${driverToken(
+                org.id,
+                driver.id,
+                driverLinkTtlForPickup(job.pickup_date),
+              )}`,
             );
           }
         }

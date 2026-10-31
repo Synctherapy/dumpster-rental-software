@@ -20,6 +20,10 @@ const {
   driverToken,
   verifyDriverToken,
   driverLinkTtlMs,
+  driverLinkTtlForPickup,
+  latestActivePickup,
+  MIN_DRIVER_LINK_MS,
+  MAX_DRIVER_LINK_MS,
 } = req(
   '../src/lib/server/tokens',
 ) as typeof TokensModule;
@@ -102,19 +106,23 @@ test('POST /api/contractor-link rejects a cross-site caller', async () => {
   assert.equal(res.status, 403);
 });
 
-test('driver links last 24 hours by default, and respect DRIVER_LINK_TTL_HOURS', () => {
+test('driver links last 7 days by default, and respect DRIVER_LINK_TTL_HOURS', () => {
   const previous = process.env.DRIVER_LINK_TTL_HOURS;
+  const fallback = 168 * 3600000;
   try {
     delete process.env.DRIVER_LINK_TTL_HOURS;
-    assert.equal(driverLinkTtlMs(), 24 * 3600000, 'default must match the documented 24 hours');
+    assert.equal(driverLinkTtlMs(), fallback, 'default covers a full rental cycle');
 
-    process.env.DRIVER_LINK_TTL_HOURS = '72';
-    assert.equal(driverLinkTtlMs(), 72 * 3600000);
+    process.env.DRIVER_LINK_TTL_HOURS = '24';
+    assert.equal(driverLinkTtlMs(), 24 * 3600000, 'a shorter window must be configurable');
+
+    process.env.DRIVER_LINK_TTL_HOURS = '720';
+    assert.equal(driverLinkTtlMs(), 720 * 3600000);
 
     // Out-of-range and nonsense values fall back rather than granting a long link.
     for (const bad of ['0', '-5', '100000', 'forever', '']) {
       process.env.DRIVER_LINK_TTL_HOURS = bad;
-      assert.equal(driverLinkTtlMs(), 24 * 3600000, `${bad || '(empty)'} must fall back to 24h`);
+      assert.equal(driverLinkTtlMs(), fallback, `${bad || '(empty)'} must fall back`);
     }
   } finally {
     if (previous === undefined) delete process.env.DRIVER_LINK_TTL_HOURS;
@@ -126,5 +134,64 @@ test('a driver token issued now expires within the configured window', () => {
   const token = driverToken('org-1', 'driver-1');
   const claim = verifyDriverToken(token);
   const hours = (claim.exp - Date.now()) / 3600000;
-  assert.ok(hours > 23 && hours <= 24, `expected ~24h, got ${hours.toFixed(2)}h`);
+  assert.ok(hours > 167 && hours <= 168, `expected ~168h, got ${hours.toFixed(2)}h`);
+});
+
+function daysFromNow(days: number) {
+  return new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+}
+
+test('a driver link ends the day after the pickup it was sent for', () => {
+  // A 7-day rental should give roughly an 8-day link, a 14-day rental 15.
+  const week = driverLinkTtlForPickup(daysFromNow(7)) / 86400000;
+  assert.ok(week > 7.5 && week <= 9, `7-day rental gave ${week.toFixed(2)} days`);
+
+  const fortnight = driverLinkTtlForPickup(daysFromNow(14)) / 86400000;
+  assert.ok(fortnight > 14.5 && fortnight <= 16, `14-day rental gave ${fortnight.toFixed(2)} days`);
+
+  assert.ok(fortnight > week, 'a longer rental must give a longer-lived link');
+});
+
+test('a same-day job still gives the driver a usable window', () => {
+  // Measured from the start of the pickup day, so a job picked up today already
+  // runs past tomorrow without needing the floor.
+  const sameDay = driverLinkTtlForPickup(daysFromNow(0));
+  assert.ok(
+    sameDay >= MIN_DRIVER_LINK_MS,
+    `same-day pickup gave ${(sameDay / 3600000).toFixed(1)}h`,
+  );
+  assert.ok(sameDay < 2 * 86400000, 'but not longer than the job needs');
+
+  // The floor is what protects a link issued for a pickup already in the past.
+  assert.equal(driverLinkTtlForPickup(daysFromNow(-3)), MIN_DRIVER_LINK_MS);
+});
+
+test('a mistyped pickup date cannot mint a link that lasts a year', () => {
+  assert.equal(driverLinkTtlForPickup('2099-01-01'), MAX_DRIVER_LINK_MS);
+});
+
+test('a missing or malformed pickup date falls back to the configured default', () => {
+  const fallback = driverLinkTtlMs();
+  for (const bad of [null, undefined, '', 'next tuesday', '2026-13-45x', '26-01-01']) {
+    assert.equal(driverLinkTtlForPickup(bad as string | null | undefined), fallback, `${bad}`);
+  }
+});
+
+test('an issued dispatch link really expires after that job pickup', () => {
+  const pickup = daysFromNow(14);
+  const token = driverToken('org-1', 'driver-1', driverLinkTtlForPickup(pickup));
+  const days = (verifyDriverToken(token).exp - Date.now()) / 86400000;
+  assert.ok(days > 14.5 && days <= 16, `expected ~15 days, got ${days.toFixed(2)}`);
+});
+
+test('a link sent outside any one job covers the driver latest pickup', () => {
+  const jobs = [
+    { driver_id: 'driver-1', status: 'dispatched', pickup_date: daysFromNow(3) },
+    { driver_id: 'driver-1', status: 'delivered', pickup_date: daysFromNow(12) },
+    { driver_id: 'driver-1', status: 'completed', pickup_date: daysFromNow(40) },
+    { driver_id: 'driver-2', status: 'dispatched', pickup_date: daysFromNow(30) },
+  ];
+  // The finished job and the other driver's job must not extend this link.
+  assert.equal(latestActivePickup(jobs, 'driver-1'), daysFromNow(12));
+  assert.equal(latestActivePickup([], 'driver-1'), null);
 });
