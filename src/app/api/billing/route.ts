@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/server/stripe';
 import { maybeIdentity, admin } from '@/lib/server/supabase';
-import { failure } from '@/lib/server/http';
+import { assertSameOrigin, failure } from '@/lib/server/http';
+import { logError } from '@/lib/server/log';
 import {
   STARTER_SUBSCRIPTION_CENTS,
   GROWTH_SUBSCRIPTION_CENTS,
@@ -54,7 +55,10 @@ function sanitizeRedirectUrl(
   // 2. Absolute URL: origin must match requestOrigin or configured APP_URL
   try {
     const parsed = new URL(trimmed);
-    if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && allowedOrigins.has(parsed.origin)) {
+    if (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      allowedOrigins.has(parsed.origin)
+    ) {
       return parsed.toString();
     }
   } catch {}
@@ -65,6 +69,8 @@ function sanitizeRedirectUrl(
 
 export async function POST(request: Request) {
   try {
+    // This route mints Stripe Checkout sessions and had no origin check at all.
+    assertSameOrigin(request);
     let body: {
       plan?: 'free' | 'starter' | 'growth' | 'winter_hold';
       status?: string;
@@ -138,53 +144,38 @@ export async function POST(request: Request) {
         if (userRecord?.org_id) {
           orgId = userRecord.org_id;
         }
-      } catch {}
+      } catch (err) {
+        logError('billing.resolveOrgBySession', err);
+      }
     }
 
     if (!orgId && customerEmail) {
-      const emailQuery = customerEmail;
+      // create_hauler() records the owner's address on public.users, so this
+      // one lookup resolves the account. The previous code first tried
+      // auth.admin.getUserByEmail, which does not exist in this SDK version,
+      // then listUsers({ perPage: 100 }), which only ever saw the first
+      // hundred accounts and pulled every one of their addresses into memory
+      // on an endpoint that needs no session. Both are gone.
       try {
-        let authUserId: string | null = null;
-        try {
-          const authAdmin = admin().auth?.admin as unknown as {
-            getUserByEmail?: (email: string) => Promise<{ data?: { user?: { id?: string } } }>;
-            listUsers?: (opts?: { perPage?: number }) => Promise<{ data?: { users?: Array<{ id?: string; email?: string }> } }>;
-          };
-          if (typeof authAdmin?.getUserByEmail === 'function') {
-            const res = await authAdmin.getUserByEmail(emailQuery);
-            if (res?.data?.user?.id) authUserId = res.data.user.id;
-          }
-          if (!authUserId && typeof authAdmin?.listUsers === 'function') {
-            const { data } = await authAdmin.listUsers({ perPage: 100 });
-            const match = data?.users?.find(
-              (u: { id?: string; email?: string }) => u.email?.toLowerCase() === emailQuery.toLowerCase(),
-            );
-            if (match?.id) authUserId = match.id;
-          }
-        } catch {}
+        const { data: userRecord, error } = await admin()
+          .from('users')
+          .select('org_id')
+          .eq('email', customerEmail)
+          .maybeSingle();
+        if (error) logError('billing.resolveOrgByEmail', error);
+        if (userRecord?.org_id) orgId = userRecord.org_id;
+      } catch (err) {
+        logError('billing.resolveOrgByEmail', err);
+      }
+    }
 
-        if (authUserId) {
-          const { data: userRecord } = await admin()
-            .from('users')
-            .select('org_id')
-            .eq('id', authUserId)
-            .maybeSingle();
-          if (userRecord?.org_id) {
-            orgId = userRecord.org_id;
-          }
-        }
-
-        if (!orgId) {
-          const { data: userRecord } = await admin()
-            .from('users')
-            .select('org_id')
-            .eq('email', emailQuery)
-            .maybeSingle();
-          if (userRecord?.org_id) {
-            orgId = userRecord.org_id;
-          }
-        }
-      } catch {}
+    // Never start a payment that cannot be applied to an account. Without this,
+    // an unresolved account produced a Stripe session carrying org_id:
+    // undefined — the customer paid and the webhook had nothing to upgrade.
+    if (!orgId) {
+      throw new Error(
+        'We could not match this checkout to an account. Sign in and try again, or contact support.',
+      );
     }
 
     if (orgId) {
@@ -274,7 +265,8 @@ export async function POST(request: Request) {
           unit_amount: WEBSITE_SETUP_CENTS,
           product_data: {
             name: 'Done-For-You 24/7 Booking Website',
-            description: 'One-time setup fee. Includes copy, local service area configuration & booking widget.',
+            description:
+              'One-time setup fee. Includes copy, local service area configuration & booking widget.',
           },
         },
       });
@@ -288,7 +280,8 @@ export async function POST(request: Request) {
           unit_amount: GBP_3PACK_SETUP_CENTS,
           product_data: {
             name: 'Google Maps 3-Pack Domination Kit',
-            description: 'One-time optimization fee. Local category audit and automated review texts.',
+            description:
+              'One-time optimization fee. Local category audit and automated review texts.',
           },
         },
       });
@@ -309,7 +302,9 @@ export async function POST(request: Request) {
       company: body?.company || '',
     };
 
-    const sessionParams: Parameters<ReturnType<typeof stripe>['checkout']['sessions']['create']>[0] = {
+    const sessionParams: Parameters<
+      ReturnType<typeof stripe>['checkout']['sessions']['create']
+    >[0] = {
       mode: isSubscription ? 'subscription' : 'payment',
       line_items: lineItems,
       metadata: sessionMetadata,

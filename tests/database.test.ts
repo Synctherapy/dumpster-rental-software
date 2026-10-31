@@ -31,6 +31,7 @@ async function database() {
   await db.exec(await readFile('supabase/migrations/202610310001_sms_opt_outs.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610310002_job_columns_behind_code.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610310003_rate_limits.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610310004_lock_organization_writes.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
