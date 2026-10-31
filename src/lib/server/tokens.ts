@@ -21,7 +21,39 @@ export function verifyDriverToken(token: string): { org: string; driver: string;
   if (actual.length !== expected.length || !timingSafeEqual(actual, expected))
     throw new Error('Invalid driver link');
   const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+  if (typeof data?.org !== 'string' || typeof data?.driver !== 'string')
+    throw new Error('Invalid driver link');
   if (data.exp < Date.now())
     throw new Error('Driver link expired. Ask your dispatcher for a new link.');
+  return data;
+}
+
+export function contractorToken(
+  org: string,
+  account: string,
+  ttlMs: number = 90 * 86400000,
+) {
+  const payload = Buffer.from(
+    JSON.stringify({ org, account, exp: Date.now() + ttlMs }),
+  ).toString('base64url');
+  return payload + '.' + createHmac('sha256', secret()).update(payload).digest('base64url');
+}
+
+export function verifyContractorToken(token: string): {
+  org: string;
+  account: string;
+  exp: number;
+} {
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature) throw new Error('Invalid contractor portal link');
+  const actual = Buffer.from(signature, 'base64url');
+  const expected = createHmac('sha256', secret()).update(payload).digest();
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    throw new Error('Invalid contractor portal link');
+  const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+  if (typeof data?.org !== 'string' || typeof data?.account !== 'string')
+    throw new Error('Invalid contractor portal link');
+  if (data.exp < Date.now())
+    throw new Error('This contractor portal link has expired. Ask your hauler for a new one.');
   return data;
 }

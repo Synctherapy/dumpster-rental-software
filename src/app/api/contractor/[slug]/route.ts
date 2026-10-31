@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
-import { admin } from '@/lib/server/supabase';
+import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { publicOrganization } from '@/lib/server/workspace';
 import { failure, assertSameOrigin } from '@/lib/server/http';
 import { invoice, quote } from '@/lib/pricing';
 import { swapContainer, recordBookingOccurred } from '@/lib/server/jobs';
+import { verifyContractorToken } from '@/lib/server/tokens';
 import {
   addDays,
   today,
@@ -118,20 +119,95 @@ function buildStatement(
   };
 }
 
+const DEFAULT_DEMO_ACCOUNT = 'Apex Roofing & Construction';
+
+async function readAccountFromBody(request: Request) {
+  try {
+    const body = (await request.clone().json()) as { account_name?: unknown };
+    return String(body?.account_name ?? '').trim();
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * A contractor proves who they are with the signed `t` token in their VIP link.
+ * The open demo keeps working without one so prospects can look around before
+ * they sign up; a real organization always requires the token.
+ */
+async function resolveContractorAccess(request: Request, slug: string) {
+  const url = new URL(request.url);
+  const pub = await publicOrganization(slug);
+  const orgId = (pub.organization as { id: string }).id;
+  const demo = isDemo() || pub.demo;
+
+  if (demo) {
+    // The open demo has nothing to protect, so the caller may name the trade
+    // account directly: in the body for portal actions, in the query for a view.
+    let requested = '';
+    if (request.method !== 'GET') {
+      requested = await readAccountFromBody(request);
+    }
+    if (!requested) requested = (url.searchParams.get('account') || '').trim();
+    return {
+      demo: true,
+      pub,
+      orgId,
+      account: requested.slice(0, 120) || DEFAULT_DEMO_ACCOUNT,
+    };
+  }
+
+  // The hauler previewing their own portal from the dashboard is already
+  // authenticated; they do not need to mint a link to look.
+  const ident = await maybeIdentity();
+  if (
+    ident &&
+    ident.member.org_id === orgId &&
+    ['owner', 'dispatcher'].includes(ident.member.role)
+  ) {
+    const requested = (url.searchParams.get('account') || '').trim();
+    return { demo: false, pub, orgId, account: requested || DEFAULT_DEMO_ACCOUNT };
+  }
+
+  let token = (url.searchParams.get('t') || '').trim();
+  if (!token && request.method !== 'GET') {
+    try {
+      token = String(((await request.clone().json()) as { t?: unknown })?.t ?? '').trim();
+    } catch {}
+  }
+  if (!token)
+    throw new Error(
+      'This portal needs your VIP link. Ask your hauler to send you a new one.',
+    );
+
+  const claim = verifyContractorToken(token);
+  if (claim.org !== orgId) throw new Error('FORBIDDEN');
+  return { demo: false, pub, orgId, account: claim.account };
+}
+
+/** Never hand a contractor another party's payment handles or booking secrets. */
+function publicJob(job: Job): Job {
+  return {
+    ...job,
+    booking_key: '',
+    stripe_customer_id: null,
+    stripe_payment_method_id: null,
+    signature: job.signature ? { ...job.signature, ip: '' } : job.signature,
+  };
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;
-    const url = new URL(request.url);
-    const rawAccount = (url.searchParams.get('account') || '').trim();
-    const accountName = rawAccount || 'Apex Roofing & Construction';
+    const access = await resolveContractorAccess(request, slug);
+    const pub = access.pub;
+    const accountName = access.account;
     const accountLower = accountName.toLowerCase();
 
-    const pub = await publicOrganization(slug);
-
-    if (isDemo() || pub.demo) {
+    if (access.demo) {
       const d = await readDemo();
       const org =
         slug === d.organization.slug
@@ -173,7 +249,7 @@ export async function GET(
     }
 
     const db = admin();
-    const orgId = (pub.organization as { id: string }).id;
+    const orgId = access.orgId;
 
     const [{ data: allJobs, error: jobsError }, { data: containersData }] =
       await Promise.all([
@@ -190,20 +266,16 @@ export async function GET(
     const containers = (containersData || []) as Container[];
     const jobsList = (allJobs || []) as Job[];
 
-    const contractorJobs = rawAccount
-      ? jobsList.filter(
-          (j) =>
-            j.notes?.toLowerCase().includes(accountLower) ||
-            j.customer_name?.toLowerCase().includes(accountLower) ||
-            j.is_commercial,
-        )
-      : jobsList.filter(
-          (j) =>
-            j.is_commercial ||
-            j.payment_type === 'net_30' ||
-            j.notes?.toLowerCase().includes('vip contractor') ||
-            ['delivered', 'dispatched', 'booked'].includes(j.status),
-        );
+    // Only this trade account's own work. Previously an unmatched account name
+    // widened to every commercial job, and no account name at all returned the
+    // organization's entire active book of business.
+    const contractorJobs = jobsList
+      .filter(
+        (j) =>
+          j.notes?.toLowerCase().includes(accountLower) ||
+          j.customer_name?.toLowerCase().includes(accountLower),
+      )
+      .map(publicJob);
 
     const statement = buildStatement(accountName, contractorJobs, containers);
 
@@ -225,6 +297,7 @@ export async function GET(
 
 const swapActionSchema = z.object({
   action: z.literal('swap'),
+  t: z.string().optional(),
   job_id: z.string().min(1),
   account_name: z.string().trim().min(1).max(120).default('Apex Roofing & Construction'),
   target_size: z.number().int().min(1).max(100).optional(),
@@ -237,6 +310,7 @@ const swapActionSchema = z.object({
 
 const orderActionSchema = z.object({
   action: z.literal('order'),
+  t: z.string().optional(),
   account_name: z.string().trim().min(1).max(120).default('Apex Roofing & Construction'),
   customer_name: z.string().trim().min(2).max(100).optional(),
   customer_phone: z.string().trim().min(7).max(25).optional(),
@@ -255,14 +329,16 @@ export async function POST(
   try {
     assertSameOrigin(request);
     const { slug } = await params;
+    const access = await resolveContractorAccess(request, slug);
     const rawBody = (await request.json()) as Record<string, unknown>;
     const action = rawBody.action;
 
     if (action === 'swap') {
       const body = swapActionSchema.parse(rawBody);
+      const accountName = access.account;
       const formattedNotes = body.notes
-        ? `[VIP CONTRACTOR: ${body.account_name}] ${body.notes}`
-        : `[VIP CONTRACTOR: ${body.account_name}] 1-Tap Portal Swap`;
+        ? `[VIP CONTRACTOR: ${accountName}] ${body.notes}`
+        : `[VIP CONTRACTOR: ${accountName}] 1-Tap Portal Swap`;
 
       if (isDemo()) {
         // Ensure demo org allows contractor VIP swap seamlessly even if subscription_status is inactive
@@ -311,7 +387,9 @@ export async function POST(
         }
       }
 
-      // Non-demo mode: try swapContainer first, fallback to direct admin insert for unauthenticated VIP portal users
+      // A logged-in hauler goes through swapContainer, which enforces their role.
+      // A contractor has no session, so they fall through to the scoped path below,
+      // which is now reachable only with a verified VIP token.
       try {
         const result = await swapContainer(body.job_id, {
           target_size: body.target_size,
@@ -332,8 +410,8 @@ export async function POST(
           previous_job: result.previous_job,
         });
       } catch {
-        const pub = await publicOrganization(slug);
-        const orgId = (pub.organization as { id: string }).id;
+        const pub = access.pub;
+        const orgId = access.orgId;
         const db = admin();
         const { data: prevJob, error: prevErr } = await db
           .from('jobs')
@@ -342,6 +420,11 @@ export async function POST(
           .eq('org_id', orgId)
           .single();
         if (prevErr || !prevJob) throw new Error('Job not found');
+        const accountLower = accountName.toLowerCase();
+        const ownsJob =
+          prevJob.notes?.toLowerCase().includes(accountLower) ||
+          prevJob.customer_name?.toLowerCase().includes(accountLower);
+        if (!ownsJob) throw new Error('FORBIDDEN');
         if (!['delivered', 'dispatched'].includes(prevJob.status)) {
           throw new Error('Only delivered or dispatched jobs can be swapped');
         }
@@ -442,7 +525,8 @@ export async function POST(
         throw new Error('Delivery date cannot be in the past.');
       }
 
-      const pub = await publicOrganization(slug);
+      const accountName = access.account;
+      const pub = access.pub;
       const org = pub.organization as {
         id: string;
         name: string;
@@ -453,10 +537,10 @@ export async function POST(
 
       const formattedZip = normalizePostalCode(body.zip);
       const formattedPhone = normalizePhone(body.customer_phone || '+15125550199');
-      const customerName = body.customer_name?.trim() || body.account_name;
+      const customerName = body.customer_name?.trim() || accountName;
       const customerEmail =
         body.customer_email?.trim() ||
-        `${body.account_name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'contractor'}@net30.rollos`;
+        `${accountName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'contractor'}@net30.rollos`;
 
       const pickupDate = addDays(body.delivery_date, rule.included_days || 7);
       const taxPercent = org.pricing_config?.tax_rate_percent ?? 0;
@@ -465,7 +549,7 @@ export async function POST(
         taxPercent,
       });
 
-      const jobNotes = `[VIP CONTRACTOR: ${body.account_name}] ${body.notes || ''}`.trim();
+      const jobNotes = `[VIP CONTRACTOR: ${accountName}] ${body.notes || ''}`.trim();
 
       const newJob: Job = {
         id: randomUUID(),
@@ -488,7 +572,7 @@ export async function POST(
         container_id: null,
         notes: jobNotes,
         signature: {
-          name: `${customerName} (Net-30 Trade Account)`,
+          name: `${accountName} (Net-30 Trade Account)`,
           timestamp: new Date().toISOString(),
           ip: 'contractor-portal',
         },
@@ -506,7 +590,7 @@ export async function POST(
         payment_type: 'net_30',
       };
 
-      if (isDemo() || pub.demo) {
+      if (access.demo) {
         const savedJob = await mutateDemo((d) => {
           d.jobs.unshift(newJob);
           d.payments.unshift({
