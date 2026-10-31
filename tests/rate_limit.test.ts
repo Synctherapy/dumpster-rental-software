@@ -98,3 +98,75 @@ test('POST /api/auth answers 429 once a caller is over budget', async () => {
   const body = (await limited.json()) as { error: string };
   assert.match(body.error, /too many requests/i);
 });
+
+test('callers behind one shared address get independent budgets', async () => {
+  // The case that matters for real haulers: an office behind a single router,
+  // or two drivers on the same mobile network. Keying on identity rather than
+  // address means one cannot spend the other's allowance.
+  const sharedAddress = `203.0.113.${Math.floor(Math.random() * 200) + 1}`;
+  const request = new Request('http://localhost:3000/api/upload', {
+    method: 'POST',
+    headers: { 'x-real-ip': sharedAddress },
+  });
+
+  const driverA = `org-1:driver-a-${Math.random()}`;
+  const driverB = `org-1:driver-b-${Math.random()}`;
+
+  for (let i = 0; i < LIMITS.upload.limit; i += 1) {
+    await enforceRateLimit(request, 'upload', driverA);
+  }
+  await assert.rejects(
+    () => enforceRateLimit(request, 'upload', driverA),
+    /RATE_LIMITED/,
+    'the driver who used their allowance is limited',
+  );
+
+  // The second driver, same address, is untouched.
+  await enforceRateLimit(request, 'upload', driverB);
+  await enforceRateLimit(request, 'upload', driverB);
+});
+
+test('one hauler cannot exhaust another hauler phone-order budget', async () => {
+  const request = new Request('http://localhost:3000/api/jobs/quick', { method: 'POST' });
+  const orgA = `org-a-${Math.random()}`;
+  const orgB = `org-b-${Math.random()}`;
+
+  for (let i = 0; i < LIMITS.quickOrder.limit; i += 1) {
+    await enforceRateLimit(request, 'quickOrder', orgA);
+  }
+  await assert.rejects(() => enforceRateLimit(request, 'quickOrder', orgA), /RATE_LIMITED/);
+  await enforceRateLimit(request, 'quickOrder', orgB);
+});
+
+test('login throttles the account under attack, not the office it is attacked from', async () => {
+  const office = `198.51.100.${Math.floor(Math.random() * 200) + 1}`;
+  const request = new Request('http://localhost:3000/api/auth', {
+    method: 'POST',
+    headers: { 'x-real-ip': office },
+  });
+
+  const victim = `victim-${Math.random()}@example.com`;
+  for (let i = 0; i < LIMITS.auth.limit; i += 1) {
+    await enforceRateLimit(request, 'auth', victim);
+  }
+  await assert.rejects(() => enforceRateLimit(request, 'auth', victim), /RATE_LIMITED/);
+
+  // A colleague at the same office signing into their own account is fine.
+  await enforceRateLimit(request, 'auth', `colleague-${Math.random()}@example.com`);
+
+  // The address guard is wide enough that it is not what a real office hits.
+  assert.ok(
+    LIMITS.authAddress.limit > LIMITS.auth.limit * 4,
+    'the address guard must be far wider than a single account budget',
+  );
+});
+
+test('a hauler at work is never throttled on the paths they use most', () => {
+  // Marking a job delivered, picking it up, and reading the dashboard carry no
+  // throttle at all: those are the actions a driver and dispatcher repeat all
+  // day, and none of them cost money per call.
+  const names = Object.keys(LIMITS);
+  for (const unthrottled of ['driver', 'workspace', 'jobsPatch', 'calendar']) {
+    assert.ok(!names.includes(unthrottled), `${unthrottled} must not have a budget`);
+  }
+});

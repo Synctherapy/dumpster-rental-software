@@ -66,19 +66,39 @@ export function clientIp(request: Request) {
   );
 }
 
-/** Budgets per caller. Generous enough for real use, tight enough to matter. */
+/**
+ * Budgets per caller.
+ *
+ * Which caller matters more than the number. An address is the wrong key for
+ * anyone the app can identify: an office behind one router shares a single
+ * address, and drivers on a mobile network can share one with strangers, so an
+ * address-keyed budget would let other people use up a hauler's allowance.
+ *
+ * So anything that identifies its caller is keyed on that identity — an
+ * organization, a driver, a contractor account, or a demo sandbox — and can be
+ * generous, because reaching it requires being that person. Only genuinely
+ * anonymous endpoints are keyed on the address, and those are the ones a
+ * customer touches once or twice, never a hauler at work.
+ */
 export const LIMITS = {
-  // Each booking sends a text and an email on the hauler's account.
-  book: { limit: 10, windowSeconds: 3600 },
-  // Credential guessing.
+  // Anonymous. A customer books once; each booking sends a text and an email.
+  book: { limit: 20, windowSeconds: 3600 },
+  // Anonymous, per account being targeted: the credential-stuffing key.
   auth: { limit: 10, windowSeconds: 900 },
-  // Drivers legitimately upload several photos per route.
-  upload: { limit: 40, windowSeconds: 3600 },
+  // Anonymous, per address: wide enough that a shared office never notices,
+  // narrow enough to stop a machine working through a password list.
+  authAddress: { limit: 60, windowSeconds: 900 },
+  // Per driver or staff member. A driver photographs every drop and pickup.
+  upload: { limit: 60, windowSeconds: 3600 },
+  // Per address, before the 8 MB body is read: only a flood reaches this.
+  uploadFlood: { limit: 200, windowSeconds: 3600 },
+  // Anonymous. Signing the same waiver ten times in an hour is not a thing.
   sign: { limit: 10, windowSeconds: 3600 },
-  // A dispatcher taking phone orders all morning.
-  quickOrder: { limit: 60, windowSeconds: 3600 },
-  contractor: { limit: 30, windowSeconds: 3600 },
-  // Minting a brand-new demo sandbox, not reading an existing one.
+  // Per organization. A dispatcher taking calls all morning.
+  quickOrder: { limit: 120, windowSeconds: 3600 },
+  // Per contractor account.
+  contractor: { limit: 60, windowSeconds: 3600 },
+  // Per address. Minting a brand-new sandbox, never reading an existing one.
   demoSandbox: { limit: 20, windowSeconds: 3600 },
 } as const;
 

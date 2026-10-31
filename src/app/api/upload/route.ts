@@ -10,7 +10,7 @@ import { enforceRateLimit } from '@/lib/server/rate-limit';
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    await enforceRateLimit(request, 'upload');
+    await enforceRateLimit(request, 'uploadFlood');
     const form = await request.formData();
     const file = form.get('photo');
     const job_id = String(form.get('job_id') ?? '');
@@ -33,6 +33,9 @@ export async function POST(request: Request) {
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
       org = member.org_id;
     }
+    // Now that the uploader is known, budget them individually: a driver on a
+    // shared mobile network must never spend another driver's allowance.
+    await enforceRateLimit(request, 'upload', `${org}:${driver ?? 'staff'}`);
     const demo = isDemo();
     const job = demo
       ? (await readDemo()).jobs.find((j) => j.id === job_id)

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
@@ -38,7 +38,6 @@ const quickOrderSchema = z.object({
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    await enforceRateLimit(request, 'quickOrder');
     const body = quickOrderSchema.parse(await request.json());
     const formattedPhone = normalizePhone(body.customer_phone);
     const formattedZip = normalizePostalCode(body.zip);
@@ -56,6 +55,11 @@ export async function POST(request: Request) {
 
     let createdJob: Job;
     const auth = isDemo() ? null : await maybeIdentity();
+    await enforceRateLimit(
+      request,
+      'quickOrder',
+      auth?.member.org_id ?? (await getDemoSessionId()) ?? undefined,
+    );
 
     if (!auth) {
       const demoData = await readDemo();

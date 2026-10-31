@@ -329,9 +329,9 @@ export async function POST(
 ) {
   try {
     assertSameOrigin(request);
-    await enforceRateLimit(request, 'contractor');
     const { slug } = await params;
     const access = await resolveContractorAccess(request, slug);
+    await enforceRateLimit(request, 'contractor', `${access.orgId}:${access.account}`);
     const rawBody = (await request.json()) as Record<string, unknown>;
     const action = rawBody.action;
 
