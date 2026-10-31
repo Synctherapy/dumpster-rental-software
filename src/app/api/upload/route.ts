@@ -6,9 +6,11 @@ import { isDemo, readDemo } from '@/lib/server/store';
 import { admin, identity } from '@/lib/server/supabase';
 import { verifyDriverToken } from '@/lib/server/tokens';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'upload');
     const form = await request.formData();
     const file = form.get('photo');
     const job_id = String(form.get('job_id') ?? '');

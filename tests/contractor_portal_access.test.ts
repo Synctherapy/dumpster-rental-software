@@ -24,9 +24,7 @@ const {
   latestActivePickup,
   MIN_DRIVER_LINK_MS,
   MAX_DRIVER_LINK_MS,
-} = req(
-  '../src/lib/server/tokens',
-) as typeof TokensModule;
+} = req('../src/lib/server/tokens') as typeof TokensModule;
 const { POST: contractorLinkPost } = req(
   '../src/app/api/contractor-link/route',
 ) as typeof ContractorLinkModule;
@@ -166,8 +164,14 @@ test('a same-day job still gives the driver a usable window', () => {
   assert.equal(driverLinkTtlForPickup(daysFromNow(-3)), MIN_DRIVER_LINK_MS);
 });
 
-test('a mistyped pickup date cannot mint a link that lasts a year', () => {
+test('a long rental is covered, but a mistyped year is not', () => {
+  // Settings allow up to 90 included days, so a 90-day rental must get a link
+  // that outlives it rather than being clipped by the ceiling.
+  const ninety = driverLinkTtlForPickup(daysFromNow(90)) / 86400000;
+  assert.ok(ninety > 90.5 && ninety <= 92, `90-day rental gave ${ninety.toFixed(2)} days`);
+
   assert.equal(driverLinkTtlForPickup('2099-01-01'), MAX_DRIVER_LINK_MS);
+  assert.equal(MAX_DRIVER_LINK_MS, 120 * 86400000);
 });
 
 test('a missing or malformed pickup date falls back to the configured default', () => {

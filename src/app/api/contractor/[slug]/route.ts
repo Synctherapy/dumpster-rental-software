@@ -5,6 +5,7 @@ import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { publicOrganization } from '@/lib/server/workspace';
 import { failure, assertSameOrigin } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { invoice, quote } from '@/lib/pricing';
 import { swapContainer, recordBookingOccurred } from '@/lib/server/jobs';
 import { verifyContractorToken } from '@/lib/server/tokens';
@@ -328,6 +329,7 @@ export async function POST(
 ) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'contractor');
     const { slug } = await params;
     const access = await resolveContractorAccess(request, slug);
     const rawBody = (await request.json()) as Record<string, unknown>;

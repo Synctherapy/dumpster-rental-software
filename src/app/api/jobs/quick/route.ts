@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { quote, platformFee } from '@/lib/pricing';
 import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
@@ -37,6 +38,7 @@ const quickOrderSchema = z.object({
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'quickOrder');
     const body = quickOrderSchema.parse(await request.json());
     const formattedPhone = normalizePhone(body.customer_phone);
     const formattedZip = normalizePostalCode(body.zip);

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { clientIp, enforceRateLimit } from '@/lib/server/rate-limit';
 import { sendSms } from '@/lib/server/notifications';
 
 const signSchema = z.object({
@@ -13,27 +14,13 @@ const signSchema = z.object({
 const ALREADY_SIGNED =
   'This agreement has already been signed. Contact your hauler if the signature needs to be corrected.';
 
-/**
- * The signer's address, for a document that may be produced in a dispute.
- * `x-vercel-forwarded-for` is set by the platform and overwrites anything the
- * client sends; the others are fallbacks for other hosting, where a determined
- * client can influence the value.
- */
-function clientIp(request: Request) {
-  return (
-    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    'remote-client'
-  );
-}
-
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'sign');
     const { id } = await params;
     const body = signSchema.parse(await request.json());
     const ip = clientIp(request);

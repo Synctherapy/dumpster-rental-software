@@ -35,7 +35,13 @@ export function driverLinkTtlMs() {
 }
 
 export const MIN_DRIVER_LINK_MS = 24 * 3600000;
-export const MAX_DRIVER_LINK_MS = 720 * 3600000;
+/**
+ * 120 days. Settings allow a pricing rule with up to 90 included days, and
+ * pickup_date itself has no upper bound, so a long construction rental is
+ * legitimate and must not strand the driver. This only exists to stop a
+ * mistyped year from minting a link that effectively never expires.
+ */
+export const MAX_DRIVER_LINK_MS = 120 * 86400000;
 
 /**
  * How long a link sent for a particular job should live: through the day after
@@ -43,8 +49,8 @@ export const MAX_DRIVER_LINK_MS = 720 * 3600000;
  * collection without needing a resend mid-rental.
  *
  * Floored at one day, so a same-day dispatch is not handed a link that expires
- * within the hour, and capped at thirty, so a mistyped pickup date cannot mint
- * a link that lasts a year. Dates are whole days with no time zone, so the end
+ * within the hour, and capped at 120 so a mistyped pickup year cannot mint a
+ * link that never expires. Dates are whole days with no time zone, so the end
  * of the pickup day is taken as UTC midnight and rounded up a day, which errs
  * on the side of the driver keeping access.
  */

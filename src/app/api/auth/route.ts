@@ -3,12 +3,14 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { generateCleanSlug } from '@/lib/city-zips';
 import { notifyAdminSignup } from '@/lib/server/notifications';
 
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'auth');
     const body = await request.json().catch(() => ({}));
     if (isDemo()) {
       if (body?.action === 'logout') {

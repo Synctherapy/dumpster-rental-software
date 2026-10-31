@@ -30,6 +30,7 @@ async function database() {
   await db.exec(await readFile('supabase/migrations/202610140002_dedicated_twilio_numbers.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610310001_sms_opt_outs.sql', 'utf8'));
   await db.exec(await readFile('supabase/migrations/202610310002_job_columns_behind_code.sql', 'utf8'));
+  await db.exec(await readFile('supabase/migrations/202610310003_rate_limits.sql', 'utf8'));
   return db;
 }
 test('migration applies and tenant RLS rejects cross-organization access and role escalation', async () => {
@@ -541,6 +542,68 @@ test('job columns the application writes all exist, and the waiver gate is write
       [phoneJob],
     );
     assert.equal(stored.rows[0].name, 'Phone Caller', 'the original signature must survive');
+  } finally {
+    await db.close();
+  }
+});
+
+test('the rate limiter counts per bucket, resets on window roll, and is atomic', async () => {
+  const db = await database();
+  try {
+    const hit = async (bucket: string, limit: number, windowSeconds: number) =>
+      (
+        await db.query<{ rate_limit_hit: boolean }>('select public.rate_limit_hit($1,$2,$3)', [
+          bucket,
+          limit,
+          windowSeconds,
+        ])
+      ).rows[0].rate_limit_hit;
+
+    // Three allowed, the fourth refused.
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), true);
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), true);
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), true);
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), false);
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), false);
+
+    // A different caller has its own budget.
+    assert.equal(await hit('ip:5.6.7.8:book', 3, 3600), true);
+
+    // A different endpoint for the same caller has its own budget too.
+    assert.equal(await hit('ip:1.2.3.4:login', 3, 3600), true);
+
+    // Once the window has rolled past, the count starts again.
+    await db.query(
+      "update public.rate_limits set window_start = now() - interval '2 hours' where bucket = $1",
+      ['ip:1.2.3.4:book'],
+    );
+    assert.equal(await hit('ip:1.2.3.4:book', 3, 3600), true);
+    const after = await db.query<{ hits: number }>(
+      'select hits from public.rate_limits where bucket = $1',
+      ['ip:1.2.3.4:book'],
+    );
+    assert.equal(after.rows[0].hits, 1, 'a rolled window restarts at one');
+
+    // Concurrent hits must not both read a stale count: ten parallel calls
+    // against a limit of four must allow exactly four.
+    const parallel = await Promise.all(
+      Array.from({ length: 10 }, () => hit('ip:9.9.9.9:burst', 4, 3600)),
+    );
+    assert.equal(
+      parallel.filter(Boolean).length,
+      4,
+      `expected exactly 4 allowed, got ${parallel.filter(Boolean).length}`,
+    );
+
+    // Housekeeping removes only stale buckets.
+    await db.query(
+      "update public.rate_limits set window_start = now() - interval '3 days' where bucket = $1",
+      ['ip:5.6.7.8:book'],
+    );
+    await db.query('select public.prune_rate_limits()');
+    const left = await db.query<{ bucket: string }>('select bucket from public.rate_limits');
+    assert.ok(!left.rows.some((r) => r.bucket === 'ip:5.6.7.8:book'), 'stale bucket pruned');
+    assert.ok(left.rows.some((r) => r.bucket === 'ip:9.9.9.9:burst'), 'live bucket kept');
   } finally {
     await db.close();
   }

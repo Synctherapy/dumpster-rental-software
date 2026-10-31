@@ -70,7 +70,10 @@ test('partial Supabase configuration fails closed instead of becoming a public d
 
 test('the failure names the missing variables and never their values', () => {
   withEnv(
-    { NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co', SUPABASE_SERVICE_ROLE_KEY: 'sh-secret-value' },
+    {
+      NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: 'sh-secret-value',
+    },
     () => {
       try {
         isDemo();
@@ -86,9 +89,8 @@ test('the failure names the missing variables and never their values', () => {
 });
 
 test('ROLLOS_DEMO=true runs the demo deliberately, even with partial configuration', () => {
-  withEnv(
-    { ROLLOS_DEMO: 'true', NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co' },
-    () => assert.equal(isDemo(), true),
+  withEnv({ ROLLOS_DEMO: 'true', NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co' }, () =>
+    assert.equal(isDemo(), true),
   );
 });
 

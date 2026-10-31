@@ -1292,7 +1292,7 @@ export function Settings({
                 color: settingsTab === 'notifications' ? '#ffffff' : '#166534',
               }}
             >
-              {data.notifications_log?.length ?? 0}
+              {data.notifications_total ?? data.notifications_log?.length ?? 0}
             </span>
           </button>
         </div>
@@ -2296,7 +2296,7 @@ export function Settings({
                     gap: '4px',
                   }}
                 >
-                  View full ledger ({data.notifications_log?.length ?? 0}) <ArrowRight size={12} />
+                  View full ledger ({data.notifications_total ?? data.notifications_log?.length ?? 0}) <ArrowRight size={12} />
                 </button>
               </div>
 

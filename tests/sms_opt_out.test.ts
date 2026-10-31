@@ -56,9 +56,8 @@ function missedCall(from: string) {
 
 async function marketingTextsTo(phone: string) {
   const d = await readDemo();
-  return d.notifications_log.filter(
-    (n) => n.template === 'missed_call_autoreply' && n.to === phone,
-  ).length;
+  return d.notifications_log.filter((n) => n.template === 'missed_call_autoreply' && n.to === phone)
+    .length;
 }
 
 test('texting STOP records an opt-out and draws no auto-reply', async () => {

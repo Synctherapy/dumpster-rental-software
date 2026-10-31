@@ -4,6 +4,9 @@ import { isDemo, readDemo } from './store';
 import { admin, maybeIdentity } from './supabase';
 import { checkAndTriggerPhoneProvisioning } from './phone';
 import type { Workspace } from '../types';
+/** How much of the message log the dashboard receives per poll. */
+export const NOTIFICATION_PAGE_SIZE = 250;
+
 export async function workspace(): Promise<Workspace> {
   if (isDemo()) {
     const d = await readDemo();
@@ -31,12 +34,18 @@ export async function workspace(): Promise<Workspace> {
     ];
     const results = await Promise.race([
       Promise.all(
-        tables.map((t) =>
-          db
+        tables.map((t) => {
+          const scoped = db
             .from(t)
             .select('*')
-            .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id),
-        ),
+            .eq(t === 'organizations' ? 'id' : 'org_id', member.org_id);
+          // The message log grows by one row per text and email, forever, and
+          // the dashboard polls this every 30 seconds while only ever showing
+          // the newest handful. Send the newest page, not the whole history.
+          return t === 'notifications_log'
+            ? scoped.order('sent_at', { ascending: false }).limit(NOTIFICATION_PAGE_SIZE)
+            : scoped;
+        }),
       ),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('DB_TIMEOUT')), 4000),
@@ -62,6 +71,13 @@ export async function workspace(): Promise<Workspace> {
         organization.twilio_phone_number = provisioned;
       }
     }
+    // An exact count so the ledger link can still show the real total even
+    // though only the newest page was transferred.
+    const { count: notificationsTotal } = await db
+      .from('notifications_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('org_id', member.org_id);
+
     return {
       organization,
       users: results[1].data,
@@ -70,6 +86,7 @@ export async function workspace(): Promise<Workspace> {
       payments: results[4].data,
       pricing_rules: results[5].data,
       notifications_log: results[6].data,
+      notifications_total: notificationsTotal ?? results[6].data?.length ?? 0,
       demo: false,
     } as Workspace;
   } catch (err: unknown) {

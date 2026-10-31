@@ -155,6 +155,11 @@ export interface Workspace {
   notifications_log: Notification[];
   /** Optional so demo files written before opt-out tracking still load. */
   sms_opt_outs?: SmsOptOut[];
+  /**
+   * Total message-log rows for the organization. notifications_log carries only
+   * the newest page, so counts in the UI come from here when present.
+   */
+  notifications_total?: number;
   demo: boolean;
 }
 export const statuses: JobStatus[] = [

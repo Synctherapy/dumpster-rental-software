@@ -116,8 +116,39 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         } catch {}
       })
       .catch((e) => setError(e.message));
-    const interval = setInterval(() => reload().catch(() => {}), 30000);
-    return () => clearInterval(interval);
+    // Only poll a tab the operator is actually looking at. A background tab
+    // left open all day was costing roughly 2,900 server calls for nothing.
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const hidden = () => typeof document !== 'undefined' && document.visibilityState === 'hidden';
+
+    const start = () => {
+      if (interval !== null) return;
+      interval = setInterval(() => {
+        if (hidden()) return;
+        reload().catch(() => {});
+      }, 30000);
+    };
+    const stop = () => {
+      if (interval === null) return;
+      clearInterval(interval);
+      interval = null;
+    };
+    const onVisibilityChange = () => {
+      if (hidden()) {
+        stop();
+      } else {
+        // Catch up immediately, so coming back to the tab shows current data.
+        reload().catch(() => {});
+        start();
+      }
+    };
+
+    if (!hidden()) start();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [reload]);
   useEffect(() => {
     if (toast) {
