@@ -44,6 +44,24 @@ ROLLOS_DEMO=true npm start -- --hostname 0.0.0.0
 
 The cloud task already provides an isolated checkout. Use it; do not create a worktree unless the user requests one.
 
+## Check it before anyone signs up
+
+Once the migrations are applied and the environment is configured, run this against the real project:
+
+```sh
+npm run preflight
+```
+
+It verifies what the application assumes at runtime: that every migration has been applied, that each stored procedure exists and is callable by the server but not from the browser, that the browser cannot write the tables it must not, that the delivery-photo bucket exists and is private, that the Stripe key works, and that signups are actually enabled in Supabase Auth. It only reads, and it never prints the value of a key — only whether one is set and whether its shape is right. A request that fails to arrive is reported as a failure, never as a pass.
+
+Add `--signup` to also create one throwaway account, confirm the signup trigger builds the organization, owner record and default dumpster sizes, and delete it again:
+
+```sh
+npm run preflight -- --signup
+```
+
+Exit status is non-zero if anything failed, so it works as a deploy gate.
+
 ## Connect hosted services
 
 Copy `.env.example` to `.env.local` locally, or enter bindings securely in cloud/Vercel environment settings. Do not commit credentials. All service values are currently absent; no external project has been created or migrated on your behalf.

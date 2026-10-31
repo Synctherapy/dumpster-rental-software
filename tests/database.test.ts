@@ -450,6 +450,17 @@ async function consolidatedDatabase() {
     'utf8',
   );
   await db.exec(sql.replace('create extension if not exists pgcrypto;', ''));
+  // The README tells operators to apply these after the consolidated file, so
+  // this is the shape a live project actually has.
+  for (const later of [
+    '202610310001_sms_opt_outs',
+    '202610310002_job_columns_behind_code',
+    '202610310003_rate_limits',
+    '202610310004_lock_organization_writes',
+    '202610310005_driver_link_revocation',
+  ]) {
+    await db.exec(await readFile(`supabase/migrations/${later}.sql`, 'utf8'));
+  }
   return db;
 }
 
@@ -710,6 +721,212 @@ test('driver link revocation is recorded on the crew row', async () => {
       [driver],
     );
     assert.ok(revoked.rows[0].links_revoked_at, 'cancelling stores the moment it happened');
+  } finally {
+    await db.close();
+  }
+});
+
+test('a brand-new hauler signs up and runs a first job through to its invoice', async () => {
+  // Everything the live product does on the database, in the order a real
+  // account does it, through the same stored procedures the application calls,
+  // against the migration set the README tells operators to apply.
+  const db = await consolidatedDatabase();
+  try {
+    const ownerId = randomUUID();
+    const ownerEmail = `owner-${randomUUID().slice(0, 8)}@example.com`;
+
+    // 1. Signup. The trigger on auth.users builds the whole workspace.
+    await db.query('insert into auth.users(id,email,raw_user_meta_data) values($1,$2,$3)', [
+      ownerId,
+      ownerEmail,
+      { name: 'Dana Reyes', company: 'Reyes Roll-Off' },
+    ]);
+
+    const owner = (
+      await db.query<{ org_id: string; role: string; email: string }>(
+        'select org_id, role, email from public.users where id=$1',
+        [ownerId],
+      )
+    ).rows[0];
+    assert.ok(owner, 'signup must create the owner record');
+    assert.equal(owner.role, 'owner');
+    assert.equal(owner.email, ownerEmail, 'billing matches an account by this address');
+    const org = owner.org_id;
+
+    const created = (
+      await db.query<{ name: string; slug: string; subscription_status: string }>(
+        'select name, slug, subscription_status from public.organizations where id=$1',
+        [org],
+      )
+    ).rows[0];
+    assert.equal(created.name, 'Reyes Roll-Off');
+    assert.match(created.slug, /^reyes-roll-off-/, 'slug is derived from the company name');
+    assert.notEqual(created.subscription_status, 'active', 'a new signup is not on a paid plan');
+
+    const seeded = await db.query<{ size_yards: number }>(
+      'select size_yards from public.pricing_rules where org_id=$1 order by size_yards',
+      [org],
+    );
+    assert.deepEqual(
+      seeded.rows.map((r) => r.size_yards),
+      [10, 20, 30, 40],
+      'signup seeds the four dumpster sizes',
+    );
+
+    // 2. The hauler sets their pricing and service area.
+    await db.query('select public.save_settings($1,$2)', [
+      org,
+      {
+        name: 'Reyes Roll-Off',
+        phone: '+15125550100',
+        slug: 'reyes-roll-off',
+        deposit_percent: 100,
+        pricing_rules: [
+          {
+            size_yards: 20,
+            base_price_cents: 42500,
+            included_days: 7,
+            extra_day_cents: 2000,
+            included_tons: 2,
+            overage_per_ton_cents: 9500,
+            service_zips: ['78704'],
+          },
+        ],
+      },
+    ]);
+    const configured = await db.query<{ size_yards: number; service_zips: string[] }>(
+      'select size_yards, service_zips from public.pricing_rules where org_id=$1',
+      [org],
+    );
+    assert.equal(configured.rows.length, 1, 'sizes they removed are pruned');
+    assert.deepEqual(configured.rows[0].service_zips, ['78704']);
+
+    // 3. Crew and fleet.
+    const driver = randomUUID();
+    const container = randomUUID();
+    await db.query("insert into users(id,org_id,name,role) values($1,$2,'Marcus','driver')", [
+      driver,
+      org,
+    ]);
+    await db.query("insert into containers(id,org_id,label,size_yards) values($1,$2,'RR-20',20)", [
+      container,
+      org,
+    ]);
+
+    // 4. A customer books, choosing the protective-boards add-on.
+    const jobId = randomUUID();
+    const booking = (
+      await db.query<{ job: Record<string, unknown> }>('select reserve_booking($1) as job', [
+        {
+          id: jobId,
+          org_id: org,
+          size_yards: 20,
+          zip: '78704',
+          delivery_date: addDays(today(), 1),
+          pickup_date: addDays(today(), 8),
+          booking_key: randomUUID(),
+          customer_name: 'Pat Vance',
+          customer_phone: '+15125550133',
+          customer_email: 'pat@example.com',
+          delivery_address: '501 Oltorf St, Austin, TX',
+          notes: 'Gate code 4417',
+          protective_boards: true,
+          signature: { name: 'Pat Vance', timestamp: new Date().toISOString(), ip: '203.0.113.9' },
+        },
+      ])
+    ).rows[0].job;
+    assert.equal(booking.status, 'quoted', 'a booking is a quote until the deposit clears');
+    assert.equal(booking.deposit_cents, 42500);
+    assert.equal(booking.protective_boards, true, 'the paid add-on must be recorded');
+    assert.equal(booking.signed_by_customer, true, 'booking online signs the agreement');
+
+    // 5. The deposit clears.
+    await db.query('select apply_stripe_event($1,$2,$3)', [
+      `evt_${randomUUID()}`,
+      'payment_intent.succeeded',
+      {
+        id: `pi_${randomUUID()}`,
+        amount: 42500,
+        application_fee_amount: 1275,
+        currency: 'usd',
+        customer: 'cus_live',
+        payment_method: 'pm_live',
+        metadata: { job_id: jobId, org_id: org, kind: 'deposit' },
+      },
+    ]);
+    const paid = await db.query<{ status: string }>('select status from public.jobs where id=$1', [
+      jobId,
+    ]);
+    assert.equal(paid.rows[0].status, 'booked', 'a cleared deposit confirms the booking');
+
+    // 6. Dispatch, deliver, pick up.
+    const transition = (id: string, patch: unknown, asDriver: string | null = null) =>
+      db.query('select transition_job($1,$2,$3,$4)', [id, org, patch, asDriver]);
+
+    await transition(jobId, { status: 'dispatched', driver_id: driver, container_id: container });
+    const onSite = await db.query<{ status: string; current_job_id: string }>(
+      'select status, current_job_id from public.containers where id=$1',
+      [container],
+    );
+    assert.equal(onSite.rows[0].status, 'on_site', 'dispatch takes the container out of the yard');
+    assert.equal(onSite.rows[0].current_job_id, jobId);
+
+    await assert.rejects(
+      () => transition(jobId, { status: 'delivered' }, driver),
+      /proof/i,
+      'a driver cannot mark delivered without a photo',
+    );
+    await transition(
+      jobId,
+      { status: 'delivered', proof_url: `/api/proof/${randomUUID()}` },
+      driver,
+    );
+    await transition(jobId, { status: 'picked_up', tons_actual: 3.4 }, driver);
+
+    // 7. The invoice. Over tonnage, so the scale ticket is required first.
+    await assert.rejects(
+      () => db.query('select prepare_invoice($1,$2)', [jobId, org]),
+      /scale ticket/i,
+      'an overage cannot be charged without the landfill ticket',
+    );
+    await db.query('select attach_scale_ticket($1,$2,$3)', [
+      jobId,
+      org,
+      `/api/photos/${randomUUID()}.png`,
+    ]);
+    const invoice = (
+      await db.query<{ invoice: { amount_cents: number } }>(
+        'select prepare_invoice($1,$2) as invoice',
+        [jobId, org],
+      )
+    ).rows[0].invoice;
+    // 1.4 tons over at $95 is $133, and the deposit already covered the rental.
+    assert.equal(invoice.amount_cents, 13300, 'the balance is the tonnage overage alone');
+
+    // 8. The job is locked once invoiced.
+    await assert.rejects(
+      () => transition(jobId, { status: 'cancelled' }),
+      /closed or its invoice is locked/i,
+    );
+
+    // 9. And the owner still cannot promote themselves through the browser.
+    //
+    // SET LOCAL only applies inside a transaction, and each statement here is
+    // its own transaction, so the role has to be set for the session.
+    await db.query('set role authenticated');
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)", [ownerId]);
+    await assert.rejects(
+      () => db.query("update public.organizations set subscription_status='active'"),
+      /permission denied/i,
+      'an owner must not be able to grant themselves a paid plan',
+    );
+    const visible = await db.query<{ count: string | number }>('select count(*) from public.jobs');
+    assert.equal(
+      Number(visible.rows[0].count),
+      1,
+      'the owner sees their own job and no other business',
+    );
+    await db.query('reset role');
   } finally {
     await db.close();
   }
