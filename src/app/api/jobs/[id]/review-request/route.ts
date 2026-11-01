@@ -3,6 +3,7 @@ import { isDemo, readDemo } from '@/lib/server/store';
 import { admin, identity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { sendSms } from '@/lib/server/notifications';
+import { isOptedOut } from '@/lib/server/opt-outs';
 
 export async function POST(
   request: Request,
@@ -60,6 +61,11 @@ export async function POST(
       customerName = job.customer_name;
       orgId = org.id;
       orgName = org.name;
+    }
+
+    const optedOut = await isOptedOut(orgId, customerPhone);
+    if (optedOut) {
+      throw new Error('This customer has opted out of SMS messages (STOP). Review request not sent.');
     }
 
     const text = `Hi ${customerName}, thank you for choosing ${orgName || 'us'}! If you had a great experience, could you leave us a quick Google review? ${reviewUrl}`;

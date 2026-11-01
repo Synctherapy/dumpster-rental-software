@@ -5,10 +5,12 @@ import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { publicOrganization } from '@/lib/server/workspace';
 import { failure, assertSameOrigin } from '@/lib/server/http';
+import { logError } from '@/lib/server/log';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { invoice, quote } from '@/lib/pricing';
 import { swapContainer, recordBookingOccurred } from '@/lib/server/jobs';
 import { verifyContractorToken } from '@/lib/server/tokens';
+import { jobMatchesContractor } from '@/lib/server/contractors';
 import {
   addDays,
   today,
@@ -130,6 +132,7 @@ async function readAccountFromBody(request: Request) {
     return '';
   }
 }
+
 
 /**
  * A contractor proves who they are with the signed `t` token in their VIP link.
@@ -271,11 +274,7 @@ export async function GET(
     // widened to every commercial job, and no account name at all returned the
     // organization's entire active book of business.
     const contractorJobs = jobsList
-      .filter(
-        (j) =>
-          j.notes?.toLowerCase().includes(accountLower) ||
-          j.customer_name?.toLowerCase().includes(accountLower),
-      )
+      .filter((j) => jobMatchesContractor(j, accountName))
       .map(publicJob);
 
     const statement = buildStatement(accountName, contractorJobs, containers);
@@ -422,10 +421,7 @@ export async function POST(
           .eq('org_id', orgId)
           .single();
         if (prevErr || !prevJob) throw new Error('Job not found');
-        const accountLower = accountName.toLowerCase();
-        const ownsJob =
-          prevJob.notes?.toLowerCase().includes(accountLower) ||
-          prevJob.customer_name?.toLowerCase().includes(accountLower);
+        const ownsJob = jobMatchesContractor(prevJob, accountName);
         if (!ownsJob) throw new Error('FORBIDDEN');
         if (!['delivered', 'dispatched'].includes(prevJob.status)) {
           throw new Error('Only delivered or dispatched jobs can be swapped');
@@ -498,6 +494,7 @@ export async function POST(
           .select('*')
           .single();
         if (insertErr && insertErr.message?.includes('column')) {
+          logError('contractor.swap.columnFallback', insertErr);
           const fallbackRow = { ...swapJobRow };
           delete fallbackRow.is_swap;
           delete fallbackRow.is_commercial;
@@ -620,6 +617,7 @@ export async function POST(
         .select('*')
         .single();
       if (insertErr && insertErr.message?.includes('column')) {
+        logError('contractor.order.columnFallback', insertErr);
         const fallbackRow: Record<string, unknown> = { ...newJob };
         delete fallbackRow.is_commercial;
         delete fallbackRow.signed_by_customer;

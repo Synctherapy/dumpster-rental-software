@@ -13,6 +13,8 @@ req.cache[serverOnlyPath] = {
 
 import type * as TokensModule from '../src/lib/server/tokens';
 import type * as ContractorLinkModule from '../src/app/api/contractor-link/route';
+import type * as ContractorsModule from '../src/lib/server/contractors';
+import type { Job } from '../src/lib/types';
 
 const {
   contractorToken,
@@ -28,6 +30,9 @@ const {
 const { POST: contractorLinkPost } = req(
   '../src/app/api/contractor-link/route',
 ) as typeof ContractorLinkModule;
+const { jobMatchesContractor } = req(
+  '../src/lib/server/contractors',
+) as typeof ContractorsModule;
 
 test('contractor token round-trips the organization and trade account', () => {
   const token = contractorToken('org-1', 'Tony Rizzo Roofing');
@@ -199,3 +204,77 @@ test('a link sent outside any one job covers the driver latest pickup', () => {
   assert.equal(latestActivePickup(jobs, 'driver-1'), daysFromNow(12));
   assert.equal(latestActivePickup([], 'driver-1'), null);
 });
+
+test('jobMatchesContractor isolates trade accounts and prevents substring collisions', () => {
+  const baseJob = {
+    id: 'job-1',
+    org_id: 'org-1',
+    customer_name: 'Apex',
+    customer_phone: '+15125550100',
+    customer_email: 'apex@example.com',
+    delivery_address: '100 Main St',
+    zip: '78704',
+    size_yards: 20,
+    delivery_date: '2026-10-31',
+    pickup_date: '2026-11-07',
+    status: 'delivered',
+    price_cents: 42500,
+    deposit_cents: 42500,
+    tons_included: 2,
+    extra_day_cents: 2000,
+    notes: '',
+    signature: { name: '', timestamp: '', ip: '' },
+    booking_key: 'key-1',
+    pricing_snapshot: {},
+    signed_by_customer: true,
+    protective_boards: false,
+  } as unknown as Job;
+
+  // 1. Exact match on customer name (case-insensitive, trimmed)
+  assert.equal(jobMatchesContractor(baseJob, 'Apex'), true);
+  assert.equal(jobMatchesContractor(baseJob, 'apex'), true);
+  assert.equal(jobMatchesContractor(baseJob, ' APEX '), true);
+
+  // 2. Substring collisions MUST NOT MATCH: "Apex" should NOT match "Apex Roofing" or "Apex Builders"
+  const roofJob = { ...baseJob, customer_name: 'Apex Roofing' };
+  const buildersJob = { ...baseJob, customer_name: 'Apex Builders' };
+  const triCountyJob = { ...baseJob, customer_name: 'Tri-County Apex Demolition' };
+
+  assert.equal(jobMatchesContractor(roofJob, 'Apex'), false, 'Apex must not match Apex Roofing');
+  assert.equal(jobMatchesContractor(buildersJob, 'Apex'), false, 'Apex must not match Apex Builders');
+  assert.equal(jobMatchesContractor(triCountyJob, 'Apex'), false, 'Apex must not match Tri-County Apex');
+
+  // Conversely, account "Apex Roofing" must not match plain "Apex"
+  assert.equal(jobMatchesContractor(baseJob, 'Apex Roofing'), false);
+
+  // 3. Notes tags: explicit VIP contractor tag [VIP CONTRACTOR: <account>]
+  const taggedVipJob = { ...baseJob, customer_name: 'Job Site #42', notes: 'Gate code 1234. [VIP CONTRACTOR: Apex Roofing]' };
+  assert.equal(jobMatchesContractor(taggedVipJob, 'Apex Roofing'), true);
+  assert.equal(jobMatchesContractor(taggedVipJob, 'Apex'), false, 'Apex must not match [VIP CONTRACTOR: Apex Roofing]');
+
+  // 4. Notes tags: bracketed account tag [<account>]
+  const bracketedJob = { ...baseJob, customer_name: 'Site Foreman', notes: '[Apex Roofing] 20yd container requested' };
+  assert.equal(jobMatchesContractor(bracketedJob, 'Apex Roofing'), true);
+  assert.equal(jobMatchesContractor(bracketedJob, 'Apex'), false, 'Apex must not match [Apex Roofing]');
+
+  // 5. Electronic signature matching
+  const net30SigJob = {
+    ...baseJob,
+    customer_name: 'Superintendent Bob',
+    signature: { name: 'Apex Roofing (Net-30 Trade Account)', timestamp: '2026-10-31T12:00:00Z', ip: '1.2.3.4' },
+  };
+  assert.equal(jobMatchesContractor(net30SigJob, 'Apex Roofing'), true);
+  assert.equal(jobMatchesContractor(net30SigJob, 'Apex'), false);
+
+  const swapSigJob = {
+    ...baseJob,
+    customer_name: 'Superintendent Bob',
+    signature: { name: 'Apex Roofing (VIP 1-Tap Swap)', timestamp: '2026-10-31T12:00:00Z', ip: '1.2.3.4' },
+  };
+  assert.equal(jobMatchesContractor(swapSigJob, 'Apex Roofing'), true);
+
+  // 6. Empty / blank account names safely return false
+  assert.equal(jobMatchesContractor(baseJob, ''), false);
+  assert.equal(jobMatchesContractor(baseJob, '   '), false);
+});
+

@@ -22,6 +22,7 @@ import { driverToken, driverLinkTtlForPickup } from './tokens';
 import { logError } from './log';
 import { validateProof } from './proofs';
 import { ensureOrganizationPhone } from './phone';
+import { isOptedOut } from './opt-outs';
 
 export async function recordBookingOccurred(orgId: string) {
   const now = new Date().toISOString();
@@ -582,8 +583,11 @@ export async function changeJob(
         : (await admin().from('organizations').select('*').eq('id', job.org_id).single()).data;
       const reviewUrl = org?.google_review_url || org?.pricing_config?.google_review_url;
       if (reviewUrl) {
-        const reviewText = `Thank you for choosing ${org?.name || 'us'}! If you had a great experience, could you take 30 seconds to leave us a quick Google review? ${reviewUrl}`;
-        await sendSms(job.org_id, job.id, job.customer_phone, 'review_request', reviewText);
+        const optedOut = await isOptedOut(job.org_id, job.customer_phone);
+        if (!optedOut) {
+          const reviewText = `Thank you for choosing ${org?.name || 'us'}! If you had a great experience, could you take 30 seconds to leave us a quick Google review? ${reviewUrl}`;
+          await sendSms(job.org_id, job.id, job.customer_phone, 'review_request', reviewText);
+        }
       }
     }
   }

@@ -21,8 +21,10 @@ export async function POST(
       if (!job) throw new Error('Job not found');
 
       const org = demoData.organization;
-      const smsText = `${org.name}: Please tap here to review and sign your dumpster rental agreement & property damage waiver: ${agreementUrl}`;
-      await sendSms(org.id, job.id, job.customer_phone, 'waiver_link', smsText);
+      const orgName = org?.name || 'Dumpster Dispatch';
+      const smsText = `${orgName}: Please tap here to review and sign your dumpster rental agreement & property damage waiver: ${agreementUrl}`;
+      const uniqueness = String(Date.now());
+      await sendSms(org.id, job.id, job.customer_phone, 'waiver_link', smsText, uniqueness);
 
       if (job.customer_email && !job.customer_email.endsWith('@phone.rollos')) {
         await sendEmail(
@@ -32,6 +34,7 @@ export async function POST(
           'waiver_link',
           `Action Required: Sign Your Dumpster Rental Agreement · ${org.name}`,
           `Hi ${job.customer_name},\n\nPlease review and electronically sign your dumpster rental agreement and property damage waiver before container placement:\n\n${agreementUrl}\n\nThank you,\n${org.name}`,
+          uniqueness,
         );
       }
 
@@ -58,7 +61,8 @@ export async function POST(
 
     const orgName = org?.name || 'Dumpster Dispatch';
     const smsText = `${orgName}: Please tap here to review and sign your dumpster rental agreement & property damage waiver: ${agreementUrl}`;
-    await sendSms(member.org_id, job.id, job.customer_phone, 'waiver_link', smsText);
+    const uniqueness = String(Date.now());
+    await sendSms(member.org_id, job.id, job.customer_phone, 'waiver_link', smsText, uniqueness);
 
     if (job.customer_email && !job.customer_email.endsWith('@phone.rollos')) {
       await sendEmail(
@@ -68,6 +72,7 @@ export async function POST(
         'waiver_link',
         `Action Required: Sign Your Dumpster Rental Agreement · ${orgName}`,
         `Hi ${job.customer_name},\n\nPlease review and electronically sign your dumpster rental agreement and property damage waiver before container placement:\n\n${agreementUrl}\n\nThank you,\n${orgName}`,
+        uniqueness,
       );
     }
 

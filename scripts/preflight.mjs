@@ -178,7 +178,7 @@ async function database() {
     notifications_log: ['id', 'dedupe_key'],
     delivery_proofs: ['id', 'storage_key'],
     stripe_events: ['id'],
-    invoice_attempts: ['id'],
+    invoice_attempts: ['job_id'],
     sms_opt_outs: ['org_id', 'phone', 'opted_out_at'],
     rate_limits: ['bucket', 'window_start', 'hits'],
   };

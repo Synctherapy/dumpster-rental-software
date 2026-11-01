@@ -14,12 +14,16 @@ req.cache[serverOnlyPath] = {
 import type * as StoreModule from '../src/lib/server/store';
 import type * as OptOutModule from '../src/lib/server/opt-outs';
 import type * as TwilioRouteModule from '../src/app/api/webhooks/twilio/route';
+import type * as ReviewRequestRouteModule from '../src/app/api/jobs/[id]/review-request/route';
 
 const { readDemo, mutateDemo } = req('../src/lib/server/store') as typeof StoreModule;
 const { isOptedOut } = req('../src/lib/server/opt-outs') as typeof OptOutModule;
 const { POST: twilioWebhookPost } = req(
   '../src/app/api/webhooks/twilio/route',
 ) as typeof TwilioRouteModule;
+const { POST: reviewRequestPost } = req(
+  '../src/app/api/jobs/[id]/review-request/route',
+) as typeof ReviewRequestRouteModule;
 
 const DEDICATED = '+15128429102';
 
@@ -151,4 +155,52 @@ test('a missed call on a number the organization does not own is ignored', async
   );
   assert.equal(res.status, 200);
   assert.equal(await marketingTextsTo(caller), 0);
+});
+
+test('review request route rejects sending SMS to opted-out customers and succeeds when opted in', async () => {
+  await prepareOrg();
+  const caller = '+15129990010';
+
+  // Ensure organization has a review link configured and seed a test job
+  let jobId = '';
+  await mutateDemo((d) => {
+    d.organization.google_review_url = 'https://g.page/r/review-test';
+    const sample = d.jobs[0];
+    sample.customer_phone = caller;
+    jobId = sample.id;
+  });
+
+  // 1. Opt out via inbound STOP message
+  await twilioWebhookPost(inboundSms(caller, 'STOP'));
+  assert.equal(await isOptedOut((await readDemo()).organization.id, caller), true);
+
+  // 2. Attempt to trigger review request -> must be rejected
+  const reqObj = new Request(`http://localhost:3000/api/jobs/${jobId}/review-request`, {
+    method: 'POST',
+    headers: { origin: 'http://localhost:3000' },
+  });
+  const resRejected = await reviewRequestPost(reqObj, { params: Promise.resolve({ id: jobId }) });
+  assert.equal(resRejected.status, 400);
+  const dataRejected = await resRejected.json();
+  assert.match(dataRejected.error, /opted out/i);
+
+  // 3. Opt back in via START message
+  await twilioWebhookPost(inboundSms(caller, 'START'));
+  assert.equal(await isOptedOut((await readDemo()).organization.id, caller), false);
+
+  // 4. Trigger review request again -> must succeed and record notification
+  const reqObj2 = new Request(`http://localhost:3000/api/jobs/${jobId}/review-request`, {
+    method: 'POST',
+    headers: { origin: 'http://localhost:3000' },
+  });
+  const resAllowed = await reviewRequestPost(reqObj2, { params: Promise.resolve({ id: jobId }) });
+  assert.equal(resAllowed.status, 200);
+  const dataAllowed = await resAllowed.json();
+  assert.equal(dataAllowed.ok, true);
+
+  const demoData = await readDemo();
+  const reviewNotif = demoData.notifications_log.find(
+    (n) => n.template === 'review_request' && n.to === caller,
+  );
+  assert.ok(reviewNotif, 'Review request notification should be recorded after opt-in');
 });

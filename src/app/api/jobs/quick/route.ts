@@ -239,6 +239,7 @@ export async function POST(request: Request) {
         booking_key: randomUUID(),
         payment_type: body.payment_type ?? null,
         signed_by_customer: false,
+        protective_boards: body.protective_boards ?? false,
         created_at: new Date().toISOString(),
       };
 

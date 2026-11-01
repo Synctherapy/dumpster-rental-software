@@ -189,3 +189,46 @@ test('GET /api/proof/[id] rejects unauthenticated access when key is missing or 
   const resNoKey = await proofHandler(reqNoKey, { params: Promise.resolve({ id: 'proof-uuid-1' }) });
   assert.equal(resNoKey.status, 403);
 });
+
+test('POST /api/jobs/quick preserves protective_boards on phone orders', async () => {
+  const { createRequire } = await import('node:module');
+  const req = createRequire(import.meta.url);
+  const serverOnlyPath = req.resolve('server-only');
+  req.cache[serverOnlyPath] = {
+    id: serverOnlyPath,
+    filename: serverOnlyPath,
+    loaded: true,
+    exports: {},
+  } as unknown as NodeModule;
+
+  const { POST: quickPost } = req('../src/app/api/jobs/quick/route');
+  const { readDemo } = req('../src/lib/server/store');
+
+  const request = new Request('http://localhost:3000/api/jobs/quick', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', origin: 'http://localhost:3000' },
+    body: JSON.stringify({
+      customer_name: 'Board Customer',
+      customer_phone: '+15125550999',
+      customer_email: 'boards@example.com',
+      delivery_address: '500 Board St',
+      zip: '78704',
+      size_yards: 20,
+      delivery_date: '2026-11-01',
+      pickup_date: '2026-11-08',
+      protective_boards: true,
+    }),
+  });
+
+  const res = await quickPost(request);
+  assert.equal(res.status, 200);
+  const json = await res.json();
+  assert.equal(json.ok, true);
+  assert.equal(json.job.protective_boards, true);
+
+  const demo = await readDemo();
+  const savedJob = demo.jobs.find((j: Job) => j.id === json.job.id);
+  assert.ok(savedJob);
+  assert.equal(savedJob.protective_boards, true, 'protective_boards must be persisted on demo phone order');
+});
+

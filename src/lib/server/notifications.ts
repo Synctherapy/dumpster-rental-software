@@ -34,7 +34,8 @@ export async function claimNotification(
           ? ':' + new Date().toISOString().slice(0, 10)
           : template.includes('inbound') ||
               template.includes('missed_call') ||
-              template.includes('autoreply')
+              template.includes('autoreply') ||
+              template === 'waiver_link'
             ? ':' + randomUUID()
             : ''
     }`,

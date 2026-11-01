@@ -559,9 +559,9 @@ test('job columns the application writes all exist, and the waiver gate is write
     await db.query(
       `insert into public.jobs(id,org_id,customer_name,customer_phone,customer_email,delivery_address,
          zip,size_yards,delivery_date,pickup_date,status,price_cents,deposit_cents,tons_included,
-         extra_day_cents,notes,signature,booking_key,pricing_snapshot,signed_by_customer)
+         extra_day_cents,notes,signature,booking_key,pricing_snapshot,signed_by_customer,protective_boards)
        values($1,$2,'Phone Caller','+15125550124','caller@example.com','1 Dispatch Way',
-         '78704',20,$3,$4,'booked',42500,42500,2,2000,'[Phone Order]',$5,$6,'{}'::jsonb,false)`,
+         '78704',20,$3,$4,'booked',42500,42500,2,2000,'[Phone Order]',$5,$6,'{}'::jsonb,false,true)`,
       [
         phoneJob,
         orgId,
@@ -575,6 +575,15 @@ test('job columns the application writes all exist, and the waiver gate is write
         randomUUID(),
       ],
     );
+
+    const phoneJobRow = (
+      await db.query<{ protective_boards: boolean }>(
+        'select protective_boards from public.jobs where id=$1',
+        [phoneJob],
+      )
+    ).rows[0];
+    assert.equal(phoneJobRow.protective_boards, true, 'phone order preserves protective_boards column in database');
+
 
     const first = await db.query(
       `update public.jobs set signature=$2, signed_by_customer=true
