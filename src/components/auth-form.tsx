@@ -237,7 +237,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   }}
                   style={{ marginTop: 10, width: '100%', fontSize: 13, background: '#f8fafc' }}
                 >
-                  ⚡ One-Click Login as Owner (Sync Therapy)
+                  ⚡ One-Click Demo Login
                 </Button>
               )}
             </form>
