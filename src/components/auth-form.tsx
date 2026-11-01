@@ -237,7 +237,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   }}
                   style={{ marginTop: 10, width: '100%', fontSize: 13, background: '#f8fafc' }}
                 >
-                  ⚡ One-Click Login as Owner (Sync Dumpster Rental)
+                  ⚡ One-Click Login as Owner (Sync Therapy)
                 </Button>
               )}
             </form>
@@ -263,7 +263,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   autoComplete="organization"
                   required
                   minLength={2}
-                  placeholder="Sync Dumpster Rental"
+                  placeholder="e.g. Ironclad Roll-Offs"
                 />
               </label>
               <label className="field">
