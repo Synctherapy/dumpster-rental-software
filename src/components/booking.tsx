@@ -106,6 +106,49 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       accepted_terms: false,
     };
   });
+
+  const [showContractorModal, setShowContractorModal] = useState(false);
+  const [contractorPhone, setContractorPhone] = useState('');
+  const [contractorLookupBusy, setContractorLookupBusy] = useState(false);
+  const [contractorLookupError, setContractorLookupError] = useState('');
+  const [contractorLookupSuccess, setContractorLookupSuccess] = useState('');
+
+  const handleContractorLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contractorPhone.trim()) return;
+    setContractorLookupBusy(true);
+    setContractorLookupError('');
+    try {
+      const res = await api<{ ok: boolean; url?: string; account_name?: string; error?: string }>(
+        '/api/contractor/lookup',
+        {
+          method: 'POST',
+          body: JSON.stringify({ slug, phone: contractorPhone.trim() }),
+        },
+      );
+      if (res.ok && res.url) {
+        setContractorLookupSuccess(
+          `Access confirmed for ${res.account_name || 'your account'}! Opening portal...`,
+        );
+        setTimeout(() => {
+          window.location.href = res.url!;
+        }, 500);
+      } else {
+        setContractorLookupError(
+          res.error ||
+            'No active commercial trade account found for this number. Call or text us to set up your Net-30 account.',
+        );
+      }
+    } catch (err: unknown) {
+      setContractorLookupError(
+        (err as Error).message ||
+          'No commercial account found. Call or text us to set up your Net-30 trade account.',
+      );
+    } finally {
+      setContractorLookupBusy(false);
+    }
+  };
+
   useEffect(() => {
     api<PublicData>(`/api/public/${slug}`)
       .then((d) => {
@@ -574,8 +617,12 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       </div>
                     </div>
                   </div>
-                  <Link
-                    href={`/contractor/${slug}?account=${encodeURIComponent(contractorParam)}`}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContractorLookupError('');
+                      setShowContractorModal(true);
+                    }}
                     style={{
                       fontSize: '11.5px',
                       background: '#166534',
@@ -583,11 +630,16 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       fontWeight: 700,
                       padding: '6px 12px',
                       borderRadius: '20px',
-                      textDecoration: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
                     }}
                   >
-                    Commercial Roofer or Contractor? Use the 1-Tap VIP Swap &amp; Net-30 Portal →
-                  </Link>
+                    <ShieldCheck size={13} />
+                    Open Private Jobsite Portal →
+                  </button>
                 </div>
               ) : (
                 <div
@@ -609,16 +661,28 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                     <Truck size={14} style={{ color: '#4d7c0f' }} />
                     Need multi-can jobsite drops or Net-30 billing?
                   </span>
-                  <Link
-                    href={`/contractor/${slug}`}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContractorLookupError('');
+                      setShowContractorModal(true);
+                    }}
                     style={{
+                      background: 'none',
+                      border: 'none',
                       color: '#15803d',
                       fontWeight: 700,
                       textDecoration: 'underline',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: 0,
                     }}
                   >
-                    Commercial Roofer or Contractor? Use the 1-Tap VIP Swap &amp; Net-30 Portal →
-                  </Link>
+                    <ShieldCheck size={13} /> Commercial Contractor Access →
+                  </button>
                 </div>
               )}
               {data && !data.demo && !data.organization?.stripe_connected && !data.organization?.stripe_connect_account_id && (
@@ -1399,6 +1463,220 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
             </aside>
           </div>
         </>
+      )}
+
+      {/* Private Commercial Contractor Phone Verification Modal */}
+      {showContractorModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.72)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowContractorModal(false);
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '440px',
+              width: '100%',
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              position: 'relative',
+              border: '1px solid #e2e8f0',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowContractorModal(false)}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: '#f1f5f9',
+                border: 'none',
+                borderRadius: '50%',
+                width: '30px',
+                height: '30px',
+                display: 'grid',
+                placeItems: 'center',
+                cursor: 'pointer',
+                color: '#64748b',
+              }}
+            >
+              <X size={16} />
+            </button>
+
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: '#dcfce7',
+                color: '#15803d',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '3px 9px',
+                borderRadius: '999px',
+                marginBottom: '10px',
+              }}
+            >
+              <ShieldCheck size={13} />
+              COMMERCIAL TRADE PARTNER ACCESS
+            </div>
+
+            <h2 style={{ margin: '0 0 6px 0', fontSize: '19px', fontWeight: 800, color: '#0f172a' }}>
+              Jobsite Contractor Portal
+            </h2>
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
+              Enter your mobile phone number to open your company’s private jobsite portal. View active bins, request empty &amp; return swaps, and download Net-30 statements.
+            </p>
+
+            <form onSubmit={handleContractorLookup} style={{ display: 'grid', gap: '12px' }}>
+              <div>
+                <label
+                  htmlFor="contractor-phone-input"
+                  style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}
+                >
+                  Mobile Phone Number
+                </label>
+                <input
+                  id="contractor-phone-input"
+                  type="tel"
+                  required
+                  autoFocus
+                  placeholder="(555) 000-0000"
+                  value={contractorPhone}
+                  onChange={(e) => setContractorPhone(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              {contractorLookupSuccess && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    fontSize: '12px',
+                    color: '#15803d',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <CheckCircle2 size={16} />
+                  <span>{contractorLookupSuccess}</span>
+                </div>
+              )}
+
+              {contractorLookupError && (
+                <div
+                  style={{
+                    background: '#fff1f2',
+                    border: '1px solid #fecdd3',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    fontSize: '12px',
+                    color: '#be123c',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>{contractorLookupError}</p>
+                  {data?.organization?.phone && (
+                    <p style={{ margin: 0, fontSize: '11.5px', color: '#9f1239' }}>
+                      Call or text us at{' '}
+                      <a
+                        href={`tel:${data.organization.phone}`}
+                        style={{ color: '#be123c', fontWeight: 800, textDecoration: 'underline' }}
+                      >
+                        {data.organization.phone}
+                      </a>{' '}
+                      to open an account.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={contractorLookupBusy}
+                style={{
+                  background: '#166534',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  cursor: contractorLookupBusy ? 'wait' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
+              >
+                {contractorLookupBusy ? (
+                  <Loader2 size={16} className="spin" />
+                ) : (
+                  <ShieldCheck size={16} />
+                )}
+                Access My Jobsite Portal
+              </button>
+            </form>
+
+            <div
+              style={{
+                marginTop: '16px',
+                paddingTop: '12px',
+                borderTop: '1px solid #f1f5f9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: '#94a3b8',
+              }}
+            >
+              <span>🔒 100% Confidential · Zero public directory</span>
+              <button
+                type="button"
+                onClick={() => setShowContractorModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748b',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
     </div>

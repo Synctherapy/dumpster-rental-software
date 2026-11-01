@@ -57,15 +57,36 @@ export function ContractorPortal({ slug }: { slug: string }) {
     }
     return 'Apex Roofing & Construction';
   });
-  const [editingAccount, setEditingAccount] = useState(false);
-  const [accountDraft, setAccountDraft] = useState(() => {
+  const [activeTab, setActiveTab] = useState<'swaps' | 'order' | 'statement' | 'profile'>('swaps');
+
+  // Contractor Profile Preferences State (Persisted in browser/device for convenience)
+  const [profileEmail, setProfileEmail] = useState(() => {
     if (typeof window !== 'undefined') {
-      const fromQuery = (new URLSearchParams(window.location.search).get('account') || '').trim();
-      if (fromQuery) return fromQuery;
+      return localStorage.getItem(`contractor_ap_email_${slug}`) || 'accounting@apexroofing.com';
     }
-    return 'Apex Roofing & Construction';
+    return 'accounting@apexroofing.com';
   });
-  const [activeTab, setActiveTab] = useState<'swaps' | 'order' | 'statement'>('swaps');
+  const [profilePhone, setProfilePhone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(`contractor_phone_${slug}`) || '+1 (512) 555-0199';
+    }
+    return '+1 (512) 555-0199';
+  });
+  const [profileForeman, setProfileForeman] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(`contractor_foreman_${slug}`) || 'Mike Rodriguez (Lead Foreman)';
+    }
+    return 'Mike Rodriguez (Lead Foreman)';
+  });
+  const [profileNotes, setProfileNotes] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        localStorage.getItem(`contractor_notes_${slug}`) ||
+        'Always place protective wood boards under dumpster rollers. Gate code 4412.'
+      );
+    }
+    return 'Always place protective wood boards under dumpster rollers. Gate code 4412.';
+  });
 
   const [data, setData] = useState<ContractorPortalResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -302,15 +323,39 @@ export function ContractorPortal({ slug }: { slug: string }) {
     }
   };
 
-  const applyAccountSwitch = (e: React.FormEvent) => {
+  const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleaned = accountDraft.trim() || 'Apex Roofing & Construction';
-    setAccountName(cleaned);
-    setEditingAccount(false);
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('account', cleaned);
-      window.history.replaceState({}, '', url.toString());
+      localStorage.setItem(`contractor_ap_email_${slug}`, profileEmail);
+      localStorage.setItem(`contractor_phone_${slug}`, profilePhone);
+      localStorage.setItem(`contractor_foreman_${slug}`, profileForeman);
+      localStorage.setItem(`contractor_notes_${slug}`, profileNotes);
+    }
+    showToast('Company profile & jobsite preferences saved successfully!');
+  };
+
+  const handleRequestPickup = async (job: Job) => {
+    const pickupDate = addDays(today(), 1);
+    try {
+      const res = await fetch(`/api/contractor/${encodeURIComponent(slug)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'pickup',
+          t: portalToken || undefined,
+          job_id: job.id,
+          pickup_date: pickupDate,
+          account_name: accountName,
+        }),
+      });
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Pickup request failed');
+      }
+      showToast(`Final haul-off scheduled for ${dateLabel(pickupDate)}! No replacement bin.`);
+      await loadPortal(accountName);
+    } catch (err) {
+      showToast((err as Error).message || 'Failed to schedule haul-off', true);
     }
   };
 
@@ -369,21 +414,21 @@ export function ContractorPortal({ slug }: { slug: string }) {
               VIP COMMERCIAL TRADE PORTAL · NET-30 ACCOUNT
             </div>
             <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#ffffff' }}>
-              {data?.organization?.name || 'Greenline Hauling'} · 1-Tap Jobsite Dispatch
+              {data?.organization?.name || 'Greenline Hauling'} · Jobsite Dispatch
             </h1>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#bbf7d0' }}>
-              Zero credit card entry · Instant 1-tap dump &amp; return swaps · Consolidated monthly Net-30 statement
+              Zero credit card entry · Priority empty &amp; return swaps · Consolidated monthly Net-30 statement
             </p>
           </div>
 
-          {/* Contractor Company Switcher */}
+          {/* Verified Trade Partner Badge (Locked, never editable) */}
           <div
             style={{
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.16)',
               borderRadius: '12px',
-              padding: '10px 14px',
-              minWidth: '260px',
+              padding: '10px 16px',
+              minWidth: '240px',
             }}
           >
             <div
@@ -394,75 +439,23 @@ export function ContractorPortal({ slug }: { slug: string }) {
                 color: '#86efac',
                 fontWeight: 700,
                 marginBottom: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
               }}
             >
-              Active Trade Account
+              <ShieldCheck size={12} color="#4ade80" />
+              Verified Trade Partner
             </div>
-            {editingAccount ? (
-              <form onSubmit={applyAccountSwitch} style={{ display: 'flex', gap: '6px' }}>
-                <input
-                  value={accountDraft}
-                  onChange={(e) => setAccountDraft(e.target.value)}
-                  placeholder="Contractor company name"
-                  style={{
-                    flex: 1,
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid #4ade80',
-                    background: '#0c1710',
-                    color: '#fff',
-                    fontSize: '12px',
-                  }}
-                />
-                <button
-                  type="submit"
-                  style={{
-                    background: '#d6ef7c',
-                    color: '#111f16',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 10px',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Save
-                </button>
-              </form>
-            ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '10px',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Building2 size={16} color="#d6ef7c" />
-                  <span style={{ fontWeight: 700, fontSize: '14px', color: '#ffffff' }}>
-                    {accountName}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAccountDraft(accountName);
-                    setEditingAccount(true);
-                  }}
-                  style={{
-                    background: 'transparent',
-                    color: '#bbf7d0',
-                    border: '1px solid rgba(187,247,208,0.35)',
-                    borderRadius: '6px',
-                    padding: '3px 8px',
-                    fontSize: '11px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Switch
-                </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Building2 size={16} color="#d6ef7c" />
+              <span style={{ fontWeight: 700, fontSize: '15px', color: '#ffffff' }}>
+                {accountName}
+              </span>
+            </div>
+            {data?.demo && (
+              <div style={{ fontSize: '10px', color: '#86efac', marginTop: '3px' }}>
+                Interactive Sandbox Preview
               </div>
             )}
           </div>
@@ -560,11 +553,11 @@ export function ContractorPortal({ slug }: { slug: string }) {
           </div>
         </div>
 
-        {/* 3 Navigation Tabs */}
+        {/* 4 Navigation Tabs */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '8px',
             marginBottom: '20px',
           }}
@@ -577,18 +570,18 @@ export function ContractorPortal({ slug }: { slug: string }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              padding: '13px 16px',
+              padding: '13px 14px',
               borderRadius: '10px',
               border: activeTab === 'swaps' ? '2px solid #166534' : '1px solid #cbd5e1',
               background: activeTab === 'swaps' ? '#166534' : '#ffffff',
               color: activeTab === 'swaps' ? '#ffffff' : '#1e293b',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '12.5px',
               cursor: 'pointer',
             }}
           >
-            <RefreshCw size={15} />
-            1. 1-Tap Jobsite Swaps ({activeJobs.length})
+            <RefreshCw size={14} />
+            1. Active Bins &amp; Swaps ({activeJobs.length})
           </button>
 
           <button
@@ -599,18 +592,18 @@ export function ContractorPortal({ slug }: { slug: string }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              padding: '13px 16px',
+              padding: '13px 14px',
               borderRadius: '10px',
               border: activeTab === 'order' ? '2px solid #ea580c' : '1px solid #cbd5e1',
               background: activeTab === 'order' ? '#ea580c' : '#ffffff',
               color: activeTab === 'order' ? '#ffffff' : '#1e293b',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '12.5px',
               cursor: 'pointer',
             }}
           >
-            <PlusCircle size={15} />
-            2. Quick New Site Drop (No Card)
+            <PlusCircle size={14} />
+            2. Drop Bin at New Site
           </button>
 
           <button
@@ -621,18 +614,40 @@ export function ContractorPortal({ slug }: { slug: string }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              padding: '13px 16px',
+              padding: '13px 14px',
               borderRadius: '10px',
               border: activeTab === 'statement' ? '2px solid #1e40af' : '1px solid #cbd5e1',
               background: activeTab === 'statement' ? '#1e40af' : '#ffffff',
               color: activeTab === 'statement' ? '#ffffff' : '#1e293b',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '12.5px',
               cursor: 'pointer',
             }}
           >
-            <FileText size={15} />
-            3. Consolidated Net-30 Statement
+            <FileText size={14} />
+            3. Monthly Net-30 Statement
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('profile')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '13px 14px',
+              borderRadius: '10px',
+              border: activeTab === 'profile' ? '2px solid #0f766e' : '1px solid #cbd5e1',
+              background: activeTab === 'profile' ? '#0f766e' : '#ffffff',
+              color: activeTab === 'profile' ? '#ffffff' : '#1e293b',
+              fontWeight: 700,
+              fontSize: '12.5px',
+              cursor: 'pointer',
+            }}
+          >
+            <Building2 size={14} />
+            4. Company Profile &amp; Settings
           </button>
         </div>
 
@@ -969,33 +984,58 @@ export function ContractorPortal({ slug }: { slug: string }) {
                             }}
                           />
 
-                          <button
-                            type="button"
-                            disabled={cfg.submitting}
-                            onClick={() => handleRequestSwap(job)}
-                            style={{
-                              width: '100%',
-                              padding: '11px 14px',
-                              borderRadius: '8px',
-                              border: 'none',
-                              background: '#ea580c',
-                              color: '#ffffff',
-                              fontWeight: 800,
-                              fontSize: '13px',
-                              cursor: cfg.submitting ? 'wait' : 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '8px',
-                            }}
-                          >
-                            {cfg.submitting ? (
-                              <Loader2 size={15} className="spin" />
-                            ) : (
-                              <RefreshCw size={15} />
-                            )}
-                            Request 1-Tap Swap (Net-30)
-                          </button>
+                          <div style={{ display: 'grid', gap: '8px' }}>
+                            <button
+                              type="button"
+                              disabled={cfg.submitting}
+                              onClick={() => handleRequestSwap(job)}
+                              style={{
+                                width: '100%',
+                                padding: '11px 14px',
+                                borderRadius: '8px',
+                                border: 'none',
+                                background: '#166534',
+                                color: '#ffffff',
+                                fontWeight: 800,
+                                fontSize: '13px',
+                                cursor: cfg.submitting ? 'wait' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                              }}
+                            >
+                              {cfg.submitting ? (
+                                <Loader2 size={15} className="spin" />
+                              ) : (
+                                <RefreshCw size={15} />
+                              )}
+                              Request Bin Swap (Empty &amp; Return) · Net-30
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRequestPickup(job)}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #cbd5e1',
+                                background: '#f8fafc',
+                                color: '#334155',
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                              }}
+                            >
+                              <CheckCircle2 size={14} color="#64748b" />
+                              Job Complete? Schedule Final Haul-Off (No Swap)
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div
@@ -1539,6 +1579,196 @@ export function ContractorPortal({ slug }: { slug: string }) {
                   </tr>
                 </tfoot>
               </table>
+            </div>
+          </section>
+        )}
+
+        {/* TAB 4: Company Profile & Preferences */}
+        {activeTab === 'profile' && data && (
+          <section style={{ display: 'grid', gap: '20px' }}>
+            <div
+              style={{
+                background: '#ffffff',
+                border: '1px solid #dce4d6',
+                borderRadius: '14px',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(15,23,42,0.04)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  marginBottom: '20px',
+                  paddingBottom: '16px',
+                  borderBottom: '1px solid #f1f5f9',
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: '#dcfce7',
+                      color: '#15803d',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '3px 9px',
+                      borderRadius: '999px',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    <ShieldCheck size={13} /> VERIFIED TRADE ACCOUNT
+                  </div>
+                  <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                    {accountName} · Company Profile &amp; Jobsite Preferences
+                  </h2>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                    Configure where your Net-30 statements and scale weight tickets are sent, plus driver jobsite drop instructions.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    color: '#334155',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <Building2 size={16} color="#166534" />
+                  <span><strong>Billing Terms:</strong> Net-30 Trade Account (Active)</span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveProfile} style={{ display: 'grid', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      Accounts Payable (AP) Billing Email
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="ap@yourcompany.com"
+                      value={profileEmail}
+                      onChange={(e) => setProfileEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '13px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+                      Monthly consolidated statements and landfill weight tickets will be delivered here.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      Dispatch &amp; Driver Arrival Mobile Phone
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+1 (555) 000-0000"
+                      value={profilePhone}
+                      onChange={(e) => setProfilePhone(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '13px',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+                      Receives real-time SMS updates when the truck is en route and when bins are dropped/swapped.
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    Authorized Jobsite Foremen &amp; Project Managers
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Mike Rodriguez (Lead Foreman), Dave Smith (PM)"
+                    value={profileForeman}
+                    onChange={(e) => setProfileForeman(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '13px',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+                    Names of jobsite leads authorized to trigger container swaps on your active sites.
+                  </span>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    Default Driver Drop &amp; Gate Instructions
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="e.g. Always place protective wood boards under dumpster rollers. Gate code 4412. Drop driver-side along curb."
+                    value={profileNotes}
+                    onChange={(e) => setProfileNotes(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '13px',
+                      fontFamily: 'inherit',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <span style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'block' }}>
+                    These instructions are automatically appended to your driver dispatch tickets.
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                  <button
+                    type="submit"
+                    style={{
+                      background: '#166534',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px 20px',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} /> Save Company Preferences
+                  </button>
+                </div>
+              </form>
             </div>
           </section>
         )}

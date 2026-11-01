@@ -633,6 +633,45 @@ export async function POST(
       return NextResponse.json({ ok: true, job: inserted });
     }
 
+    if (action === 'pickup') {
+      const jobId = String(rawBody.job_id || '');
+      const pickupDate = String(rawBody.pickup_date || today());
+      const pickupNotes = String(rawBody.notes || '').trim();
+      const accountName = access.account;
+
+      if (!jobId) throw new Error('Missing job ID for final haul-off');
+
+      if (access.demo) {
+        await mutateDemo((d) => {
+          const j = d.jobs.find((job) => job.id === jobId);
+          if (j) {
+            j.pickup_date = pickupDate;
+            j.notes = `${j.notes || ''} [FINAL HAUL-OFF REQUESTED: ${pickupDate}${pickupNotes ? ' - ' + pickupNotes : ''}]`.trim();
+          }
+        });
+        return NextResponse.json({ ok: true, message: 'Final haul-off scheduled' });
+      }
+
+      const db = admin();
+      const { data: job, error: jobErr } = await db
+        .from('jobs')
+        .select('*')
+        .eq('id', jobId)
+        .eq('org_id', access.orgId)
+        .single();
+
+      if (jobErr || !job) throw new Error('Job not found');
+      if (!jobMatchesContractor(job, accountName)) throw new Error('FORBIDDEN');
+
+      const updatedNotes = `${job.notes || ''} [FINAL HAUL-OFF REQUESTED: ${pickupDate}${pickupNotes ? ' - ' + pickupNotes : ''}]`.trim();
+      await db
+        .from('jobs')
+        .update({ pickup_date: pickupDate, notes: updatedNotes })
+        .eq('id', jobId);
+
+      return NextResponse.json({ ok: true, message: 'Final haul-off scheduled' });
+    }
+
     throw new Error('Invalid contractor portal action.');
   } catch (e) {
     return failure(e);

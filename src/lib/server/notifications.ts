@@ -146,9 +146,10 @@ export async function notifyAdminSignup(details: {
   const addons: string[] = [];
   if (details.website_addon) addons.push('24/7 Booking Website ($299)');
   if (details.gbp_addon) addons.push('Google Maps 3-Pack ($79)');
-  const addonsText = addons.length > 0 ? `\nAdd-ons Selected: ${addons.join(', ')}` : '';
+  const addonsText =
+    addons.length > 0 ? `\nAdd-ons Selected (Payment Pending): ${addons.join(', ')}` : '';
 
-  const body = `🎉 New RollOS Signup!\n${name} from ${company}${location}${plan}${addonsText}${email}`;
+  const body = `📋 New RollOS Signup Lead!\n${name} from ${company}${location}${plan}${addonsText}${email}\nPayment Status: Stripe Checkout Pending (A separate alert will fire once payment completes)`;
 
   // 1. Free instant push notification via ntfy.sh
   if (ntfyTopic) {
@@ -156,12 +157,12 @@ export async function notifyAdminSignup(details: {
       await fetch(`https://ntfy.sh/${ntfyTopic}`, {
         method: 'POST',
         headers: {
-          Title: 'New RollOS Signup!',
-          Priority: 'high',
-          Tags: 'tada,truck,moneybag',
+          Title: '📋 New Signup Lead (Checkout Pending)',
+          Priority: 'default',
+          Tags: 'clipboard,bust_in_silhouette',
           ...(process.env.APP_URL ? { Click: `${process.env.APP_URL}/dashboard` } : {}),
         },
-        body: `${name} from ${company}${location}${plan}${addonsText}${email}`,
+        body,
       });
     } catch (err) {
       console.error('[Admin Alert] Failed to send ntfy push notification:', err);

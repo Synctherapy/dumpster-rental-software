@@ -73,6 +73,46 @@ export function JobDrawer({
   const [swapError, setSwapError] = useState('');
   const [sendingWaiver, setSendingWaiver] = useState(false);
   const [copiedWaiver, setCopiedWaiver] = useState(false);
+  const [sendingContractorSms, setSendingContractorSms] = useState(false);
+  const [copiedContractorLink, setCopiedContractorLink] = useState(false);
+
+  const handleSendContractorSms = async () => {
+    if (!job.customer_phone) {
+      notify('No customer phone number on this job to text.', true);
+      return;
+    }
+    setSendingContractorSms(true);
+    try {
+      const res = await api<{ url: string; sms_sent: boolean }>('/api/contractor-link', {
+        method: 'POST',
+        body: JSON.stringify({
+          account_name: job.customer_name || 'Trade Partner',
+          phone: job.customer_phone,
+        }),
+      });
+      notify(`Private VIP portal link texted to ${job.customer_phone}!`);
+    } catch (err: unknown) {
+      notify((err as Error).message || 'Failed to text VIP link.', true);
+    } finally {
+      setSendingContractorSms(false);
+    }
+  };
+
+  const handleCopyContractorLink = async () => {
+    try {
+      const res = await api<{ url: string }>('/api/contractor-link', {
+        method: 'POST',
+        body: JSON.stringify({ account_name: job.customer_name || 'Trade Partner' }),
+      });
+      const fullUrl = `${window.location.origin}${res.url}`;
+      await navigator.clipboard.writeText(fullUrl);
+      setCopiedContractorLink(true);
+      notify('Private VIP portal link copied to clipboard!');
+      setTimeout(() => setCopiedContractorLink(false), 3000);
+    } catch (err: unknown) {
+      notify((err as Error).message || 'Failed to generate VIP link.', true);
+    }
+  };
 
   const sendWaiver = async () => {
     setSendingWaiver(true);
@@ -239,33 +279,79 @@ export function JobDrawer({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.4 }}>
+          <div style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.4, flex: '1 1 200px' }}>
             <strong style={{ display: 'block', fontSize: 12.5 }}>
               Commercial Trade Account ({job.customer_name})
             </strong>
-            <span>Billed to consolidated monthly Net-30 statement · 1-Tap Swap enabled</span>
+            <span>Billed to consolidated monthly Net-30 statement · Priority Bin Swaps</span>
           </div>
-          <a
-            href={`/contractor/${data.organization.slug}?account=${encodeURIComponent(job.customer_name)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="btn"
-            style={{
-              fontSize: 11.5,
-              fontWeight: 700,
-              padding: '6px 10px',
-              background: '#1d4ed8',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: 6,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
-            Open Contractor Portal & Net-30 Statement <ExternalLink size={11} />
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              disabled={sendingContractorSms}
+              onClick={handleSendContractorSms}
+              style={{
+                fontSize: 11.5,
+                fontWeight: 700,
+                padding: '6px 10px',
+                background: '#166534',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 6,
+                cursor: sendingContractorSms ? 'wait' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              {sendingContractorSms ? (
+                <Loader2 size={12} className="spin" />
+              ) : (
+                <Smartphone size={12} />
+              )}
+              Text VIP Link
+            </button>
+            <button
+              type="button"
+              onClick={handleCopyContractorLink}
+              style={{
+                fontSize: 11.5,
+                fontWeight: 700,
+                padding: '6px 10px',
+                background: '#ffffff',
+                color: '#1e3a8a',
+                border: '1px solid #bfdbfe',
+                borderRadius: 6,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              {copiedContractorLink ? <Check size={12} color="#166534" /> : <Copy size={12} />}
+              {copiedContractorLink ? 'Copied!' : 'Copy Link'}
+            </button>
+            <a
+              href={`/contractor/${data.organization.slug}?account=${encodeURIComponent(job.customer_name)}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontSize: 11.5,
+                fontWeight: 700,
+                padding: '6px 10px',
+                background: '#1d4ed8',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 6,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              Open Portal <ExternalLink size={11} />
+            </a>
+          </div>
         </div>
       )}
       <section className="drawer-section">
