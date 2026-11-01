@@ -105,7 +105,8 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
       .then((d) => {
         setData(d);
         try {
-          const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+          const params =
+            typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
           const isExplicitOnboarding =
             params?.get('onboarding') === 'true' || params?.get('setup') === 'true';
           const isCompleted = localStorage.getItem(`onboarding_completed_${d.organization.id}`);
@@ -116,8 +117,39 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
         } catch {}
       })
       .catch((e) => setError(e.message));
-    const interval = setInterval(() => reload().catch(() => {}), 30000);
-    return () => clearInterval(interval);
+    // Only poll a tab the operator is actually looking at. A background tab
+    // left open all day was costing roughly 2,900 server calls for nothing.
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const hidden = () => typeof document !== 'undefined' && document.visibilityState === 'hidden';
+
+    const start = () => {
+      if (interval !== null) return;
+      interval = setInterval(() => {
+        if (hidden()) return;
+        reload().catch(() => {});
+      }, 30000);
+    };
+    const stop = () => {
+      if (interval === null) return;
+      clearInterval(interval);
+      interval = null;
+    };
+    const onVisibilityChange = () => {
+      if (hidden()) {
+        stop();
+      } else {
+        // Catch up immediately, so coming back to the tab shows current data.
+        reload().catch(() => {});
+        start();
+      }
+    };
+
+    if (!hidden()) start();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [reload]);
   useEffect(() => {
     if (toast) {
@@ -247,7 +279,14 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
           <div className="user-profile">
             <span className="avatar">{initials(owner?.name ?? 'Owner')}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+              <strong
+                style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: 'block',
+                }}
+              >
                 {owner?.name ?? 'Your account'}
               </strong>
               <p>Business owner</p>
@@ -329,10 +368,14 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
 
               {/* Mobile stacked 2 lines, zero cutoff */}
               <div className="flex flex-col sm:hidden leading-tight">
-                <span style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}>
+                <span
+                  style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}
+                >
                   Live Dispatch Demo
                 </span>
-                <span style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}>
+                <span
+                  style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}
+                >
                   Want this for your dumpster fleet?
                 </span>
               </div>
@@ -429,7 +472,9 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
             >
               <Bell size={16} />
             </Button>
-            <span className="avatar top-avatar" title={owner?.name ?? 'Account'}>{initials(owner?.name ?? 'Owner')}</span>
+            <span className="avatar top-avatar" title={owner?.name ?? 'Account'}>
+              {initials(owner?.name ?? 'Owner')}
+            </span>
             <Button
               variant="ghost"
               onClick={handleLogout}
@@ -525,8 +570,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     </Link>
                   </Button>
                   <Button variant="default" onClick={() => setQuickOrderModal(true)}>
-                    <Phone size={14} />
-                    + Phone order
+                    <Phone size={14} />+ Phone order
                   </Button>
                 </>
               ) : page === 'inventory' ? (
@@ -540,15 +584,11 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     onClick={() => setResource('container')}
                     style={{ background: '#166534', color: '#fff', fontWeight: 600 }}
                   >
-                    <Plus size={14} />
-                    + Add Dumpster / Container
+                    <Plus size={14} />+ Add Dumpster / Container
                   </Button>
                 </>
               ) : page === 'drivers' ? (
-                <Button
-                  variant="primary"
-                  onClick={() => setResource('driver')}
-                >
+                <Button variant="primary" onClick={() => setResource('driver')}>
                   <Plus size={14} />
                   Add driver
                 </Button>
@@ -675,7 +715,14 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               setOnboardingWizardStep(1);
               setOnboardingWizardOpen(true);
             }}
-            style={{ width: '100%', justifyContent: 'center', background: '#166534', color: '#fff', fontWeight: 600, padding: '10px' }}
+            style={{
+              width: '100%',
+              justifyContent: 'center',
+              background: '#166534',
+              color: '#fff',
+              fontWeight: 600,
+              padding: '10px',
+            }}
           >
             <Rocket size={15} /> Launch 2-Minute Setup & Launchpad
           </Button>
@@ -839,7 +886,8 @@ function Inventory({
               Custom Dumpster Sizes Supported
             </strong>
             <span style={{ fontSize: '12px', color: '#15803d' }}>
-              Track any size container (10, 12, 14, 15, 20, 25, 30, 40+ yard). Add individual cans or import in bulk.
+              Track any size container (10, 12, 14, 15, 20, 25, 30, 40+ yard). Add individual cans
+              or import in bulk.
             </span>
           </div>
         </div>
@@ -850,14 +898,11 @@ function Inventory({
               onClick={onAddContainer}
               style={{ background: '#166534', color: '#fff', fontWeight: 600, fontSize: '13px' }}
             >
-              <Plus size={14} />
-              + Add Dumpster
+              <Plus size={14} />+ Add Dumpster
             </Button>
           )}
           <Button asChild variant="ghost" style={{ fontSize: '13px', color: '#166534' }}>
-            <Link href="/settings">
-              Manage Pricing & Sizes →
-            </Link>
+            <Link href="/settings">Manage Pricing & Sizes →</Link>
           </Button>
         </div>
       </div>
@@ -895,8 +940,7 @@ function Inventory({
                 onClick={onAddContainer}
                 style={{ background: '#166534', color: '#fff', fontWeight: 600 }}
               >
-                <Plus size={14} />
-                + Add Dumpster
+                <Plus size={14} />+ Add Dumpster
               </Button>
             )}
             {onBulkAdd && (
@@ -1013,8 +1057,20 @@ function Inventory({
     </>
   );
 }
-function Drivers({ data, reload, notify }: { data: Workspace; reload: () => Promise<void>; notify: Notify }) {
-  const [editingDriver, setEditingDriver] = useState<{ id: string; name: string; phone: string } | null>(null);
+function Drivers({
+  data,
+  reload,
+  notify,
+}: {
+  data: Workspace;
+  reload: () => Promise<void>;
+  notify: Notify;
+}) {
+  const [editingDriver, setEditingDriver] = useState<{
+    id: string;
+    name: string;
+    phone: string;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -1027,8 +1083,18 @@ function Drivers({ data, reload, notify }: { data: Workspace; reload: () => Prom
             const jobs = data.jobs.filter((j) => j.driver_id === u.id);
             return (
               <section className="panel driver-card" key={u.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <span className={`avatar ${i % 3 === 1 ? 'blue' : i % 3 === 2 ? 'lilac' : ''}`} style={{ marginBottom: 0 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: 16,
+                  }}
+                >
+                  <span
+                    className={`avatar ${i % 3 === 1 ? 'blue' : i % 3 === 2 ? 'lilac' : ''}`}
+                    style={{ marginBottom: 0 }}
+                  >
                     {initials(u.name)}
                   </span>
                   <Button
@@ -1090,13 +1156,40 @@ function Drivers({ data, reload, notify }: { data: Workspace; reload: () => Prom
                         body: JSON.stringify({ driver_id: u.id }),
                       });
                       await navigator.clipboard.writeText(window.location.origin + result.url);
-                      notify('Driver link copied. Valid for 30 days.');
+                      notify(
+                        'Driver link copied. It works until the day after this driver\u2019s last scheduled pickup.',
+                      );
                     } catch (e) {
                       notify((e as Error).message, true);
                     }
                   }}
                 >
                   Copy secure route link
+                </Button>
+                <Button
+                  variant="ghost"
+                  style={{ color: '#a81e18' }}
+                  onClick={async () => {
+                    if (
+                      !window.confirm(
+                        `Cancel every route link already sent to ${u.name}? They lose access immediately. Sending a new link restores it.`,
+                      )
+                    )
+                      return;
+                    try {
+                      await api<{ revoked: boolean }>('/api/driver-link', {
+                        method: 'POST',
+                        body: JSON.stringify({ driver_id: u.id, revoke: true }),
+                      });
+                      notify(`Route links cancelled for ${u.name}. Existing links no longer work.`);
+                      await reload();
+                    } catch (e) {
+                      notify((e as Error).message, true);
+                    }
+                  }}
+                >
+                  <X size={12} />
+                  Cancel route links
                 </Button>
                 <Button
                   variant="ghost"
@@ -1190,7 +1283,9 @@ function Drivers({ data, reload, notify }: { data: Workspace; reload: () => Prom
                 required
                 placeholder="(512) 555-1234 or +15125551234"
               />
-              <small>Accepts (512) 555-1234 or international +15125551234. Route SMS will be sent here.</small>
+              <small>
+                Accepts (512) 555-1234 or international +15125551234. Route SMS will be sent here.
+              </small>
             </label>
             {error && (
               <div className="error-box" role="alert">
@@ -1225,7 +1320,11 @@ function Payments({ data, openJob }: { data: Workspace; openJob: (id: string) =>
             value: money(gross),
             note: 'Deposits and final balances',
           },
-          { label: 'Customer booking fees', value: money(fees), note: '$12 paid by customer at checkout' },
+          {
+            label: 'Customer booking fees',
+            value: money(fees),
+            note: '$12 paid by customer at checkout',
+          },
           {
             label: 'Hauler rental revenue',
             value: money(gross - fees),
@@ -1382,7 +1481,9 @@ function ResourceDialog({
 
   const sizePresets: number[] = useMemo(() => {
     const fromRules = data?.pricing_rules.map((r) => r.size_yards) || [];
-    return Array.from(new Set([...fromRules, 10, 12, 14, 15, 20, 25, 30, 40])).sort((a, b) => a - b);
+    return Array.from(new Set([...fromRules, 10, 12, 14, 15, 20, 25, 30, 40])).sort(
+      (a, b) => a - b,
+    );
   }, [data?.pricing_rules]);
 
   return (
@@ -1413,7 +1514,9 @@ function ResourceDialog({
               ),
             });
             await reload();
-            notify(`${kind === 'container' ? 'Dumpster container' : 'Driver'} added to your workspace.`);
+            notify(
+              `${kind === 'container' ? 'Dumpster container' : 'Driver'} added to your workspace.`,
+            );
             close();
           } catch (e) {
             setError((e as Error).message);
@@ -1463,7 +1566,8 @@ function ResourceDialog({
                 ))}
               </div>
               <small style={{ marginTop: '8px', display: 'block', color: '#64748b' }}>
-                💡 Tip: To customize customer booking rates or ton limits for {containerSize}-yard dumpsters, visit Settings → Dumpster Sizes.
+                💡 Tip: To customize customer booking rates or ton limits for {containerSize}-yard
+                dumpsters, visit Settings → Dumpster Sizes.
               </small>
             </div>
           </>

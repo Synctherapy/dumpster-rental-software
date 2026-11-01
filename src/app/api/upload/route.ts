@@ -4,11 +4,13 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { isDemo, readDemo } from '@/lib/server/store';
 import { admin, identity } from '@/lib/server/supabase';
-import { verifyDriverToken } from '@/lib/server/tokens';
+import { verifyActiveDriverToken } from '@/lib/server/tokens';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
+    await enforceRateLimit(request, 'uploadFlood');
     const form = await request.formData();
     const file = form.get('photo');
     const job_id = String(form.get('job_id') ?? '');
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
     let org: string;
     let driver: string | null = null;
     if (token) {
-      const t = verifyDriverToken(String(token));
+      const t = await verifyActiveDriverToken(String(token));
       org = t.org;
       driver = t.driver;
     } else if (isDemo()) org = (await readDemo()).organization.id;
@@ -31,6 +33,9 @@ export async function POST(request: Request) {
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
       org = member.org_id;
     }
+    // Now that the uploader is known, budget them individually: a driver on a
+    // shared mobile network must never spend another driver's allowance.
+    await enforceRateLimit(request, 'upload', `${org}:${driver ?? 'staff'}`);
     const demo = isDemo();
     const job = demo
       ? (await readDemo()).jobs.find((j) => j.id === job_id)

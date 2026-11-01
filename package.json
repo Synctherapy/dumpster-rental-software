@@ -7,13 +7,14 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
+    "test": "node scripts/run-tests.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm test",
     "format": "prettier --write src tests *.ts *.mjs *.json README.md",
     "roast-room": "node roast-room/app/server.mjs",
-    "submit:indexnow": "node scripts/submit-indexnow.mjs"
+    "submit:indexnow": "node scripts/submit-indexnow.mjs",
+    "preflight": "node scripts/preflight.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.2.0",
@@ -22,14 +23,14 @@
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.52.0",
-    "next": "16.2.1",
+    "next": "16.4.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
     "stripe": "^23.0.0",
     "tailwind-merge": "^3.7.0",
     "twilio": "^6.1.2",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
@@ -39,7 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.1",
+    "eslint-config-next": "16.4.3",
     "prettier": "^3.9.9",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",

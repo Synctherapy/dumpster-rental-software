@@ -4,14 +4,25 @@ import { z } from 'zod';
 import { isDemo, mutateDemo, readDemo } from './store';
 import { admin, identity } from './supabase';
 import { quote, invoice, platformFee } from '../pricing';
-import { today, addDays, normalizePhone, normalizePostalCode, isValidPostalCode, type Job, type JobStatus, type Payment } from '../types';
+import {
+  today,
+  addDays,
+  normalizePhone,
+  normalizePostalCode,
+  isValidPostalCode,
+  type Job,
+  type JobStatus,
+  type Payment,
+} from '../types';
 import { publicOrganization } from './workspace';
 import { stripe } from './stripe';
 import { sendSms } from './notifications';
 import { sendEmail } from './email';
-import { driverToken } from './tokens';
+import { driverToken, driverLinkTtlForPickup } from './tokens';
+import { logError } from './log';
 import { validateProof } from './proofs';
 import { ensureOrganizationPhone } from './phone';
+import { isOptedOut } from './opt-outs';
 
 export async function recordBookingOccurred(orgId: string) {
   const now = new Date().toISOString();
@@ -70,13 +81,15 @@ export async function book(input: unknown, ip: string, origin: string) {
   const { organization: org, pricing_rules, demo } = await publicOrganization(body.slug);
 
   // Validate operating days
-  const pricingConfig = org.pricing_config as {
-    operating_days?: number[];
-    min_notice_hours?: number;
-    customer_fee_enabled?: boolean;
-    currency?: string;
-    tax_rate_percent?: number;
-  } | undefined;
+  const pricingConfig = org.pricing_config as
+    | {
+        operating_days?: number[];
+        min_notice_hours?: number;
+        customer_fee_enabled?: boolean;
+        currency?: string;
+        tax_rate_percent?: number;
+      }
+    | undefined;
   const allowedDays = pricingConfig?.operating_days ?? [0, 1, 2, 3, 4, 5, 6];
   const dayOfWeek = new Date(body.delivery_date + 'T12:00:00Z').getUTCDay();
   if (!allowedDays.includes(dayOfWeek)) {
@@ -95,11 +108,8 @@ export async function book(input: unknown, ip: string, origin: string) {
 
   const rule = pricing_rules.find((r) => r.size_yards === body.size_yards);
   if (!rule) throw new Error('That size is unavailable.');
-  const servesZip = rule.service_zips.some(
-    (z: string) => normalizePostalCode(z) === normalizedZip,
-  );
-  if (!servesZip)
-    throw new Error('This ZIP or postal code is outside our service area.');
+  const servesZip = rule.service_zips.some((z: string) => normalizePostalCode(z) === normalizedZip);
+  if (!servesZip) throw new Error('This ZIP or postal code is outside our service area.');
   const customerFee = pricingConfig?.customer_fee_enabled !== false;
   const taxPercent = pricingConfig?.tax_rate_percent ?? 0;
   const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
@@ -306,12 +316,15 @@ export async function changeJob(
   id: string,
   input: unknown,
   origin: string,
-  driverIdentity?: { org: string; driver: string },
+  driverIdentity?: { org: string; driver: string; sid?: string },
 ) {
   const patch = changeSchema.parse(input);
   const demo = isDemo();
-  const rawPaymentType = (patch.payment_type || patch.payment_method)?.replace('-', '_').toLowerCase();
-  const isOfflinePayment = rawPaymentType && (OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawPaymentType);
+  const rawPaymentType = (patch.payment_type || patch.payment_method)
+    ?.replace('-', '_')
+    .toLowerCase();
+  const isOfflinePayment =
+    rawPaymentType && (OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawPaymentType);
 
   if (isOfflinePayment) {
     if (demo) {
@@ -340,12 +353,25 @@ export async function changeJob(
   let job: Job;
   if (
     driverIdentity &&
-    (Object.keys(patch).some((k) => !['status', 'tons_actual', 'proof_url', 'scale_ticket_url', 'driver_notes', 'container_id'].includes(k)) ||
+    (Object.keys(patch).some(
+      (k) =>
+        ![
+          'status',
+          'tons_actual',
+          'proof_url',
+          'scale_ticket_url',
+          'driver_notes',
+          'container_id',
+        ].includes(k),
+    ) ||
       (patch.status && !['delivered', 'picked_up'].includes(patch.status)))
   )
     throw new Error('FORBIDDEN');
   if (!demo && patch.status === 'completed')
     throw new Error('Use the invoice payment action to close this job.');
+  const demoSandbox = demo
+    ? (driverIdentity?.sid ?? (await import('./store').then((m) => m.getDemoSessionId())))
+    : null;
   if (demo) {
     job = await mutateDemo(async (d) => {
       const j = d.jobs.find((j) => j.id === id);
@@ -416,7 +442,9 @@ export async function changeJob(
           container.status = 'on_site';
           container.current_job_id = j.id;
         }
-        j.notes = (j.notes ? j.notes + ' ' : '') + `[Container corrected from ${oldContainer?.label ?? 'unassigned'} to ${container?.label ?? patch.container_id}]`;
+        j.notes =
+          (j.notes ? j.notes + ' ' : '') +
+          `[Container corrected from ${oldContainer?.label ?? 'unassigned'} to ${container?.label ?? patch.container_id}]`;
       }
       if (patch.status === 'delivered' && !(patch.proof_url || j.proof_url))
         throw new Error('Upload a delivery photo first.');
@@ -459,7 +487,7 @@ export async function changeJob(
       Object.assign(j, patch);
       j.price_cents = quote(j.pricing_snapshot, j.delivery_date, j.pickup_date, 100).total;
       return j;
-    });
+    }, demoSandbox ?? undefined);
   } else {
     const db = admin();
     let org: string;
@@ -484,11 +512,10 @@ export async function changeJob(
     job = result.data;
     if (isOfflinePayment) {
       try {
-        await admin()
-          .from('jobs')
-          .update({ payment_type: rawPaymentType })
-          .eq('id', id);
-      } catch {}
+        await admin().from('jobs').update({ payment_type: rawPaymentType }).eq('id', id);
+      } catch (err) {
+        logError('jobs.recordOfflinePaymentType', err);
+      }
       job.payment_type = rawPaymentType;
       if (patch.payment_amount_cents) {
         try {
@@ -506,7 +533,9 @@ export async function changeJob(
               created_at: new Date().toISOString(),
               refunded_cents: 0,
             });
-        } catch {}
+        } catch (err) {
+          logError('jobs.recordOfflinePayment', err);
+        }
       }
     }
     if (patch.scale_ticket_url) {
@@ -520,7 +549,9 @@ export async function changeJob(
     }
   }
   if (patch.status === 'dispatched') {
-    const d = demo ? await import('./store').then((m) => m.readDemo()) : null;
+    const d = demo
+      ? await import('./store').then((m) => m.readDemo(demoSandbox ?? undefined))
+      : null;
     const driver = demo
       ? d!.users.find((u) => u.id === job.driver_id)
       : (await admin().from('users').select('*').eq('id', job.driver_id!).single()).data;
@@ -530,7 +561,12 @@ export async function changeJob(
         job.id,
         driver.phone,
         'driver_dispatch',
-        `Your next delivery: ${job.delivery_address}. Open your route: ${origin}/driver/${driverToken(job.org_id, driver.id)}`,
+        `Your next delivery: ${job.delivery_address}. Open your route: ${origin}/driver/${driverToken(
+          job.org_id,
+          driver.id,
+          driverLinkTtlForPickup(job.pickup_date),
+          demoSandbox,
+        )}`,
       );
   }
   if (patch.status === 'delivered' || patch.status === 'picked_up') {
@@ -547,8 +583,11 @@ export async function changeJob(
         : (await admin().from('organizations').select('*').eq('id', job.org_id).single()).data;
       const reviewUrl = org?.google_review_url || org?.pricing_config?.google_review_url;
       if (reviewUrl) {
-        const reviewText = `Thank you for choosing ${org?.name || 'us'}! If you had a great experience, could you take 30 seconds to leave us a quick Google review? ${reviewUrl}`;
-        await sendSms(job.org_id, job.id, job.customer_phone, 'review_request', reviewText);
+        const optedOut = await isOptedOut(job.org_id, job.customer_phone);
+        if (!optedOut) {
+          const reviewText = `Thank you for choosing ${org?.name || 'us'}! If you had a great experience, could you take 30 seconds to leave us a quick Google review? ${reviewUrl}`;
+          await sendSms(job.org_id, job.id, job.customer_phone, 'review_request', reviewText);
+        }
       }
     }
   }
@@ -602,7 +641,11 @@ export async function chargeInvoice(id: string) {
   const { db, member } = await identity();
   if (member.role !== 'owner') throw new Error('FORBIDDEN');
   const client = stripe();
-  const preview = await admin().from('jobs').select('scale_ticket_url,tons_actual,tons_included,pricing_snapshot').eq('id', id).single();
+  const preview = await admin()
+    .from('jobs')
+    .select('scale_ticket_url,tons_actual,tons_included,pricing_snapshot')
+    .eq('id', id)
+    .single();
   if (preview.error) throw new Error(preview.error.message);
   const previewJob = preview.data as Job;
   if (invoice(previewJob).overage > 0 && !previewJob.scale_ticket_url)
@@ -628,8 +671,11 @@ export async function chargeInvoice(id: string) {
   }
   if (Date.now() - Date.parse(attempt.created_at) > 23 * 3600000)
     throw new Error('Reconcile this invoice in Stripe before retrying an older attempt.');
-  const orgCurrency =
-    (job.pricing_snapshot?.currency || (member as { currency?: string }).currency || 'usd').toLowerCase();
+  const orgCurrency = (
+    job.pricing_snapshot?.currency ||
+    (member as { currency?: string }).currency ||
+    'usd'
+  ).toLowerCase();
   let pi;
   try {
     pi = await client.paymentIntents.create(
@@ -759,10 +805,7 @@ export async function recordOfflinePayment(
   if (jobErr || !job) throw new Error('Job not found');
 
   try {
-    await admin()
-      .from('jobs')
-      .update({ payment_type: rawType })
-      .eq('id', id);
+    await admin().from('jobs').update({ payment_type: rawType }).eq('id', id);
   } catch {}
 
   const amount = input.amount_cents ?? job.price_cents;
@@ -788,7 +831,10 @@ export async function recordOfflinePayment(
 export const swapSchema = z
   .object({
     target_size: z.number().int().min(1).max(100).optional(),
-    delivery_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    delivery_date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
     driver_id: z.string().nullable().optional(),
     notes: z.string().max(1000).optional(),
   })
@@ -922,9 +968,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
   if (orgErr || !orgData) throw new Error('Organization not found');
 
   if (orgData.subscription_status !== 'active') {
-    throw new Error(
-      'Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.',
-    );
+    throw new Error('Container swaps require an active Starter ($29/mo) or Growth ($99/mo) plan.');
   }
 
   const { data: prevJob, error: prevErr } = await admin()
@@ -939,10 +983,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
   }
 
   const targetSize = body.target_size ?? prevJob.size_yards;
-  const { data: rules } = await db
-    .from('pricing_rules')
-    .select('*')
-    .eq('org_id', member.org_id);
+  const { data: rules } = await db.from('pricing_rules').select('*').eq('org_id', member.org_id);
   const rule = rules?.find((r) => r.size_yards === targetSize) ?? prevJob.pricing_snapshot;
   const deliveryDate = body.delivery_date ?? today();
   const pickupDate = addDays(deliveryDate, rule.included_days || 7);
@@ -1009,11 +1050,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
   };
 
   let inserted: Job;
-  const insertAttempt = await admin()
-    .from('jobs')
-    .insert(swapJobRow)
-    .select('*')
-    .single();
+  const insertAttempt = await admin().from('jobs').insert(swapJobRow).select('*').single();
 
   if (insertAttempt.error) {
     const fallbackRow = { ...swapJobRow };
@@ -1021,11 +1058,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     delete fallbackRow.is_commercial;
     delete fallbackRow.swap_parent_job_id;
     delete fallbackRow.swapped_from_container_label;
-    const retry = await admin()
-      .from('jobs')
-      .insert(fallbackRow)
-      .select('*')
-      .single();
+    const retry = await admin().from('jobs').insert(fallbackRow).select('*').single();
     if (retry.error) throw new Error(retry.error.message);
     inserted = {
       ...(retry.data as Job),

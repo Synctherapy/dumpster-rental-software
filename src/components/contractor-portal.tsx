@@ -43,7 +43,13 @@ interface ContractorPortalResponse {
   demo: boolean;
 }
 
+function readPortalToken() {
+  if (typeof window === 'undefined') return '';
+  return (new URLSearchParams(window.location.search).get('t') || '').trim();
+}
+
 export function ContractorPortal({ slug }: { slug: string }) {
+  const [portalToken] = useState(readPortalToken);
   const [accountName, setAccountName] = useState(() => {
     if (typeof window !== 'undefined') {
       const fromQuery = (new URLSearchParams(window.location.search).get('account') || '').trim();
@@ -102,7 +108,9 @@ export function ContractorPortal({ slug }: { slug: string }) {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/contractor/${encodeURIComponent(slug)}?account=${encodeURIComponent(acct)}`,
+          `/api/contractor/${encodeURIComponent(slug)}?account=${encodeURIComponent(acct)}${
+            portalToken ? `&t=${encodeURIComponent(portalToken)}` : ''
+          }`,
           { cache: 'no-store' },
         );
         const json = (await res.json()) as ContractorPortalResponse & { error?: string };
@@ -122,13 +130,15 @@ export function ContractorPortal({ slug }: { slug: string }) {
         setLoading(false);
       }
     },
-    [slug, showToast],
+    [slug, showToast, portalToken],
   );
 
   useEffect(() => {
     let cancelled = false;
     fetch(
-      `/api/contractor/${encodeURIComponent(slug)}?account=${encodeURIComponent(accountName)}`,
+      `/api/contractor/${encodeURIComponent(slug)}?account=${encodeURIComponent(accountName)}${
+        portalToken ? `&t=${encodeURIComponent(portalToken)}` : ''
+      }`,
       { cache: 'no-store' },
     )
       .then((res) => res.json().then((json) => ({ ok: res.ok, json })))
@@ -156,7 +166,7 @@ export function ContractorPortal({ slug }: { slug: string }) {
     return () => {
       cancelled = true;
     };
-  }, [accountName, slug, showToast]);
+  }, [accountName, slug, showToast, portalToken]);
 
   const currency = data?.organization?.pricing_config?.currency || 'USD';
 
@@ -227,6 +237,7 @@ export function ContractorPortal({ slug }: { slug: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'swap',
+          t: portalToken || undefined,
           job_id: job.id,
           account_name: accountName,
           target_size: cfg.size_yards,
@@ -262,6 +273,7 @@ export function ContractorPortal({ slug }: { slug: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'order',
+          t: portalToken || undefined,
           account_name: accountName,
           customer_name: orderForeman.trim() || accountName,
           customer_phone: orderPhone.trim() || '+15125550199',

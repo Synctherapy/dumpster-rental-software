@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { isDemo, mutateDemo } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { generateCleanSlug } from '@/lib/city-zips';
 import { notifyAdminSignup } from '@/lib/server/notifications';
 
@@ -10,6 +11,10 @@ export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
     const body = await request.json().catch(() => ({}));
+    await enforceRateLimit(request, 'authAddress');
+    const attemptedEmail =
+      typeof body?.email === 'string' ? body.email.trim().toLowerCase().slice(0, 160) : '';
+    if (attemptedEmail) await enforceRateLimit(request, 'auth', attemptedEmail);
     if (isDemo()) {
       if (body?.action === 'logout') {
         return NextResponse.json({ ok: true });
@@ -19,7 +24,10 @@ export async function POST(request: Request) {
           if (body.name) d.users[0].name = String(body.name).trim();
           if (body.company) {
             d.organization.name = String(body.company).trim();
-            d.organization.slug = generateCleanSlug(String(body.company), body.city ? String(body.city) : undefined);
+            d.organization.slug = generateCleanSlug(
+              String(body.company),
+              body.city ? String(body.city) : undefined,
+            );
           }
           if (body.plan === 'starter' || body.plan === 'growth') {
             d.organization.subscription_status = 'active';

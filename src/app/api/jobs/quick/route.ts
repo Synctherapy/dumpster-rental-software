@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { quote, platformFee } from '@/lib/pricing';
 import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
@@ -54,6 +55,11 @@ export async function POST(request: Request) {
 
     let createdJob: Job;
     const auth = isDemo() ? null : await maybeIdentity();
+    await enforceRateLimit(
+      request,
+      'quickOrder',
+      auth?.member.org_id ?? (await getDemoSessionId()) ?? undefined,
+    );
 
     if (!auth) {
       const demoData = await readDemo();
@@ -233,6 +239,7 @@ export async function POST(request: Request) {
         booking_key: randomUUID(),
         payment_type: body.payment_type ?? null,
         signed_by_customer: false,
+        protective_boards: body.protective_boards ?? false,
         created_at: new Date().toISOString(),
       };
 

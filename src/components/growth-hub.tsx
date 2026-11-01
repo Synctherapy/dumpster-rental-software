@@ -41,6 +41,8 @@ export function GrowthHub({
   const [purchasing, setPurchasing] = useState(false);
   const [contractorName, setContractorName] = useState('');
   const [copiedContractorLink, setCopiedContractorLink] = useState(false);
+  const [contractorLink, setContractorLink] = useState('');
+  const [mintingContractorLink, setMintingContractorLink] = useState(false);
   const [socialTab, setSocialTab] = useState<'facebook' | 'instagram' | 'google' | 'sms'>('facebook');
   const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
 
@@ -91,16 +93,31 @@ export function GrowthHub({
   };
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const contractorLink = `${origin}/contractor/${data.organization.slug}?account=${encodeURIComponent(contractorName.trim() || 'Apex Roofing')}`;
 
-  const copyContractorLink = async () => {
+  const mintContractorLink = async () => {
+    const account = contractorName.trim() || 'Apex Roofing';
+    setMintingContractorLink(true);
     try {
-      await navigator.clipboard.writeText(contractorLink);
-      setCopiedContractorLink(true);
-      notify('Contractor VIP 1-Tap Swap Portal link copied to clipboard.');
-      setTimeout(() => setCopiedContractorLink(false), 3000);
-    } catch {
-      notify('Failed to copy. Please copy manually.', true);
+      const res = await api<{ url: string }>('/api/contractor-link', {
+        method: 'POST',
+        body: JSON.stringify({ account_name: account }),
+      });
+      const full = `${origin}${res.url}`;
+      setContractorLink(full);
+      try {
+        await navigator.clipboard.writeText(full);
+        setCopiedContractorLink(true);
+        setTimeout(() => setCopiedContractorLink(false), 3000);
+        notify(`VIP portal link for ${account} created and copied to clipboard.`);
+      } catch {
+        notify(`VIP portal link for ${account} created. Copy it from the field above.`);
+      }
+      return full;
+    } catch (err) {
+      notify((err as Error).message || 'Could not create the VIP portal link.', true);
+      return '';
+    } finally {
+      setMintingContractorLink(false);
     }
   };
 
@@ -473,7 +490,10 @@ export function GrowthHub({
               Contractor / Business Name
               <input
                 value={contractorName}
-                onChange={(e) => setContractorName(e.target.value)}
+                onChange={(e) => {
+                  setContractorName(e.target.value);
+                  setContractorLink('');
+                }}
                 placeholder="e.g. Apex Roofing or Miller Construction"
                 style={{ background: '#ffffff' }}
               />
@@ -483,6 +503,7 @@ export function GrowthHub({
               <input
                 readOnly
                 value={contractorLink}
+                placeholder="Create a secure link for this trade account →"
                 style={{ background: '#ffffff', color: '#166534', fontWeight: 600, fontSize: '12px' }}
               />
             </label>
@@ -491,18 +512,40 @@ export function GrowthHub({
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#166534' }}>
               <ShieldCheck size={16} />
-              <span>Swaps &amp; drops bill to <strong>{contractorName.trim() || 'Apex Roofing'}</strong> Consolidated Net-30 Statement.</span>
+              <span>
+                Swaps &amp; drops bill to <strong>{contractorName.trim() || 'Apex Roofing'}</strong> Consolidated Net-30 Statement.
+                Each link is signed, expires in 90 days, and shows only that account&apos;s jobs.
+              </span>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <Button onClick={copyContractorLink} variant="orange" style={{ fontSize: '12px' }}>
-                {copiedContractorLink ? <Check size={13} /> : <Copy size={13} />}
-                {copiedContractorLink ? 'VIP Link Copied!' : 'Copy VIP Portal Link'}
+              <Button
+                onClick={mintContractorLink}
+                variant="orange"
+                disabled={mintingContractorLink}
+                style={{ fontSize: '12px' }}
+              >
+                {mintingContractorLink ? (
+                  <Loader2 size={13} className="spin" />
+                ) : copiedContractorLink ? (
+                  <Check size={13} />
+                ) : (
+                  <Copy size={13} />
+                )}
+                {mintingContractorLink
+                  ? 'Creating secure link...'
+                  : copiedContractorLink
+                    ? 'VIP Link Copied!'
+                    : contractorLink
+                      ? 'Create a New VIP Link'
+                      : 'Create & Copy VIP Portal Link'}
               </Button>
-              <Button asChild variant="primary" style={{ fontSize: '12px', background: '#166534', color: '#fff' }}>
-                <Link href={`/contractor/${data.organization.slug}?account=${encodeURIComponent(contractorName.trim() || 'Apex Roofing')}`} target="_blank">
-                  Open VIP Contractor Portal <ArrowUpRight size={13} />
-                </Link>
-              </Button>
+              {contractorLink ? (
+                <Button asChild variant="primary" style={{ fontSize: '12px', background: '#166534', color: '#fff' }}>
+                  <Link href={contractorLink} target="_blank">
+                    Open VIP Contractor Portal <ArrowUpRight size={13} />
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </div>
         </div>

@@ -7,10 +7,14 @@ import { sendEmail } from '@/lib/server/email';
 import { recordBookingOccurred } from '@/lib/server/jobs';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 import { isDemo, mutateDemo } from '@/lib/server/store';
+import { logError, swallow } from '@/lib/server/log';
 export async function POST(request: Request) {
   let event: Stripe.Event;
   try {
-    if (isDemo() && (!process.env.STRIPE_WEBHOOK_SECRET || !request.headers.get('stripe-signature'))) {
+    if (
+      isDemo() &&
+      (!process.env.STRIPE_WEBHOOK_SECRET || !request.headers.get('stripe-signature'))
+    ) {
       event = (await request.json()) as Stripe.Event;
     } else {
       if (!process.env.STRIPE_WEBHOOK_SECRET) throw new Error('Webhook is not configured');
@@ -20,7 +24,8 @@ export async function POST(request: Request) {
         process.env.STRIPE_WEBHOOK_SECRET,
       );
     }
-  } catch {
+  } catch (err) {
+    logError('stripe.webhook.signature', err);
     return NextResponse.json(
       { error: 'Invalid webhook signature or configuration' },
       { status: 400 },
@@ -80,15 +85,20 @@ export async function POST(request: Request) {
           });
         }
         if (db) {
-          await db.from('organizations').update({
-            stripe_subscription_id: session.subscription,
-            subscription_status: targetStatus,
-            ...(meta.website === 'true' ? { website_addon: true } : {}),
-            ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
-          }).eq('id', orgId);
+          await db
+            .from('organizations')
+            .update({
+              stripe_subscription_id: session.subscription,
+              subscription_status: targetStatus,
+              ...(meta.website === 'true' ? { website_addon: true } : {}),
+              ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
+            })
+            .eq('id', orgId);
         }
         if (targetStatus === 'active') {
-          await checkAndTriggerPhoneProvisioning(orgId).catch(() => {});
+          await checkAndTriggerPhoneProvisioning(orgId).catch(
+            swallow('stripe.webhook.phoneProvisioning'),
+          );
         }
       } else if (orgId && (meta.website === 'true' || meta.gbp === 'true')) {
         if (isDemo()) {
@@ -100,10 +110,13 @@ export async function POST(request: Request) {
           });
         }
         if (db) {
-          await db.from('organizations').update({
-            ...(meta.website === 'true' ? { website_addon: true } : {}),
-            ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
-          }).eq('id', orgId);
+          await db
+            .from('organizations')
+            .update({
+              ...(meta.website === 'true' ? { website_addon: true } : {}),
+              ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
+            })
+            .eq('id', orgId);
         }
       }
 
@@ -111,13 +124,21 @@ export async function POST(request: Request) {
       const itemsPurchased: string[] = [];
       if (meta.website === 'true') itemsPurchased.push('Done-For-You 24/7 Booking Website ($299)');
       if (meta.gbp === 'true') itemsPurchased.push('Google Maps 3-Pack Domination Kit ($79)');
-      if (meta.plan === 'starter' && session.mode === 'subscription') itemsPurchased.push('Starter Plan (14-Day Free Trial)');
-      if (meta.plan === 'growth' && session.mode === 'subscription') itemsPurchased.push('Growth Fleet Plan ($99/mo)');
-      if (meta.plan === 'winter_hold' && session.mode === 'subscription') itemsPurchased.push('Winter Yard Hold ($10/mo)');
+      if (meta.plan === 'starter' && session.mode === 'subscription')
+        itemsPurchased.push('Starter Plan (14-Day Free Trial)');
+      if (meta.plan === 'growth' && session.mode === 'subscription')
+        itemsPurchased.push('Growth Fleet Plan ($99/mo)');
+      if (meta.plan === 'winter_hold' && session.mode === 'subscription')
+        itemsPurchased.push('Winter Yard Hold ($10/mo)');
 
       if (itemsPurchased.length > 0 && orgId) {
         const customerName = meta.company || session.customer_details?.name || 'New Customer';
-        const contactInfo = meta.customer_phone || session.customer_details?.phone || meta.customer_email || session.customer_details?.email || 'N/A';
+        const contactInfo =
+          meta.customer_phone ||
+          session.customer_details?.phone ||
+          meta.customer_email ||
+          session.customer_details?.email ||
+          'N/A';
         const totalPaid = `$${((session.amount_total ?? 0) / 100).toFixed(2)}`;
 
         const alertSubject = `🚨 NEW ORDER: ${customerName} purchased ${itemsPurchased.join(' + ')}`;
@@ -132,7 +153,8 @@ export async function POST(request: Request) {
             'admin_addon_purchase',
             alertSubject,
             alertBody,
-          ).catch(() => {});
+            event.id,
+          ).catch(swallow('stripe.webhook.adminPurchaseEmail'));
         }
 
         const adminPhone = process.env.ADMIN_ALERT_PHONE;
@@ -143,7 +165,8 @@ export async function POST(request: Request) {
             adminPhone,
             'admin_addon_purchase',
             `🚨 RollOS Alert: ${customerName} purchased ${itemsPurchased.join(' + ')} (${totalPaid}). Contact: ${contactInfo}`,
-          ).catch(() => {});
+            event.id,
+          ).catch(swallow('stripe.webhook.adminPurchaseSms'));
         }
 
         await notifyAdminPurchase({
@@ -151,7 +174,7 @@ export async function POST(request: Request) {
           items: itemsPurchased,
           totalPaid,
           contactInfo,
-        }).catch(() => {});
+        }).catch(swallow('stripe.webhook.adminPurchasePush'));
       }
     }
 
@@ -211,13 +234,20 @@ export async function POST(request: Request) {
     }
 
     if (event.type === 'invoice.payment_failed') {
-      const invoice = event.data.object as {
+      // Stripe moved the subscription off the invoice root in API 2025-03-31
+      // (basil); this SDK pins 2026-09-30 (endive), where it lives under
+      // parent.subscription_details. Reading the old location meant subId was
+      // always undefined, so no organization was ever marked past_due. The
+      // older shapes are kept for any event replayed from an older API version.
+      const invoice = event.data.object as Stripe.Invoice & {
         subscription?: string | { id?: string } | null;
       };
+      const parentSub = invoice.parent?.subscription_details?.subscription;
       const subId =
-        typeof invoice.subscription === 'string'
+        (typeof parentSub === 'string' ? parentSub : parentSub?.id) ??
+        (typeof invoice.subscription === 'string'
           ? invoice.subscription
-          : invoice.subscription?.id;
+          : invoice.subscription?.id);
       if (subId) {
         if (isDemo()) {
           await mutateDemo((d) => {
@@ -237,7 +267,7 @@ export async function POST(request: Request) {
 
     if (data?.notify && data.job) {
       if (data.template === 'booking_confirmation') {
-        await recordBookingOccurred(data.job.org_id).catch(() => {});
+        await recordBookingOccurred(data.job.org_id).catch(swallow('stripe.webhook.recordBooking'));
       }
       const text = `Your dumpster rental ${data.template === 'booking_confirmation' ? 'booking is confirmed' : 'payment has been received'}. Reference ${data.job.id.slice(0, 8)}.`;
       const template = data.template || 'booking_confirmation';
@@ -252,7 +282,8 @@ export async function POST(request: Request) {
       );
     }
     return NextResponse.json({ received: true });
-  } catch {
+  } catch (err) {
+    logError(`stripe.webhook.${event.type}`, err);
     return NextResponse.json(
       { error: 'Webhook processing failed; retry is safe.' },
       { status: 500 },

@@ -35,5 +35,15 @@ do $$ begin
   insert into public.users(org_id,name,role) values('10000000-0000-4000-8000-000000000001','Injected owner','owner');
   raise exception 'Role escalation was allowed';
  exception when insufficient_privilege then null; end;
+ -- An owner must not be able to grant themselves a paid plan, redirect payouts
+ -- or reassign their phone number using the browser's own credentials.
+ begin
+  update public.organizations set subscription_status='active';
+  raise exception 'Owners can grant themselves a paid subscription';
+ exception when insufficient_privilege then null; end;
+ begin
+  update public.organizations set stripe_connect_account_id='acct_attacker';
+  raise exception 'Owners can redirect their own payouts';
+ exception when insufficient_privilege then null; end;
 end $$;
 rollback;

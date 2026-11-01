@@ -56,6 +56,9 @@ export interface User {
   name: string;
   phone: string;
   role: Role;
+  email?: string | null;
+  /** Route links issued at or before this time are refused. */
+  links_revoked_at?: string | null;
 }
 export interface Container {
   id: string;
@@ -140,6 +143,11 @@ export interface Notification {
   sent_at: string;
   dedupe_key?: string;
 }
+export interface SmsOptOut {
+  phone: string;
+  opted_out_at: string;
+  source?: string;
+}
 export interface Workspace {
   organization: Organization;
   users: User[];
@@ -148,6 +156,13 @@ export interface Workspace {
   payments: Payment[];
   pricing_rules: PricingRule[];
   notifications_log: Notification[];
+  /** Optional so demo files written before opt-out tracking still load. */
+  sms_opt_outs?: SmsOptOut[];
+  /**
+   * Total message-log rows for the organization. notifications_log carries only
+   * the newest page, so counts in the UI come from here when present.
+   */
+  notifications_total?: number;
   demo: boolean;
 }
 export const statuses: JobStatus[] = [

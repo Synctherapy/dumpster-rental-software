@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 export function failure(error: unknown) {
   const message = error instanceof Error ? error.message : 'Something went wrong';
+  if (message === 'RATE_LIMITED') {
+    return NextResponse.json(
+      { error: 'Too many requests. Wait a minute and try again.' },
+      { status: 429, headers: { 'Retry-After': '60' } },
+    );
+  }
   return NextResponse.json(
     { error: message },
     { status: message === 'UNAUTHORIZED' ? 401 : message === 'FORBIDDEN' ? 403 : 400 },

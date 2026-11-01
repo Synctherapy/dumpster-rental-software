@@ -44,12 +44,33 @@ ROLLOS_DEMO=true npm start -- --hostname 0.0.0.0
 
 The cloud task already provides an isolated checkout. Use it; do not create a worktree unless the user requests one.
 
+## Check it before anyone signs up
+
+Once the migrations are applied and the environment is configured, run this against the real project:
+
+```sh
+npm run preflight
+```
+
+It verifies what the application assumes at runtime: that every migration has been applied, that each stored procedure exists and is callable by the server but not from the browser, that the browser cannot write the tables it must not, that the delivery-photo bucket exists and is private, that the Stripe key works, and that signups are actually enabled in Supabase Auth. It only reads, and it never prints the value of a key — only whether one is set and whether its shape is right. A request that fails to arrive is reported as a failure, never as a pass.
+
+Add `--signup` to also create one throwaway account, confirm the signup trigger builds the organization, owner record and default dumpster sizes, and delete it again:
+
+```sh
+npm run preflight -- --signup
+```
+
+Exit status is non-zero if anything failed, so it works as a deploy gate.
+
 ## Connect hosted services
 
 Copy `.env.example` to `.env.local` locally, or enter bindings securely in cloud/Vercel environment settings. Do not commit credentials. All service values are currently absent; no external project has been created or migrated on your behalf.
 
-1. **Supabase:** create a project and apply `supabase/migrations/202610160001_consolidated_production.sql` in the SQL editor or through your migration tooling. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. Keep the service-role key server-only. Set the project Site URL to the deployed origin, add `/auth/callback` as an allowed redirect, and use PKCE confirmation redirects. Confirm email delivery in your Supabase Auth settings. Signup creates an organization and owner automatically; add service ZIPs and containers in Settings before accepting bookings.
-2. **App origin:** set `APP_URL` to the deployed HTTPS origin without a trailing slash. Generate your own random `DRIVER_TOKEN_SECRET` with at least 32 characters. These links permit access only to jobs assigned to the signed driver and expire in 24 hours.
+1. **Supabase:** create a project and apply these migrations in order through the SQL editor or your migration tooling: `supabase/migrations/202610160001_consolidated_production.sql`, then `202610310001_sms_opt_outs.sql`, `202610310002_job_columns_behind_code.sql`, `202610310003_rate_limits.sql`, `202610310004_lock_organization_writes.sql` and `202610310005_driver_link_revocation.sql`. All of them are required. The second stores SMS opt-outs so promotional texts can honour them. The third adds five job columns the application writes (`protective_boards`, `signed_by_customer`, `is_commercial`, `swap_parent_job_id`, `swapped_from_container_label`) and updates `reserve_booking()` to persist two of them; without it, remote waiver signing is refused and the protective-boards add-on is never recorded. The fourth adds the shared request throttle, without which the rate limits silently do nothing. The fifth removes the browser's write permission on `organizations`, closing a path for an owner to grant themselves a paid plan. The sixth lets a hauler cancel a driver's route links. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. Keep the service-role key server-only. Set the project Site URL to the deployed origin, add `/auth/callback` as an allowed redirect, and use PKCE confirmation redirects. Confirm email delivery in your Supabase Auth settings. Signup creates an organization and owner automatically; add service ZIPs and containers in Settings before accepting bookings.
+2. **App origin:** set `APP_URL` to the deployed HTTPS origin without a trailing slash. Generate your own random `DRIVER_TOKEN_SECRET` with at least 32 characters. These links permit access only to jobs assigned to the signed driver, and each one expires the day after the pickup it was sent for &mdash; a 7-day rental gives roughly an 8-day link, a 14-day rental about 15 &mdash; with a floor of 1 day and a ceiling of 120, so a long construction rental is covered while a mistyped year is not. A link sent outside any one job (the Drivers page, or an SMS invite) covers that driver's latest scheduled pickup. `DRIVER_LINK_TTL_HOURS` (1&ndash;720, default 168) is the fallback used only when no pickup date is known. Use **Cancel route links** on the Drivers page to end a driver's access immediately: every link already sent to them stops working, and sending a new one restores it.
+
+   The same secret signs contractor VIP portal links. Each trade account gets its own signed link, generated from the Growth tab, valid 90 days, and showing only that account's jobs. A contractor without a valid link cannot read the portal; a logged-in owner or dispatcher can preview it without one.
+
 3. **Stripe:** enable Connect and set `STRIPE_SECRET_KEY` (use `sk_test_...` for test onboarding or `sk_live_...` for live payments). In Settings, create an Express account and finish onboarding. Register `/api/webhooks/stripe` for `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `customer.subscription.deleted`, `customer.subscription.updated`, `checkout.session.completed`, and `invoice.payment_failed`; set its `STRIPE_WEBHOOK_SECRET`. Checkout uses destination charges with application fee. Checkout creates/saves a customer and card for the final off-session balance. Both test and live Stripe keys are supported.
 4. **SMS:** set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_FROM_NUMBER`. Trial accounts require verified destination numbers. `/api/webhooks/twilio` validates provider signatures and records message delivery status. Successful queueing is not represented as confirmed delivery.
 5. **Email (optional):** set `RESEND_API_KEY` and a verified sender in `EMAIL_FROM`. This sends confirmations, receipts, and delivery/pickup reminders. Unconfigured providers are logged as `not_configured`.

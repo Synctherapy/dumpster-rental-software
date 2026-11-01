@@ -98,3 +98,51 @@ test('POST /api/jobs/[id]/send-waiver generates sms notification with agreement 
   assert.equal(data.ok, true);
   assert.equal(data.sent_to, sampleJob.customer_phone);
 });
+
+test('POST /api/jobs/[id]/send-waiver called twice records distinct notifications without deduplication drop', async () => {
+  const demoBefore = await readDemo();
+  const sampleJob = demoBefore.jobs[0];
+  const initialSms = demoBefore.notifications_log.filter(
+    (n) => n.job_id === sampleJob.id && n.template === 'waiver_link' && n.channel === 'sms',
+  ).length;
+  const initialEmail = demoBefore.notifications_log.filter(
+    (n) => n.job_id === sampleJob.id && n.template === 'waiver_link' && n.channel === 'email',
+  ).length;
+
+  const makeReq = () =>
+    new Request(`http://localhost:3000/api/jobs/${sampleJob.id}/send-waiver`, {
+      method: 'POST',
+      headers: {
+        origin: 'http://localhost:3000',
+        host: 'localhost:3000',
+      },
+    });
+
+  // First send
+  const res1 = await sendWaiverHandler(makeReq(), { params: Promise.resolve({ id: sampleJob.id }) });
+  assert.equal(res1.status, 200);
+
+  // Second send (resend upon customer request)
+  const res2 = await sendWaiverHandler(makeReq(), { params: Promise.resolve({ id: sampleJob.id }) });
+  assert.equal(res2.status, 200);
+
+  const demoAfter = await readDemo();
+  const finalSms = demoAfter.notifications_log.filter(
+    (n) => n.job_id === sampleJob.id && n.template === 'waiver_link' && n.channel === 'sms',
+  ).length;
+  const finalEmail = demoAfter.notifications_log.filter(
+    (n) => n.job_id === sampleJob.id && n.template === 'waiver_link' && n.channel === 'email',
+  ).length;
+
+  assert.equal(
+    finalSms,
+    initialSms + 2,
+    'Both SMS waiver sends must be recorded so requested resends are not silently dropped by deduplication',
+  );
+  assert.equal(
+    finalEmail,
+    initialEmail + 2,
+    'Both email waiver sends must be recorded so requested resends are not silently dropped by deduplication',
+  );
+});
+
