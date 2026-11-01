@@ -95,7 +95,7 @@ export function GrowthHub({
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const mintContractorLink = async () => {
-    const account = contractorName.trim() || 'Apex Roofing';
+    const account = contractorName.trim() || 'Premier Roofing';
     setMintingContractorLink(true);
     try {
       const res = await api<{ url: string }>('/api/contractor-link', {
@@ -494,7 +494,7 @@ export function GrowthHub({
                   setContractorName(e.target.value);
                   setContractorLink('');
                 }}
-                placeholder="e.g. Apex Roofing or Miller Construction"
+                placeholder="e.g. Miller Roofing or Summit Construction"
                 style={{ background: '#ffffff' }}
               />
             </label>
@@ -513,7 +513,7 @@ export function GrowthHub({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#166534' }}>
               <ShieldCheck size={16} />
               <span>
-                Swaps &amp; drops bill to <strong>{contractorName.trim() || 'Apex Roofing'}</strong> Consolidated Net-30 Statement.
+                Swaps &amp; drops bill to <strong>{contractorName.trim() || 'Trade Account'}</strong> Consolidated Net-30 Statement.
                 Each link is signed, expires in 90 days, and shows only that account&apos;s jobs.
               </span>
             </div>

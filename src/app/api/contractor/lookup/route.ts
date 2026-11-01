@@ -27,8 +27,9 @@ export async function POST(request: Request) {
 
     if (isDemo() || pub.demo) {
       const d = await readDemo();
-      // In demo mode, accept any 10-digit number and link to demo account
-      const demoAccount = 'Apex Roofing & Construction';
+      // In demo mode, accept any 10-digit number and link to demo commercial account
+      const demoAccount =
+        d.jobs.find((j) => j.is_commercial)?.customer_name || 'Commercial Partner';
       const token = contractorToken(d.organization.id, demoAccount);
       return NextResponse.json({
         ok: true,

@@ -54,38 +54,40 @@ export function ContractorPortal({ slug }: { slug: string }) {
     if (typeof window !== 'undefined') {
       const fromQuery = (new URLSearchParams(window.location.search).get('account') || '').trim();
       if (fromQuery) return fromQuery;
+      const cached = localStorage.getItem(`contractor_account_${slug}`);
+      if (cached && cached.trim()) return cached.trim();
     }
-    return 'Apex Roofing & Construction';
+    return 'Commercial Partner';
   });
   const [activeTab, setActiveTab] = useState<'swaps' | 'order' | 'statement' | 'profile'>('swaps');
 
   // Contractor Profile Preferences State (Persisted in browser/device for convenience)
   const [profileEmail, setProfileEmail] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(`contractor_ap_email_${slug}`) || 'accounting@apexroofing.com';
+      return localStorage.getItem(`contractor_ap_email_${slug}`) || '';
     }
-    return 'accounting@apexroofing.com';
+    return '';
   });
   const [profilePhone, setProfilePhone] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(`contractor_phone_${slug}`) || '+1 (512) 555-0199';
+      return localStorage.getItem(`contractor_phone_${slug}`) || '';
     }
-    return '+1 (512) 555-0199';
+    return '';
   });
   const [profileForeman, setProfileForeman] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(`contractor_foreman_${slug}`) || 'Mike Rodriguez (Lead Foreman)';
+      return localStorage.getItem(`contractor_foreman_${slug}`) || '';
     }
-    return 'Mike Rodriguez (Lead Foreman)';
+    return '';
   });
   const [profileNotes, setProfileNotes] = useState(() => {
     if (typeof window !== 'undefined') {
       return (
         localStorage.getItem(`contractor_notes_${slug}`) ||
-        'Always place protective wood boards under dumpster rollers. Gate code 4412.'
+        'Place protective wood boards under dumpster rollers.'
       );
     }
-    return 'Always place protective wood boards under dumpster rollers. Gate code 4412.';
+    return 'Place protective wood boards under dumpster rollers.';
   });
 
   const [data, setData] = useState<ContractorPortalResponse | null>(null);

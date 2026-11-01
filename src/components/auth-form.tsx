@@ -237,7 +237,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   }}
                   style={{ marginTop: 10, width: '100%', fontSize: 13, background: '#f8fafc' }}
                 >
-                  ⚡ One-Click Login as Owner (Sync Therapy)
+                  ⚡ One-Click Login as Owner (Sync Dumpster Rental)
                 </Button>
               )}
             </form>
@@ -263,7 +263,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   autoComplete="organization"
                   required
                   minLength={2}
-                  placeholder="Apex Dumpster Rentals"
+                  placeholder="Sync Dumpster Rental"
                 />
               </label>
               <label className="field">
@@ -283,7 +283,7 @@ export function AuthForm({ signup = false }: { signup?: boolean }) {
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="burt@apexdumpsters.com"
+                  placeholder="owner@syncdumpsters.com"
                 />
               </label>
               <label className="field">

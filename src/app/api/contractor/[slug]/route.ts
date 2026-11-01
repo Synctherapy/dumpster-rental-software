@@ -122,7 +122,7 @@ function buildStatement(
   };
 }
 
-const DEFAULT_DEMO_ACCOUNT = 'Apex Roofing & Construction';
+const DEFAULT_DEMO_ACCOUNT = 'Commercial Partner';
 
 async function readAccountFromBody(request: Request) {
   try {
@@ -299,7 +299,7 @@ const swapActionSchema = z.object({
   action: z.literal('swap'),
   t: z.string().optional(),
   job_id: z.string().min(1),
-  account_name: z.string().trim().min(1).max(120).default('Apex Roofing & Construction'),
+  account_name: z.string().trim().min(1).max(120).default('Commercial Partner'),
   target_size: z.number().int().min(1).max(100).optional(),
   delivery_date: z
     .string()
@@ -311,7 +311,7 @@ const swapActionSchema = z.object({
 const orderActionSchema = z.object({
   action: z.literal('order'),
   t: z.string().optional(),
-  account_name: z.string().trim().min(1).max(120).default('Apex Roofing & Construction'),
+  account_name: z.string().trim().min(1).max(120).default('Commercial Partner'),
   customer_name: z.string().trim().min(2).max(100).optional(),
   customer_phone: z.string().trim().min(7).max(25).optional(),
   customer_email: z.string().trim().email().or(z.literal('')).optional(),

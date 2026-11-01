@@ -45,6 +45,7 @@ import { CalendarSubscribeModal } from './calendar-subscribe-modal';
 import { QuickOrderModal } from './quick-order-modal';
 import { ReportsHub } from './reports-hub';
 import { GrowthHub } from './growth-hub';
+import { CustomersView } from './customers-view';
 import { OnboardingWizard } from './onboarding-wizard';
 import { OnboardingChecklist } from './onboarding-checklist';
 import { api, initials } from '@/lib/client';
@@ -53,8 +54,9 @@ const navigation = [
   { id: 'dashboard', href: '/dashboard', title: 'Dispatch board', icon: LayoutDashboard },
   { id: 'bookings', href: '/bookings', title: 'Bookings', icon: CalendarDays },
   { id: 'calendar', href: '/calendar', title: 'Calendar', icon: CalendarDays },
+  { id: 'customers', href: '/customers', title: 'Customers', icon: Users },
   { id: 'inventory', href: '/inventory', title: 'Containers', icon: Box },
-  { id: 'drivers', href: '/drivers', title: 'Drivers', icon: Users },
+  { id: 'drivers', href: '/drivers', title: 'Drivers', icon: Truck },
   { id: 'payments', href: '/payments', title: 'Payments', icon: CreditCard },
   { id: 'reports', href: '/reports', title: 'Reports & ROI', icon: TrendingUp },
   { id: 'growth', href: '/growth', title: 'Get more clients', icon: Rocket },
@@ -63,6 +65,7 @@ const descriptions: Record<string, string> = {
   dashboard: 'A clear view of every job. Keep your day moving.',
   bookings: 'Every booking, from first click to final pickup.',
   calendar: 'Plan the week. Make room for what’s next.',
+  customers: 'Every homeowner, client, and commercial trade partner in one centralized directory.',
   inventory: 'Your containers, accounted for and ready to roll.',
   drivers: 'Good people. Great work. One connected crew.',
   payments: 'Every transaction. Every fee. Nothing hidden.',
@@ -82,6 +85,15 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
   const [bulkContainerModal, setBulkContainerModal] = useState(false);
   const [calendarModal, setCalendarModal] = useState(false);
   const [quickOrderModal, setQuickOrderModal] = useState(false);
+  const [quickOrderCustomer, setQuickOrderCustomer] = useState<{
+    name?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    zip?: string;
+    isCommercial?: boolean;
+    notes?: string;
+  } | null>(null);
   const [help, setHelp] = useState(false);
   const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
@@ -536,7 +548,7 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               <p>{descriptions[page]}</p>
             </div>
             <div className="heading-actions">
-              {['dashboard', 'bookings', 'calendar'].includes(page) ? (
+              {['dashboard', 'bookings', 'calendar', 'customers'].includes(page) ? (
                 <>
                   {page === 'calendar' && (
                     <Button onClick={() => setCalendarModal(true)}>
@@ -558,18 +570,18 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
                     </Button>
                   )}
                   <Button asChild>
-                    <Link href={`/contractor/${data.organization.slug}`} target="_blank">
-                      <ShieldCheck size={13} />
-                      Contractor VIP Portal <ArrowUpRight size={12} />
-                    </Link>
-                  </Button>
-                  <Button asChild>
                     <Link href={`/book/${data.organization.slug}`} target="_blank">
                       <Globe size={13} />
                       Booking page <ArrowUpRight size={12} />
                     </Link>
                   </Button>
-                  <Button variant="default" onClick={() => setQuickOrderModal(true)}>
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      setQuickOrderCustomer(null);
+                      setQuickOrderModal(true);
+                    }}
+                  >
                     <Phone size={14} />+ Phone order
                   </Button>
                 </>
@@ -634,6 +646,17 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               />
             </>
           )}
+          {page === 'customers' && (
+            <CustomersView
+              data={data}
+              openJob={(id) => setSelected(id)}
+              onQuickOrderWithCustomer={(prefill) => {
+                setQuickOrderCustomer(prefill);
+                setQuickOrderModal(true);
+              }}
+              notify={notify}
+            />
+          )}
           {page === 'inventory' && (
             <Inventory
               data={data}
@@ -695,11 +718,15 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
       />
       <QuickOrderModal
         open={quickOrderModal}
-        onClose={() => setQuickOrderModal(false)}
+        onClose={() => {
+          setQuickOrderModal(false);
+          setQuickOrderCustomer(null);
+        }}
         data={data}
         reload={reload}
         notify={notify}
         onCreated={(j) => setSelected(j.id)}
+        initialCustomer={quickOrderCustomer}
       />
       <Modal
         open={help}

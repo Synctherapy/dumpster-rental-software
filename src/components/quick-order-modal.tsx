@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, Phone, Lock } from 'lucide-react';
 import { Modal } from './ui/dialog';
@@ -15,6 +15,7 @@ export function QuickOrderModal({
   reload,
   notify,
   onCreated,
+  initialCustomer,
 }: {
   open: boolean;
   onClose: () => void;
@@ -22,6 +23,15 @@ export function QuickOrderModal({
   reload: () => Promise<void>;
   notify: (msg: string, error?: boolean) => void;
   onCreated?: (job: Job) => void;
+  initialCustomer?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    zip?: string;
+    isCommercial?: boolean;
+    notes?: string;
+  } | null;
 }) {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -59,6 +69,18 @@ export function QuickOrderModal({
   const [paymentType, setPaymentType] = useState<'card' | 'cash' | 'check' | 'net_30'>('card');
   const isOffline = ['cash', 'check', 'net_30'].includes(paymentType);
   const isBlockedByPlan = isOffline && !isPaidPlan;
+
+  useEffect(() => {
+    if (open && initialCustomer) {
+      if (initialCustomer.name) setCustomerName(initialCustomer.name);
+      if (initialCustomer.phone) setCustomerPhone(initialCustomer.phone);
+      if (initialCustomer.email) setCustomerEmail(initialCustomer.email);
+      if (initialCustomer.address) setAddress(initialCustomer.address);
+      if (initialCustomer.zip) setZip(initialCustomer.zip);
+      if (initialCustomer.isCommercial) setPaymentType('net_30');
+      if (initialCustomer.notes) setNotes(initialCustomer.notes);
+    }
+  }, [open, initialCustomer]);
 
   // When size changes, re-sync pickup date to included days
   const handleSizeChange = (newSize: number) => {
