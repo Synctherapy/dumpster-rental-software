@@ -109,30 +109,43 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
 
   const [showContractorModal, setShowContractorModal] = useState(false);
   const [contractorPhone, setContractorPhone] = useState('');
+  const [contractorStep, setContractorStep] = useState<'phone' | 'verify'>('phone');
+  const [contractorCode, setContractorCode] = useState('');
+  const [contractorChallenge, setContractorChallenge] = useState('');
+  const [contractorMaskedPhone, setContractorMaskedPhone] = useState('');
   const [contractorLookupBusy, setContractorLookupBusy] = useState(false);
   const [contractorLookupError, setContractorLookupError] = useState('');
   const [contractorLookupSuccess, setContractorLookupSuccess] = useState('');
 
-  const handleContractorLookup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleContractorLookup = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!contractorPhone.trim()) return;
     setContractorLookupBusy(true);
     setContractorLookupError('');
+    setContractorLookupSuccess('');
     try {
-      const res = await api<{ ok: boolean; url?: string; account_name?: string; error?: string }>(
-        '/api/contractor/lookup',
-        {
-          method: 'POST',
-          body: JSON.stringify({ slug, phone: contractorPhone.trim() }),
-        },
-      );
-      if (res.ok && res.url) {
+      const res = await api<{
+        ok: boolean;
+        requires_code?: boolean;
+        challenge?: string;
+        masked_phone?: string;
+        message?: string;
+        demo_code?: string;
+        error?: string;
+      }>('/api/contractor/lookup', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'request_code', slug, phone: contractorPhone.trim() }),
+      });
+      if (res.ok && res.challenge) {
+        setContractorChallenge(res.challenge);
+        setContractorMaskedPhone(res.masked_phone || contractorPhone.trim());
+        setContractorStep('verify');
         setContractorLookupSuccess(
-          `Access confirmed for ${res.account_name || 'your account'}! Opening portal...`,
+          res.message || `We just texted a 6-digit access code to ${res.masked_phone || contractorPhone}.`,
         );
-        setTimeout(() => {
-          window.location.href = res.url!;
-        }, 500);
+        if (res.demo_code) {
+          setContractorCode(res.demo_code);
+        }
       } else {
         setContractorLookupError(
           res.error ||
@@ -144,6 +157,43 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
         (err as Error).message ||
           'No commercial account found. Call or text us to set up your Net-30 trade account.',
       );
+    } finally {
+      setContractorLookupBusy(false);
+    }
+  };
+
+  const handleVerifyContractorCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contractorCode.trim() || !contractorChallenge) return;
+    setContractorLookupBusy(true);
+    setContractorLookupError('');
+    try {
+      const res = await api<{ ok: boolean; url?: string; account_name?: string; error?: string }>(
+        '/api/contractor/lookup',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'verify_code',
+            slug,
+            challenge: contractorChallenge,
+            code: contractorCode.trim(),
+          }),
+        },
+      );
+      if (res.ok && res.url) {
+        setContractorLookupSuccess(
+          `Access confirmed for ${res.account_name || 'your account'}! Opening portal...`,
+        );
+        setTimeout(() => {
+          window.location.href = res.url!;
+        }, 300);
+      } else {
+        setContractorLookupError(
+          res.error || 'Invalid 6-digit code. Please check your text messages.',
+        );
+      }
+    } catch (err: unknown) {
+      setContractorLookupError((err as Error).message || 'Invalid verification code.');
     } finally {
       setContractorLookupBusy(false);
     }
@@ -1541,111 +1591,250 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
               Jobsite Contractor Portal
             </h2>
             <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
-              Enter your mobile phone number to open your company’s private jobsite portal. View active bins, request empty &amp; return swaps, and download Net-30 statements.
+              {contractorStep === 'phone'
+                ? 'Enter your mobile phone number. For your security, a 6-digit access code and 1-tap magic link will be texted directly to your cell phone.'
+                : `We texted a 6-digit verification code to ${contractorMaskedPhone}. Enter the code below or tap the link in your text message.`}
             </p>
 
-            <form onSubmit={handleContractorLookup} style={{ display: 'grid', gap: '12px' }}>
-              <div>
-                <label
-                  htmlFor="contractor-phone-input"
-                  style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}
-                >
-                  Mobile Phone Number
-                </label>
-                <input
-                  id="contractor-phone-input"
-                  type="tel"
-                  required
-                  autoFocus
-                  placeholder="(555) 000-0000"
-                  value={contractorPhone}
-                  onChange={(e) => setContractorPhone(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color: '#0f172a',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
+            {contractorStep === 'phone' ? (
+              <form onSubmit={handleContractorLookup} style={{ display: 'grid', gap: '12px' }}>
+                <div>
+                  <label
+                    htmlFor="contractor-phone-input"
+                    style={{
+                      display: 'block',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: '#334155',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Mobile Phone Number
+                  </label>
+                  <input
+                    id="contractor-phone-input"
+                    type="tel"
+                    required
+                    autoFocus
+                    placeholder="(555) 000-0000"
+                    value={contractorPhone}
+                    onChange={(e) => setContractorPhone(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      color: '#0f172a',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
 
-              {contractorLookupSuccess && (
-                <div
+                {contractorLookupError && (
+                  <div
+                    style={{
+                      background: '#fff1f2',
+                      border: '1px solid #fecdd3',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      fontSize: '12px',
+                      color: '#be123c',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>{contractorLookupError}</p>
+                    {data?.organization?.phone && (
+                      <p style={{ margin: 0, fontSize: '11.5px', color: '#9f1239' }}>
+                        Call or text us at{' '}
+                        <a
+                          href={`tel:${data.organization.phone}`}
+                          style={{ color: '#be123c', fontWeight: 800, textDecoration: 'underline' }}
+                        >
+                          {data.organization.phone}
+                        </a>{' '}
+                        to open an account.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={contractorLookupBusy}
                   style={{
-                    background: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
+                    background: '#166534',
+                    color: '#ffffff',
+                    border: 'none',
                     borderRadius: '8px',
-                    padding: '10px 12px',
-                    fontSize: '12px',
-                    color: '#15803d',
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    cursor: contractorLookupBusy ? 'wait' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '8px',
                   }}
                 >
-                  <CheckCircle2 size={16} />
-                  <span>{contractorLookupSuccess}</span>
+                  {contractorLookupBusy ? (
+                    <Loader2 size={16} className="spin" />
+                  ) : (
+                    <ShieldCheck size={16} />
+                  )}
+                  Send 6-Digit Access Code
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyContractorCode} style={{ display: 'grid', gap: '14px' }}>
+                <div>
+                  <label
+                    htmlFor="contractor-code-input"
+                    style={{
+                      display: 'block',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: '#334155',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    6-Digit Verification Code
+                  </label>
+                  <input
+                    id="contractor-code-input"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    required
+                    autoFocus
+                    placeholder="123456"
+                    value={contractorCode}
+                    onChange={(e) => setContractorCode(e.target.value.replace(/\D/g, ''))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '2px solid #166534',
+                      fontSize: '22px',
+                      fontWeight: 800,
+                      color: '#0f172a',
+                      textAlign: 'center',
+                      letterSpacing: '6px',
+                      boxSizing: 'border-box',
+                    }}
+                  />
                 </div>
-              )}
 
-              {contractorLookupError && (
-                <div
+                {contractorLookupSuccess && (
+                  <div
+                    style={{
+                      background: '#f0fdf4',
+                      border: '1px solid #bbf7d0',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                      fontSize: '12px',
+                      color: '#15803d',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <CheckCircle2 size={16} />
+                    <span>{contractorLookupSuccess}</span>
+                  </div>
+                )}
+
+                {contractorLookupError && (
+                  <div
+                    style={{
+                      background: '#fff1f2',
+                      border: '1px solid #fecdd3',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      fontSize: '12px',
+                      color: '#be123c',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    <p style={{ margin: 0, fontWeight: 600 }}>{contractorLookupError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={contractorLookupBusy || contractorCode.length < 6}
                   style={{
-                    background: '#fff1f2',
-                    border: '1px solid #fecdd3',
+                    background: contractorCode.length >= 6 ? '#166534' : '#94a3b8',
+                    color: '#ffffff',
+                    border: 'none',
                     borderRadius: '8px',
-                    padding: '12px',
-                    fontSize: '12px',
-                    color: '#be123c',
-                    lineHeight: 1.5,
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    cursor: contractorLookupBusy ? 'wait' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
                   }}
                 >
-                  <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>{contractorLookupError}</p>
-                  {data?.organization?.phone && (
-                    <p style={{ margin: 0, fontSize: '11.5px', color: '#9f1239' }}>
-                      Call or text us at{' '}
-                      <a
-                        href={`tel:${data.organization.phone}`}
-                        style={{ color: '#be123c', fontWeight: 800, textDecoration: 'underline' }}
-                      >
-                        {data.organization.phone}
-                      </a>{' '}
-                      to open an account.
-                    </p>
+                  {contractorLookupBusy ? (
+                    <Loader2 size={16} className="spin" />
+                  ) : (
+                    <ArrowRight size={16} />
                   )}
-                </div>
-              )}
+                  Verify &amp; Open Portal
+                </button>
 
-              <button
-                type="submit"
-                disabled={contractorLookupBusy}
-                style={{
-                  background: '#166534',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  cursor: contractorLookupBusy ? 'wait' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                }}
-              >
-                {contractorLookupBusy ? (
-                  <Loader2 size={16} className="spin" />
-                ) : (
-                  <ShieldCheck size={16} />
-                )}
-                Access My Jobsite Portal
-              </button>
-            </form>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '12px',
+                    paddingTop: '4px',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleContractorLookup()}
+                    disabled={contractorLookupBusy}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#15803d',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      padding: 0,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Resend Code
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContractorStep('phone');
+                      setContractorCode('');
+                      setContractorLookupError('');
+                      setContractorLookupSuccess('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      padding: 0,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Change Number
+                  </button>
+                </div>
+              </form>
+            )}
 
             <div
               style={{

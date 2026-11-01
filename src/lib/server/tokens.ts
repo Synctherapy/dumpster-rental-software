@@ -193,3 +193,46 @@ export function verifyContractorToken(token: string): {
     throw new Error('This contractor portal link has expired. Ask your hauler for a new one.');
   return data;
 }
+
+export function createContractorChallenge(
+  org: string,
+  account: string,
+  phone: string,
+  code: string,
+  ttlMs: number = 10 * 60 * 1000,
+) {
+  const codeHash = createHmac('sha256', secret())
+    .update(`${code.trim()}:${phone}:${org}`)
+    .digest('base64url');
+  const payload = Buffer.from(
+    JSON.stringify({ org, account, phone, codeHash, exp: Date.now() + ttlMs }),
+  ).toString('base64url');
+  return payload + '.' + createHmac('sha256', secret()).update(payload).digest('base64url');
+}
+
+export function verifyContractorChallenge(
+  challenge: string,
+  enteredCode: string,
+): { org: string; account: string; phone: string } {
+  const [payload, signature] = challenge.split('.');
+  if (!payload || !signature) throw new Error('Invalid verification session');
+  const actual = Buffer.from(signature, 'base64url');
+  const expected = createHmac('sha256', secret()).update(payload).digest();
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    throw new Error('Invalid verification session');
+  const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+  if (data.exp < Date.now())
+    throw new Error('Verification code has expired. Please request a new code.');
+  const expectedHash = createHmac('sha256', secret())
+    .update(`${enteredCode.trim()}:${data.phone}:${data.org}`)
+    .digest('base64url');
+  const actualHashBuf = Buffer.from(data.codeHash);
+  const expectedHashBuf = Buffer.from(expectedHash);
+  if (
+    actualHashBuf.length !== expectedHashBuf.length ||
+    !timingSafeEqual(actualHashBuf, expectedHashBuf)
+  ) {
+    throw new Error('Invalid 6-digit verification code. Please check your text messages.');
+  }
+  return { org: data.org, account: data.account, phone: data.phone };
+}

@@ -43,13 +43,24 @@ interface ContractorPortalResponse {
   demo: boolean;
 }
 
-function readPortalToken() {
+function readPortalToken(slug: string) {
   if (typeof window === 'undefined') return '';
-  return (new URLSearchParams(window.location.search).get('t') || '').trim();
+  const fromUrl = (new URLSearchParams(window.location.search).get('t') || '').trim();
+  if (fromUrl) {
+    try {
+      localStorage.setItem(`contractor_token_${slug}`, fromUrl);
+    } catch {}
+    return fromUrl;
+  }
+  try {
+    return localStorage.getItem(`contractor_token_${slug}`) || '';
+  } catch {
+    return '';
+  }
 }
 
 export function ContractorPortal({ slug }: { slug: string }) {
-  const [portalToken] = useState(readPortalToken);
+  const [portalToken] = useState(() => readPortalToken(slug));
   const [accountName, setAccountName] = useState(() => {
     if (typeof window !== 'undefined') {
       const fromQuery = (new URLSearchParams(window.location.search).get('account') || '').trim();

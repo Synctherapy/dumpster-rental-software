@@ -35,7 +35,8 @@ export async function claimNotification(
           : template.includes('inbound') ||
               template.includes('missed_call') ||
               template.includes('autoreply') ||
-              template === 'waiver_link'
+              template === 'waiver_link' ||
+              template.includes('contractor')
             ? ':' + randomUUID()
             : ''
     }`,

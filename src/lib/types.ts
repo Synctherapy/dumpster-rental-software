@@ -214,6 +214,41 @@ export function normalizePhone(raw: string): string {
 }
 
 /**
+ * Robust, forgiving phone number comparison.
+ * Matches (250) 812-8698, 250-812-8698, +12508128698, 2508128698, etc.
+ */
+export function phoneMatch(a?: string | null, b?: string | null): boolean {
+  if (!a || !b) return false;
+  const cleanA = a.replace(/\D/g, '');
+  const cleanB = b.replace(/\D/g, '');
+  if (!cleanA || !cleanB) return false;
+  if (cleanA === cleanB) return true;
+  // Compare 10-digit base without country code 1
+  const tenA = cleanA.length === 11 && cleanA.startsWith('1') ? cleanA.slice(1) : cleanA;
+  const tenB = cleanB.length === 11 && cleanB.startsWith('1') ? cleanB.slice(1) : cleanB;
+  if (tenA === tenB && tenA.length >= 7) return true;
+  // Compare trailing 7 digits (local number match)
+  if (cleanA.length >= 7 && cleanB.length >= 7 && cleanA.slice(-7) === cleanB.slice(-7)) {
+    // If both have 10-digit numbers, verify full area code matches
+    if (tenA.length === 10 && tenB.length === 10) {
+      return tenA === tenB;
+    }
+    return true;
+  }
+  return false;
+}
+
+export function maskPhone(p?: string | null): string {
+  if (!p) return '(***) ***-****';
+  const digits = p.replace(/\D/g, '');
+  if (digits.length >= 7) {
+    const last4 = digits.slice(-4);
+    return `(***) ***-${last4}`;
+  }
+  return p;
+}
+
+/**
  * Normalizes both US 5-digit ZIPs ("78704") and Canadian postal codes ("v8w 1w4" -> "V8W 1W4").
  */
 export function normalizePostalCode(raw: string): string {
