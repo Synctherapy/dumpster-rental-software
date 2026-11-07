@@ -24,6 +24,7 @@ import { Button } from './ui/button';
 import { Modal } from './ui/dialog';
 import type { Workspace } from '@/lib/types';
 import { api } from '@/lib/client';
+import { generateQrMatrix } from '@/lib/qr';
 
 export function GrowthHub({
   data,
@@ -48,71 +49,16 @@ export function GrowthHub({
   const [decalFormat, setDecalFormat] = useState<'decal' | 'magnet' | 'lawn'>('decal');
   const [copiedDecalSpec, setCopiedDecalSpec] = useState(false);
 
-  const bookingUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/book/${data.organization.slug}`
-      : `/book/${data.organization.slug}`;
+  const baseOrigin =
+    typeof window !== 'undefined' && window.location.origin
+      ? window.location.origin
+      : 'https://rolloffdumpstersoftware.com';
+
+  const bookingUrl = `${baseOrigin}/book/${data.organization.slug}`;
 
   const qrPromoUrl = `${bookingUrl}?promo=NEIGHBOR15`;
 
-  const qrCells = (() => {
-    const gridSize = 21;
-    const cells: { x: number; y: number }[] = [];
-    let hash = 2166136261;
-    for (let i = 0; i < qrPromoUrl.length; i++) {
-      hash ^= qrPromoUrl.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
-    }
-    const isFinder = (r: number, c: number, fr: number, fc: number) => {
-      const dr = r - fr;
-      const dc = c - fc;
-      if (dr < 0 || dr > 6 || dc < 0 || dc > 6) return null;
-      if (dr === 0 || dr === 6 || dc === 0 || dc === 6) return true;
-      if (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4) return true;
-      return false;
-    };
-    for (let r = 0; r < gridSize; r++) {
-      for (let c = 0; c < gridSize; c++) {
-        // Quiet separator around finders
-        if (
-          (r === 7 && (c <= 7 || c >= gridSize - 8)) ||
-          (c === 7 && (r <= 7 || r >= gridSize - 8)) ||
-          (r === gridSize - 8 && c <= 7) ||
-          (c === gridSize - 8 && r <= 7)
-        ) {
-          continue;
-        }
-        const f1 = isFinder(r, c, 0, 0);
-        const f2 = isFinder(r, c, 0, gridSize - 7);
-        const f3 = isFinder(r, c, gridSize - 7, 0);
-        if (f1 !== null) {
-          if (f1) cells.push({ x: c, y: r });
-          continue;
-        }
-        if (f2 !== null) {
-          if (f2) cells.push({ x: c, y: r });
-          continue;
-        }
-        if (f3 !== null) {
-          if (f3) cells.push({ x: c, y: r });
-          continue;
-        }
-        if (r === 6) {
-          if (c % 2 === 0) cells.push({ x: c, y: r });
-          continue;
-        }
-        if (c === 6) {
-          if (r % 2 === 0) cells.push({ x: c, y: r });
-          continue;
-        }
-        const seed = Math.imul(hash ^ (r * 31 + c * 17), 2654435761) >>> 0;
-        if ((seed + qrPromoUrl.charCodeAt((r * gridSize + c) % qrPromoUrl.length)) % 2 === 0) {
-          cells.push({ x: c, y: r });
-        }
-      }
-    }
-    return cells;
-  })();
+  const qrMatrix = generateQrMatrix(qrPromoUrl);
 
   const decalOrderSpecs = `Order Spec: 12x18 inch Weatherproof Die-Cut Rectangle Decal. Material: 3M IJ180cV3 Controltac Vinyl with 3M 8518 Gloss UV Overlaminate (Outdoor Heavy Equipment / Pressure-Washer Safe). Target URL: ${bookingUrl}?promo=NEIGHBOR15`;
 
@@ -133,9 +79,9 @@ export function GrowthHub({
     const orgName = escapeXml(data.organization.name || 'Roll-Off Dumpster Rentals');
     const orgPhone = escapeXml(data.organization.phone || '24/7 Online Dispatch');
     const targetUrlEscaped = escapeXml(qrPromoUrl);
-    const rects = qrCells
-      .map((cell) => `<rect x="${420 + cell.x * 16}" y="${580 + cell.y * 16}" width="15" height="15" fill="#0f172a" />`)
-      .join('\n    ');
+    const rects = qrMatrix.cells
+      .map((cell) => `<rect x="${cell.x}" y="${cell.y}" width="1" height="1" fill="#0f172a" />`)
+      .join('\n      ');
 
     const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1800" width="1200" height="1800">
@@ -168,11 +114,14 @@ export function GrowthHub({
   <text x="600" y="445" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#fef08a">
     SCAN TO CHECK LIVE PRICING &amp; BOOK IN 60 SECONDS
   </text>
-  <!-- QR Code Container -->
-  <rect x="380" y="540" width="440" height="440" rx="28" fill="#ffffff" stroke="#facc15" stroke-width="8" />
-  <g>
-    ${rects}
-  </g>
+  <!-- QR Code Container (ISO/IEC 18004 Scannable Matrix with Quiet Zone) -->
+  <rect x="360" y="510" width="480" height="480" rx="28" fill="#ffffff" stroke="#facc15" stroke-width="8" />
+  <svg x="380" y="530" width="440" height="440" viewBox="-3 -3 ${qrMatrix.size + 6} ${qrMatrix.size + 6}" shape-rendering="crispEdges">
+    <rect x="-3" y="-3" width="${qrMatrix.size + 6}" height="${qrMatrix.size + 6}" fill="#ffffff" />
+    <g>
+      ${rects}
+    </g>
+  </svg>
   <!-- Human-Readable URL -->
   <text x="600" y="1045" text-anchor="middle" font-family="Courier New, monospace" font-size="24" font-weight="700" fill="#ffffff">
     ${targetUrlEscaped}
@@ -185,9 +134,12 @@ export function GrowthHub({
   <text x="600" y="1300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="800" fill="#facc15">
     ${orgPhone}
   </text>
-  <!-- Print Spec Footer -->
-  <text x="600" y="1685" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#bbf7d0">
-    3M IJ180 UV-Laminated Vinyl Spec • Weatherproof Heavy Equipment Grade
+  <!-- Customer-Facing Value Footer -->
+  <text x="600" y="1465" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="900" fill="#fef08a">
+    10 • 15 • 20 • 30 • 40 YARD ROLL-OFF CONTAINERS
+  </text>
+  <text x="600" y="1520" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#dcfce7">
+    SAME-DAY &amp; NEXT-DAY DRIVEWAY DELIVERY • UPFRONT PRICING
   </text>
 </svg>`;
 
@@ -571,31 +523,38 @@ export function GrowthHub({
               SCAN TO CHECK LIVE PRICING &amp; BOOK IN 60 SECONDS
             </div>
 
-            {/* Deterministic SVG QR Code Matrix */}
+            {/* ISO/IEC 18004 Scannable SVG QR Code Matrix */}
             <div
               style={{
                 background: '#ffffff',
                 border: '3px solid #facc15',
                 borderRadius: '12px',
-                padding: '12px',
-                width: '164px',
-                height: '164px',
+                padding: '10px',
+                width: '188px',
+                height: '188px',
                 margin: '0 auto 10px auto',
                 display: 'grid',
                 placeItems: 'center',
               }}
             >
               <svg
-                viewBox="0 0 21 21"
-                width="136"
-                height="136"
+                viewBox={`-3 -3 ${qrMatrix.size + 6} ${qrMatrix.size + 6}`}
+                width="162"
+                height="162"
+                shapeRendering="crispEdges"
                 role="img"
                 aria-label={`QR code for ${qrPromoUrl}`}
                 style={{ display: 'block' }}
               >
-                <rect width="21" height="21" fill="#ffffff" />
-                {qrCells.map((cell, idx) => (
-                  <rect key={idx} x={cell.x} y={cell.y} width={0.92} height={0.92} fill="#0f172a" />
+                <rect
+                  x={-3}
+                  y={-3}
+                  width={qrMatrix.size + 6}
+                  height={qrMatrix.size + 6}
+                  fill="#ffffff"
+                />
+                {qrMatrix.cells.map((cell, idx) => (
+                  <rect key={idx} x={cell.x} y={cell.y} width={1} height={1} fill="#0f172a" />
                 ))}
               </svg>
             </div>
@@ -629,8 +588,8 @@ export function GrowthHub({
               </div>
             </div>
 
-            <div style={{ fontSize: '10px', color: '#bbf7d0', marginTop: '10px', fontWeight: 600 }}>
-              3M IJ180 UV-Laminated Vinyl Spec • {decalFormat === 'decal' ? '12" × 18" Container Decal' : decalFormat === 'magnet' ? '12" × 24" Truck Door Magnet' : '18" × 24" Coroplast Lawn Sign'}
+            <div style={{ fontSize: '10.5px', color: '#fef08a', marginTop: '10px', fontWeight: 800, letterSpacing: '0.02em' }}>
+              10 • 15 • 20 • 30 • 40 YARD ROLL-OFF CONTAINERS • FAST LOCAL DELIVERY
             </div>
           </div>
 

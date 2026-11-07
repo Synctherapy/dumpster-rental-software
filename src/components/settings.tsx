@@ -1007,6 +1007,9 @@ export function Settings({
   const [propaneFee, setPropaneFee] = useState<number>(
     existingSurcharges.propane_cents !== undefined ? existingSurcharges.propane_cents / 100 : 35,
   );
+  const [dryRunFee, setDryRunFee] = useState<number>(
+    existingSurcharges.dry_run_cents !== undefined ? existingSurcharges.dry_run_cents / 100 : 125,
+  );
   const [operatingDays, setOperatingDays] = useState<number[]>(
     data.organization.operating_days ??
       data.organization.pricing_config?.operating_days ?? [1, 2, 3, 4, 5, 6], // default Mon-Sat
@@ -1157,6 +1160,7 @@ export function Settings({
             mattress_cents: Math.round(Number(mattressFee) * 100),
             freon_cents: Math.round(Number(freonFee) * 100),
             propane_cents: Math.round(Number(propaneFee) * 100),
+            dry_run_cents: Math.round(Number(dryRunFee) * 100),
           },
           pricing_rules: rules.map(
             ({
@@ -1610,11 +1614,11 @@ export function Settings({
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Landfill Item Surcharges (Customizable Rates)</h4>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>Authorized in digital contract</span>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Landfill Item Surcharges &amp; Dry Run Trip Fee (Customizable Rates)</h4>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Authorized in digital contract &amp; driver app</span>
               </div>
               <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#64748b' }}>
-                Transfer stations charge flat extra fees for items like tires and mattresses. These rates are automatically listed in your customer rental contract, giving you card-on-file auto-charge rights when found in the dumpster.
+                Set your flat fees for restricted items and blocked-driveway dry runs. These rates automatically sync to your customer rental agreement and your drivers&apos; 1-tap field exception buttons.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
                 <label className="field" style={{ margin: 0 }}>
@@ -1664,6 +1668,18 @@ export function Settings({
                     style={{ fontSize: '13px', padding: '6px 8px' }}
                   />
                   <small>Default: $35</small>
+                </label>
+                <label className="field" style={{ margin: 0 }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600 }}>Blocked / Dry Run ($)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5"
+                    value={dryRunFee}
+                    onChange={(e) => setDryRunFee(Math.max(0, Number(e.target.value)))}
+                    style={{ fontSize: '13px', padding: '6px 8px' }}
+                  />
+                  <small>Default: $125</small>
                 </label>
               </div>
             </div>

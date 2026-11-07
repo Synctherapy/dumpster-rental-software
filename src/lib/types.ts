@@ -35,6 +35,7 @@ export interface Organization {
       mattress_cents?: number;
       freon_cents?: number;
       propane_cents?: number;
+      dry_run_cents?: number;
     };
   };
   google_review_url?: string;
@@ -48,6 +49,7 @@ export interface Organization {
     mattress_cents?: number;
     freon_cents?: number;
     propane_cents?: number;
+    dry_run_cents?: number;
   };
 }
 export interface User {

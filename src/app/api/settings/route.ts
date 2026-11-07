@@ -46,6 +46,7 @@ export async function POST(request: Request) {
             mattress_cents: z.number().int().min(0).max(100000).default(5000).optional(),
             freon_cents: z.number().int().min(0).max(100000).default(7500).optional(),
             propane_cents: z.number().int().min(0).max(100000).default(3500).optional(),
+            dry_run_cents: z.number().int().min(0).max(100000).default(12500).optional(),
           })
           .optional(),
         pricing_rules: z.array(rule).min(1).max(12),
@@ -160,15 +161,23 @@ export async function POST(request: Request) {
     });
     if (error) throw new Error(error.message);
 
-    if (existingCalendarToken) {
+    if (existingCalendarToken || input.landfill_surcharges) {
       const { data: savedOrg } = await admin()
         .from('organizations')
         .select('pricing_config')
         .eq('id', member.org_id)
         .single();
       const currentConfig = (savedOrg?.pricing_config || {}) as Record<string, unknown>;
-      if (currentConfig.calendar_token !== existingCalendarToken) {
+      let needsUpdate = false;
+      if (existingCalendarToken && currentConfig.calendar_token !== existingCalendarToken) {
         currentConfig.calendar_token = existingCalendarToken;
+        needsUpdate = true;
+      }
+      if (input.landfill_surcharges) {
+        currentConfig.landfill_surcharges = input.landfill_surcharges;
+        needsUpdate = true;
+      }
+      if (needsUpdate) {
         await admin()
           .from('organizations')
           .update({ pricing_config: currentConfig })

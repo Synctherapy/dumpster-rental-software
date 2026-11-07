@@ -22,6 +22,10 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
           name: d.organization.name,
           subscription_status: d.organization.subscription_status ?? 'paid',
           is_paid_plan: (d.organization.subscription_status ?? 'paid') === 'paid',
+          dry_run_cents:
+            d.organization.landfill_surcharges?.dry_run_cents ??
+            d.organization.pricing_config?.landfill_surcharges?.dry_run_cents ??
+            12500,
         },
         demo: true,
       });
@@ -43,9 +47,12 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
       .single();
     const { data: org } = await db
       .from('organizations')
-      .select('name,subscription_status')
+      .select('name,subscription_status,pricing_config')
       .eq('id', t.org)
       .single();
+    const orgCfg = (org?.pricing_config || {}) as {
+      landfill_surcharges?: { dry_run_cents?: number };
+    };
     return NextResponse.json({
       jobs,
       containers: containers ?? [],
@@ -54,6 +61,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
         name: org?.name ?? 'RollOS',
         subscription_status: org?.subscription_status ?? 'free',
         is_paid_plan: org?.subscription_status === 'paid',
+        dry_run_cents: orgCfg.landfill_surcharges?.dry_run_cents ?? 12500,
       },
       demo: false,
     });

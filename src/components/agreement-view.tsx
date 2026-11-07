@@ -46,6 +46,7 @@ export function AgreementView({ data }: { data: AgreementData }) {
   const mattressRate = formatMoney(surcharges.mattress_cents ?? 5000);
   const freonRate = formatMoney(surcharges.freon_cents ?? 7500);
   const propaneRate = formatMoney(surcharges.propane_cents ?? 3500);
+  const dryRunRate = formatMoney(surcharges.dry_run_cents ?? 12500);
 
   // Signing state for remote/phone order customers
   const [isSigned, setIsSigned] = useState(
@@ -149,11 +150,12 @@ CONTAINER & RENTAL SPECIFICATIONS:
 • Additional Rental Day Rate: ${formatMoney(job.extra_day_cents || pricingRule.extra_day_cents)} per calendar day
 ${job.protective_boards ? '• Protective Driveway Wood Blocking: Included' : ''}
 
-STANDARD LANDFILL SURCHARGES (AUTOMATIC CARD-ON-FILE BILLING):
+STANDARD LANDFILL SURCHARGES & TRIP FEES (AUTOMATIC CARD-ON-FILE BILLING):
 • Tires: ${tireRate} each
 • Mattresses & Box Springs: ${mattressRate} each
 • Freon Appliances (AC, Fridges): ${freonRate} each
 • Propane / Gas Cylinders: ${propaneRate} each
+• Blocked Access / Dry Run Trip Fee: ${dryRunRate}
 
 TERMS AND CONDITIONS:
 1. SURFACE & PROPERTY DAMAGE WAIVER: Customer releases ${organization.name} from any and all liability for damage to driveways, asphalt, concrete, brick pavers, curbs, sidewalks, lawns, trees, irrigation/sprinkler pipes, septic systems, or underground utilities. Customer assumes sole risk for off-pavement placement.
@@ -162,7 +164,7 @@ TERMS AND CONDITIONS:
 4. DENSE INERT MATERIALS & HOIST CAPACITY: Dirt, concrete, rock, brick, or sod are prohibited in containers larger than 10 yards. Max gross load must not exceed 10 tons. If overloaded beyond hoist capacity, customer must manually offload excess debris at customer expense.
 5. WEIGHT LIMITS & OVERAGE AUTHORIZATION: Customer authorizes hauler to automatically charge card on file for weight over ${job.tons_included} tons at ${formatMoney(pricingRule.overage_per_ton_cents)}/ton based on certified scale tickets.
 6. WATER LEVEL RULE: Debris must not exceed the top lip of container walls.
-7. SITE ACCESS & $125 DRY RUN TRIP FEE: Customer guarantees clear access (10ft wide, 14ft high). Blocked access incurs an automatic $125 dry run fee.
+7. SITE ACCESS & ${dryRunRate} DRY RUN TRIP FEE: Customer guarantees clear access (10ft wide, 14ft high). Blocked access incurs an automatic ${dryRunRate} dry run fee.
 8. STREET PLACEMENT & MUNICIPAL PERMITS: Customer is solely responsible for obtaining and paying for all required municipal right-of-way (ROW) street permits, parking permits, and barricades, and indemnifies hauler against city citations or towing.
 9. INDEMNIFICATION: Customer holds hauler harmless against damages or injuries resulting from unauthorized container movement.
 10. PAYMENT AUTHORIZATION: Customer authorizes charges for overages, extra days, dry runs, or violations verified by scale tickets and photos.
@@ -485,7 +487,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
           <p className="text-[11px] text-[#713f12] mb-2 leading-relaxed">
             The disposal facility levies flat surcharges for non-standard household items. Customer authorizes Hauler to charge the payment method on file for the following items discovered upon unloading:
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
             <div className="bg-white p-2 rounded border border-[#fde047]">
               <span className="text-[10px] text-[#713f12] block">Automotive Tires</span>
               <strong className="text-[#854d0e]">{tireRate} / tire</strong>
@@ -501,6 +503,10 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
             <div className="bg-white p-2 rounded border border-[#fde047]">
               <span className="text-[10px] text-[#713f12] block">Propane / Gas Cylinder</span>
               <strong className="text-[#854d0e]">{propaneRate} / tank</strong>
+            </div>
+            <div className="bg-white p-2 rounded border border-[#fde047]">
+              <span className="text-[10px] text-[#713f12] block">Blocked Access / Dry Run</span>
+              <strong className="text-[#854d0e]">{dryRunRate} / trip</strong>
             </div>
           </div>
         </div>
@@ -572,7 +578,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
               6. Site Access & Dry Run Trip Fees
             </h3>
             <p>
-              Customer guarantees clear, unobstructed access to the placement site between 6:00 AM and 8:00 PM on service days (minimum clearance: 10 ft wide and 14 ft vertical clearance). If access is blocked by parked cars, locked gates, snowbanks, or low wires, an automatic <b>$125.00 Dry Run Trip Fee</b> will be charged to Customer’s card on file, and service will be rescheduled.
+              Customer guarantees clear, unobstructed access to the placement site between 6:00 AM and 8:00 PM on service days (minimum clearance: 10 ft wide and 14 ft vertical clearance). If access is blocked by parked cars, locked gates, snowbanks, or low wires, an automatic <b>{dryRunRate} Dry Run Trip Fee</b> will be charged to Customer’s card on file, and service will be rescheduled.
             </p>
           </div>
 

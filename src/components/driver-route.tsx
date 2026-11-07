@@ -35,7 +35,12 @@ type RouteData = {
   driver: { name: string };
   jobs: Job[];
   containers: Container[];
-  organization?: { name: string; subscription_status: string; is_paid_plan: boolean };
+  organization?: {
+    name: string;
+    subscription_status: string;
+    is_paid_plan: boolean;
+    dry_run_cents?: number;
+  };
   demo: boolean;
 };
 
@@ -1425,28 +1430,33 @@ export function DriverRoute({ token }: { token: string }) {
 
                 {/* 1-Tap Glove-Friendly Field Exception Buttons */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, marginBottom: 10 }}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setDriverNotes({
-                        ...driverNotes,
-                        [job.id]: '[DRY RUN FEE: $125] Driveway/site blocked upon arrival. Photo attached.',
-                      })
-                    }
-                    style={{
-                      fontSize: 12,
-                      padding: '9px 12px',
-                      background: '#fef2f2',
-                      border: '1px solid #fca5a5',
-                      borderRadius: 6,
-                      color: '#991b1b',
-                      cursor: 'pointer',
-                      fontWeight: 700,
-                      textAlign: 'left',
-                    }}
-                  >
-                    🚫 Blocked / Dry Run ($125)
-                  </button>
+                  {(() => {
+                    const dryRunDollars = Math.round((data.organization?.dry_run_cents ?? 12500) / 100);
+                    return (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDriverNotes({
+                            ...driverNotes,
+                            [job.id]: `[DRY RUN FEE: $${dryRunDollars}] Driveway/site blocked upon arrival. Photo attached.`,
+                          })
+                        }
+                        style={{
+                          fontSize: 12,
+                          padding: '9px 12px',
+                          background: '#fef2f2',
+                          border: '1px solid #fca5a5',
+                          borderRadius: 6,
+                          color: '#991b1b',
+                          cursor: 'pointer',
+                          fontWeight: 700,
+                          textAlign: 'left',
+                        }}
+                      >
+                        🚫 Blocked / Dry Run (${dryRunDollars})
+                      </button>
+                    );
+                  })()}
                   <button
                     type="button"
                     onClick={() =>
