@@ -115,12 +115,34 @@ export async function POST(request: Request) {
 
     if (isDemo()) {
       await mutateDemo((d) => {
-        if (body?.status === 'inactive') {
+        if (body?.status === 'inactive' || plan === 'free') {
           d.organization.subscription_status = 'inactive';
+          d.organization.subscription_plan = 'free';
+          d.organization.pricing_config = {
+            ...d.organization.pricing_config,
+            subscription_plan: 'free',
+          };
         } else if (plan === 'winter_hold') {
           d.organization.subscription_status = body?.status || 'winter_hold';
-        } else if (plan === 'starter' || plan === 'growth' || (!plan && !hasWebsite && !hasGbp)) {
+          d.organization.subscription_plan = 'winter_hold';
+          d.organization.pricing_config = {
+            ...d.organization.pricing_config,
+            subscription_plan: 'winter_hold',
+          };
+        } else if (plan === 'starter') {
           d.organization.subscription_status = 'active';
+          d.organization.subscription_plan = 'starter';
+          d.organization.pricing_config = {
+            ...d.organization.pricing_config,
+            subscription_plan: 'starter',
+          };
+        } else if (plan === 'growth' || (!plan && !hasWebsite && !hasGbp)) {
+          d.organization.subscription_status = 'active';
+          d.organization.subscription_plan = 'growth';
+          d.organization.pricing_config = {
+            ...d.organization.pricing_config,
+            subscription_plan: 'growth',
+          };
         }
         if (hasWebsite) d.organization.website_addon = true;
         if (hasGbp) d.organization.gbp_addon = true;

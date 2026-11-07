@@ -74,22 +74,48 @@ export async function POST(request: Request) {
 
       if (session.mode === 'subscription' && orgId && session.subscription) {
         const targetStatus = meta.plan === 'winter_hold' ? 'winter_hold' : 'active';
+        const targetPlan: 'free' | 'starter' | 'growth' | 'winter_hold' =
+          meta.plan === 'winter_hold'
+            ? 'winter_hold'
+            : meta.plan === 'starter'
+              ? 'starter'
+              : 'growth';
         if (isDemo()) {
           await mutateDemo((d) => {
             if (d.organization.id === orgId || !d.organization.stripe_subscription_id) {
               d.organization.stripe_subscription_id = session.subscription;
               d.organization.subscription_status = targetStatus;
+              d.organization.subscription_plan = targetPlan;
+              d.organization.pricing_config = {
+                ...d.organization.pricing_config,
+                subscription_plan: targetPlan,
+              };
               if (meta.website === 'true') d.organization.website_addon = true;
               if (meta.gbp === 'true') d.organization.gbp_addon = true;
             }
           });
         }
         if (db) {
+          let updatedPricingConfig: Record<string, unknown> | undefined;
+          try {
+            const { data: existingOrg } = await db
+              .from('organizations')
+              .select('pricing_config')
+              .eq('id', orgId)
+              .maybeSingle();
+            if (existingOrg) {
+              updatedPricingConfig = {
+                ...((existingOrg.pricing_config as Record<string, unknown>) || {}),
+                subscription_plan: targetPlan,
+              };
+            }
+          } catch {}
           await db
             .from('organizations')
             .update({
               stripe_subscription_id: session.subscription,
               subscription_status: targetStatus,
+              ...(updatedPricingConfig ? { pricing_config: updatedPricingConfig } : {}),
               ...(meta.website === 'true' ? { website_addon: true } : {}),
               ...(meta.gbp === 'true' ? { gbp_addon: true } : {}),
             })
@@ -193,6 +219,11 @@ export async function POST(request: Request) {
               (subscription.metadata?.org_id && d.organization.id === subscription.metadata.org_id)
             ) {
               d.organization.subscription_status = 'canceled';
+              d.organization.subscription_plan = 'free';
+              d.organization.pricing_config = {
+                ...d.organization.pricing_config,
+                subscription_plan: 'free',
+              };
             }
           });
         }
@@ -209,7 +240,7 @@ export async function POST(request: Request) {
       const subscription = event.data.object as {
         id?: string;
         status?: string;
-        metadata?: { org_id?: string };
+        metadata?: { org_id?: string; plan?: 'free' | 'starter' | 'growth' | 'winter_hold' };
       };
       const subId = subscription.id;
       const status = subscription.status;
@@ -221,6 +252,13 @@ export async function POST(request: Request) {
               (subscription.metadata?.org_id && d.organization.id === subscription.metadata.org_id)
             ) {
               d.organization.subscription_status = status;
+              if (subscription.metadata?.plan) {
+                d.organization.subscription_plan = subscription.metadata.plan;
+                d.organization.pricing_config = {
+                  ...d.organization.pricing_config,
+                  subscription_plan: subscription.metadata.plan,
+                };
+              }
             }
           });
         }

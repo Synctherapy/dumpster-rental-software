@@ -5,7 +5,17 @@ import { Loader2, Phone, Lock, Zap, CheckCircle2 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { addDays, money, phoneMatch, today, type Job, type Workspace } from '@/lib/types';
+import {
+  addDays,
+  countPhoneOrders,
+  FREE_PHONE_ORDER_LIMIT,
+  isStarterOrAbove,
+  money,
+  phoneMatch,
+  today,
+  type Job,
+  type Workspace,
+} from '@/lib/types';
 import { quote } from '@/lib/pricing';
 
 export function QuickOrderModal({
@@ -66,13 +76,13 @@ export function QuickOrderModal({
   const [boards, setBoards] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const isPaidPlan =
-    data.organization.subscription_status === 'active' || Boolean(data.organization.is_paid_plan);
+  const isPaidPlan = isStarterOrAbove(data.organization);
+  const phoneOrdersUsed = useMemo(() => countPhoneOrders(data.jobs), [data.jobs]);
+  const freePhoneOrdersLeft = Math.max(0, FREE_PHONE_ORDER_LIMIT - phoneOrdersUsed);
   const [paymentType, setPaymentType] = useState<'card' | 'cash' | 'check' | 'net_30'>(
     initialCustomer?.isCommercial ? 'net_30' : 'card',
   );
-  const isOffline = ['cash', 'check', 'net_30'].includes(paymentType);
-  const isBlockedByPlan = isOffline && !isPaidPlan;
+  const isBlockedByPlan = !isPaidPlan && freePhoneOrdersLeft === 0;
 
   const [prevInitialCustomer, setPrevInitialCustomer] = useState(initialCustomer);
   if (initialCustomer !== prevInitialCustomer) {
@@ -147,7 +157,7 @@ export function QuickOrderModal({
     if (job.zip) setZip(job.zip);
     handleSizeChange(job.size_yards);
     setBoards(Boolean(job.protective_boards));
-    if (isPaidPlan) {
+    if (isPaidPlan || freePhoneOrdersLeft > 0) {
       const pt = job.payment_type;
       if (pt === 'cash' || pt === 'check' || pt === 'net_30') {
         setPaymentType(pt);
@@ -174,12 +184,11 @@ export function QuickOrderModal({
 
   const calculatedQuote = useMemo(() => {
     if (!rule) return null;
-    const customerFee = data.organization.pricing_config?.customer_fee_enabled !== false;
     return quote(rule, deliveryDate, pickupDate, 100, {
-      customerFee,
+      customerFee: false,
       boards,
     });
-  }, [rule, deliveryDate, pickupDate, data.organization.pricing_config, boards]);
+  }, [rule, deliveryDate, pickupDate, boards]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +196,10 @@ export function QuickOrderModal({
     setError('');
 
     if (isBlockedByPlan) {
-      setError('Offline payments (Cash, Check, Net 30) require an active Starter or Growth plan.');
+      setError(
+        `You've used all ${FREE_PHONE_ORDER_LIMIT} free trial phone orders. Upgrade to Starter ($29/mo) or Growth ($99/mo) in Settings to unlock unlimited $0-fee phone orders.`,
+      );
+      setBusy(false);
       return;
     }
 
@@ -230,6 +242,52 @@ export function QuickOrderModal({
       description="Take an order over the phone and add it directly to your dispatch schedule in seconds."
     >
       <form onSubmit={handleSubmit} className="form-stack">
+        {!isPaidPlan && (
+          <div
+            style={{
+              padding: '10px 14px',
+              borderRadius: 8,
+              background: freePhoneOrdersLeft > 0 ? '#f0fdf4' : '#fffbeb',
+              border: freePhoneOrdersLeft > 0 ? '1px solid #bbf7d0' : '1px solid #fde68a',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              fontSize: 12,
+              color: freePhoneOrdersLeft > 0 ? '#166534' : '#92400e',
+              lineHeight: 1.45,
+            }}
+          >
+            {freePhoneOrdersLeft > 0 ? (
+              <div>
+                <strong>
+                  🎁 Free Plan Trial: {freePhoneOrdersLeft} of {FREE_PHONE_ORDER_LIMIT} free $0-fee
+                  phone orders remaining ({phoneOrdersUsed}/{FREE_PHONE_ORDER_LIMIT} used).
+                </strong>{' '}
+                Test logging Cash, Check, Net-30, or Card orders!
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                  🔒 You&apos;ve used all 3 free trial phone orders ({FREE_PHONE_ORDER_LIMIT}/
+                  {FREE_PHONE_ORDER_LIMIT} used)
+                </div>
+                <div style={{ color: '#78350f' }}>
+                  Upgrade to <strong>Starter ($29/mo · 14-day free trial)</strong> or{' '}
+                  <strong>Growth Fleet ($99/mo)</strong> in{' '}
+                  <Link
+                    href="/settings"
+                    style={{ color: '#b45309', textDecoration: 'underline', fontWeight: 600 }}
+                  >
+                    Settings
+                  </Link>{' '}
+                  to unlock unlimited $0-fee manual phone orders, offline Cash/Check/Net-30
+                  logging, and 1-click container swaps.
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {recentCustomers.length > 0 && (
           <div
             style={{
@@ -509,19 +567,20 @@ export function QuickOrderModal({
               }}
             >
               <Lock size={15} />
-              Offline Payments Require a Paid Plan
+              You&apos;ve Used All {FREE_PHONE_ORDER_LIMIT} Free Trial Phone Orders (
+              {FREE_PHONE_ORDER_LIMIT}/{FREE_PHONE_ORDER_LIMIT} Used)
             </div>
             <p style={{ margin: 0, fontSize: 12, color: '#78350f', lineHeight: 1.5 }}>
-              Accepting offline payments (Cash, Check, Net 30) requires an active{' '}
-              <strong>Starter ($29/mo)</strong> or <strong>Growth ($99/mo)</strong> plan. Please
-              select <strong>Credit / Debit Card (Stripe)</strong> or{' '}
+              Upgrade to <strong>Starter ($29/mo · 14-day free trial)</strong> or{' '}
+              <strong>Growth Fleet ($99/mo)</strong> in{' '}
               <Link
                 href="/settings"
                 style={{ color: '#b45309', textDecoration: 'underline', fontWeight: 600 }}
               >
-                upgrade your plan in Settings
-              </Link>
-              .
+                Settings
+              </Link>{' '}
+              to unlock unlimited $0-fee manual phone orders, offline Cash/Check/Net-30 logging,
+              and 1-click container swaps.
             </p>
           </div>
         )}
@@ -590,7 +649,11 @@ export function QuickOrderModal({
             variant="primary"
             type="submit"
             disabled={busy || isBlockedByPlan}
-            title={isBlockedByPlan ? 'Offline payments require an active paid plan' : undefined}
+            title={
+              isBlockedByPlan
+                ? 'Free trial phone orders used — upgrade in Settings for unlimited $0-fee phone orders'
+                : undefined
+            }
           >
             {busy ? (
               <Loader2 size={14} className="spin" />
@@ -599,7 +662,7 @@ export function QuickOrderModal({
             ) : (
               <Phone size={14} />
             )}
-            {isBlockedByPlan ? 'Upgrade Plan to Book Offline' : 'Book Phone Order'}
+            {isBlockedByPlan ? 'Upgrade Plan for Unlimited Phone Orders' : 'Book Phone Order'}
           </Button>
         </div>
       </form>

@@ -32,7 +32,14 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import type { Workspace, PricingRule, Notification } from '@/lib/types';
+import {
+  getEffectivePlan,
+  isGrowthPlan,
+  isStarterOrAbove,
+  type Workspace,
+  type PricingRule,
+  type Notification,
+} from '@/lib/types';
 import { METRO_CITIES, findCityData, generateCleanSlug, resolveCityZips } from '@/lib/city-zips';
 
 function formatPhone(phone?: string | null): string {
@@ -1072,11 +1079,15 @@ export function Settings({
   reload: () => Promise<void>;
   notify: (message: string, error?: boolean) => void;
 }) {
+  const currentPlan = getEffectivePlan(data.organization);
   const [name, setName] = useState(data.organization.name);
   const [slug, setSlug] = useState(data.organization.slug);
   const [phone, setPhone] = useState(data.organization.phone);
   const [currency, setCurrency] = useState(
     data.organization.currency || data.organization.pricing_config?.currency || 'usd',
+  );
+  const [customerFeeEnabled, setCustomerFeeEnabled] = useState<boolean>(
+    data.organization.pricing_config?.customer_fee_enabled !== false,
   );
   const [googleReviewUrl, setGoogleReviewUrl] = useState(
     data.organization.google_review_url || data.organization.pricing_config?.google_review_url || '',
@@ -1252,7 +1263,7 @@ export function Settings({
           phone,
           currency,
           deposit_percent: 100,
-          customer_fee_enabled: true,
+          customer_fee_enabled: customerFeeEnabled,
           google_review_url: googleReviewUrl,
           min_notice_hours: minNoticeHours,
           prohibited_items: prohibitedItems,
@@ -1507,6 +1518,39 @@ export function Settings({
                 Collected at booking
                 <input type="number" value={100} readOnly />
                 <small>The full base rental is collected. Extra days and tonnage are billed after pickup.</small>
+              </label>
+              <label className="field">
+                Online Checkout Reservation Fee ($12)
+                <select
+                  value={customerFeeEnabled ? 'true' : 'false'}
+                  onChange={(e) => {
+                    const nextVal = e.target.value === 'true';
+                    setCustomerFeeEnabled(nextVal);
+                    if (!nextVal && !isStarterOrAbove(data.organization)) {
+                      notify(
+                        'Absorbing the $12 fee into your base price requires Starter ($29/mo) or Growth ($99/mo).',
+                        true,
+                      );
+                    }
+                  }}
+                >
+                  <option value="true">
+                    Pass $12 fee to customer at checkout (Recommended — $0 cost to you)
+                  </option>
+                  <option value="false">
+                    Absorb $12 fee into my base dumpster price ($12 deducted from payout)
+                  </option>
+                </select>
+                <small>
+                  RollOS collects a standard $12 reservation fee on online checkouts. Offline manual
+                  phone orders have $0 platform fee.
+                </small>
+                {!customerFeeEnabled && !isStarterOrAbove(data.organization) && (
+                  <small style={{ color: '#b45309', fontWeight: 600 }}>
+                    ⚠️ Absorbing the $12 fee into your base price requires an active Starter
+                    ($29/mo) or Growth ($99/mo) plan.
+                  </small>
+                )}
               </label>
             </div>
             <div className="form-row">
@@ -2557,13 +2601,21 @@ export function Settings({
                 Scale your dumpster operations with high-conversion fleet tools.
               </p>
             </div>
-            {data.organization.subscription_status === 'active' ? (
+            {currentPlan === 'growth' ? (
               <span className="pill" style={{ color: '#15803d', background: '#dcfce7', fontWeight: 600 }}>
-                <Check size={11} style={{ marginRight: 3 }} /> Active Plan
+                <Check size={11} style={{ marginRight: 3 }} /> Growth Fleet ($99/mo)
+              </span>
+            ) : currentPlan === 'starter' ? (
+              <span className="pill" style={{ color: '#1d4ed8', background: '#dbeafe', fontWeight: 600 }}>
+                <Check size={11} style={{ marginRight: 3 }} /> Starter Plan ($29/mo)
+              </span>
+            ) : currentPlan === 'winter_hold' ? (
+              <span className="pill" style={{ color: '#0369a1', background: '#e0f2fe', fontWeight: 600 }}>
+                Winter Hold ($10/mo)
               </span>
             ) : (
-              <span className="pill" style={{ color: '#854d0e', background: '#fef9c3' }}>
-                Free Plan
+              <span className="pill" style={{ color: '#854d0e', background: '#fef9c3', fontWeight: 600 }}>
+                Free Plan ($0/mo)
               </span>
             )}
           </div>
@@ -2582,13 +2634,22 @@ export function Settings({
                     Demo Plan Switcher
                   </span>
                   <span style={{ fontSize: 11, color: '#64748b' }}>
-                    Status: <strong style={{ color: data.organization.subscription_status === 'active' ? '#166534' : '#b45309' }}>{data.organization.subscription_status === 'active' ? 'Active' : 'Inactive (Free)'}</strong>
+                    Status:{' '}
+                    <strong style={{ color: isStarterOrAbove(data.organization) ? '#166534' : '#b45309' }}>
+                      {currentPlan === 'growth'
+                        ? 'Growth ($99/mo)'
+                        : currentPlan === 'starter'
+                          ? 'Starter ($29/mo)'
+                          : currentPlan === 'winter_hold'
+                            ? 'Winter Hold ($10/mo)'
+                            : 'Free ($0/mo)'}
+                    </strong>
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <Button
                     type="button"
-                    variant={data.organization.subscription_status !== 'active' ? 'primary' : 'ghost'}
+                    variant={currentPlan === 'free' ? 'primary' : 'ghost'}
                     disabled={busy}
                     style={{ fontSize: 12, padding: '6px 10px', minHeight: 30 }}
                     onClick={async () => {
@@ -2596,10 +2657,10 @@ export function Settings({
                       try {
                         await api('/api/billing', {
                           method: 'POST',
-                          body: JSON.stringify({ status: 'inactive' }),
+                          body: JSON.stringify({ plan: 'free', status: 'inactive' }),
                         });
                         await reload();
-                        notify('Switched to Free Tier (Inactive).');
+                        notify('Switched to Free Tier ($0/mo).');
                       } catch (e) {
                         notify((e as Error).message, true);
                       } finally {
@@ -2611,7 +2672,7 @@ export function Settings({
                   </Button>
                   <Button
                     type="button"
-                    variant={data.organization.subscription_status === 'active' ? 'primary' : 'ghost'}
+                    variant={currentPlan === 'starter' ? 'primary' : 'ghost'}
                     disabled={busy}
                     style={{ fontSize: 12, padding: '6px 10px', minHeight: 30 }}
                     onClick={async () => {
@@ -2634,7 +2695,7 @@ export function Settings({
                   </Button>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant={currentPlan === 'growth' ? 'primary' : 'ghost'}
                     disabled={busy}
                     style={{ fontSize: 12, padding: '6px 10px', minHeight: 30 }}
                     onClick={async () => {
@@ -2657,7 +2718,7 @@ export function Settings({
                   </Button>
                   <Button
                     type="button"
-                    variant={data.organization.subscription_status === 'winter_hold' ? 'primary' : 'ghost'}
+                    variant={currentPlan === 'winter_hold' ? 'primary' : 'ghost'}
                     disabled={busy}
                     style={{ fontSize: 12, padding: '6px 10px', minHeight: 30 }}
                     onClick={async () => {
@@ -2684,7 +2745,7 @@ export function Settings({
             {/* Starter Plan */}
             <div
               style={{
-                border: '1px solid #e2e8f0',
+                border: currentPlan === 'starter' ? '2px solid #2563eb' : '1px solid #e2e8f0',
                 borderRadius: 10,
                 padding: '16px',
                 background: '#fafafa',
@@ -2702,9 +2763,9 @@ export function Settings({
                 Essential dispatch and payment flexibility for independent haulers.
               </p>
               <ul style={{ margin: '0 0 14px', paddingLeft: 18, fontSize: 12, color: '#334155', lineHeight: 1.8 }}>
-                <li>Offline Cash/Check payments</li>
-                <li>Calendar Sync</li>
-                <li>0% Platform fee option</li>
+                <li>Unlimited $0-fee manual &amp; phone orders</li>
+                <li>Offline Cash, Check &amp; Net-30 logging</li>
+                <li>1-Click Dump &amp; Return swaps &amp; iCal sync</li>
               </ul>
               <Button
                 style={{ width: '100%' }}
@@ -2723,16 +2784,18 @@ export function Settings({
                   }
                 }}
               >
-                {data.organization.subscription_status === 'active'
-                  ? 'Switch to Starter ($29/mo)'
-                  : 'Start Starter Plan ($29/mo)'}
+                {currentPlan === 'starter'
+                  ? 'Current Plan: Starter ($29/mo)'
+                  : isStarterOrAbove(data.organization)
+                    ? 'Switch to Starter ($29/mo)'
+                    : 'Start Starter Plan ($29/mo)'}
               </Button>
             </div>
 
             {/* Growth Fleet Plan */}
             <div
               style={{
-                border: '1px solid #a7f3d0',
+                border: currentPlan === 'growth' ? '2px solid #059669' : '1px solid #a7f3d0',
                 borderRadius: 10,
                 padding: '16px',
                 background: '#f0fdf4',
@@ -2765,13 +2828,13 @@ export function Settings({
                 </div>
               </div>
               <p style={{ fontSize: 11, color: '#047857', margin: '0 0 10px' }}>
-                Fleet plan. Same operating tools as Starter, for a larger operation.
+                Automated missed-call text-back, VIP contractor portal &amp; multi-truck fleet tools.
               </p>
               <ul style={{ margin: '0 0 14px', paddingLeft: 18, fontSize: 12, color: '#065f46', lineHeight: 1.8 }}>
-                <li>Everything in Starter</li>
-                <li>Customer reservation fee can be turned off</li>
-                <li>Priced for more than one truck</li>
-                <li>No annual contract</li>
+                <li>Everything in Starter ($29/mo)</li>
+                <li>Missed-Call SMS Auto-Textback (Dedicated Twilio Line)</li>
+                <li>VIP Contractor Self-Serve Net-30 Swap Portal</li>
+                <li>Multi-truck fleet routing &amp; no annual contract</li>
               </ul>
               <Button
                 variant="primary"
@@ -2791,9 +2854,11 @@ export function Settings({
                   }
                 }}
               >
-                {data.organization.subscription_status === 'active'
-                  ? 'Switch to Growth Fleet ($99/mo)'
-                  : 'Start Growth Fleet Plan ($99/mo)'}
+                {currentPlan === 'growth'
+                  ? 'Current Plan: Growth Fleet ($99/mo)'
+                  : isStarterOrAbove(data.organization)
+                    ? 'Switch to Growth Fleet ($99/mo)'
+                    : 'Start Growth Fleet Plan ($99/mo)'}
               </Button>
             </div>
 
@@ -2869,12 +2934,27 @@ export function Settings({
         </section>
         <section className="panel">
           <div className="panel-heading">
-            <h3>Calendar feed (iCal).</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <h3>Calendar feed (iCal).</h3>
+              {currentPlan === 'free' && (
+                <span
+                  className="pill"
+                  style={{ fontSize: 10, color: '#1d4ed8', background: '#dbeafe', fontWeight: 600 }}
+                >
+                  Starter ($29/mo)
+                </span>
+              )}
+            </div>
             <CalendarDays size={15} color="#96a380" />
           </div>
           <div className="settings-body" style={{ gap: 14 }}>
             <p style={{ fontSize: 11, color: '#91a080', lineHeight: 1.8 }}>
               Sync all deliveries and pickups directly with Apple Calendar, Google Calendar, or Outlook.
+              {currentPlan === 'free' && (
+                <span style={{ display: 'block', marginTop: 4, color: '#1d4ed8', fontWeight: 600 }}>
+                  Live 2-way iCal sync is included in Starter ($29/mo) &amp; Growth ($99/mo).
+                </span>
+              )}
             </p>
             <div className="code-snippet" style={{ fontSize: 11, wordBreak: 'break-all' }}>
               /api/calendar?token=

@@ -41,6 +41,7 @@ import {
   isOverduePickup,
   overduePickupDays,
   lbsToTons,
+  isStarterOrAbove,
   type Workspace,
   type Job,
 } from '@/lib/types';
@@ -80,8 +81,7 @@ export function JobDrawer({
   const [scaleTicket, setScaleTicket] = useState(job.scale_ticket_url ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const isPaid =
-    data.organization.subscription_status === 'active' || Boolean(data.organization.is_paid_plan);
+  const isPaid = isStarterOrAbove(data.organization);
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const swapSizes: number[] = useMemo(() => {

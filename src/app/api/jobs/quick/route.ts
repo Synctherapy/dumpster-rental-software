@@ -6,7 +6,15 @@ import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
 import { quote, platformFee } from '@/lib/pricing';
-import { today, normalizePostalCode, isValidPostalCode, type Job } from '@/lib/types';
+import {
+  today,
+  normalizePostalCode,
+  isValidPostalCode,
+  FREE_PHONE_ORDER_LIMIT,
+  countPhoneOrders,
+  isStarterOrAbove,
+  type Job,
+} from '@/lib/types';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
 import { recordBookingOccurred } from '@/lib/server/jobs';
@@ -66,16 +74,24 @@ export async function POST(request: Request) {
       const org = demoData.organization;
       const rule = demoData.pricing_rules.find((r) => r.size_yards === body.size_yards);
       if (!rule) throw new Error('Selected dumpster size pricing rule not found.');
-      const isOfflinePayment =
-        body.payment_type &&
-        ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
-      if (isOfflinePayment && org.subscription_status !== 'active') {
-        throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
-        );
+
+      const isPaidPlan =
+        isStarterOrAbove(org) ||
+        org.subscription_status === 'active' ||
+        org.subscription_status === 'starter' ||
+        org.subscription_status === 'growth' ||
+        org.subscription_status === 'trialing';
+
+      if (!isPaidPlan) {
+        const phoneOrdersUsed = countPhoneOrders(demoData.jobs);
+        if (phoneOrdersUsed >= FREE_PHONE_ORDER_LIMIT) {
+          throw new Error(
+            'You have used all 3 free phone orders on the Free Plan. Upgrade to Starter ($29/mo) or Growth ($99/mo) for unlimited $0-fee phone orders.',
+          );
+        }
       }
 
-      const customerFee = org.pricing_config?.customer_fee_enabled !== false;
+      const customerFee = false;
       const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
         customerFee,
         boards: body.protective_boards,
@@ -192,16 +208,27 @@ export async function POST(request: Request) {
       const rule = rules?.find((r) => r.size_yards === body.size_yards);
       if (!rule) throw new Error('Selected dumpster size pricing rule not found.');
 
-      const isOfflinePayment =
-        body.payment_type &&
-        ['cash', 'check', 'net_30', 'in_person_card'].includes(body.payment_type);
-      if (isOfflinePayment && org.subscription_status !== 'active') {
-        throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
-        );
+      const isPaidPlan =
+        isStarterOrAbove(org) ||
+        org.subscription_status === 'active' ||
+        org.subscription_status === 'starter' ||
+        org.subscription_status === 'growth' ||
+        org.subscription_status === 'trialing';
+
+      if (!isPaidPlan) {
+        const { data: orgJobs } = await db
+          .from('jobs')
+          .select('notes, signature')
+          .eq('org_id', member.org_id);
+        const phoneOrdersUsed = countPhoneOrders(orgJobs ?? []);
+        if (phoneOrdersUsed >= FREE_PHONE_ORDER_LIMIT) {
+          throw new Error(
+            'You have used all 3 free phone orders on the Free Plan. Upgrade to Starter ($29/mo) or Growth ($99/mo) for unlimited $0-fee phone orders.',
+          );
+        }
       }
 
-      const customerFee = org.pricing_config?.customer_fee_enabled !== false;
+      const customerFee = false;
       const price = quote(rule, body.delivery_date, body.pickup_date, 100, {
         customerFee,
         boards: body.protective_boards,

@@ -4,7 +4,7 @@ import { workspace } from '@/lib/server/workspace';
 import { contractorToken } from '@/lib/server/tokens';
 import { sendSms } from '@/lib/server/notifications';
 import { assertSameOrigin, failure } from '@/lib/server/http';
-import { normalizePhone } from '@/lib/types';
+import { normalizePhone, isGrowthPlan } from '@/lib/types';
 
 const schema = z.object({
   account_name: z.string().trim().min(2).max(120),
@@ -16,6 +16,11 @@ export async function POST(request: Request) {
     assertSameOrigin(request);
     const { account_name, phone } = schema.parse(await request.json());
     const data = await workspace();
+    if (!isGrowthPlan(data.organization)) {
+      throw new Error(
+        'The VIP Contractor Self-Serve Portal requires the Growth Fleet ($99/mo) plan.',
+      );
+    }
     const token = contractorToken(data.organization.id, account_name);
     const url = `/contractor/${data.organization.slug}?t=${token}`;
     const appUrl = process.env.APP_URL || '';

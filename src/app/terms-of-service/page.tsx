@@ -44,7 +44,7 @@ export default function SaasTerms() {
         </li>
         <li>
           <strong>Starter Tier ($29/month):</strong> Unlocks unlimited manual dispatch for offline phone and contractor orders,
-          ability to disable the customer reservation fee ($0 platform fee), two-way Google Calendar sync, and contractor custom rate sheets.
+          ability to absorb the $12 online reservation fee into your base rental price, unlimited $0-fee offline orders, two-way Google Calendar sync, and contractor custom rate sheets.
         </li>
         <li>
           <strong>Growth Tier ($99/month):</strong> Unlocks automated customer delivery/pickup SMS notifications, Google 5-Star

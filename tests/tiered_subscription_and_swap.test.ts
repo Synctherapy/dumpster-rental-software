@@ -400,3 +400,151 @@ test('POST /api/settings allows custom dumpster size (e.g. 15-yard) and allows d
   assert.equal(rule15.base_price_cents, 37500);
 });
 
+test('Free plan allows 3 free phone orders ($0 fee, including cash/check) and gates the 4th until upgraded', async () => {
+  const { POST: quickJobHandler } = req('../src/app/api/jobs/quick/route') as typeof import('../src/app/api/jobs/quick/route');
+  const { countPhoneOrders, FREE_PHONE_ORDER_LIMIT } = req('../src/lib/types') as typeof import('../src/lib/types');
+
+  assert.equal(FREE_PHONE_ORDER_LIMIT, 3);
+
+  // Reset demo org to Free plan and remove any prior phone orders
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'inactive';
+    d.organization.subscription_plan = 'free';
+    d.organization.is_paid_plan = false;
+    d.organization.pricing_config.subscription_plan = 'free';
+    d.jobs = d.jobs.filter((j) => j.signature?.ip !== 'dispatch-phone' && !j.notes?.includes('[Phone Order]'));
+  });
+
+  // First 3 phone orders on Free plan should succeed with $0 platform fee (even with cash/check/card)
+  const paymentMethods = ['cash', 'check', 'card'] as const;
+  for (let i = 0; i < 3; i++) {
+    const reqQuick = new Request('http://localhost:3000/api/jobs/quick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_name: `Free Phone Customer ${i + 1}`,
+        customer_phone: '512-555-0199',
+        delivery_address: `${100 + i} Congress Ave, Austin, TX`,
+        zip: '78704',
+        size_yards: 20,
+        delivery_date: '2099-10-15',
+        pickup_date: '2099-10-20',
+        payment_type: paymentMethods[i],
+      }),
+    });
+    const resQuick = await quickJobHandler(reqQuick);
+    assert.equal(resQuick.status, 200, `Phone order #${i + 1} should succeed on Free plan`);
+    const body = (await resQuick.json()) as { ok: boolean; job: { id: string; price_cents: number } };
+    assert.equal(body.ok, true);
+    assert.equal(body.job.price_cents, 42500, 'Phone orders do not tack on the $12 online reservation fee');
+    const currentDemo = await readDemo();
+    const payment = currentDemo.payments.find((p) => p.job_id === body.job.id);
+    assert.equal(payment?.application_fee_cents, 0, 'Phone orders always have $0 platform fee');
+  }
+
+  const afterThree = await readDemo();
+  assert.equal(countPhoneOrders(afterThree.jobs), 3);
+
+  // 4th phone order on Free plan should be blocked
+  const reqFourth = new Request('http://localhost:3000/api/jobs/quick', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      customer_name: 'Fourth Phone Customer',
+      customer_phone: '512-555-0199',
+      delivery_address: '400 Congress Ave, Austin, TX',
+      zip: '78704',
+      size_yards: 20,
+      delivery_date: '2099-10-15',
+      pickup_date: '2099-10-20',
+      payment_type: 'cash',
+    }),
+  });
+  const resFourth = await quickJobHandler(reqFourth);
+  assert.equal(resFourth.status, 400);
+  const fourthErr = (await resFourth.json()) as { error: string };
+  assert.match(fourthErr.error, /used all 3 free phone orders/i);
+
+  // Upgrading to Starter ($29/mo) unlocks unlimited phone orders
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'active';
+    d.organization.subscription_plan = 'starter';
+    d.organization.pricing_config.subscription_plan = 'starter';
+  });
+
+  const reqFourthRetry = new Request('http://localhost:3000/api/jobs/quick', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      customer_name: 'Fourth Phone Customer Unlocked',
+      customer_phone: '512-555-0199',
+      delivery_address: '400 Congress Ave, Austin, TX',
+      zip: '78704',
+      size_yards: 20,
+      delivery_date: '2099-10-15',
+      pickup_date: '2099-10-20',
+      payment_type: 'cash',
+    }),
+  });
+  const resFourthRetry = await quickJobHandler(reqFourthRetry);
+  assert.equal(resFourthRetry.status, 200);
+});
+
+test('Starter ($29/mo) vs Growth ($99/mo) plan distinction and VIP Contractor Portal gating', async () => {
+  const { POST: contractorLinkHandler } = req('../src/app/api/contractor-link/route') as typeof import('../src/app/api/contractor-link/route');
+  const { getEffectivePlan, isStarterOrAbove, isGrowthPlan } = req('../src/lib/types') as typeof import('../src/lib/types');
+
+  // Set to Starter ($29/mo)
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'active';
+    d.organization.subscription_plan = 'starter';
+    d.organization.pricing_config.subscription_plan = 'starter';
+  });
+
+  let demo = await readDemo();
+  assert.equal(getEffectivePlan(demo.organization), 'starter');
+  assert.equal(isStarterOrAbove(demo.organization), true);
+  assert.equal(isGrowthPlan(demo.organization), false);
+
+  // Starter ($29/mo) cannot mint VIP Contractor Self-Serve Portal links
+  const reqStarterLink = new Request('http://localhost:3000/api/contractor-link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      account_name: 'Apex Builders',
+      phone: '512-555-0122',
+    }),
+  });
+  const resStarterLink = await contractorLinkHandler(reqStarterLink);
+  assert.equal(resStarterLink.status, 400);
+  const starterErr = (await resStarterLink.json()) as { error: string };
+  assert.match(starterErr.error, /Growth Fleet \(\$99\/mo\)/);
+
+  // Upgrade to Growth ($99/mo)
+  await mutateDemo((d) => {
+    d.organization.subscription_status = 'active';
+    d.organization.subscription_plan = 'growth';
+    d.organization.pricing_config.subscription_plan = 'growth';
+  });
+
+  demo = await readDemo();
+  assert.equal(getEffectivePlan(demo.organization), 'growth');
+  assert.equal(isStarterOrAbove(demo.organization), true);
+  assert.equal(isGrowthPlan(demo.organization), true);
+
+  const reqGrowthLink = new Request('http://localhost:3000/api/contractor-link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      account_name: 'Apex Builders',
+      phone: '512-555-0122',
+    }),
+  });
+  const resGrowthLink = await contractorLinkHandler(reqGrowthLink);
+  assert.equal(resGrowthLink.status, 200);
+  const growthOk = (await resGrowthLink.json()) as { url: string; account_name: string };
+  assert.ok(growthOk.url.includes('/contractor/'));
+  assert.equal(growthOk.account_name, 'Apex Builders');
+});
+
+

@@ -51,6 +51,20 @@ test('reservation fee and protective boards are added to quote when enabled', ()
   assert.equal(q.fee, 1195 + 900);
 });
 
+test('when hauler absorbs reservation fee (customerFee: false), customer is not charged extra but RollOS still collects $11.95 fee', () => {
+  const rule = seed().pricing_rules.find((r) => r.size_yards === 20)!;
+  const q = quote(rule, '2026-10-07', '2026-10-14', 100, { customerFee: false });
+  assert.equal(q.baseRental, 42500);
+  assert.equal(q.reservationFee, 0);
+  assert.equal(q.total, 42500);
+  assert.equal(q.fee, 1195);
+
+  const qWithBoards = quote(rule, '2026-10-07', '2026-10-14', 100, { customerFee: false, boards: true });
+  assert.equal(qWithBoards.reservationFee, 0);
+  assert.equal(qWithBoards.total, 42500 + 1900);
+  assert.equal(qWithBoards.fee, 1195 + 900);
+});
+
 test('sales tax calculation produces consistent Stripe line items matching total and deposit', () => {
   const rule = seed().pricing_rules.find((r) => r.size_yards === 20)!;
   const q = quote(rule, '2026-10-07', '2026-10-14', 100, {

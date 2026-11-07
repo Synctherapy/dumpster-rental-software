@@ -163,7 +163,7 @@ export function PricingMatrix() {
           growthHighlight: true,
         },
         {
-          name: 'Zero Reservation Fee Option (Absorb or Pass $12 Fee)',
+          name: 'Reservation Fee Display Option (Pass $12 to Customer or Absorb in Base Price)',
           free: false,
           starter: false,
           growth: 'Included (Absorb or Pass)',

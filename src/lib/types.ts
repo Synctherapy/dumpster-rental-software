@@ -11,6 +11,7 @@ export interface Organization {
   stripe_connect_account_id: string | null;
   stripe_connected?: boolean;
   subscription_status?: string;
+  subscription_plan?: 'free' | 'starter' | 'growth' | 'winter_hold';
   stripe_subscription_id?: string | null;
   is_paid_plan?: boolean;
   website_addon?: boolean;
@@ -24,6 +25,7 @@ export interface Organization {
     deposit_percent: number;
     currency?: string;
     customer_fee_enabled?: boolean;
+    subscription_plan?: 'free' | 'starter' | 'growth' | 'winter_hold';
     google_review_url?: string;
     calendar_token?: string;
     min_notice_hours?: number;
@@ -329,4 +331,54 @@ export function lbsToTons(lbs: number): number {
   if (!Number.isFinite(lbs) || lbs <= 0) return 0;
   return Math.round((lbs / 2000) * 100) / 100;
 }
+
+export const FREE_PHONE_ORDER_LIMIT = 3;
+
+export function isPhoneOrderJob(job: Pick<Job, 'notes' | 'signature'>): boolean {
+  return Boolean(
+    job.signature?.ip === 'dispatch-phone' ||
+      job.notes?.includes('[Phone Order]'),
+  );
+}
+
+export function countPhoneOrders(jobs: Array<Pick<Job, 'notes' | 'signature'>>): number {
+  return jobs.filter(isPhoneOrderJob).length;
+}
+
+export function getEffectivePlan(
+  org: Pick<Organization, 'subscription_status' | 'subscription_plan' | 'is_paid_plan' | 'pricing_config'>,
+): 'free' | 'starter' | 'growth' | 'winter_hold' {
+  if (org.subscription_status === 'winter_hold') return 'winter_hold';
+  const active =
+    org.subscription_status === 'active' ||
+    org.subscription_status === 'starter' ||
+    org.subscription_status === 'growth' ||
+    org.subscription_status === 'trialing' ||
+    org.subscription_status === 'paid' ||
+    Boolean(org.is_paid_plan);
+  if (!active) return 'free';
+  const plan =
+    org.subscription_plan ||
+    (org.pricing_config as { subscription_plan?: string } | undefined)?.subscription_plan ||
+    (org.subscription_status === 'starter' || org.subscription_status === 'growth'
+      ? org.subscription_status
+      : undefined);
+  if (plan === 'starter') return 'starter';
+  if (plan === 'growth') return 'growth';
+  return 'growth';
+}
+
+export function isStarterOrAbove(
+  org: Pick<Organization, 'subscription_status' | 'subscription_plan' | 'is_paid_plan' | 'pricing_config'>,
+): boolean {
+  const p = getEffectivePlan(org);
+  return p === 'starter' || p === 'growth';
+}
+
+export function isGrowthPlan(
+  org: Pick<Organization, 'subscription_status' | 'subscription_plan' | 'is_paid_plan' | 'pricing_config'>,
+): boolean {
+  return getEffectivePlan(org) === 'growth';
+}
+
 

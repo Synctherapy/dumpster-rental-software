@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Modal } from './ui/dialog';
-import type { Workspace } from '@/lib/types';
+import { getEffectivePlan, isGrowthPlan, type Workspace } from '@/lib/types';
 import { api } from '@/lib/client';
 import { generateQrMatrix } from '@/lib/qr';
 
@@ -903,22 +903,83 @@ export function GrowthHub({
           borderRadius: '14px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '8px', borderRadius: '8px', display: 'grid' }}>
-            <Building2 size={20} />
-          </span>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#1f2d26' }}>
-              Contractor VIP 1-Tap Swap Portal &amp; Net-30 Link Generator
-            </h3>
-            <span style={{ fontSize: '12px', color: '#64748b' }}>
-              Give roofers, remodelers, and builders a dedicated VIP portal for 1-tap swaps, zero-card drops, and consolidated monthly Net-30 statements.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+              <Building2 size={20} />
             </span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#1f2d26' }}>
+                  Contractor VIP 1-Tap Swap Portal &amp; Net-30 Link Generator
+                </h3>
+                {!isGrowthPlan(data.organization) && (
+                  <span
+                    className="pill"
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      background: '#dcfce7',
+                      color: '#166534',
+                      border: '1px solid #86efac',
+                    }}
+                  >
+                    Growth ($99/mo) Exclusive
+                  </span>
+                )}
+              </div>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                Give roofers, remodelers, and builders a dedicated VIP portal for 1-tap swaps, zero-card drops, and consolidated monthly Net-30 statements.
+              </span>
+            </div>
           </div>
         </div>
         <p style={{ fontSize: '13px', color: '#556658', lineHeight: 1.6, maxWidth: '780px', margin: '8px 0 16px 0' }}>
           Tired of contractors texting you at 6:00 AM asking for a swap or complaining about 15 separate credit card receipts? Generate a dedicated <strong>VIP 1-Tap Swap Portal Link</strong> for each trade account. Foremen request dump-and-return swaps in 1 tap, and their bookkeeper gets one consolidated monthly Net-30 statement.
         </p>
+
+        {!isGrowthPlan(data.organization) && (
+          <div
+            style={{
+              padding: '12px 14px',
+              marginBottom: '14px',
+              borderRadius: '10px',
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '10px',
+              fontSize: '12px',
+              color: '#166534',
+            }}
+          >
+            <div>
+              <strong>Growth Fleet ($99/mo) Feature:</strong> You are currently on the{' '}
+              <strong>
+                {getEffectivePlan(data.organization) === 'starter'
+                  ? 'Starter ($29/mo)'
+                  : getEffectivePlan(data.organization) === 'winter_hold'
+                    ? 'Winter Hold ($10/mo)'
+                    : 'Free ($0/mo)'}
+              </strong>{' '}
+              plan. Upgrade to Growth ($99/mo) in Settings to mint live self-serve VIP Net-30
+              contractor links.
+            </div>
+            <Link
+              href="/settings"
+              style={{
+                fontWeight: 700,
+                color: '#15803d',
+                textDecoration: 'underline',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Upgrade in Settings →
+            </Link>
+          </div>
+        )}
 
         <div style={{ background: '#f8faf6', border: '1px solid #dde4d4', borderRadius: '10px', padding: '16px', display: 'grid', gap: '14px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>

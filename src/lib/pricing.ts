@@ -46,10 +46,7 @@ export function quote(
     taxCents,
     total,
     deposit: Math.round((total * depositPercent) / 100),
-    fee:
-      reservationFee > 0
-        ? reservationFee + (options?.boards ? BOARDS_PLATFORM_SHARE_CENTS : 0)
-        : platformFee(baseRental),
+    fee: RESERVATION_FEE_CENTS + (options?.boards ? BOARDS_PLATFORM_SHARE_CENTS : 0),
   };
 }
 export function invoice(job: Job) {

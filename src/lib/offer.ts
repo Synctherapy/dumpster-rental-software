@@ -3,6 +3,7 @@ export const RESERVATION_FEE_DOLLARS = 12;
 export const STARTER_MONTHLY = 29;
 export const GROWTH_MONTHLY = 99;
 export const WINTER_HOLD_MONTHLY = 10;
+export const FREE_PHONE_ORDER_LIMIT = 3;
 
 export const offerSummary =
   `Get dumpster clients while you sleep with free booking software that's easy to add to your website. Free to start at $0/month with zero hauler commission (customer pays a standard $${RESERVATION_FEE_DOLLARS} reservation fee at checkout). Starter is $${STARTER_MONTHLY}/month with offline cash/check logging and calendar sync. Growth is $${GROWTH_MONTHLY}/month for multi-truck fleets, or pause during the off-season with our $${WINTER_HOLD_MONTHLY}/month Winter Yard Hold. No annual contracts. Stripe card processing fees are separate.`;

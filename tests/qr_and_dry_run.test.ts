@@ -1,10 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const req = createRequire(import.meta.url);
+const serverOnlyPath = req.resolve('server-only');
+req.cache[serverOnlyPath] = {
+  id: serverOnlyPath,
+  filename: serverOnlyPath,
+  loaded: true,
+  exports: {},
+} as unknown as NodeModule;
+
 import { generateQrMatrix } from '../src/lib/qr';
-import { POST as saveSettings } from '../src/app/api/settings/route';
-import { GET as getDriverRoute } from '../src/app/api/driver/[token]/route';
-import { readDemo } from '../src/lib/server/store';
-import { driverToken } from '../src/lib/server/tokens';
+import type * as SettingsRouteModule from '../src/app/api/settings/route';
+import type * as DriverRouteModule from '../src/app/api/driver/[token]/route';
+import type * as StoreModule from '../src/lib/server/store';
+import type * as TokensModule from '../src/lib/server/tokens';
+
+const { POST: saveSettings } = req('../src/app/api/settings/route') as typeof SettingsRouteModule;
+const { GET: getDriverRoute } = req('../src/app/api/driver/[token]/route') as typeof DriverRouteModule;
+const { readDemo } = req('../src/lib/server/store') as typeof StoreModule;
+const { driverToken } = req('../src/lib/server/tokens') as typeof TokensModule;
 
 /**
  * Independent ISO/IEC 18004 QR Matrix Decoder
