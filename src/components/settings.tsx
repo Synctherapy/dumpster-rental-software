@@ -149,6 +149,9 @@ function DedicatedLineCard({
 }) {
   const formattedNumber = formatPhone(phone);
   const formattedCell = formatPhone(forwardCell);
+  const rawTenDigits = (phone || '').replace(/\D/g, '').replace(/^1(\d{10})$/, '$1');
+  const verizonDialHref = rawTenDigits ? `tel:*71${rawTenDigits}` : undefined;
+  const gsmDialHref = rawTenDigits ? `tel:**61*1${rawTenDigits}%23` : undefined;
 
   if (variant === 'hero') {
     return (
@@ -358,6 +361,59 @@ function DedicatedLineCard({
             </p>
           </div>
 
+          {/* 1-Tap Personal Cell Missed-Call Textback Setup */}
+          {rawTenDigits && (
+            <div
+              style={{
+                background: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '10px',
+                padding: '14px 18px',
+                display: 'grid',
+                gap: '10px',
+              }}
+            >
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#166534' }}>
+                📱 1-Tap Setup: Auto-Text Missed Calls From Your Existing Cell ({formattedCell || 'Your Cell'})
+              </div>
+              <p style={{ margin: 0, fontSize: '12px', color: '#15803d', lineHeight: 1.5 }}>
+                Keep the personal cell number painted on your trucks! Open this page on your cell phone and tap your carrier below once—your cell still rings normally, and only unanswered calls forward here to trigger the instant booking link text-back:
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <Button
+                  asChild
+                  variant="ghost"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #86efac',
+                    color: '#166534',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                  }}
+                >
+                  <a href={verizonDialHref}>
+                    📲 1-Tap Activate (Verizon / Spectrum)
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #86efac',
+                    color: '#166534',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                  }}
+                >
+                  <a href={gsmDialHref}>
+                    📲 1-Tap Activate (AT&amp;T / T-Mobile)
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* 45-day inactivity rule badge */}
           <div
             style={{
@@ -522,6 +578,53 @@ function DedicatedLineCard({
         <p style={{ margin: 0, fontSize: '12px', color: '#475569', lineHeight: 1.55 }}>
           All customer booking confirmations, driver magic links, and waiver alerts are sent from this dedicated local line. Inbound customer replies and phone calls forward directly to your cell phone.
         </p>
+
+        {rawTenDigits && (
+          <div
+            style={{
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              display: 'grid',
+              gap: '8px',
+            }}
+          >
+            <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#166534' }}>
+              📱 1-Tap Setup: Auto-Text Missed Calls From Your Cell
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <Button
+                asChild
+                variant="ghost"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #86efac',
+                  color: '#166534',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  padding: '5px 8px',
+                }}
+              >
+                <a href={verizonDialHref}>📲 Verizon / Spectrum</a>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #86efac',
+                  color: '#166534',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  padding: '5px 8px',
+                }}
+              >
+                <a href={gsmDialHref}>📲 AT&amp;T / T-Mobile</a>
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* 45-day inactivity rule badge: "Active Line Protection · Automatically stays active with at least 1 booking every 45 days." */}
         <div

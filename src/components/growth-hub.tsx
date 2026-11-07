@@ -1040,13 +1040,13 @@ export function GrowthHub({
                     Missed-Call SMS Auto-Textback
                   </h3>
                   <span style={{ fontSize: '11px', color: '#fb923c', fontWeight: 600 }}>
-                    Powered by Twilio · Instant 5-Second Response
+                    Works With Your Existing Cell · Instant 5-Second Response
                   </span>
                 </div>
               </div>
 
               <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 14px 0' }}>
-                Driving down the highway or running landfill tickets? When a caller hangs up, RollOS instantly fires a customized text before they have time to call another hauler on Google Maps:
+                Driving down the highway or running landfill tickets? When you miss a call on your cell, RollOS instantly fires a customized text before they have time to call the next hauler on Google Maps:
               </p>
 
               {/* SMS Mockup */}
@@ -1060,7 +1060,7 @@ export function GrowthHub({
               </div>
 
               <div style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '11.5px', color: '#86efac', lineHeight: 1.5, marginBottom: '10px' }}>
-                <strong>📱 Works With Your Existing Personal Cell Number:</strong> Keep the cell number already painted on your trucks! Either dial <code>*71</code> + your RollOS number once on your cell (Verizon) or <code>**61*</code> (AT&amp;T/T-Mobile) so <em>only unanswered calls</em> forward to RollOS to trigger the instant text-back, or put your RollOS local number on Google Maps &amp; ads (which rings your cell first and auto-texts if you miss it).
+                <strong>📱 Keep the Cell Number Already on Your Trucks:</strong> You don&apos;t have to change your business phone number. Turn this on in <strong>1 tap from your phone in Settings</strong>—your cell still rings normally, and only unanswered calls trigger the automatic text-back.
               </div>
 
               <div style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#86efac', lineHeight: 1.5 }}>
@@ -1069,7 +1069,7 @@ export function GrowthHub({
             </div>
 
             <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #284433', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#86efac' }}>
-              <span>✓ Twilio instant integration</span>
+              <span>✓ 1-tap setup on your existing cell</span>
               <span style={{ fontWeight: 700, color: '#d6ef7c' }}>Exclusive to Growth ($99)</span>
             </div>
           </div>
