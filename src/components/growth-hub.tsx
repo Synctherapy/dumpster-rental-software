@@ -60,7 +60,67 @@ export function GrowthHub({
 
   const qrMatrix = generateQrMatrix(qrPromoUrl);
 
-  const decalOrderSpecs = `Order Spec: 12x18 inch Weatherproof Die-Cut Rectangle Decal. Material: 3M IJ180cV3 Controltac Vinyl with 3M 8518 Gloss UV Overlaminate (Outdoor Heavy Equipment / Pressure-Washer Safe). Target URL: ${bookingUrl}?promo=NEIGHBOR15`;
+  const decalFormatMeta = {
+    decal: {
+      spec: `Order Spec: 12x18 inch Weatherproof Die-Cut Rectangle Decal. Material: 3M IJ180cV3 Controltac Vinyl with 3M 8518 Gloss UV Overlaminate (Outdoor Heavy Equipment / Pressure-Washer Safe). Target URL: ${qrPromoUrl}`,
+      step2Title: 'Step 2: Upload & Order Weatherproof Vinyl Decals (~$12 each)',
+      fileName: `${data.organization.slug}-container-decal.svg`,
+      vendors: [
+        {
+          name: 'VistaPrint (Vinyl Stickers)',
+          url: 'https://www.vistaprint.com/labels-stickers/custom-stickers',
+        },
+        {
+          name: 'StickerMule (Rectangle Decals)',
+          url: 'https://www.stickermule.com/products/rectangle-stickers',
+        },
+        {
+          name: 'Signs.com (Permanent Decals)',
+          url: 'https://www.signs.com/permanent-decals/',
+        },
+      ],
+    },
+    magnet: {
+      spec: `Order Spec: 12x24 inch Heavy-Duty 30-Mil Rounded Corner Vehicle Magnet with UV Weatherproof Laminate (Highway Rated for Steel Truck Doors & Roll-Off Bins). Target URL: ${qrPromoUrl}`,
+      step2Title: 'Step 2: Upload & Order Heavy-Duty Truck Door Magnets (~$18 each)',
+      fileName: `${data.organization.slug}-truck-magnet.svg`,
+      vendors: [
+        {
+          name: 'VistaPrint (Truck Door Magnets)',
+          url: 'https://www.vistaprint.com/signs-posters/car-door-magnets',
+        },
+        {
+          name: 'StickerMule (Custom Magnets)',
+          url: 'https://www.stickermule.com/products/custom-magnets',
+        },
+        {
+          name: 'Signs.com (Vehicle Magnets)',
+          url: 'https://www.signs.com/magnets/',
+        },
+      ],
+    },
+    lawn: {
+      spec: `Order Spec: 18x24 inch Double-Sided 4mm Corrugated Plastic (Coroplast) Yard Sign with Heavy-Duty Galvanized H-Wire Stake. Target URL: ${qrPromoUrl}`,
+      step2Title: 'Step 2: Upload & Order Coroplast Driveway Yard Signs (~$10 each)',
+      fileName: `${data.organization.slug}-yard-sign.svg`,
+      vendors: [
+        {
+          name: 'VistaPrint (Coroplast Yard Signs)',
+          url: 'https://www.vistaprint.com/signs-posters/yard-signs',
+        },
+        {
+          name: 'StickerMule (Rigid Yard Signs)',
+          url: 'https://www.stickermule.com/products/rigid-yard-signs',
+        },
+        {
+          name: 'Signs.com (Yard Signs)',
+          url: 'https://www.signs.com/yard-signs/',
+        },
+      ],
+    },
+  }[decalFormat];
+
+  const decalOrderSpecs = decalFormatMeta.spec;
 
   const copyDecalOrderSpecs = async () => {
     try {
@@ -147,7 +207,7 @@ export function GrowthHub({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${data.organization.slug}-weatherproof-decal.svg`;
+    link.download = decalFormatMeta.fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -452,7 +512,7 @@ export function GrowthHub({
             fontWeight: 500,
           }}
         >
-          ⚠️ Never tape home-printed paper to a steel container—rain, mud, and gravel ruin paper in 24 hours and make your fleet look amateur. Instead, download the print-ready vector artwork below and order weatherproof 3M UV-laminated vinyl decals or heavy-duty truck magnets from StickerMule, Signs.com, VistaPrint, or your local truck wrap shop (~$12 each, pressure-washer proof for 5+ years).
+          ⚠️ Never tape home-printed paper to a steel container—rain, mud, and gravel ruin paper in 24 hours and make your fleet look amateur. Instead, download the print-ready vector artwork below and order weatherproof 3M UV-laminated vinyl decals, heavy-duty truck magnets, or coroplast yard signs from VistaPrint, StickerMule, Signs.com, or your local truck wrap shop (~$12 each, pressure-washer proof for 5+ years).
         </div>
 
         {/* 2. Format Selector Tabs */}
@@ -618,7 +678,7 @@ export function GrowthHub({
                   style={{ width: '100%', justifyContent: 'center', border: '1px solid #cbd5e1', fontWeight: 700, fontSize: '12px', padding: '9px 14px' }}
                 >
                   {copiedDecalSpec ? <Check size={14} style={{ color: '#16a34a' }} /> : <Copy size={14} />}
-                  📋 Copy Print-Shop Order Specs (For StickerMule / Local Wrap Shop)
+                  📋 Copy Print-Shop Order Specs (For VistaPrint / Local Wrap Shop)
                 </Button>
               </div>
               <div
@@ -640,27 +700,30 @@ export function GrowthHub({
 
             <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px' }}>
               <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 700, color: '#166534' }}>
-                Step 2: Upload &amp; Order Weatherproof Vinyl or Magnets (~$12 each)
+                {decalFormatMeta.step2Title}
               </h4>
               <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#15803d', lineHeight: 1.5 }}>
-                Upload your downloaded <code>{data.organization.slug}-weatherproof-decal.svg</code> file directly to any commercial vinyl printer:
+                Upload your downloaded <code>{decalFormatMeta.fileName}</code> file directly to any commercial printer:
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
-                  <a href="https://www.stickermule.com/products/rectangle-stickers" target="_blank" rel="noopener noreferrer">
-                    StickerMule <ArrowUpRight size={13} />
-                  </a>
-                </Button>
-                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
-                  <a href="https://www.signs.com/decals/" target="_blank" rel="noopener noreferrer">
-                    Signs.com <ArrowUpRight size={13} />
-                  </a>
-                </Button>
-                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
-                  <a href="https://www.vistaprint.com/signs-posters/car-door-magnets" target="_blank" rel="noopener noreferrer">
-                    VistaPrint <ArrowUpRight size={13} />
-                  </a>
-                </Button>
+                {decalFormatMeta.vendors.map((vendor) => (
+                  <Button
+                    key={vendor.url}
+                    asChild
+                    variant="ghost"
+                    style={{
+                      fontSize: '12px',
+                      background: '#ffffff',
+                      border: '1px solid #86efac',
+                      color: '#166534',
+                      fontWeight: 700,
+                    }}
+                  >
+                    <a href={vendor.url} target="_blank" rel="noopener noreferrer">
+                      {vendor.name} <ArrowUpRight size={13} />
+                    </a>
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
@@ -994,6 +1057,10 @@ export function GrowthHub({
                 <div style={{ background: '#193022', padding: '10px 12px', borderRadius: '8px', color: '#d6ef7c', fontSize: '12px', lineHeight: 1.5, border: '1px solid #2d5038' }}>
                   &ldquo;Hey! Driving right now. Check live dumpster prices and reserve your bin here in 60s: <span style={{ textDecoration: 'underline' }}>{bookingUrl}</span>&rdquo;
                 </div>
+              </div>
+
+              <div style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '11.5px', color: '#86efac', lineHeight: 1.5, marginBottom: '10px' }}>
+                <strong>📱 Works With Your Existing Personal Cell Number:</strong> Keep the cell number already painted on your trucks! Either dial <code>*71</code> + your RollOS number once on your cell (Verizon) or <code>**61*</code> (AT&amp;T/T-Mobile) so <em>only unanswered calls</em> forward to RollOS to trigger the instant text-back, or put your RollOS local number on Google Maps &amp; ads (which rings your cell first and auto-texts if you miss it).
               </div>
 
               <div style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#86efac', lineHeight: 1.5 }}>

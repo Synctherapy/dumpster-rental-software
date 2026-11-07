@@ -191,7 +191,7 @@ export async function POST(request: Request) {
     });
   }
 
-  // 3. Inbound voice call from customer dialing the number
+  // 3. Inbound voice call from customer dialing the RollOS number directly OR forwarded from hauler's cell via *71 / **61*
   if (CallSid) {
     let org: Organization | null = null;
     if (demo) {
@@ -206,6 +206,30 @@ export async function POST(request: Request) {
       org = foundOrg;
     }
 
+    const ForwardedFrom = data.ForwardedFrom;
+
+    // 3a. Conditional No-Answer Call Forwarding (*71 / **61*) from hauler's personal cell:
+    // The hauler's personal cell already rang and went unanswered, so their carrier forwarded
+    // the call to their RollOS Twilio number. Immediately text the caller the booking link!
+    if (org && ForwardedFrom && From) {
+      const optedOut = await isOptedOut(org.id, From);
+      const allowAutoReply = !optedOut && checkAndRecordAutoReplyRateLimit(From);
+
+      if (allowAutoReply) {
+        const bookingUrl = `${process.env.APP_URL || url.origin}/book/${org.slug}`;
+        const text = `Hey! Sorry we missed your call—we are behind the wheel or delivering a container right now. Looking to rent a dumpster? Check live pricing & reserve your delivery date in 60 seconds: ${bookingUrl}`;
+        await sendSms(org.id, null, From, 'missed_call_autoreply', text);
+      }
+
+      const xml = `<Response><Say>Thanks for calling ${escapeXml(org.name)}. We are currently out on a delivery route and just texted your phone a link to check live dumpster pricing and book online in 60 seconds.</Say></Response>`;
+      return new Response(xml, {
+        status: 200,
+        headers: { 'Content-Type': 'text/xml' },
+      });
+    }
+
+    // 3b. Direct call to the RollOS local number: ring the hauler's cell phone first for 20s,
+    // and if unanswered, the voice_action callback above automatically texts the caller.
     if (org && org.phone) {
       const xml = `<Response><Dial timeout="20" action="/api/webhooks/twilio?type=voice_action">${escapeXml(org.phone)}</Dial></Response>`;
       return new Response(xml, {
