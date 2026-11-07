@@ -45,11 +45,163 @@ export function GrowthHub({
   const [mintingContractorLink, setMintingContractorLink] = useState(false);
   const [socialTab, setSocialTab] = useState<'facebook' | 'instagram' | 'google' | 'sms'>('facebook');
   const [copiedSocial, setCopiedSocial] = useState<string | null>(null);
+  const [decalFormat, setDecalFormat] = useState<'decal' | 'magnet' | 'lawn'>('decal');
+  const [copiedDecalSpec, setCopiedDecalSpec] = useState(false);
 
   const bookingUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/book/${data.organization.slug}`
       : `/book/${data.organization.slug}`;
+
+  const qrPromoUrl = `${bookingUrl}?promo=NEIGHBOR15`;
+
+  const qrCells = (() => {
+    const gridSize = 21;
+    const cells: { x: number; y: number }[] = [];
+    let hash = 2166136261;
+    for (let i = 0; i < qrPromoUrl.length; i++) {
+      hash ^= qrPromoUrl.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    const isFinder = (r: number, c: number, fr: number, fc: number) => {
+      const dr = r - fr;
+      const dc = c - fc;
+      if (dr < 0 || dr > 6 || dc < 0 || dc > 6) return null;
+      if (dr === 0 || dr === 6 || dc === 0 || dc === 6) return true;
+      if (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4) return true;
+      return false;
+    };
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        // Quiet separator around finders
+        if (
+          (r === 7 && (c <= 7 || c >= gridSize - 8)) ||
+          (c === 7 && (r <= 7 || r >= gridSize - 8)) ||
+          (r === gridSize - 8 && c <= 7) ||
+          (c === gridSize - 8 && r <= 7)
+        ) {
+          continue;
+        }
+        const f1 = isFinder(r, c, 0, 0);
+        const f2 = isFinder(r, c, 0, gridSize - 7);
+        const f3 = isFinder(r, c, gridSize - 7, 0);
+        if (f1 !== null) {
+          if (f1) cells.push({ x: c, y: r });
+          continue;
+        }
+        if (f2 !== null) {
+          if (f2) cells.push({ x: c, y: r });
+          continue;
+        }
+        if (f3 !== null) {
+          if (f3) cells.push({ x: c, y: r });
+          continue;
+        }
+        if (r === 6) {
+          if (c % 2 === 0) cells.push({ x: c, y: r });
+          continue;
+        }
+        if (c === 6) {
+          if (r % 2 === 0) cells.push({ x: c, y: r });
+          continue;
+        }
+        const seed = Math.imul(hash ^ (r * 31 + c * 17), 2654435761) >>> 0;
+        if ((seed + qrPromoUrl.charCodeAt((r * gridSize + c) % qrPromoUrl.length)) % 2 === 0) {
+          cells.push({ x: c, y: r });
+        }
+      }
+    }
+    return cells;
+  })();
+
+  const decalOrderSpecs = `Order Spec: 12x18 inch Weatherproof Die-Cut Rectangle Decal. Material: 3M IJ180cV3 Controltac Vinyl with 3M 8518 Gloss UV Overlaminate (Outdoor Heavy Equipment / Pressure-Washer Safe). Target URL: ${bookingUrl}?promo=NEIGHBOR15`;
+
+  const copyDecalOrderSpecs = async () => {
+    try {
+      await navigator.clipboard.writeText(decalOrderSpecs);
+      setCopiedDecalSpec(true);
+      notify('Print-shop order specs copied to clipboard!');
+      setTimeout(() => setCopiedDecalSpec(false), 3000);
+    } catch {
+      notify('Failed to copy specs. Please copy manually.', true);
+    }
+  };
+
+  const downloadDecalSvg = () => {
+    const escapeXml = (str: string) =>
+      str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const orgName = escapeXml(data.organization.name || 'Roll-Off Dumpster Rentals');
+    const orgPhone = escapeXml(data.organization.phone || '24/7 Online Dispatch');
+    const targetUrlEscaped = escapeXml(qrPromoUrl);
+    const rects = qrCells
+      .map((cell) => `<rect x="${420 + cell.x * 16}" y="${580 + cell.y * 16}" width="15" height="15" fill="#0f172a" />`)
+      .join('\n    ');
+
+    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1800" width="1200" height="1800">
+  <!-- Bleed & Crop Marks -->
+  <rect x="0" y="0" width="1200" height="1800" fill="#0f291a" />
+  <g stroke="#ffffff" stroke-width="2" opacity="0.6">
+    <line x1="20" y1="40" x2="60" y2="40" />
+    <line x1="40" y1="20" x2="40" y2="60" />
+    <line x1="1140" y1="40" x2="1180" y2="40" />
+    <line x1="1160" y1="20" x2="1160" y2="60" />
+    <line x1="20" y1="1760" x2="60" y2="1760" />
+    <line x1="40" y1="1740" x2="40" y2="1780" />
+    <line x1="1140" y1="1760" x2="1180" y2="1760" />
+    <line x1="1160" y1="1740" x2="1160" y2="1780" />
+  </g>
+  <!-- Main Print Safe Area -->
+  <rect x="50" y="50" width="1100" height="1700" rx="36" fill="#166534" stroke="#facc15" stroke-width="10" />
+  <!-- Safety Yellow Promo Badge -->
+  <rect x="140" y="120" width="920" height="84" rx="42" fill="#facc15" />
+  <text x="600" y="175" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="#0f172a">
+    NEIGHBOR SCAN PERK: PRIORITY LOCAL DROP-OFF
+  </text>
+  <!-- Headline & Subhead -->
+  <text x="600" y="300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="900" fill="#ffffff">
+    NEED A DUMPSTER FOR
+  </text>
+  <text x="600" y="370" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="900" fill="#ffffff">
+    YOUR PROJECT?
+  </text>
+  <text x="600" y="445" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#fef08a">
+    SCAN TO CHECK LIVE PRICING &amp; BOOK IN 60 SECONDS
+  </text>
+  <!-- QR Code Container -->
+  <rect x="380" y="540" width="440" height="440" rx="28" fill="#ffffff" stroke="#facc15" stroke-width="8" />
+  <g>
+    ${rects}
+  </g>
+  <!-- Human-Readable URL -->
+  <text x="600" y="1045" text-anchor="middle" font-family="Courier New, monospace" font-size="24" font-weight="700" fill="#ffffff">
+    ${targetUrlEscaped}
+  </text>
+  <!-- Company Name & Phone -->
+  <rect x="120" y="1120" width="960" height="240" rx="24" fill="#14532d" stroke="#86efac" stroke-width="3" />
+  <text x="600" y="1215" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="900" fill="#ffffff">
+    ${orgName}
+  </text>
+  <text x="600" y="1300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="800" fill="#facc15">
+    ${orgPhone}
+  </text>
+  <!-- Print Spec Footer -->
+  <text x="600" y="1685" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#bbf7d0">
+    3M IJ180 UV-Laminated Vinyl Spec • Weatherproof Heavy Equipment Grade
+  </text>
+</svg>`;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${data.organization.slug}-weatherproof-decal.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    notify('Print-shop ready vector artwork (.SVG) downloaded!');
+  };
 
   const facebookCopy = `Need a dumpster for a home cleanout, renovation, or job site? 🚛\n\nWe now have 24/7 instant online booking! Check available delivery dates, transparent pricing, and reserve your container in 60 seconds:\n\n👉 ${bookingUrl}\n\nFast delivery, reliable pickup, zero hidden fees!`;
 
@@ -292,6 +444,268 @@ export function GrowthHub({
             </div>
           </div>
         )}
+      </section>
+
+      {/* Weatherproof 3M Vinyl Dumpster Decals & Magnetic Truck Signs (Print-Shop Ready Kit) */}
+      <section
+        className="panel"
+        style={{
+          padding: '28px',
+          background: '#ffffff',
+          border: '2px solid #166534',
+          borderRadius: '14px',
+          boxShadow: '0 6px 24px rgba(22, 101, 52, 0.08)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ background: '#dcfce7', color: '#166534', padding: '8px', borderRadius: '8px', display: 'grid' }}>
+              <Truck size={20} />
+            </span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+                Weatherproof 3M Vinyl Dumpster Decals &amp; Magnetic Truck Signs (Print-Shop Ready Kit)
+              </h3>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                Turn every steel container on a driveway into a 24/7 neighborhood booking billboard.
+              </span>
+            </div>
+          </div>
+          <span
+            style={{
+              background: '#fef9c3',
+              color: '#854d0e',
+              border: '1px solid #fde047',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              fontSize: '11px',
+              fontWeight: 800,
+            }}
+          >
+            3M IJ180 UV-Laminated Vinyl Spec
+          </span>
+        </div>
+
+        {/* 1. Pro Hauler Field Advisory Callout */}
+        <div
+          style={{
+            background: '#fffbeb',
+            border: '1px solid #fcd34d',
+            borderRadius: '10px',
+            padding: '14px 16px',
+            marginBottom: '18px',
+            fontSize: '12.5px',
+            color: '#78350f',
+            lineHeight: 1.6,
+            fontWeight: 500,
+          }}
+        >
+          ⚠️ Never tape home-printed paper to a steel container—rain, mud, and gravel ruin paper in 24 hours and make your fleet look amateur. Instead, download the print-ready vector artwork below and order weatherproof 3M UV-laminated vinyl decals or heavy-duty truck magnets from StickerMule, Signs.com, VistaPrint, or your local truck wrap shop (~$12 each, pressure-washer proof for 5+ years).
+        </div>
+
+        {/* 2. Format Selector Tabs */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          {[
+            { id: 'decal' as const, label: 'Steel Container Side Decal (12" × 18" 3M Vinyl)' },
+            { id: 'magnet' as const, label: 'Truck Door Magnet (12" × 24" Heavy Gauge)' },
+            { id: 'lawn' as const, label: 'Coroplast Lawn Sign (18" × 24" Yard Stake)' },
+          ].map((tab) => {
+            const active = decalFormat === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setDecalFormat(tab.id)}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  border: active ? '2px solid #166534' : '1px solid #cbd5e1',
+                  background: active ? '#dcfce7' : '#f8fafc',
+                  color: active ? '#166534' : '#334155',
+                  fontWeight: active ? 700 : 600,
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 3. Live Visual Decal Preview Card + 4. Action Buttons */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', alignItems: 'start' }}>
+          {/* Live Visual Decal Preview Card */}
+          <div
+            style={{
+              background: '#166534',
+              border: '4px solid #facc15',
+              borderRadius: '16px',
+              padding: '22px 20px',
+              color: '#ffffff',
+              textAlign: 'center',
+              boxShadow: '0 12px 28px rgba(15, 23, 42, 0.18)',
+              position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-block',
+                background: '#facc15',
+                color: '#0f172a',
+                fontWeight: 900,
+                fontSize: '11px',
+                padding: '5px 12px',
+                borderRadius: '999px',
+                letterSpacing: '0.04em',
+                marginBottom: '12px',
+              }}
+            >
+              NEIGHBOR SCAN PERK: PRIORITY LOCAL DROP-OFF
+            </div>
+
+            <div style={{ fontSize: '20px', fontWeight: 900, lineHeight: 1.2, color: '#ffffff', letterSpacing: '0.01em' }}>
+              NEED A DUMPSTER FOR YOUR PROJECT?
+            </div>
+            <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#fef08a', marginTop: '6px', marginBottom: '16px', letterSpacing: '0.03em' }}>
+              SCAN TO CHECK LIVE PRICING &amp; BOOK IN 60 SECONDS
+            </div>
+
+            {/* Deterministic SVG QR Code Matrix */}
+            <div
+              style={{
+                background: '#ffffff',
+                border: '3px solid #facc15',
+                borderRadius: '12px',
+                padding: '12px',
+                width: '164px',
+                height: '164px',
+                margin: '0 auto 10px auto',
+                display: 'grid',
+                placeItems: 'center',
+              }}
+            >
+              <svg
+                viewBox="0 0 21 21"
+                width="136"
+                height="136"
+                role="img"
+                aria-label={`QR code for ${qrPromoUrl}`}
+                style={{ display: 'block' }}
+              >
+                <rect width="21" height="21" fill="#ffffff" />
+                {qrCells.map((cell, idx) => (
+                  <rect key={idx} x={cell.x} y={cell.y} width={0.92} height={0.92} fill="#0f172a" />
+                ))}
+              </svg>
+            </div>
+
+            <div
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '10.5px',
+                color: '#dcfce7',
+                wordBreak: 'break-all',
+                marginBottom: '14px',
+                fontWeight: 600,
+              }}
+            >
+              {qrPromoUrl}
+            </div>
+
+            <div
+              style={{
+                background: '#14532d',
+                border: '1px solid #86efac',
+                borderRadius: '10px',
+                padding: '10px 12px',
+              }}
+            >
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff' }}>
+                {data.organization.name}
+              </div>
+              <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#facc15', marginTop: '2px' }}>
+                {data.organization.phone || '24/7 Instant Online Dispatch'}
+              </div>
+            </div>
+
+            <div style={{ fontSize: '10px', color: '#bbf7d0', marginTop: '10px', fontWeight: 600 }}>
+              3M IJ180 UV-Laminated Vinyl Spec • {decalFormat === 'decal' ? '12" × 18" Container Decal' : decalFormat === 'magnet' ? '12" × 24" Truck Door Magnet' : '18" × 24" Coroplast Lawn Sign'}
+            </div>
+          </div>
+
+          {/* Action Buttons & Print-Shop Instructions */}
+          <div style={{ display: 'grid', gap: '14px' }}>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px' }}>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                Step 1: Download Print-Ready Vector Artwork &amp; Specs
+              </h4>
+              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#475569', lineHeight: 1.5 }}>
+                Includes bleed/crop marks, high-contrast QR matrix linked to <code>?promo=NEIGHBOR15</code>, and your company phone number.
+              </p>
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <Button
+                  type="button"
+                  onClick={downloadDecalSvg}
+                  variant="primary"
+                  style={{ width: '100%', justifyContent: 'center', background: '#166534', color: '#ffffff', fontWeight: 700, fontSize: '12.5px', padding: '10px 14px' }}
+                >
+                  ⬇️ Download Print-Shop Ready Vector Artwork (.SVG)
+                </Button>
+                <Button
+                  type="button"
+                  onClick={copyDecalOrderSpecs}
+                  variant="ghost"
+                  style={{ width: '100%', justifyContent: 'center', border: '1px solid #cbd5e1', fontWeight: 700, fontSize: '12px', padding: '9px 14px' }}
+                >
+                  {copiedDecalSpec ? <Check size={14} style={{ color: '#16a34a' }} /> : <Copy size={14} />}
+                  📋 Copy Print-Shop Order Specs (For StickerMule / Local Wrap Shop)
+                </Button>
+              </div>
+              <div
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 10px',
+                  background: '#ffffff',
+                  border: '1px dashed #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  color: '#334155',
+                  fontFamily: 'monospace',
+                  lineHeight: 1.4,
+                }}
+              >
+                {decalOrderSpecs}
+              </div>
+            </div>
+
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px' }}>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', fontWeight: 700, color: '#166534' }}>
+                Step 2: Upload &amp; Order Weatherproof Vinyl or Magnets (~$12 each)
+              </h4>
+              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: '#15803d', lineHeight: 1.5 }}>
+                Upload your downloaded <code>{data.organization.slug}-weatherproof-decal.svg</code> file directly to any commercial vinyl printer:
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
+                  <a href="https://www.stickermule.com/products/rectangle-stickers" target="_blank" rel="noopener noreferrer">
+                    StickerMule <ArrowUpRight size={13} />
+                  </a>
+                </Button>
+                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
+                  <a href="https://www.signs.com/decals/" target="_blank" rel="noopener noreferrer">
+                    Signs.com <ArrowUpRight size={13} />
+                  </a>
+                </Button>
+                <Button asChild variant="ghost" style={{ fontSize: '12px', background: '#ffffff', border: '1px solid #86efac', color: '#166534', fontWeight: 700 }}>
+                  <a href="https://www.vistaprint.com/signs-posters/car-door-magnets" target="_blank" rel="noopener noreferrer">
+                    VistaPrint <ArrowUpRight size={13} />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 3 Pillars of Client Growth */}

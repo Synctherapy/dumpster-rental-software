@@ -18,7 +18,7 @@ import {
   Loader2,
   CheckCircle2,
 } from 'lucide-react';
-import { dateLabel, money } from '@/lib/types';
+import { dateLabel, hasEarlyPickupRequest, money } from '@/lib/types';
 import { api } from '@/lib/client';
 import type { AgreementData } from '@/lib/server/agreement';
 
@@ -60,6 +60,33 @@ export function AgreementView({ data }: { data: AgreementData }) {
   const [signerName, setSignerName] = useState(job.signature.name);
   const [signerTimestamp, setSignerTimestamp] = useState(job.signature.timestamp);
   const [signerIp, setSignerIp] = useState(job.signature.ip);
+
+  // Early pickup request state
+  const [earlyPickupRequested, setEarlyPickupRequested] = useState(() =>
+    hasEarlyPickupRequest(job)
+  );
+  const [earlyPickupNote, setEarlyPickupNote] = useState('');
+  const [requestingPickup, setRequestingPickup] = useState(false);
+  const [pickupError, setPickupError] = useState('');
+
+  const handleEarlyPickupRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRequestingPickup(true);
+    setPickupError('');
+    try {
+      await api<{ ok: boolean; job: typeof job }>(`/api/agreement/${job.id}/early-pickup`, {
+        method: 'POST',
+        body: JSON.stringify({
+          customer_note: earlyPickupNote,
+        }),
+      });
+      setEarlyPickupRequested(true);
+    } catch (err) {
+      setPickupError((err as Error).message);
+    } finally {
+      setRequestingPickup(false);
+    }
+  };
 
   const prohibitedItems =
     organization.prohibited_items ??
@@ -281,6 +308,63 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Finished Loading Early? Request Early Pickup (Active Jobs Only) */}
+      {['booked', 'dispatched', 'delivered'].includes(job.status) && (
+        <div className="print-hide no-print max-w-4xl mx-auto mb-6 bg-white border border-[#cbd5c4] rounded-xl p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <Truck size={22} className="text-[#16a34a] flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h2 className="text-sm sm:text-base font-bold text-[#1f2d26]">
+                Finished Loading Early? Request Early Pickup
+              </h2>
+              <p className="text-xs text-[#687864] mt-1 leading-relaxed">
+                Done with your project ahead of schedule? Let our dispatch team know your container is ready to pull so we can clear your driveway early.
+              </p>
+
+              {earlyPickupRequested ? (
+                <div className="mt-3 p-3.5 rounded-lg bg-[#f0fdf4] border border-[#86efac] text-[#166534] text-xs font-semibold flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#16a34a] flex-shrink-0" />
+                  <span>
+                    Early pickup request sent to {organization.name} dispatch! Our driver will pull your container on the next available route.
+                  </span>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleEarlyPickupRequest}
+                  className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
+                >
+                  <input
+                    type="text"
+                    maxLength={300}
+                    value={earlyPickupNote}
+                    onChange={(e) => setEarlyPickupNote(e.target.value)}
+                    placeholder="Optional note (e.g., Done loading, gate is unlocked, car moved)"
+                    className="flex-1 text-xs sm:text-sm px-3 py-2 border border-[#cbd5c4] rounded-lg focus:border-[#16a34a] outline-none bg-[#fafcf9]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={requestingPickup}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#16a34a] text-white text-xs font-bold rounded-lg hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                  >
+                    {requestingPickup ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" /> Notifying Dispatch…
+                      </>
+                    ) : (
+                      <>🚛 My Dumpster Is Ready for Pickup</>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {pickupError && (
+                <div className="mt-2 text-xs text-red-600 font-semibold">{pickupError}</div>
+              )}
             </div>
           </div>
         </div>

@@ -21,7 +21,16 @@ import {
 import { Brand } from './brand';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { dateLabel, today, type Job, type Container } from '@/lib/types';
+import {
+  dateLabel,
+  today,
+  parseStopOrder,
+  parseDropSpot,
+  hasEarlyPickupRequest,
+  lbsToTons,
+  type Job,
+  type Container,
+} from '@/lib/types';
 type RouteData = {
   driver: { name: string };
   jobs: Job[];
@@ -94,6 +103,11 @@ export function DriverRoute({ token }: { token: string }) {
   const [driverNotes, setDriverNotes] = useState<Record<string, string>>({});
   const [weights, setWeights] = useState<Record<string, string>>({});
   const [unlockWeight, setUnlockWeight] = useState<Record<string, boolean>>({});
+  const [doorSafetyChecked, setDoorSafetyChecked] = useState<Record<string, boolean>>({});
+  const [weightCalcOpen, setWeightCalcOpen] = useState<Record<string, boolean>>({});
+  const [netLbsInput, setNetLbsInput] = useState<Record<string, string>>({});
+  const [grossLbsInput, setGrossLbsInput] = useState<Record<string, string>>({});
+  const [tareLbsInput, setTareLbsInput] = useState<Record<string, string>>({});
   const [filterTab, setFilterTab] = useState<'active' | 'all' | 'dispatched' | 'delivered' | 'picked_up'>('active');
   const [sortBy, setSortBy] = useState<'delivery' | 'pickup' | 'customer'>('delivery');
   const [searchQuery, setSearchQuery] = useState('');
@@ -557,12 +571,41 @@ export function DriverRoute({ token }: { token: string }) {
             .sort((a, b) => {
               if (sortBy === 'pickup') return a.pickup_date.localeCompare(b.pickup_date);
               if (sortBy === 'customer') return a.customer_name.localeCompare(b.customer_name);
+              const stopA = parseStopOrder(a);
+              const stopB = parseStopOrder(b);
+              if (stopA !== null && stopB !== null && stopA !== stopB) {
+                return stopA - stopB;
+              }
+              if (stopA !== null && stopB === null) return -1;
+              if (stopA === null && stopB !== null) return 1;
               return a.delivery_date.localeCompare(b.delivery_date);
             })
-            .map((job) => (
+            .map((job) => {
+              const stopOrder = parseStopOrder(job);
+              const dropSpot = parseDropSpot(job);
+              const earlyPickup = hasEarlyPickupRequest(job);
+              return (
             <article className="panel driver-job" key={job.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd dumpster</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  {stopOrder !== null && (
+                    <span
+                      style={{
+                        background: '#172b1e',
+                        color: '#ffffff',
+                        fontWeight: 800,
+                        fontSize: 11,
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        letterSpacing: '0.05em',
+                        border: '1px solid #35543e',
+                      }}
+                    >
+                      STOP #{stopOrder}
+                    </span>
+                  )}
+                  <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd dumpster</span>
+                </div>
                 <span className="pill">
                   {job.status === 'dispatched'
                     ? 'Ready for delivery'
@@ -571,6 +614,26 @@ export function DriverRoute({ token }: { token: string }) {
                       : 'Picked up'}
                 </span>
               </div>
+
+              {earlyPickup && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '10px 12px',
+                    background: '#dcfce7',
+                    border: '2px solid #22c55e',
+                    borderRadius: 8,
+                    color: '#14532d',
+                    fontSize: 12,
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span>⚡ CUSTOMER FINISHED EARLY — READY FOR PICKUP</span>
+                </div>
+              )}
 
               {job.is_swap && (
                 <div
@@ -591,6 +654,23 @@ export function DriverRoute({ token }: { token: string }) {
                   <span>
                     🔄 DUMP &amp; RETURN SWAP: Pull {job.swapped_from_container_label || 'full container'} &amp; drop replacement {job.size_yards}yd container
                   </span>
+                </div>
+              )}
+
+              {dropSpot && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: '10px 12px',
+                    background: '#eff6ff',
+                    border: '1px solid #93c5fd',
+                    borderRadius: 8,
+                    color: '#1e3a8a',
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}
+                >
+                  🎯 Target Placement Spot: {dropSpot}
                 </div>
               )}
 
@@ -966,6 +1046,40 @@ export function DriverRoute({ token }: { token: string }) {
                       </div>
                     </div>
                   )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDoorSafetyChecked({
+                        ...doorSafetyChecked,
+                        [job.id]: !(doorSafetyChecked[job.id] ?? true),
+                      })
+                    }
+                    style={{
+                      width: '100%',
+                      marginTop: 10,
+                      marginBottom: 10,
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: (doorSafetyChecked[job.id] ?? true) ? '2px solid #22c55e' : '2px solid #f59e0b',
+                      background: (doorSafetyChecked[job.id] ?? true) ? '#f0fdf4' : '#fffbeb',
+                      color: (doorSafetyChecked[job.id] ?? true) ? '#14532d' : '#92400e',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={doorSafetyChecked[job.id] ?? true}
+                      readOnly
+                      style={{ width: 16, height: 16, accentColor: '#16a34a', flexShrink: 0 }}
+                    />
+                    <span>✅ Rear barn door latched, safety chain pinned &amp; load tarped</span>
+                  </button>
                 <Button
                   variant="primary"
                   disabled={busy === job.id}
@@ -978,23 +1092,175 @@ export function DriverRoute({ token }: { token: string }) {
               )}
               {['delivered', 'picked_up'].includes(job.status) && (
                 <div style={{ marginTop: 15, background: '#f5f8f0', padding: 12, borderRadius: 8, border: '1px solid #d9e4d1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#314736' }}>Actual Disposal Weight (tons)</span>
-                    {job.tons_actual !== null && (
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          color: '#34663e',
-                          fontWeight: 600,
-                        }}
-                      >
-                        <Check size={12} /> Saved: {job.tons_actual} tons
-                      </span>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      {job.tons_actual !== null && (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            fontSize: 11,
+                            color: '#34663e',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Check size={12} /> Saved: {job.tons_actual} tons
+                        </span>
+                      )}
+                      <div style={{ display: 'inline-flex', borderRadius: 6, overflow: 'hidden', border: '1px solid #c9d8bf' }}>
+                        <button
+                          type="button"
+                          onClick={() => setWeightCalcOpen({ ...weightCalcOpen, [job.id]: false })}
+                          style={{
+                            fontSize: 10,
+                            padding: '4px 8px',
+                            border: 'none',
+                            background: !weightCalcOpen[job.id] ? '#2d4533' : '#ffffff',
+                            color: !weightCalcOpen[job.id] ? '#ffffff' : '#2d4533',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Enter Tons
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setWeightCalcOpen({ ...weightCalcOpen, [job.id]: true });
+                            if (job.tons_actual !== null && !unlockWeight[job.id]) {
+                              setUnlockWeight({ ...unlockWeight, [job.id]: true });
+                            }
+                          }}
+                          style={{
+                            fontSize: 10,
+                            padding: '4px 8px',
+                            border: 'none',
+                            borderLeft: '1px solid #c9d8bf',
+                            background: weightCalcOpen[job.id] ? '#2d4533' : '#ffffff',
+                            color: weightCalcOpen[job.id] ? '#ffffff' : '#2d4533',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Scale Ticket Calculator (lbs → tons)
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
+                  {weightCalcOpen[job.id] && (
+                    <div
+                      style={{
+                        marginBottom: 10,
+                        padding: 10,
+                        background: '#ffffff',
+                        borderRadius: 6,
+                        border: '1px solid #c9d8bf',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#2d4533', marginBottom: 6 }}>
+                        Landfill Scale Ticket Calculator (2,000 lbs = 1.00 ton)
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 10, fontWeight: 600, color: '#495d4e' }}>
+                          <span>Gross Weight (lbs)</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            placeholder="e.g. 34600"
+                            value={grossLbsInput[job.id] ?? ''}
+                            onChange={(e) => {
+                              const grossVal = e.target.value;
+                              const tareVal = tareLbsInput[job.id] ?? '';
+                              setGrossLbsInput({ ...grossLbsInput, [job.id]: grossVal });
+                              if (grossVal !== '' && tareVal !== '') {
+                                const net = Math.max(0, Number(grossVal) - Number(tareVal));
+                                const tons = lbsToTons(net);
+                                setNetLbsInput({ ...netLbsInput, [job.id]: String(net) });
+                                setWeights({ ...weights, [job.id]: String(tons) });
+                              }
+                            }}
+                            style={{
+                              fontSize: 12,
+                              padding: '6px 8px',
+                              borderRadius: 5,
+                              border: '1px solid #ccd8c5',
+                            }}
+                          />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 10, fontWeight: 600, color: '#495d4e' }}>
+                          <span>Tare Weight (lbs)</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            placeholder="e.g. 28200"
+                            value={tareLbsInput[job.id] ?? ''}
+                            onChange={(e) => {
+                              const tareVal = e.target.value;
+                              const grossVal = grossLbsInput[job.id] ?? '';
+                              setTareLbsInput({ ...tareLbsInput, [job.id]: tareVal });
+                              if (grossVal !== '' && tareVal !== '') {
+                                const net = Math.max(0, Number(grossVal) - Number(tareVal));
+                                const tons = lbsToTons(net);
+                                setNetLbsInput({ ...netLbsInput, [job.id]: String(net) });
+                                setWeights({ ...weights, [job.id]: String(tons) });
+                              }
+                            }}
+                            style={{
+                              fontSize: 12,
+                              padding: '6px 8px',
+                              borderRadius: 5,
+                              border: '1px solid #ccd8c5',
+                            }}
+                          />
+                        </label>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, fontSize: 10, fontWeight: 600, color: '#495d4e' }}>
+                          <span>OR Direct Net Weight (lbs)</span>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            placeholder="e.g. 6400"
+                            value={netLbsInput[job.id] ?? ''}
+                            onChange={(e) => {
+                              const netVal = e.target.value;
+                              setNetLbsInput({ ...netLbsInput, [job.id]: netVal });
+                              if (netVal !== '') {
+                                const tons = lbsToTons(Math.max(0, Number(netVal)));
+                                setWeights({ ...weights, [job.id]: String(tons) });
+                              }
+                            }}
+                            style={{
+                              fontSize: 12,
+                              padding: '6px 8px',
+                              borderRadius: 5,
+                              border: '1px solid #ccd8c5',
+                            }}
+                          />
+                        </label>
+                        {netLbsInput[job.id] && Number(netLbsInput[job.id]) > 0 && (
+                          <div
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 800,
+                              color: '#14532d',
+                              background: '#dcfce7',
+                              padding: '7px 10px',
+                              borderRadius: 6,
+                              border: '1px solid #86efac',
+                              alignSelf: 'flex-end',
+                            }}
+                          >
+                            = {lbsToTons(Number(netLbsInput[job.id])).toFixed(2)} Tons (auto-filled below)
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
                       type="number"
@@ -1156,6 +1422,77 @@ export function DriverRoute({ token }: { token: string }) {
                 <p style={{ fontSize: 11, color: '#7a8c6e', marginBottom: 8 }}>
                   Notify dispatch about driveway obstructions, damage, or container placement notes.
                 </p>
+
+                {/* 1-Tap Glove-Friendly Field Exception Buttons */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 6, marginBottom: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDriverNotes({
+                        ...driverNotes,
+                        [job.id]: '[DRY RUN FEE: $125] Driveway/site blocked upon arrival. Photo attached.',
+                      })
+                    }
+                    style={{
+                      fontSize: 12,
+                      padding: '9px 12px',
+                      background: '#fef2f2',
+                      border: '1px solid #fca5a5',
+                      borderRadius: 6,
+                      color: '#991b1b',
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      textAlign: 'left',
+                    }}
+                  >
+                    🚫 Blocked / Dry Run ($125)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDriverNotes({
+                        ...driverNotes,
+                        [job.id]: '[PROHIBITED ITEM] Restricted waste (tires/mattress/paint/appliance) spotted in container.',
+                      })
+                    }
+                    style={{
+                      fontSize: 12,
+                      padding: '9px 12px',
+                      background: '#fffbeb',
+                      border: '1px solid #fcd34d',
+                      borderRadius: 6,
+                      color: '#92400e',
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      textAlign: 'left',
+                    }}
+                  >
+                    🛞 Prohibited Item Spotted
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDriverNotes({
+                        ...driverNotes,
+                        [job.id]: '[OVERLOADED] Debris loaded above container walls — unsafe to tarp/haul.',
+                      })
+                    }
+                    style={{
+                      fontSize: 12,
+                      padding: '9px 12px',
+                      background: '#fff7ed',
+                      border: '1px solid #fdba74',
+                      borderRadius: 6,
+                      color: '#9a3412',
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      textAlign: 'left',
+                    }}
+                  >
+                    ⚠️ Overfilled Past Top Lip
+                  </button>
+                </div>
+
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
                   {[
                     'Driveway blocked by cars',
@@ -1220,7 +1557,8 @@ export function DriverRoute({ token }: { token: string }) {
                 </div>
               </div>
             </article>
-          ))}
+              );
+            })}
           {!data.jobs.length && (
             <div className="panel empty">
               <CheckCircle2 size={37} />

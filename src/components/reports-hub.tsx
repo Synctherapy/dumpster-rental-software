@@ -17,7 +17,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { money, type Workspace } from '@/lib/types';
+import { money, parseTippingCostCents, type Workspace } from '@/lib/types';
 
 export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) => void }) {
   // Revenue & transaction calculations
@@ -125,6 +125,30 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
     .filter((j) => j.tons_actual != null)
     .reduce((sum, j) => sum + (j.tons_actual ?? 0), 0);
   const grossDisposalCollectedCents = overageBilledCents;
+
+  // 7. True Net Haul Profit & Landfill Margin
+  const nonCancelledJobs = data.jobs.filter((j) => j.status !== 'cancelled');
+  const loggedTippingJobsCount = nonCancelledJobs.filter((j) => parseTippingCostCents(j) !== null).length;
+  const estimatedTippingJobsCount = nonCancelledJobs.filter(
+    (j) => parseTippingCostCents(j) === null && j.tons_actual !== null && j.tons_actual > 0,
+  ).length;
+  const totalTippingCostCents = nonCancelledJobs.reduce((sum, j) => {
+    const logged = parseTippingCostCents(j);
+    if (logged !== null) {
+      return sum + logged;
+    }
+    if (j.tons_actual !== null && j.tons_actual > 0) {
+      return sum + Math.round(j.tons_actual * 4500);
+    }
+    return sum;
+  }, 0);
+  const grossRentalRevenueCents =
+    totalRevenueCents > 0
+      ? totalRevenueCents
+      : nonCancelledJobs.reduce((s, j) => s + j.price_cents, 0) + overageBilledCents;
+  const trueNetHaulProfitCents = grossRentalRevenueCents - totalTippingCostCents;
+  const containerTurnsCount = Math.max(1, deliveredJobs.length || nonCancelledJobs.length);
+  const avgNetProfitPerTurnCents = Math.round(trueNetHaulProfitCents / containerTurnsCount);
 
   return (
     <div className="reports-container" style={{ display: 'grid', gap: '24px' }}>
@@ -428,6 +452,69 @@ export function ReportsHub({ data }: { data: Workspace; openJob?: (id: string) =
           </div>
         </section>
       </div>
+
+      {/* True Net Haul Profit & Landfill Margin */}
+      <section className="panel" style={{ padding: '24px', border: '1px solid #bbf7d0', background: '#f0fdf4' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <DollarSign size={18} style={{ color: '#15803d' }} />
+            <h3 style={{ fontSize: '15px', margin: 0, fontWeight: 700, color: '#14532d' }}>
+              True Net Haul Profit & Landfill Margin
+            </h3>
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#166534', background: '#dcfce7', padding: '4px 10px', borderRadius: '999px' }}>
+            {loggedTippingJobsCount > 0 && estimatedTippingJobsCount > 0
+              ? `${loggedTippingJobsCount} logged tipping cost(s) · ${estimatedTippingJobsCount} estimated at $45/ton`
+              : loggedTippingJobsCount > 0
+                ? `${loggedTippingJobsCount} logged landfill tipping fee(s)`
+                : estimatedTippingJobsCount > 0
+                  ? `Estimated at $45/ton across ${estimatedTippingJobsCount} weighed load(s) (log exact dump fees in Job Drawer)`
+                  : 'Log landfill tipping costs in Job Drawer for exact haul margin'}
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          <div style={{ padding: '14px', background: '#ffffff', borderRadius: '8px', border: '1px solid #dcfce7' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Gross Rental Revenue</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginTop: '4px' }}>
+              {money(grossRentalRevenueCents)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+              Base rentals + extra days + overages
+            </div>
+          </div>
+          <div style={{ padding: '14px', background: '#ffffff', borderRadius: '8px', border: '1px solid #dcfce7' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Landfill Tipping Costs</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626', marginTop: '4px' }}>
+              -{money(totalTippingCostCents)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+              {loggedTippingJobsCount > 0
+                ? `${loggedTippingJobsCount} logged${estimatedTippingJobsCount > 0 ? ` + ${estimatedTippingJobsCount} est. ($45/ton)` : ' dump ticket cost(s)'}`
+                : estimatedTippingJobsCount > 0
+                  ? `Estimated at $45/ton (${totalTonsDisposed.toFixed(2)}t)`
+                  : 'No dump fees recorded yet'}
+            </div>
+          </div>
+          <div style={{ padding: '14px', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #86efac' }}>
+            <div style={{ fontSize: '11px', color: '#166534', fontWeight: 700 }}>True Net Haul Profit</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#15803d', marginTop: '4px' }}>
+              {money(trueNetHaulProfitCents)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#166534', marginTop: '2px' }}>
+              Take-home margin after landfill dump fees
+            </div>
+          </div>
+          <div style={{ padding: '14px', background: '#ffffff', borderRadius: '8px', border: '1px solid #dcfce7' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Average Net Profit Per Container Turn</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#059669', marginTop: '4px' }}>
+              {money(avgNetProfitPerTurnCents)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+              Across {containerTurnsCount} container turn{containerTurnsCount === 1 ? '' : 's'}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Comparison Breakdown: RollOS vs Legacy Competitors */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>

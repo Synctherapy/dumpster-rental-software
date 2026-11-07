@@ -26,6 +26,11 @@ import {
   statusLabels,
   today,
   addDays,
+  isOverduePickup,
+  overduePickupDays,
+  hasEarlyPickupRequest,
+  parseStopOrder,
+  parseDropSpot,
   type Job,
   type JobStatus,
   type Workspace,
@@ -57,16 +62,23 @@ export function DispatchBoard({
   const [view, setView] = useState(initialView);
   const [search, setSearch] = useState('');
   const [driver, setDriver] = useState('');
+  const [zipFilter, setZipFilter] = useState('');
   const [range, setRange] = useState('all');
   const [week, setWeek] = useState(today());
+  const uniqueZips = Array.from(new Set(data.jobs.map((j) => j.zip).filter(Boolean))).sort();
+  const overdueJobs = data.jobs.filter((j) => isOverduePickup(j));
+  const earlyPickupJobs = data.jobs.filter((j) => hasEarlyPickupRequest(j));
+  const attentionJobs = data.jobs.filter((j) => isOverduePickup(j) || hasEarlyPickupRequest(j));
   const filtered = data.jobs.filter(
     (j) =>
-      `${j.customer_name} ${j.delivery_address} ${j.id} ${j.notes}`
+      `${j.customer_name} ${j.delivery_address} ${j.id} ${j.notes} ${j.zip}`
         .toLowerCase()
         .includes(search.toLowerCase()) &&
       (!driver || j.driver_id === driver) &&
+      (!zipFilter || j.zip === zipFilter) &&
       (range !== 'today' || j.delivery_date === today() || j.pickup_date === today()) &&
-      (range !== 'week' || (j.delivery_date >= today() && j.delivery_date <= addDays(today(), 7))),
+      (range !== 'week' || (j.delivery_date >= today() && j.delivery_date <= addDays(today(), 7))) &&
+      (range !== 'attention' || isOverduePickup(j) || hasEarlyPickupRequest(j)),
   );
   const active = filtered.filter((j) => statuses.includes(j.status));
   const available = data.containers.filter((c) => c.status === 'yard').length;
@@ -117,6 +129,18 @@ export function DispatchBoard({
                 ))}
             </select>
             <select
+              value={zipFilter}
+              aria-label="Filter by ZIP zone"
+              onChange={(e) => setZipFilter(e.target.value)}
+            >
+              <option value="">All ZIP zones</option>
+              {uniqueZips.map((z) => (
+                <option value={z} key={z}>
+                  ZIP {z}
+                </option>
+              ))}
+            </select>
+            <select
               value={range}
               aria-label="Date range"
               onChange={(e) => setRange(e.target.value)}
@@ -124,6 +148,7 @@ export function DispatchBoard({
               <option value="all">All dates</option>
               <option value="today">Today</option>
               <option value="week">Next 7 days</option>
+              <option value="attention">Overdue / Early Pickup</option>
             </select>
             {onSubscribeCalendar && view === 'calendar' && (
               <Button onClick={onSubscribeCalendar}>
@@ -139,6 +164,101 @@ export function DispatchBoard({
             )}
           </div>
         </div>
+        {attentionJobs.length > 0 && (
+          <div
+            role="region"
+            aria-label="Fleet Velocity and Sleeping Can Radar"
+            style={{
+              margin: '0 16px 12px',
+              padding: '10px 14px',
+              borderRadius: 8,
+              background: overdueJobs.length > 0 ? '#fffbeb' : '#ecfdf5',
+              border: overdueJobs.length > 0 ? '1px solid #fde68a' : '1px solid #a7f3d0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 10,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: overdueJobs.length > 0 ? '#92400e' : '#065f46',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                📡 Fleet Velocity & Sleeping Can Radar:
+              </span>
+              {overdueJobs.length > 0 && (
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    background: '#fef2f2',
+                    color: '#b91c1c',
+                    border: '1px solid #fecaca',
+                    padding: '2px 8px',
+                    borderRadius: 999,
+                  }}
+                >
+                  ⏰ {overdueJobs.length} overdue for pickup
+                </span>
+              )}
+              {earlyPickupJobs.length > 0 && (
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    background: '#d1fae5',
+                    color: '#065f46',
+                    border: '1px solid #6ee7b7',
+                    padding: '2px 8px',
+                    borderRadius: 999,
+                  }}
+                >
+                  ⚡ {earlyPickupJobs.length} early pickup requested
+                </span>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => setRange(range === 'attention' ? 'all' : 'attention')}
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  border: '1px solid #cbd5e1',
+                  background: range === 'attention' ? '#1e293b' : '#ffffff',
+                  color: range === 'attention' ? '#ffffff' : '#1e293b',
+                  cursor: 'pointer',
+                }}
+              >
+                {range === 'attention' ? 'Show all jobs' : 'Filter to radar cans'}
+              </button>
+              <button
+                type="button"
+                onClick={() => openJob(attentionJobs[0])}
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: '#166534',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                }}
+              >
+                Inspect first →
+              </button>
+            </div>
+          </div>
+        )}
         {view === 'board' && (
           <div className="kanban">
             {statuses.map((status) => (
@@ -169,117 +289,221 @@ export function DispatchBoard({
                 </div>
                 {active
                   .filter((j) => j.status === status)
-                  .map((job, index) => (
-                    <button
-                      className="job-card"
-                      key={job.id}
-                      draggable
-                      onDragStart={(e) => e.dataTransfer.setData('text/plain', job.id)}
-                      onClick={() => openJob(job)}
-                      aria-label={`Open ${job.customer_name} job`}
-                    >
-                      <div className="job-card-top">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd</span>
-                          {job.is_swap && (
+                  .sort((a, b) => {
+                    const sa = parseStopOrder(a);
+                    const sb = parseStopOrder(b);
+                    if (sa !== null && sb !== null) return sa - sb;
+                    if (sa !== null) return -1;
+                    if (sb !== null) return 1;
+                    return 0;
+                  })
+                  .map((job, index) => {
+                    const stopOrder = parseStopOrder(job);
+                    const dropSpot = parseDropSpot(job);
+                    const overdue = isOverduePickup(job);
+                    const earlyPickup = hasEarlyPickupRequest(job);
+                    return (
+                      <button
+                        className="job-card"
+                        key={job.id}
+                        draggable
+                        onDragStart={(e) => e.dataTransfer.setData('text/plain', job.id)}
+                        onClick={() => openJob(job)}
+                        aria-label={`Open ${job.customer_name} job`}
+                      >
+                        <div className="job-card-top">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span className={`size-tag s${job.size_yards}`}>{job.size_yards} yd</span>
+                            {stopOrder !== null && (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  fontSize: 10,
+                                  fontWeight: 800,
+                                  background: '#14532d',
+                                  color: '#ffffff',
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                📍 Stop #{stopOrder}
+                              </span>
+                            )}
+                            {overdue && (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  fontSize: 10,
+                                  fontWeight: 800,
+                                  background: '#fef2f2',
+                                  color: '#b91c1c',
+                                  border: '1px solid #fecaca',
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                ⏰ OVERDUE (+{overduePickupDays(job)}d)
+                              </span>
+                            )}
+                            {earlyPickup && (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  fontSize: 10,
+                                  fontWeight: 800,
+                                  background: '#d1fae5',
+                                  color: '#065f46',
+                                  border: '1px solid #6ee7b7',
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                ⚡ EARLY PICKUP READY
+                              </span>
+                            )}
+                            {job.is_swap && (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  background: '#ecfdf5',
+                                  color: '#065f46',
+                                  border: '1px solid #a7f3d0',
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                🔄 SWAP
+                              </span>
+                            )}
+                            {(job.is_commercial ||
+                              job.payment_type === 'net_30' ||
+                              job.notes?.includes('VIP CONTRACTOR') ||
+                              job.notes?.includes('VIP Contractor')) && (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 3,
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  background: '#eff6ff',
+                                  color: '#1d4ed8',
+                                  border: '1px solid #bfdbfe',
+                                  padding: '2px 6px',
+                                  borderRadius: 4,
+                                  letterSpacing: '0.02em',
+                                }}
+                              >
+                                🏗️ VIP NET-30
+                              </span>
+                            )}
+                          </div>
+                          <span className="job-ref">
+                            #
+                            {job.id.startsWith('job-')
+                              ? `10${job.id.split('-')[1].padStart(2, '0')}`
+                              : job.id.slice(0, 5).toUpperCase()}
+                          </span>
+                        </div>
+                        <h4>{job.customer_name}</h4>
+                        <div className="job-address" style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+                          <MapPin size={10} />
+                          <span>{job.delivery_address.replace(', Austin, TX', '')}</span>
+                          {job.zip && (
                             <span
                               style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 3,
-                                fontSize: 10,
+                                fontSize: 9.5,
                                 fontWeight: 700,
-                                background: '#ecfdf5',
-                                color: '#065f46',
-                                border: '1px solid #a7f3d0',
-                                padding: '2px 6px',
+                                background: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #e2e8f0',
+                                padding: '1px 5px',
                                 borderRadius: 4,
-                                letterSpacing: '0.02em',
                               }}
                             >
-                              🔄 SWAP
-                            </span>
-                          )}
-                          {(job.is_commercial ||
-                            job.payment_type === 'net_30' ||
-                            job.notes?.includes('VIP CONTRACTOR') ||
-                            job.notes?.includes('VIP Contractor')) && (
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 3,
-                                fontSize: 10,
-                                fontWeight: 700,
-                                background: '#eff6ff',
-                                color: '#1d4ed8',
-                                border: '1px solid #bfdbfe',
-                                padding: '2px 6px',
-                                borderRadius: 4,
-                                letterSpacing: '0.02em',
-                              }}
-                            >
-                              🏗️ VIP NET-30
+                              {job.zip}
                             </span>
                           )}
                         </div>
-                        <span className="job-ref">
-                          #
-                          {job.id.startsWith('job-')
-                            ? `10${job.id.split('-')[1].padStart(2, '0')}`
-                            : job.id.slice(0, 5).toUpperCase()}
-                        </span>
-                      </div>
-                      <h4>{job.customer_name}</h4>
-                      <div className="job-address">
-                        <MapPin size={10} />
-                        {job.delivery_address.replace(', Austin, TX', '')}
-                      </div>
-                      <div className="job-date">
-                        <CalendarDays size={10} />
-                        {dateLabel(
-                          status === 'picked_up' || status === 'completed'
-                            ? job.pickup_date
-                            : job.delivery_date,
-                        )}
-                        <span style={{ color: '#b2b8bb' }}>·</span>
-                        {status === 'picked_up' || status === 'completed' ? 'Pickup' : 'Delivery'}
-                      </div>
-                      {job.notes && <span className="job-tag">{job.notes}</span>}
-                      {job.driver_notes && (
-                        <span
-                          className="job-tag"
-                          style={{
-                            background: '#fef3c7',
-                            color: '#92400e',
-                            border: '1px solid #fde68a',
-                            fontWeight: 600,
-                          }}
-                          title={`Driver Note: ${job.driver_notes}`}
-                        >
-                          ⚠️ Driver: {job.driver_notes.length > 25 ? `${job.driver_notes.slice(0, 25)}…` : job.driver_notes}
-                        </span>
-                      )}
-                      <div className="job-card-bottom">
-                        <strong>{money(job.price_cents)}</strong>
-                        {job.driver_id ? (
-                          <span
-                            className={`avatar ${index % 2 ? 'blue' : ''}`}
-                            title={data.users.find((u) => u.id === job.driver_id)?.name}
+                        {dropSpot && (
+                          <div
+                            style={{
+                              fontSize: 10.5,
+                              fontWeight: 600,
+                              color: '#3f6212',
+                              background: '#f7fee7',
+                              border: '1px solid #d9f99d',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              marginTop: 4,
+                            }}
                           >
-                            {initials(
-                              data.users.find((u) => u.id === job.driver_id)?.name ?? 'Driver',
-                            )}
-                          </span>
-                        ) : (
-                          <span className="unassigned">
-                            <UserRound size={9} />
-                            Unassigned
+                            🎯 {dropSpot}
+                          </div>
+                        )}
+                        <div className="job-date">
+                          <CalendarDays size={10} />
+                          {dateLabel(
+                            status === 'picked_up' || status === 'completed'
+                              ? job.pickup_date
+                              : job.delivery_date,
+                          )}
+                          <span style={{ color: '#b2b8bb' }}>·</span>
+                          {status === 'picked_up' || status === 'completed' ? 'Pickup' : 'Delivery'}
+                        </div>
+                        {job.notes && <span className="job-tag">{job.notes}</span>}
+                        {job.driver_notes && (
+                          <span
+                            className="job-tag"
+                            style={{
+                              background: '#fef3c7',
+                              color: '#92400e',
+                              border: '1px solid #fde68a',
+                              fontWeight: 600,
+                            }}
+                            title={`Driver Note: ${job.driver_notes}`}
+                          >
+                            ⚠️ Driver: {job.driver_notes.length > 25 ? `${job.driver_notes.slice(0, 25)}…` : job.driver_notes}
                           </span>
                         )}
-                      </div>
-                    </button>
-                  ))}
+                        <div className="job-card-bottom">
+                          <strong>{money(job.price_cents)}</strong>
+                          {job.driver_id ? (
+                            <span
+                              className={`avatar ${index % 2 ? 'blue' : ''}`}
+                              title={data.users.find((u) => u.id === job.driver_id)?.name}
+                            >
+                              {initials(
+                                data.users.find((u) => u.id === job.driver_id)?.name ?? 'Driver',
+                              )}
+                            </span>
+                          ) : (
+                            <span className="unassigned">
+                              <UserRound size={9} />
+                              Unassigned
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 {!active.some((j) => j.status === status) && (
                   <div className="column-empty">No jobs here. Room to roll.</div>
                 )}
@@ -302,76 +526,167 @@ export function DispatchBoard({
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((j) => (
-                  <tr key={j.id}>
-                    <td>
-                      {j.customer_name}
-                      <small>{j.delivery_address}</small>
-                    </td>
-                    <td>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <span className={`size-tag s${j.size_yards}`}>{j.size_yards} yd</span>
-                        {j.is_swap && (
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 3,
-                              fontSize: 10,
-                              fontWeight: 700,
-                              background: '#ecfdf5',
-                              color: '#065f46',
-                              border: '1px solid #a7f3d0',
-                              padding: '2px 6px',
-                              borderRadius: 4,
-                              letterSpacing: '0.02em',
-                            }}
-                          >
-                            🔄 SWAP
-                          </span>
-                        )}
-                        {(j.is_commercial ||
-                          j.payment_type === 'net_30' ||
-                          j.notes?.includes('VIP CONTRACTOR') ||
-                          j.notes?.includes('VIP Contractor')) && (
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 3,
-                              fontSize: 10,
-                              fontWeight: 700,
-                              background: '#eff6ff',
-                              color: '#1d4ed8',
-                              border: '1px solid #bfdbfe',
-                              padding: '2px 6px',
-                              borderRadius: 4,
-                              letterSpacing: '0.02em',
-                            }}
-                          >
-                            🏗️ VIP NET-30
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      {dateLabel(j.delivery_date)} — {dateLabel(j.pickup_date)}
-                    </td>
-                    <td>{data.users.find((u) => u.id === j.driver_id)?.name ?? 'Unassigned'}</td>
-                    <td>
-                      <span className="pill" style={{ color: statusColors[j.status] }}>
-                        <span className="dot" />
-                        {statusLabels[j.status]}
-                      </span>
-                    </td>
-                    <td>{money(j.price_cents)}</td>
-                    <td>
-                      <Button variant="ghost" onClick={() => openJob(j)}>
-                        Details <ArrowUpRight size={12} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((j) => {
+                  const stopOrder = parseStopOrder(j);
+                  const dropSpot = parseDropSpot(j);
+                  const overdue = isOverduePickup(j);
+                  const earlyPickup = hasEarlyPickupRequest(j);
+                  return (
+                    <tr key={j.id}>
+                      <td>
+                        {j.customer_name}
+                        <small style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <span>{j.delivery_address}</span>
+                          {j.zip && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #e2e8f0',
+                                padding: '1px 5px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              {j.zip}
+                            </span>
+                          )}
+                          {dropSpot && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 600,
+                                color: '#3f6212',
+                                background: '#f7fee7',
+                                border: '1px solid #d9f99d',
+                                padding: '1px 5px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              🎯 {dropSpot}
+                            </span>
+                          )}
+                        </small>
+                      </td>
+                      <td>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <span className={`size-tag s${j.size_yards}`}>{j.size_yards} yd</span>
+                          {stopOrder !== null && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                background: '#14532d',
+                                color: '#ffffff',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              📍 Stop #{stopOrder}
+                            </span>
+                          )}
+                          {overdue && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                background: '#fef2f2',
+                                color: '#b91c1c',
+                                border: '1px solid #fecaca',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              ⏰ OVERDUE (+{overduePickupDays(j)}d)
+                            </span>
+                          )}
+                          {earlyPickup && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 800,
+                                background: '#d1fae5',
+                                color: '#065f46',
+                                border: '1px solid #6ee7b7',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                              }}
+                            >
+                              ⚡ EARLY PICKUP READY
+                            </span>
+                          )}
+                          {j.is_swap && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#ecfdf5',
+                                color: '#065f46',
+                                border: '1px solid #a7f3d0',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              🔄 SWAP
+                            </span>
+                          )}
+                          {(j.is_commercial ||
+                            j.payment_type === 'net_30' ||
+                            j.notes?.includes('VIP CONTRACTOR') ||
+                            j.notes?.includes('VIP Contractor')) && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 3,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                background: '#eff6ff',
+                                color: '#1d4ed8',
+                                border: '1px solid #bfdbfe',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              🏗️ VIP NET-30
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        {dateLabel(j.delivery_date)} — {dateLabel(j.pickup_date)}
+                      </td>
+                      <td>{data.users.find((u) => u.id === j.driver_id)?.name ?? 'Unassigned'}</td>
+                      <td>
+                        <span className="pill" style={{ color: statusColors[j.status] }}>
+                          <span className="dot" />
+                          {statusLabels[j.status]}
+                        </span>
+                      </td>
+                      <td>{money(j.price_cents)}</td>
+                      <td>
+                        <Button variant="ghost" onClick={() => openJob(j)}>
+                          Details <ArrowUpRight size={12} />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             {!filtered.length && (

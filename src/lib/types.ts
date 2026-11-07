@@ -67,6 +67,7 @@ export interface Container {
   size_yards: number;
   status: 'yard' | 'on_site' | 'maintenance';
   current_job_id: string | null;
+  maintenance_note?: string | null;
 }
 export interface PricingRule {
   id: string;
@@ -119,6 +120,9 @@ export interface Job {
   swapped_from_container_label?: string | null;
   payment_type?: string | null;
   signed_by_customer?: boolean;
+  early_pickup_requested?: boolean;
+  stop_order?: number | null;
+  tipping_fee_cents?: number | null;
 }
 export interface Payment {
   id: string;
@@ -264,3 +268,63 @@ export function isValidPostalCode(raw: string): boolean {
   // US 5-digit ZIP or Canadian 6-char Postal Code
   return /^\d{5}$/.test(clean) || /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(clean);
 }
+
+/**
+ * Overdue Pickup ("Sleeping Can") detection:
+ * True when a container is currently on site (`delivered`) and `pickup_date < today()`.
+ */
+export function isOverduePickup(job: Job, todayStr: string = today()): boolean {
+  return job.status === 'delivered' && job.pickup_date < todayStr;
+}
+
+export function overduePickupDays(job: Job, todayStr: string = today()): number {
+  if (!isOverduePickup(job, todayStr)) return 0;
+  const diff = (Date.parse(todayStr + 'T00:00:00Z') - Date.parse(job.pickup_date + 'T00:00:00Z')) / 86400000;
+  return Math.max(1, Math.round(diff));
+}
+
+export function hasEarlyPickupRequest(job: Job): boolean {
+  return Boolean(job.early_pickup_requested) || /\[EARLY PICKUP/i.test(job.notes || '');
+}
+
+export function parseStopOrder(job: Job): number | null {
+  if (typeof job.stop_order === 'number' && job.stop_order > 0) return job.stop_order;
+  const m = (job.notes || '').match(/\[STOP\s*#(\d+)\]/i);
+  return m ? Number(m[1]) : null;
+}
+
+export function setStopOrderInNotes(notes: string, stopOrder: number | null): string {
+  const stripped = (notes || '').replace(/\s*\[STOP\s*#\d+\]/gi, '').trim();
+  if (!stopOrder || stopOrder <= 0) return stripped;
+  return stripped ? `[STOP #${stopOrder}] ${stripped}` : `[STOP #${stopOrder}]`;
+}
+
+export function parseDropSpot(job: Job): string | null {
+  const m = (job.notes || '').match(/\[DROP SPOT:\s*([^\]]+)\]/i);
+  return m ? m[1].trim() : null;
+}
+
+export function parseTippingCostCents(job: Job): number | null {
+  if (typeof job.tipping_fee_cents === 'number' && job.tipping_fee_cents >= 0) {
+    return job.tipping_fee_cents;
+  }
+  const m = (job.notes || '').match(/\[TIPPING COST:\s*\$?(\d+(?:\.\d{1,2})?)\]/i);
+  return m ? Math.round(Number(m[1]) * 100) : null;
+}
+
+export function setTippingCostInNotes(notes: string, cents: number | null): string {
+  const stripped = (notes || '').replace(/\s*\[TIPPING COST:\s*\$?\d+(?:\.\d{1,2})?\]/gi, '').trim();
+  if (cents === null || cents < 0) return stripped;
+  const formatted = (cents / 100).toFixed(cents % 100 === 0 ? 0 : 2);
+  return stripped ? `${stripped} [TIPPING COST: $${formatted}]` : `[TIPPING COST: $${formatted}]`;
+}
+
+export function hasDryRunFee(job: Job): boolean {
+  return /\[DRY RUN/i.test(job.notes || '') || /\[DRY RUN/i.test(job.driver_notes || '');
+}
+
+export function lbsToTons(lbs: number): number {
+  if (!Number.isFinite(lbs) || lbs <= 0) return 0;
+  return Math.round((lbs / 2000) * 100) / 100;
+}
+

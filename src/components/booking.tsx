@@ -90,6 +90,13 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
     }
     return null;
   });
+  const [promoParam] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('promo');
+    }
+    return null;
+  });
+  const [dropSpot, setDropSpot] = useState<string>('');
   const [customer, setCustomer] = useState(() => {
     const contractor =
       typeof window !== 'undefined'
@@ -625,6 +632,25 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
           </div>
           <div className="booking-layout">
             <section className="panel booking-main">
+              {promoParam && (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #86efac',
+                    borderRadius: '10px',
+                    padding: '10px 14px',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: '#166534',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                  }}
+                >
+                  <span>🏡 Neighbor QR Scan Applied: Priority Neighborhood Dispatch &amp; Rate Locked</span>
+                </div>
+              )}
               {data.demo && (
                 <div className="booking-notice">
                   <FlaskConical size={13} />
@@ -1047,6 +1073,56 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
                       }
                     />
                   </label>
+                  <div className="field" style={{ marginBottom: '4px' }}>
+                    <span style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#1f2d26', marginBottom: '8px' }}>
+                      Where should the driver place the dumpster?
+                    </span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {[
+                        'Left side of driveway',
+                        'Right side of driveway',
+                        'Centered / In front of garage',
+                        'Street / Curb (Permit verified)',
+                        'Alley / Rear property',
+                      ].map((spot) => {
+                        const isSelected = dropSpot === spot;
+                        return (
+                          <button
+                            key={spot}
+                            type="button"
+                            aria-pressed={isSelected}
+                            onClick={() => {
+                              setDropSpot(spot);
+                              const withoutDropSpot = customer.notes
+                                .replace(/\[DROP SPOT: [^\]]*\]\s*/g, '')
+                                .trimStart();
+                              const updatedNotes = withoutDropSpot
+                                ? `[DROP SPOT: ${spot}] ${withoutDropSpot}`
+                                : `[DROP SPOT: ${spot}] `;
+                              setCustomer({ ...customer, notes: updatedNotes });
+                            }}
+                            style={{
+                              padding: '7px 12px',
+                              borderRadius: '999px',
+                              fontSize: '12px',
+                              fontWeight: isSelected ? 700 : 600,
+                              cursor: 'pointer',
+                              border: isSelected ? '2px solid #166534' : '1px solid #cbd5e1',
+                              background: isSelected ? '#dcfce7' : '#ffffff',
+                              color: isSelected ? '#166534' : '#334155',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            {isSelected && <Check size={12} />}
+                            {spot}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <label className="field">
                     Placement instructions <small>Optional</small>
                     <textarea

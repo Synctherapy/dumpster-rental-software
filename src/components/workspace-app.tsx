@@ -884,9 +884,20 @@ function Inventory({
 }) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [maintenanceTarget, setMaintenanceTarget] = useState<{ id: string; label: string } | null>(
+    null,
+  );
+  const [maintenanceNote, setMaintenanceNote] = useState('Rear door latch/hinge');
+  const [busyMaint, setBusyMaint] = useState(false);
+  const defectPresets = [
+    'Rear door latch/hinge',
+    'Bent ground rollers',
+    'Floor/wall weld repair',
+    'Paint & decals',
+  ];
   const rows = data.containers.filter(
     (c) =>
-      c.label.toLowerCase().includes(search.toLowerCase()) &&
+      `${c.label} ${c.maintenance_note ?? ''}`.toLowerCase().includes(search.toLowerCase()) &&
       (filter === 'all' || c.status === filter),
   );
   const colors = { yard: '#7f9d57', on_site: '#81a1bb', maintenance: '#bda16c' };
@@ -1022,14 +1033,34 @@ function Inventory({
                     <span className={`size-tag s${c.size_yards}`}>{c.size_yards} yd</span>
                   </td>
                   <td>
-                    <span className="pill" style={{ color: colors[c.status] }}>
-                      <span className="dot" />
-                      {c.status === 'yard'
-                        ? 'Available'
-                        : c.status === 'on_site'
-                          ? 'On site'
-                          : 'Maintenance'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span className="pill" style={{ color: colors[c.status] }}>
+                        <span className="dot" />
+                        {c.status === 'yard'
+                          ? 'Available'
+                          : c.status === 'on_site'
+                            ? 'On site'
+                            : 'Maintenance'}
+                      </span>
+                      {c.status === 'maintenance' && c.maintenance_note && (
+                        <span
+                          style={{
+                            fontSize: 10.5,
+                            fontWeight: 600,
+                            background: '#fef3c7',
+                            color: '#92400e',
+                            border: '1px solid #fde68a',
+                            padding: '2px 7px',
+                            borderRadius: 4,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          🔧 {c.maintenance_note}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td>
                     {c.current_job_id ? (
@@ -1046,16 +1077,22 @@ function Inventory({
                       <Button
                         variant="ghost"
                         onClick={async () => {
+                          if (c.status === 'yard') {
+                            setMaintenanceNote('Rear door latch/hinge');
+                            setMaintenanceTarget({ id: c.id, label: c.label });
+                            return;
+                          }
                           try {
                             await api('/api/resources', {
                               method: 'PATCH',
                               body: JSON.stringify({
                                 id: c.id,
-                                status: c.status === 'yard' ? 'maintenance' : 'yard',
+                                status: 'yard',
+                                maintenance_note: null,
                               }),
                             });
                             await reload();
-                            notify('Container availability updated.');
+                            notify('Container returned to yard.');
                           } catch (e) {
                             notify((e as Error).message, true);
                           }
@@ -1081,6 +1118,83 @@ function Inventory({
           )}
         </div>
       </section>
+      {maintenanceTarget && (
+        <Modal
+          open={!!maintenanceTarget}
+          onOpenChange={(o) => !o && setMaintenanceTarget(null)}
+          title={`Mark ${maintenanceTarget.label} for Maintenance`}
+          description="Log the repair or safety issue so your yard crew knows what needs attention before this can goes back out."
+        >
+          <form
+            className="form-stack"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setBusyMaint(true);
+              try {
+                await api('/api/resources', {
+                  method: 'PATCH',
+                  body: JSON.stringify({
+                    id: maintenanceTarget.id,
+                    status: 'maintenance',
+                    maintenance_note: maintenanceNote.trim() || 'General inspection',
+                  }),
+                });
+                await reload();
+                notify(`${maintenanceTarget.label} moved to maintenance.`);
+                setMaintenanceTarget(null);
+              } catch (err) {
+                notify((err as Error).message, true);
+              } finally {
+                setBusyMaint(false);
+              }
+            }}
+          >
+            <div className="field">
+              <span style={{ fontWeight: 600, fontSize: 13 }}>Quick defect tag</span>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                {defectPresets.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setMaintenanceNote(preset)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: 6,
+                      border:
+                        maintenanceNote === preset ? '1px solid #92400e' : '1px solid #cbd5e1',
+                      background: maintenanceNote === preset ? '#fef3c7' : '#ffffff',
+                      color: maintenanceNote === preset ? '#92400e' : '#334155',
+                      fontWeight: maintenanceNote === preset ? 700 : 500,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    🔧 {preset}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className="field">
+              Repair / maintenance note
+              <input
+                value={maintenanceNote}
+                onChange={(e) => setMaintenanceNote(e.target.value)}
+                placeholder="e.g. Rear door latch/hinge or custom repair note"
+                maxLength={120}
+                required
+              />
+            </label>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
+              <Button type="button" variant="ghost" onClick={() => setMaintenanceTarget(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary" disabled={busyMaint}>
+                {busyMaint ? <Loader2 size={14} className="spin" /> : 'Confirm Maintenance'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </>
   );
 }

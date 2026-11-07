@@ -79,7 +79,7 @@ test('POST /api/contractor/[slug] action=order creates Net-30 commercial job wit
       delivery_address: '1420 South Lamar Blvd, Austin, TX',
       zip: '78704',
       size_yards: 20,
-      delivery_date: '2026-11-05',
+      delivery_date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
       notes: 'Drop near shingle pallet on left side of driveway',
     }),
   });

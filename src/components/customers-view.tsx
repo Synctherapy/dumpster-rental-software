@@ -460,7 +460,7 @@ export function CustomersView({
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               style={{
                 padding: '8px 12px',
                 borderRadius: 8,
@@ -526,7 +526,7 @@ export function CustomersView({
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setFilterType(tab.id as any)}
+              onClick={() => setFilterType(tab.id as typeof filterType)}
               style={{
                 padding: '5px 12px',
                 borderRadius: 20,

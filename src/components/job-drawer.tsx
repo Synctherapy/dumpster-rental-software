@@ -28,7 +28,22 @@ import Link from 'next/link';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { money, dateLabel, statusLabels, today, type Workspace, type Job } from '@/lib/types';
+import {
+  money,
+  dateLabel,
+  statusLabels,
+  today,
+  parseStopOrder,
+  setStopOrderInNotes,
+  parseTippingCostCents,
+  setTippingCostInNotes,
+  hasEarlyPickupRequest,
+  isOverduePickup,
+  overduePickupDays,
+  lbsToTons,
+  type Workspace,
+  type Job,
+} from '@/lib/types';
 import { invoice } from '@/lib/pricing';
 import { statusColors } from './dispatch-board';
 export function JobDrawer({
@@ -50,6 +65,15 @@ export function JobDrawer({
   const [pickup, setPickup] = useState(job.pickup_date);
   const [notes, setNotes] = useState(job.notes);
   const [tons, setTons] = useState(job.tons_actual === null ? '' : String(job.tons_actual));
+  const [lbsInput, setLbsInput] = useState(
+    job.tons_actual === null ? '' : String(Math.round(job.tons_actual * 2000)),
+  );
+  const initialTippingCents = parseTippingCostCents(job);
+  const [tippingDollars, setTippingDollars] = useState(
+    initialTippingCents !== null ? String(Number((initialTippingCents / 100).toFixed(2))) : '',
+  );
+  const tippingCostCents = parseTippingCostCents({ ...job, notes }) ?? 0;
+  const [sendingOverageAlert, setSendingOverageAlert] = useState(false);
   const [unlockTons, setUnlockTons] = useState(false);
   const [proof, setProof] = useState(job.proof_url ?? '');
   const [pickupProof, setPickupProof] = useState(job.pickup_proof_url ?? '');
@@ -215,11 +239,47 @@ export function JobDrawer({
       description={`Rental #${job.id.slice(0, 8).toUpperCase()} · ${job.size_yards} yard dumpster`}
       drawer
     >
-      <div className="drawer-status">
+      <div className="drawer-status" style={{ flexWrap: 'wrap', gap: 6 }}>
         <span className="pill" style={{ color: statusColors[job.status] }}>
           <span className="dot" />
           {statusLabels[job.status]}
         </span>
+        {isOverduePickup(job) && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 700,
+              background: '#fef2f2',
+              color: '#b91c1c',
+              border: '1px solid #fecaca',
+              padding: '2px 8px',
+              borderRadius: 4,
+            }}
+          >
+            {`⏰ Overdue Pickup (+${overduePickupDays(job)}d)`}
+          </span>
+        )}
+        {hasEarlyPickupRequest(job) && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 700,
+              background: '#ecfdf5',
+              color: '#065f46',
+              border: '1px solid #a7f3d0',
+              padding: '2px 8px',
+              borderRadius: 4,
+            }}
+          >
+            ⚡ Customer Requested Early Pickup
+          </span>
+        )}
         {job.is_swap && (
           <span
             style={{
@@ -459,6 +519,26 @@ export function JobDrawer({
             <small>Shows current active truck load to help balance daily routes.</small>
           </label>
           <label className="field">
+            Morning route stop order
+            <select
+              value={parseStopOrder({ ...job, notes }) ?? ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? null : Number(e.target.value);
+                setNotes(setStopOrderInNotes(notes, val));
+              }}
+              disabled={['completed', 'cancelled'].includes(job.status)}
+            >
+              <option value="">Unordered</option>
+              <option value="1">Stop #1 (First out)</option>
+              {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                <option key={n} value={n}>
+                  Stop #{n}
+                </option>
+              ))}
+            </select>
+            <small>Sequences morning truck stops for the driver route sheet.</small>
+          </label>
+          <label className="field">
             Container
             <select
               value={container}
@@ -557,7 +637,7 @@ export function JobDrawer({
             </span>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="number"
             step="0.01"
@@ -565,15 +645,68 @@ export function JobDrawer({
             max="100"
             placeholder={`Enter scale weight (included: ${job.tons_included} tons)`}
             value={tons}
-            onChange={(e) => setTons(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setTons(v);
+              if (v === '') {
+                setLbsInput('');
+              } else {
+                const n = Number(v);
+                if (Number.isFinite(n)) setLbsInput(String(Math.round(n * 2000)));
+              }
+            }}
             disabled={job.status === 'completed' || (job.tons_actual !== null && !unlockTons)}
             style={{
-              flex: 1,
+              flex: '1 1 160px',
               background: job.tons_actual !== null && !unlockTons ? '#f4f6f4' : 'white',
               color: job.tons_actual !== null && !unlockTons ? '#566657' : '#1e2d24',
               cursor: job.tons_actual !== null && !unlockTons ? 'not-allowed' : 'text',
             }}
           />
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
+              borderRadius: 6,
+              padding: '2px 8px',
+            }}
+            title="Lbs → Tons calculator"
+          >
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>
+              Lbs → Tons calculator:
+            </span>
+            <input
+              type="number"
+              step="10"
+              min="0"
+              placeholder="e.g. 6400 lbs"
+              value={lbsInput}
+              disabled={job.status === 'completed' || (job.tons_actual !== null && !unlockTons)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setLbsInput(raw);
+                if (raw.trim() === '') {
+                  setTons('');
+                } else {
+                  const lbsNum = Number(raw);
+                  if (Number.isFinite(lbsNum) && lbsNum >= 0) {
+                    setTons(String(lbsToTons(lbsNum)));
+                  }
+                }
+              }}
+              style={{
+                width: 96,
+                fontSize: 12,
+                padding: '4px 6px',
+                border: '1px solid #e2e8f0',
+                borderRadius: 4,
+                background: job.tons_actual !== null && !unlockTons ? '#f4f6f4' : 'white',
+              }}
+            />
+          </div>
           {job.tons_actual !== null && job.status !== 'completed' && (
             <button
               type="button"
@@ -598,7 +731,7 @@ export function JobDrawer({
         <small style={{ color: '#889886', fontSize: 11, marginTop: 4, display: 'block' }}>
           {job.tons_actual !== null
             ? `Protected from accidental edits. Click 'Edit' to make corrections.`
-            : `Enter the landfill scale ticket weight in tons. Overages calculate automatically.`}
+            : `Enter tons directly or type scale ticket pounds (e.g. 6400 lbs → 3.2 tons). Overages calculate automatically.`}
         </small>
         {tons !== '' && Number(tons) > job.tons_included && (
           <div
@@ -649,6 +782,51 @@ export function JobDrawer({
                 </label>
               </div>
             )}
+            <div style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                disabled={busy || sendingOverageAlert}
+                onClick={async () => {
+                  setSendingOverageAlert(true);
+                  setError('');
+                  try {
+                    if (tons !== '' && Number(tons) !== job.tons_actual) {
+                      await api(`/api/jobs/${job.id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ tons_actual: Number(tons) }),
+                      });
+                    }
+                    await api(`/api/jobs/${job.id}/overage-alert`, {
+                      method: 'POST',
+                      body: '{}',
+                    });
+                    await onUpdate();
+                    notify('24-hour overage courtesy notice & scale slip link texted to customer!');
+                  } catch (e) {
+                    notify((e as Error).message, true);
+                  } finally {
+                    setSendingOverageAlert(false);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  background: '#92400e',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: 11.5,
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: busy || sendingOverageAlert ? 'not-allowed' : 'pointer',
+                }}
+              >
+                📲 Text Customer Certified Scale Slip & 24h Charge Notice
+              </button>
+            </div>
             <div style={{ fontSize: 11, color: '#78350f', marginTop: 6, fontStyle: 'italic' }}>
               Certified weight slip is automatically attached to the customer&apos;s final SMS receipt.
             </div>
@@ -690,6 +868,67 @@ export function JobDrawer({
           <b style={{ color: Math.max(0, total.total - paid) > 0 ? '#ea580c' : '#1e2d24' }}>
             {money(Math.max(0, total.total - paid))}
           </b>
+        </div>
+        <div
+          style={{
+            marginTop: 12,
+            padding: '10px 12px',
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: 8,
+          }}
+        >
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#166534',
+            }}
+          >
+            <span>Landfill tipping cost paid ($)</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 95.00"
+              value={tippingDollars}
+              disabled={['completed', 'cancelled'].includes(job.status)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setTippingDollars(raw);
+                const cents =
+                  raw.trim() === '' ? null : Math.round(Number(raw) * 100);
+                const validCents =
+                  cents !== null && Number.isFinite(cents) && cents >= 0 ? cents : null;
+                setNotes((prev) => setTippingCostInNotes(prev, validCents));
+              }}
+              style={{
+                width: 110,
+                padding: '4px 8px',
+                fontSize: 12,
+                border: '1px solid #86efac',
+                borderRadius: 6,
+                background: '#ffffff',
+                color: '#14532d',
+              }}
+            />
+          </label>
+          <div
+            style={{
+              marginTop: 8,
+              paddingTop: 8,
+              borderTop: '1px solid #bbf7d0',
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: '#15803d',
+            }}
+          >
+            True Net Haul Profit (after dump fee): {money(total.total - tippingCostCents)}
+          </div>
         </div>
         {/* Card on File Authorization Status */}
         <div

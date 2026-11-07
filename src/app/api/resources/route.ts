@@ -87,6 +87,7 @@ const patchSchema = z.discriminatedUnion('kind', [
     kind: z.literal('container').default('container'),
     id: z.string(),
     status: z.enum(['yard', 'maintenance']),
+    maintenance_note: z.string().trim().max(300).nullable().optional(),
   }),
   z.object({
     kind: z.literal('driver'),
@@ -114,6 +115,7 @@ export async function PATCH(request: Request) {
           if (c.current_job_id)
             throw new Error('Pick up this container before changing its availability.');
           c.status = input.status;
+          c.maintenance_note = input.status === 'maintenance' ? (input.maintenance_note || null) : null;
         });
       else {
         const { db, member } = auth;

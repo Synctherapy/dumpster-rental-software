@@ -1,7 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizePhone, type Job } from '../src/lib/types';
-import { jobMatchesContractor } from '../src/lib/server/contractors';
+import {
+  normalizePhone,
+  isOverduePickup,
+  overduePickupDays,
+  hasEarlyPickupRequest,
+  parseStopOrder,
+  setStopOrderInNotes,
+  parseDropSpot,
+  parseTippingCostCents,
+  setTippingCostInNotes,
+  lbsToTons,
+  type Job,
+} from '../src/lib/types';
 
 test('normalizePhone handles various formats for customer deduplication', () => {
   assert.equal(normalizePhone('(512) 555-0199'), '+15125550199');
@@ -9,6 +20,17 @@ test('normalizePhone handles various formats for customer deduplication', () => 
   assert.equal(normalizePhone('+1 512 555 0199'), '+15125550199');
   assert.equal(normalizePhone('5125550199'), '+15125550199');
 });
+
+interface AggregatedProfile {
+  name?: string;
+  phone?: string;
+  email?: string;
+  is_commercial: boolean;
+  total_spend_cents: number;
+  total_orders: number;
+  active_jobs: Partial<Job>[];
+  completed_jobs: Partial<Job>[];
+}
 
 test('Customer CRM aggregates multiple bookings by phone number and computes totals', () => {
   const jobs: Partial<Job>[] = [
@@ -60,7 +82,7 @@ test('Customer CRM aggregates multiple bookings by phone number and computes tot
   ];
 
   // Group by normalized phone
-  const map = new Map<string, any>();
+  const map = new Map<string, AggregatedProfile>();
   for (const j of jobs) {
     const key = normalizePhone(j.customer_phone || '');
     let profile = map.get(key);
@@ -116,3 +138,30 @@ test('VIP contractor link generation properly scopes to organization and contrac
   assert.match(url, /account=Miller%20Roofing/);
   assert.doesNotMatch(url, /Apex/i);
 });
+
+test('Hauler operational workflow helpers parse stop order, drop spots, tipping costs, overdue pickups, and lbs-to-tons', () => {
+  assert.equal(lbsToTons(6400), 3.2);
+  assert.equal(lbsToTons(4500), 2.25);
+  assert.equal(lbsToTons(0), 0);
+
+  let notes = setStopOrderInNotes('Gate code 1234', 2);
+  assert.equal(notes, '[STOP #2] Gate code 1234');
+  assert.equal(parseStopOrder({ notes } as Job), 2);
+  notes = setStopOrderInNotes(notes, null);
+  assert.equal(notes, 'Gate code 1234');
+
+  const withTipping = setTippingCostInNotes(notes, 11500);
+  assert.equal(withTipping, 'Gate code 1234 [TIPPING COST: $115]');
+  assert.equal(parseTippingCostCents({ notes: withTipping } as Job), 11500);
+
+  const jobSample = {
+    status: 'delivered',
+    pickup_date: '2026-11-02',
+    notes: '[EARLY PICKUP REQUESTED: Done loading] [DROP SPOT: Left side of driveway]',
+  } as Job;
+  assert.equal(isOverduePickup(jobSample, '2026-11-05'), true);
+  assert.equal(overduePickupDays(jobSample, '2026-11-05'), 3);
+  assert.equal(hasEarlyPickupRequest(jobSample), true);
+  assert.equal(parseDropSpot(jobSample), 'Left side of driveway');
+});
+

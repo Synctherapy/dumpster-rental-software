@@ -8,6 +8,8 @@ import {
   normalizePostalCode,
   isValidPostalCode,
   money,
+  addDays,
+  today,
   type Job,
   type Organization,
 } from '../src/lib/types';
@@ -214,8 +216,8 @@ test('POST /api/jobs/quick preserves protective_boards on phone orders', async (
       delivery_address: '500 Board St',
       zip: '78704',
       size_yards: 20,
-      delivery_date: '2026-11-01',
-      pickup_date: '2026-11-08',
+      delivery_date: addDays(today(), 1),
+      pickup_date: addDays(today(), 8),
       protective_boards: true,
     }),
   });
@@ -231,4 +233,56 @@ test('POST /api/jobs/quick preserves protective_boards on phone orders', async (
   assert.ok(savedJob);
   assert.equal(savedJob.protective_boards, true, 'protective_boards must be persisted on demo phone order');
 });
+
+test('POST /api/agreement/[id]/early-pickup flags job for early pickup and POST /api/jobs/[id]/overage-alert sends courtesy SMS', async () => {
+  const { createRequire } = await import('node:module');
+  const req = createRequire(import.meta.url);
+  const serverOnlyPath = req.resolve('server-only');
+  req.cache[serverOnlyPath] = {
+    id: serverOnlyPath,
+    filename: serverOnlyPath,
+    loaded: true,
+    exports: {},
+  } as unknown as NodeModule;
+
+  const { POST: earlyPickupPost } = req('../src/app/api/agreement/[id]/early-pickup/route');
+  const { POST: overageAlertPost } = req('../src/app/api/jobs/[id]/overage-alert/route');
+  const { mutateDemo, readDemo } = req('../src/lib/server/store');
+
+  const demoBefore = await readDemo();
+  const targetJobId = demoBefore.jobs[0].id;
+
+  const pickupReq = new Request(`http://localhost:3000/api/agreement/${targetJobId}/early-pickup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', origin: 'http://localhost:3000' },
+    body: JSON.stringify({ customer_note: 'Finished garage cleanout early, gate is open' }),
+  });
+
+  const pickupRes = await earlyPickupPost(pickupReq, { params: Promise.resolve({ id: targetJobId }) });
+  assert.equal(pickupRes.status, 200);
+  const pickupJson = await pickupRes.json();
+  assert.equal(pickupJson.ok, true);
+  assert.equal(pickupJson.job.early_pickup_requested, true);
+  assert.match(pickupJson.job.notes, /\[EARLY PICKUP REQUESTED: Finished garage cleanout early, gate is open\]/);
+
+  // Set actual tonnage over allowance to test overage courtesy alert
+  await mutateDemo((d: { jobs: Job[] }) => {
+    const j = d.jobs.find((job) => job.id === targetJobId);
+    if (j) {
+      j.tons_actual = j.tons_included + 1.5;
+    }
+  });
+
+  const overageReq = new Request(`http://localhost:3000/api/jobs/${targetJobId}/overage-alert`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', origin: 'http://localhost:3000' },
+    body: '{}',
+  });
+
+  const overageRes = await overageAlertPost(overageReq, { params: Promise.resolve({ id: targetJobId }) });
+  assert.equal(overageRes.status, 200);
+  const overageJson = await overageRes.json();
+  assert.equal(overageJson.ok, true);
+});
+
 

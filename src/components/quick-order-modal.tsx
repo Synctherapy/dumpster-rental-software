@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Phone, Lock } from 'lucide-react';
+import { Loader2, Phone, Lock, Zap, CheckCircle2 } from 'lucide-react';
 import { Modal } from './ui/dialog';
 import { Button } from './ui/button';
 import { api } from '@/lib/client';
-import { addDays, money, today, type Job, type Workspace } from '@/lib/types';
+import { addDays, money, phoneMatch, today, type Job, type Workspace } from '@/lib/types';
 import { quote } from '@/lib/pricing';
 
 export function QuickOrderModal({
@@ -33,11 +33,13 @@ export function QuickOrderModal({
     notes?: string;
   } | null;
 }) {
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [zip, setZip] = useState(data.pricing_rules[0]?.service_zips[0] || '78704');
+  const [customerName, setCustomerName] = useState(initialCustomer?.name || '');
+  const [customerPhone, setCustomerPhone] = useState(initialCustomer?.phone || '');
+  const [customerEmail, setCustomerEmail] = useState(initialCustomer?.email || '');
+  const [address, setAddress] = useState(initialCustomer?.address || '');
+  const [zip, setZip] = useState(
+    initialCustomer?.zip || data.pricing_rules[0]?.service_zips[0] || '78704',
+  );
   const availableSizes = useMemo(() => {
     const fromRules = data.pricing_rules.map((r) => r.size_yards);
     const fromContainers = data.containers.map((c) => c.size_yards);
@@ -60,18 +62,22 @@ export function QuickOrderModal({
   const [pickupDate, setPickupDate] = useState(defaultPickup);
   const [driverId, setDriverId] = useState('');
   const [containerId, setContainerId] = useState('');
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(initialCustomer?.notes || '');
   const [boards, setBoards] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const isPaidPlan =
     data.organization.subscription_status === 'active' || Boolean(data.organization.is_paid_plan);
-  const [paymentType, setPaymentType] = useState<'card' | 'cash' | 'check' | 'net_30'>('card');
+  const [paymentType, setPaymentType] = useState<'card' | 'cash' | 'check' | 'net_30'>(
+    initialCustomer?.isCommercial ? 'net_30' : 'card',
+  );
   const isOffline = ['cash', 'check', 'net_30'].includes(paymentType);
   const isBlockedByPlan = isOffline && !isPaidPlan;
 
-  useEffect(() => {
-    if (open && initialCustomer) {
+  const [prevInitialCustomer, setPrevInitialCustomer] = useState(initialCustomer);
+  if (initialCustomer !== prevInitialCustomer) {
+    setPrevInitialCustomer(initialCustomer);
+    if (initialCustomer) {
       if (initialCustomer.name) setCustomerName(initialCustomer.name);
       if (initialCustomer.phone) setCustomerPhone(initialCustomer.phone);
       if (initialCustomer.email) setCustomerEmail(initialCustomer.email);
@@ -80,7 +86,7 @@ export function QuickOrderModal({
       if (initialCustomer.isCommercial) setPaymentType('net_30');
       if (initialCustomer.notes) setNotes(initialCustomer.notes);
     }
-  }, [open, initialCustomer]);
+  }
 
   // When size changes, re-sync pickup date to included days
   const handleSizeChange = (newSize: number) => {
@@ -95,6 +101,64 @@ export function QuickOrderModal({
   const handleDeliveryChange = (newDelivery: string) => {
     setDeliveryDate(newDelivery);
     setPickupDate(addDays(newDelivery, rule?.included_days || 7));
+  };
+
+  const recentCustomers = useMemo(() => {
+    const seen = new Set<string>();
+    const list: Job[] = [];
+    for (const j of data.jobs) {
+      const key = `${j.customer_name.trim().toLowerCase()}|${j.customer_phone.replace(/\D/g, '')}`;
+      if (!seen.has(key) && j.customer_name) {
+        seen.add(key);
+        list.push(j);
+      }
+      if (list.length >= 5) break;
+    }
+    return list;
+  }, [data.jobs]);
+
+  const matchedPastJob = useMemo(() => {
+    const cleanPhone = customerPhone.replace(/\D/g, '');
+    const cleanName = customerName.trim().toLowerCase();
+    if (cleanPhone.length < 4 && cleanName.length < 3) return null;
+
+    return (
+      data.jobs.find((j) => {
+        const phoneMatched = cleanPhone.length >= 4 && phoneMatch(j.customer_phone, customerPhone);
+        const nameMatched =
+          cleanName.length >= 3 && j.customer_name.toLowerCase().includes(cleanName);
+        if (!phoneMatched && !nameMatched) return false;
+
+        const alreadyIdentical =
+          j.customer_name === customerName &&
+          j.customer_phone === customerPhone &&
+          j.delivery_address === address &&
+          j.zip === zip;
+        return !alreadyIdentical;
+      }) || null
+    );
+  }, [data.jobs, customerPhone, customerName, address, zip]);
+
+  const applyPastJob = (job: Job) => {
+    setCustomerName(job.customer_name);
+    setCustomerPhone(job.customer_phone);
+    setCustomerEmail(job.customer_email || '');
+    setAddress(job.delivery_address);
+    if (job.zip) setZip(job.zip);
+    handleSizeChange(job.size_yards);
+    setBoards(Boolean(job.protective_boards));
+    if (isPaidPlan) {
+      const pt = job.payment_type;
+      if (pt === 'cash' || pt === 'check' || pt === 'net_30') {
+        setPaymentType(pt);
+      } else if (job.is_commercial || job.notes?.includes('VIP CONTRACTOR')) {
+        setPaymentType('net_30');
+      } else {
+        setPaymentType('card');
+      }
+    } else if (job.payment_type === 'card') {
+      setPaymentType('card');
+    }
   };
 
   // Available containers of matching size in yard
@@ -166,6 +230,57 @@ export function QuickOrderModal({
       description="Take an order over the phone and add it directly to your dispatch schedule in seconds."
     >
       <form onSubmit={handleSubmit} className="form-stack">
+        {recentCustomers.length > 0 && (
+          <div
+            style={{
+              padding: '10px 12px',
+              borderRadius: 8,
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#334155',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <span>⚡ Repeat Caller Quick-Fill:</span>
+              <span style={{ fontWeight: 400, color: '#64748b' }}>
+                1-tap auto-fill past customer &amp; Net-30 terms
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {recentCustomers.map((rc) => (
+                <button
+                  key={rc.id}
+                  type="button"
+                  onClick={() => applyPastJob(rc)}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    padding: '4px 9px',
+                    borderRadius: 999,
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    color: '#1e293b',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {rc.customer_name} ({rc.size_yards}yd)
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="form-row">
           <label className="field">
             Customer name *
@@ -188,6 +303,48 @@ export function QuickOrderModal({
             <small>Confirmation SMS will be sent here.</small>
           </label>
         </div>
+
+        {matchedPastJob && (
+          <div
+            style={{
+              padding: '10px 12px',
+              borderRadius: 8,
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 10,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ fontSize: 12, color: '#1e3a8a' }}>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Zap size={13} /> Repeat Customer Match: {matchedPastJob.customer_name}
+              </strong>
+              <span style={{ fontSize: 11, color: '#1d4ed8' }}>
+                {matchedPastJob.delivery_address} ({matchedPastJob.zip}) · Last ordered{' '}
+                {matchedPastJob.size_yards}yd
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => applyPastJob(matchedPastJob)}
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '5px 10px',
+                borderRadius: 6,
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Auto-Fill Details
+            </button>
+          </div>
+        )}
 
         <div className="form-row">
           <label className="field" style={{ flex: 2 }}>
@@ -392,6 +549,32 @@ export function QuickOrderModal({
             </span>
           </div>
         )}
+
+        <div
+          style={{
+            padding: '10px 14px',
+            borderRadius: 8,
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 8,
+            fontSize: 12,
+            color: '#166534',
+            lineHeight: 1.45,
+          }}
+        >
+          <CheckCircle2 size={16} style={{ flexShrink: 0, marginTop: 1, color: '#16a34a' }} />
+          <div>
+            <strong>1-Click SMS Waiver &amp; Mobile Link:</strong> Saving this phone order
+            automatically texts the customer a 1-tap mobile link to{' '}
+            <code style={{ fontSize: 11, background: '#dcfce7', padding: '1px 4px', borderRadius: 4 }}>
+              /agreement/[id]
+            </code>{' '}
+            to e-sign the damage waiver, view their reservation receipt, and request early pickup—no
+            writing down credit card numbers on paper while driving.
+          </div>
+        </div>
 
         {error && (
           <div className="error-box" role="alert">
