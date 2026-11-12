@@ -1,0 +1,18 @@
+[
+ { "id": "v01", "text": "This is four hundred and fifty dollars.", "voice": "am_michael", "speed": 1.0, "lang": "en-us", "asr": "This is $450." },
+ { "id": "v02", "text": "It called you at seven forty on a Tuesday.", "voice": "am_michael", "speed": 1.0, "lang": "en-us", "asr": "It called you at 740 on a Tuesday." },
+ { "id": "v03", "text": "You were under a container with your gloves on.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v04", "text": "It went to voicemail.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v05", "text": "Then it called the next hauler on Google.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v06", "text": "You didn't lose that job because you're slow.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v07", "text": "You lost it because booking needed you awake.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v08", "text": "So take yourself out of it.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v09", "text": "Your sizes. Your rates. Your zip codes.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v10", "text": "Three minutes, once.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v11", "text": "Then the link does the asking.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v12", "text": "They pick a size, pick a date, and pay you.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v13", "text": "Your driver gets a text. No app.", "voice": "am_michael", "speed": 1.0, "lang": "en-us" },
+ { "id": "v14", "text": "Zero a month to start. No contract.", "voice": "am_michael", "speed": 1.0, "lang": "en-us", "asr": "0 a month to start. No contract." },
+ { "id": "v15", "text": "The next seven forty books itself.", "voice": "am_michael", "speed": 1.0, "lang": "en-us", "asr": "The next 740 books itself." },
+ { "id": "v16", "text": "RollOS. Start free in three minutes.", "voice": "am_michael", "speed": 1.0, "lang": "en-us", "asr": "RollOS. Start free in 3 minutes." }
+]

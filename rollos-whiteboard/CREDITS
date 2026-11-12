@@ -1,0 +1,22 @@
+RollOS — "The 7:40 on a Tuesday"
+60 s Whiteboard Explainer, made entirely in code: no video generation, no stock footage.
+
+Built with the Lemo-Opuscar style library (github.com/lemomo-ai/lemo-opuscar, MIT).
+engine/wb.js is that library's whiteboard engine, copied into this project unmodified.
+tools/asr_check.py, tools/cuecheck.py, tools/subs.mjs and tools/mux-ffmpeg6.sh are
+copies of its tools; local changes are marked in each file.
+
+Fonts (SIL Open Font License 1.1)
+  EMS Tech — single-stroke board handwriting (fonts/EMSTech.json)
+  Architects Daughter — burned-in subtitles (fonts/ArchitectsDaughter-Regular.ttf),
+    from google/fonts @ 86aced91de05cd4f96a06838124cca45be337b2b
+
+Voice
+  Kokoro v1.0, voice am_michael (en-us), synthesized offline.
+
+Music samples (CC0)
+  Versilian Community Sample Library (Versilian Studios)
+  VS Chamber Orchestra: Community Edition (Versilian Studios)
+  Score composed for this film; see music.py.
+
+No LemoLab credit or watermark appears in the film: it is the client's.
