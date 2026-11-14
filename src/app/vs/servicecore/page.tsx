@@ -57,7 +57,7 @@ export default function ServiceCoreComparisonPage() {
           >
             roll off dumpster software
           </Link>
-          , ServiceCore and RollOS take two completely different paths. ServiceCore is a multi-industry platform built primarily for portable restroom (porta-potty) sanitation and septic pumping companies, with roll-off dumpsters as an added module. Because of this, ServiceCore charges on a <strong>per-truck pricing model</strong> that can cost <strong>$350 to $700+ every month</strong> as you add trucks.
+          , ServiceCore and RollOS take two completely different paths. ServiceCore is a multi-industry platform built primarily for portable restroom (porta-potty) sanitation and septic pumping companies, with roll-off dumpsters as an added module (ServiceCore also acquired Docket in May 2023). ServiceCore operates on a quote-only, per-truck pricing model under annual contracts with a 6–12 week onboarding process, though office staff users are free and unlimited.
           RollOS is 100% focused on roll-off dumpster rentals—giving you 24/7 online booking, high-efficiency{' '}
           <Link href="/features/dispatch-board" className="text-[#ea580c] font-semibold hover:underline">
             roll-off dispatch software
@@ -74,11 +74,11 @@ export default function ServiceCoreComparisonPage() {
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">RollOS</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
               Designed exclusively for roll-off dumpster businesses. Simple, clean, and fast. No per-truck fee penalties.
-              Free at $0/month, Starter at $29/month. Setup takes 3 minutes self-serve without scheduling sales demos.
+              Free at $0/month, Starter at $29/month, or Growth at $99/month. Setup takes 3 minutes self-serve without scheduling sales demos.
             </p>
             <ul className="space-y-2.5 text-sm text-[#334155]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo)
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Free Plan ($0/mo) · Starter ($29/mo) · Growth ($99/mo)
               </li>
               <li className="flex items-center gap-2">
                 <Check size={16} className="text-[#ea580c] flex-shrink-0" /> No per-truck software fees
@@ -101,20 +101,20 @@ export default function ServiceCoreComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">ServiceCore</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              An enterprise ERP designed for liquid waste, septic pumpers, and portable toilet rental companies. Subscription pricing scales on a per-truck basis with custom quotes, mandatory onboarding calls, and complex multi-service menus.
+              An enterprise platform designed for liquid waste, septic pumpers, and portable toilet rental companies (ServiceCore also acquired Docket in May 2023 for roll-off). Pricing is quote-only on a per-truck basis under annual contracts with 6–12 weeks of onboarding. Office staff accounts are free and unlimited.
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Per-truck pricing scales costs rapidly ($300–$700+/mo)
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Quote-only pricing per truck with annual contracts
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Unnecessary features (septic logs, porta-potty cleaning)
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> 6–12 week onboarding and implementation timeline
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Quote-based pricing requiring sales calls
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Unnecessary features for roll-off (septic logs, porta-potty routes)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Steep learning curve for office staff and drivers
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Customer portal gated to Pro plan
               </li>
             </ul>
           </div>
@@ -153,42 +153,49 @@ export default function ServiceCoreComparisonPage() {
                 <tr>
                   <td className="font-semibold">Pricing Model</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 Free · $29 Starter (Flat rate)
+                    $0 Free · $29 Starter · $99 Growth (Flat rate)
                   </td>
-                  <td className="text-[#b54848] font-semibold">Per-Truck Pricing ($350–$700+/mo)</td>
+                  <td className="text-[#b54848] font-semibold">Quote-only (Per-truck, annual contract; office staff free)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Setup & Onboarding Fees</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">$0 (Self-serve)</td>
-                  <td className="text-[#b54848]">$1,000 – $2,000 typical</td>
+                  <td className="text-[#b54848]">Quote-based implementation fee</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Primary Industry Focus</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     100% Roll-Off Dumpsters
                   </td>
-                  <td>Porta-Potties, Septic, & Roll-Off</td>
+                  <td>Porta-Potties, Septic, & Roll-Off (Owns Docket since May 2023)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Access</td>
                   <td className="highlight-col font-semibold">
                     SMS magic link (0 app install required)
                   </td>
-                  <td>ServiceCore mobile app</td>
+                  <td>ServiceCore native mobile app</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Setup Time</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     3 minutes self-serve
                   </td>
-                  <td>Several weeks of training calls</td>
+                  <td>6–12 weeks implementation & training</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Customer Online Booking Engine</td>
+                  <td className="font-semibold">Customer Online Booking & Portal</td>
                   <td className="highlight-col font-semibold">
-                    Included (60s self-checkout widget)
+                    Included (60s self-checkout widget + portal)
                   </td>
-                  <td>Available as separate portal module</td>
+                  <td>Customer portal included on Pro plan</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">Overage Dump Fee Invoicing</td>
+                  <td className="highlight-col font-semibold">
+                    Automated scale ticket capture & instant card charge
+                  </td>
+                  <td>Calculates overage automatically for hauler review</td>
                 </tr>
               </tbody>
             </table>

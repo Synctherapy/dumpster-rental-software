@@ -36,7 +36,7 @@ export default function BinBossComparisonPage() {
             name: 'What does Bin Boss cost compared to RollOS?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Bin Boss charges $99 per month plus $40 per month for a hosted website ($1,668/year). RollOS provides a permanent $0/month Free Plan with a free embeddable booking widget and hosted booking page.',
+              text: 'Bin Boss charges $99 per month flat with online booking included (an optional Bin Boss-built website is $40/month extra). RollOS provides a permanent $0/month Free Plan with a free embeddable booking widget and hosted checkout page.',
             },
           },
           {
@@ -44,7 +44,7 @@ export default function BinBossComparisonPage() {
             name: 'Does Bin Boss automate landfill dump fees and tonnage invoicing?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'No. Dispatchers must calculate excess tonnage and run credit cards manually. RollOS automates scale ticket photo uploads to calculate and bill overweight dump fees to the card on file automatically.',
+              text: 'Bin Boss calculates excess tonnage overages automatically and generates a charge for dispatcher review and manual approval. RollOS captures scale ticket photos and charges the card saved on file automatically.',
             },
           },
           {
@@ -52,7 +52,7 @@ export default function BinBossComparisonPage() {
             name: 'How does Bin Boss compare to Jobber, Docket, and Hauler Hero?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Unlike general contractor tools like Jobber (which lack available dumpsters inventory tracking) or expensive enterprise suites like Docket and Hauler Hero ($299–$500+/mo), RollOS gives roll-off haulers specialized dumpster assignment and automated billing for $0/month.',
+              text: 'Unlike general contractor tools like Jobber (which lack available dumpsters inventory tracking) or quote-based enterprise suites like Docket and Hauler Hero (which require sales demos and annual contracts), RollOS gives roll-off haulers specialized dumpster assignment and automated billing for $0/month.',
             },
           },
         ],
@@ -131,20 +131,20 @@ export default function BinBossComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">Bin Boss</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              An accessible $99/month flat-rate platform (+$40/month website add-on) built by Pack Mule Dumpsters. Offers a color-coded schedule page and available dumpsters tracking, but requires native App Store downloads for its driver app and customer app, and requires manual calculation for excess dump fees.
+              An accessible $99/month flat-rate platform built by Pack Mule Dumpsters (with an optional +$40/month custom website add-on). Offers a color-coded schedule page and available dumpsters tracking, but requires native App Store downloads for its driver app and requires manual dispatcher approval to bill excess dump fees.
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
-                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Flat $99/month base pricing
+                <Check size={16} className="text-[#ea580c] flex-shrink-0" /> Flat $99/month base pricing (booking widget included)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> +$40/month website & online booking add-on
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> +$40/month optional custom website add-on
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Driver app & customer app require App Store downloads
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Driver app requires native mobile download & logins
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Manual calculations required for excess dump fees
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Automated overage calculation requires manual review & charging
               </li>
             </ul>
           </div>
@@ -153,14 +153,14 @@ export default function BinBossComparisonPage() {
         {/* Visual Interface & Workflow Comparison */}
         <VsVisualComparison
           competitorName="Bin Boss"
-          competitorTagline="Bin Boss offers flat $99/mo dispatching, but charges an extra +$40/mo for online booking, requires native mobile app downloads for drivers, and relies on manual weight calculations for excess dump fees."
+          competitorTagline="Bin Boss offers flat $99/mo dispatching with included booking, but charges an extra +$40/mo for a custom website, requires native mobile app downloads for drivers, and requires manual dispatcher review and card processing for dump fees."
           competitorScreenshot="/images/competitors/bin-boss-preview.png"
           competitorScreenshotAlt="Bin Boss dumpster rental software website homepage and dispatch software preview"
           competitorBulletPoints={[
-            "Flat $99/mo base subscription, regardless of fleet utilization",
-            "+$40/month add-on fee required for online customer booking",
+            "Flat $99/mo base subscription with included online booking widget",
+            "+$40/month add-on fee for custom hosted marketing website",
             "Requires driver app download from Apple / Google Play with login credentials",
-            "Manual landfill tipping fee and scale overage calculation",
+            "Calculates overages automatically but requires manual dispatcher review & charge",
           ]}
           rollosTagline="Modern roll-off dumpster software with a permanent $0/month Free Plan, included 24/7 online booking, instant 1-tap SMS driver links, and automated tonnage billing."
           rollosScreenshot="/images/screenshots/dumpster-rental-online-booking-system.png"
@@ -169,7 +169,7 @@ export default function BinBossComparisonPage() {
             "Permanent $0/mo Free Plan ($12 checkout fee paid by customer, 0% commission)",
             "Included 24/7 online customer booking engine (zero add-on fees)",
             "Instant 1-tap SMS driver magic links — zero App Store downloads",
-            "Automated landfill scale ticket overage billing",
+            "Automated landfill scale ticket overage billing charged to card on file",
           ]}
           infographicSrc="/images/infographics/rollos-vs-bin-boss-driver-app-friction.jpg"
           infographicAlt="Bin Boss driver app download friction vs RollOS instant mobile web dispatch magic links"
@@ -243,11 +243,11 @@ export default function BinBossComparisonPage() {
                   <td className="font-semibold text-[#1f2d26]">$99 / month flat rate</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Website & Online Booking Add-On</td>
+                  <td className="font-semibold">Online Booking & Custom Website</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     $0 (Free 60s checkout widget & hosted link)
                   </td>
-                  <td className="text-[#b54848] font-semibold">+$40 / month ($480/yr)</td>
+                  <td className="font-semibold text-[#1f2d26]">Booking widget included (+$40/mo for custom website)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Experience</td>
@@ -268,12 +268,12 @@ export default function BinBossComparisonPage() {
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     Instant photo capture + automated billing
                   </td>
-                  <td>Manual weight logging & manual card charges</td>
+                  <td>Automated calculation (manual review & charge)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Contractor Account & Customer Portal</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
-                    Included ($29/mo Starter & $99/mo Growth)
+                    Starter custom rates · Growth VIP Net-30 portal
                   </td>
                   <td>Basic customer contact records</td>
                 </tr>
@@ -303,7 +303,7 @@ export default function BinBossComparisonPage() {
           <ul className="space-y-3 text-sm text-[#475569] mb-4">
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
-              <span><strong>Automated Billing for Overweight Dump Fees:</strong> In Bin Boss, when a customer exceeds their weight allowance for a heavy debris type, the dispatcher must manually calculate the excess dump fees and run the card. In RollOS, the driver snaps the scale ticket photo at the landfill, and the system triggers automated billing, emails the invoice, charges the card on file, and syncs with QuickBooks and QuickBooks Online.</span>
+              <span><strong>Automated Billing for Overweight Dump Fees:</strong> In Bin Boss, excess tonnage is calculated automatically, but the dispatcher must review the charge and manually process the payment. In RollOS, the driver snaps the scale ticket photo at the landfill, and the system automatically calculates the overage, emails the invoice, and charges the card saved on file.</span>
             </li>
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
@@ -311,7 +311,7 @@ export default function BinBossComparisonPage() {
             </li>
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
-              <span><strong>Free 24/7 Online Booking & Rental Terms:</strong> Customers select their dumpster size, e-sign your customizable rental terms and driveway waiver, and pay upfront online without a $40/month website fee.</span>
+              <span><strong>Free 24/7 Online Booking & Rental Terms:</strong> Customers select their dumpster size, e-sign your customizable rental terms and driveway waiver, and pay upfront online without paying extra for custom website setups.</span>
             </li>
           </ul>
         </div>
@@ -323,8 +323,8 @@ export default function BinBossComparisonPage() {
             <div>
               <strong className="text-white text-base block mb-2">Choose Bin Boss if:</strong>
               <ul className="space-y-2 list-disc pl-4">
-                <li>You run 1–2 trucks and want a flat $99/mo (+$40/mo website) tool built by Pack Mule Dumpsters.</li>
-                <li>You don&apos;t mind native mobile app updates or manual billing for overweight loads.</li>
+                <li>You run 1–2 trucks and want a flat $99/mo tool (+$40/mo optional website) built by Pack Mule Dumpsters.</li>
+                <li>You prefer native mobile app downloads and manual dispatcher review before charging overages.</li>
               </ul>
             </div>
             <div>
@@ -332,7 +332,7 @@ export default function BinBossComparisonPage() {
               <ul className="space-y-2 list-disc pl-4 text-white">
                 <li>You manage 1 to 25+ trucks.</li>
                 <li>You want to eliminate driver app friction with 1-tap SMS links.</li>
-                <li>You need automated billing for landfill dump fees.</li>
+                <li>You need automated billing for landfill dump fees charged to card on file.</li>
                 <li>You want a 24/7 online booking widget and contractor account customer portal starting at $0/month.</li>
               </ul>
             </div>
@@ -350,7 +350,7 @@ export default function BinBossComparisonPage() {
                 What does Bin Boss cost compared to RollOS?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                Bin Boss charges $99 per month plus $40 per month for a hosted website ($1,668/year). RollOS provides a permanent $0/month Free Plan with a free embeddable booking widget and hosted booking page.
+                Bin Boss charges $99 per month flat with online booking included (an optional Bin Boss-built website is $40/month extra). RollOS provides a permanent $0/month Free Plan with a free embeddable booking widget and hosted checkout page.
               </p>
             </div>
             <div>
@@ -358,7 +358,7 @@ export default function BinBossComparisonPage() {
                 Does Bin Boss automate landfill dump fees and tonnage invoicing?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                No. Dispatchers must calculate excess tonnage and run credit cards manually. RollOS automates scale ticket photo uploads to calculate and bill overweight dump fees to the card on file automatically.
+                Bin Boss calculates excess tonnage overages automatically and generates a charge for dispatcher review and manual approval. RollOS captures scale ticket photos and charges the card saved on file automatically.
               </p>
             </div>
             <div>
@@ -366,7 +366,7 @@ export default function BinBossComparisonPage() {
                 How does Bin Boss compare to Jobber, Docket, and Hauler Hero?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                Unlike general contractor tools like Jobber (which lack available dumpsters inventory tracking) or expensive enterprise suites like Docket and Hauler Hero ($299–$500+/mo), RollOS gives roll-off haulers specialized dumpster assignment and automated billing for $0/month.
+                Unlike general contractor tools like Jobber (which lack available dumpsters inventory tracking) or quote-based enterprise suites like Docket and Hauler Hero (which require sales demos and annual contracts), RollOS gives roll-off haulers specialized dumpster assignment and automated billing for $0/month.
               </p>
             </div>
           </div>

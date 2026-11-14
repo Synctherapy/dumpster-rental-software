@@ -52,7 +52,7 @@ export default function TemplatesHubPage() {
       badge: 'Legal & Risk Mitigation',
       headline: 'Protect your roll-off business from cracked driveways, hazardous materials, and disputed fees',
       description:
-        'A comprehensive, attorney-reviewed template customized for roll-off operations. Includes driveway damage waivers, concrete/asphalt disclaimer, strict EPA prohibited hazardous waste exclusions, level-fill requirements, and overage fee authorization.',
+        'A comprehensive, operator-tested template customized for roll-off operations. Includes driveway damage waivers, concrete/asphalt disclaimer, strict EPA prohibited hazardous waste exclusions, level-fill requirements, and overage fee authorization.',
       clauses: [
         'Driveway & lawn damage waiver (relieving hauler of underground utility / asphalt cracking liability)',
         'Prohibited hazardous waste clause (tires, paint, asbestos, freon, batteries with steep penalty fees)',
@@ -72,7 +72,7 @@ export default function TemplatesHubPage() {
       clauses: [
         'Itemized line items for base container size (10, 15, 20, 30, 40 yard) and rental duration',
         'Transparent tonnage math showing included allowance vs. certified scale ticket net weight',
-        'Direct scale ticket slip attachment section to eliminate credit card chargebacks',
+        'Direct scale ticket slip attachment section to defend against credit card disputes with verified proof',
         'Clear payment terms and instant digital payment link integration',
       ],
       ctaText: 'View & Copy Invoice Template',
@@ -102,9 +102,13 @@ export default function TemplatesHubPage() {
         <h1 className="text-3xl md:text-5xl font-extrabold text-[#20302a] leading-tight mb-4">
           Free contracts, waivers, and invoice templates for dumpster haulers.
         </h1>
-        <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
+        <p className="text-lg text-[#556658] leading-relaxed mb-6 max-w-3xl">
           Running a roll-off company without solid legal terms is a ticking time bomb. A single cracked stamped-concrete driveway or a load of hidden asbestos can wipe out months of profit. Use these free, copy-pasteable templates to protect your equipment and streamline your billing.
         </p>
+
+        <div className="p-4 mb-8 bg-[#fffbeb] border border-[#fef3c7] rounded-xl text-xs text-[#92400e] leading-relaxed max-w-3xl">
+          <strong>Legal Disclaimer:</strong> Templates are provided for operational reference only and do not constitute legal advice. Have a licensed attorney in your jurisdiction review all contracts.
+        </div>
 
         {/* Above The Fold CTA Box */}
         <div className="p-6 md:p-8 bg-gradient-to-r from-[#17251e] to-[#243d2e] text-white rounded-2xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -197,7 +201,7 @@ export default function TemplatesHubPage() {
             </h2>
             <div className="text-sm text-[#4d5e53] space-y-4 leading-relaxed">
               <p>
-                When you drop an 8,000-lb steel container onto someone’s driveway—which will soon hold another 6,000 to 10,000 lbs of heavy debris—the legal exposure is substantial. Many new haulers rely on handshake agreements or vague verbal promises, only to face expensive repair bills or toxic landfill rejection fines.
+                When you drop an empty 4,000–5,500 lb steel container onto someone’s driveway—which will soon hold another 6,000 to 10,000 lbs of heavy debris—the legal exposure is substantial. Many new haulers rely on handshake agreements or vague verbal promises, only to face expensive repair bills or toxic landfill rejection fines.
               </p>
               
               <div className="space-y-4 mt-4">
@@ -224,7 +228,7 @@ export default function TemplatesHubPage() {
                     <AlertTriangle size={16} className="text-[#ea580c]" /> 3. Chargebacks on Tonnage Overages
                   </h4>
                   <p className="text-xs text-[#556658] leading-relaxed">
-                    Customers who load wet dirt, drywall, or roofing shingles often experience sticker shock when the landfill ticket comes in over their 2-ton allowance. Without signed overage authorizations and scale ticket proof, credit card banks will side with the customer during disputes every single time.
+                    Customers who load wet dirt, drywall, or roofing shingles often experience sticker shock when the landfill ticket comes in over their 2-ton allowance. While card issuers evaluate disputes on evidence, signed rental agreements and certified transfer station scale slips provide the clear paper trail needed to effectively contest and defend legitimate overage charges.
                   </p>
                 </div>
               </div>

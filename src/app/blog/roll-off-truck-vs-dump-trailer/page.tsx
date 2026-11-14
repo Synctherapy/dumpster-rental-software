@@ -15,7 +15,7 @@ import { BlogCroInfographic } from '@/components/blog-cro-infographic';
 export const metadata = {
   title: 'Roll-Off Truck vs. Dump Trailer: Equipment Guide for Dumpster Startups',
   description:
-    'Comparing roll-off trucks vs dump trailers for a dumpster business. Analyze capital costs ($25k vs $95k), CDL requirements, driveway safety, and daily efficiency.',
+    'Comparing roll-off trucks vs dump trailers for a dumpster business. Analyze capital costs ($18k–$28k trailer vs $65k–$120k used / $195k–$275k+ new truck), CDL requirements, driveway safety, and daily efficiency.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/blog/roll-off-truck-vs-dump-trailer',
   },
@@ -25,7 +25,7 @@ const faqs = [
   {
     question: 'Can you make good money with just a roll-off dump trailer?',
     answer:
-      'Yes. Many six-figure dumpster rental businesses started with a single 1-ton truck and a roll-off trailer. With 10 to 12 bins, an owner-operator can net $4,000 to $8,000 per month without taking on high commercial truck payments or commercial insurance premiums.',
+      'Yes. Many independent dumpster rental businesses start with a 1-ton truck and a roll-off trailer. With 10 to 12 bins, an owner-operator can net $2,500 to $5,500 per month (or $4,000–$8,000 in operating cash flow before owner draw, equipment depreciation, and taxes) without taking on high commercial truck notes.',
   },
   {
     question: 'What size truck is required to pull a roll-off dumpster trailer?',
@@ -35,12 +35,12 @@ const faqs = [
   {
     question: 'What is the main advantage of a roll-off truck over a trailer?',
     answer:
-      'Speed and payload capacity. A hooklift or cable hoist roll-off truck can drop or load a container in under 90 seconds without leaving the cab or dealing with trailer stabilizer jacks. Trucks can also carry much heavier commercial payloads (up to 10–12 tons) that would overwhelm a trailer.',
+      'Speed and legal payload capacity. A hooklift or cable hoist roll-off truck can drop or load a container in under 90 seconds from inside the cab. While modern roll-off trailers use hydraulic hoist cylinders and heavy electric/hydraulic winches to load boxes, dedicated trucks can safely carry much heavier commercial payloads (up to 8–14 tons under bridge formula rules) that would overload a trailer chassis.',
   },
   {
     question: 'Do I need a CDL to haul a roll-off dump trailer?',
     answer:
-      'In most states, no—as long as the Gross Combined Weight Rating (GCWR) of your truck plus the trailer is under 26,001 pounds. Keep in mind that DOT medical cards and commercial vehicle registrations still apply in many jurisdictions even without a CDL.',
+      'Under federal FMCSA regulations (49 CFR 383.5), it depends on the combined Gross Combination Weight Rating (GCWR). If your 1-ton truck (e.g., F-350 / 3500 series with a 10,000–14,000 lb GVWR) pulls a trailer rated over 10,000 lbs GVWR and the combined GCWR is 26,001+ lbs, a Class A CDL is federally required in all 50 states. If the total combo GCWR is strictly 26,000 lbs or less, no CDL is required. Note that commercial motor vehicles over 10,001 lbs in interstate commerce still require a DOT medical card.',
   },
 ];
 
@@ -103,21 +103,21 @@ export default function RollOffTruckVsDumpTrailerPage() {
               <tr>
                 <td className="p-3.5 font-bold">Equipment Cost</td>
                 <td className="p-3.5 text-[#2e7d32] font-semibold">$18,000 – $28,000 (Trailer only)</td>
-                <td className="p-3.5 text-[#ea580c] font-semibold">$75,000 – $140,000+ (Truck)</td>
+                <td className="p-3.5 text-[#ea580c] font-semibold">$65,000 – $120,000 (Used) / $195k–$275k+ (New)</td>
               </tr>
               <tr>
                 <td className="p-3.5 font-bold">CDL Required?</td>
-                <td className="p-3.5">No (If combo under 26,001 lbs GCWR)</td>
-                <td className="p-3.5">Usually Yes (Class B Commercial)</td>
+                <td className="p-3.5">No if combo GCWR ≤ 26,000 lbs; Class A if GCWR ≥ 26,001 lbs</td>
+                <td className="p-3.5">Class B CDL required (GVWR &gt; 26,000 lbs)</td>
               </tr>
               <tr>
                 <td className="p-3.5 font-bold">Max Legal Payload</td>
                 <td className="p-3.5">3.5 – 5.0 Tons max</td>
-                <td className="p-3.5">8.0 – 14.0+ Tons</td>
+                <td className="p-3.5">8.0 – 14.0+ Tons (Bridge formula)</td>
               </tr>
               <tr>
                 <td className="p-3.5 font-bold">Drop / Load Cycle Time</td>
-                <td className="p-3.5">4 – 7 minutes (manual jacks/winch)</td>
+                <td className="p-3.5">4 – 7 minutes (hydraulic hoist &amp; winch)</td>
                 <td className="p-3.5">60 – 90 seconds (in-cab hydraulics)</td>
               </tr>
               <tr>
@@ -158,7 +158,7 @@ export default function RollOffTruckVsDumpTrailerPage() {
               • <strong>The Trailer Route ($50k–$85k all-in):</strong> If you already own a reliable 3/4-ton or 1-ton pickup, you only need to purchase a roll-off trailer (such as Texas Pride, MaxxD, or Roll-Off Trailers Inc.) for $18,000–$28,000 and a starter batch of 10–15 cans.
             </li>
             <li>
-              • <strong>The Truck Route ($110k–$200k+ all-in):</strong> Even a used single-axle hooklift or tandem-axle cable hoist truck costs $65,000 to $120,000. Add insurance deposits and commercial tires, and your initial outlay is more than double.
+              • <strong>The Truck Route ($110k–$200k+ all-in):</strong> Used single-axle hooklift or tandem-axle cable hoist trucks cost $65,000 to $120,000, while brand-new tandem-axle trucks cost $195,000 to $275,000+. Add commercial auto liability and physical damage insurance ($10,000–$12,000/yr per truck) and commercial tires, and your initial outlay is substantially higher.
             </li>
           </ul>
         </section>
@@ -167,7 +167,7 @@ export default function RollOffTruckVsDumpTrailerPage() {
         <BlogCroInfographic
           badge="EQUIPMENT ROI & FLEET SCALABILITY"
           title="Roll-Off Truck vs. Dump Trailer: Operational & Financial ROI Breakdown"
-          description="Compare upfront investment ($12k–$20k vs $65k–$140k), container capacity (1 box vs 15–30+ boxes), and scalability between pickup trailers and commercial roll-off trucks."
+          description="Compare upfront investment ($18k–$28k trailer vs $65k–$120k used / $195k–$275k+ new truck), container capacity, and scalability between pickup trailers and commercial roll-off trucks."
           src="/images/infographics/roll-off-truck-vs-dump-trailer-roi-comparison.jpg"
           alt="Roll-off truck vs dump trailer operational and financial ROI comparison infographic"
           caption="Figure 1: Equipment comparison for dumpster rental startups. Dump trailers offer an accessible low-risk entry with non-CDL operation, while dedicated roll-off trucks deliver maximum speed and scalable container density as your fleet expands."
@@ -179,13 +179,16 @@ export default function RollOffTruckVsDumpTrailerPage() {
         {/* Section 2: CDL vs Non-CDL */}
         <section className="mb-12">
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26] mb-4">
-            2. CDL Licensing and Driver Hiring Friction
+            2. CDL Licensing, GCWR Limits and Logbook Regulations
           </h2>
           <p className="text-base text-[#4a5f4e] leading-relaxed mb-4">
             Finding and keeping reliable commercial CDL drivers is one of the toughest challenges in the waste industry. CDL drivers command $28–$35+ per hour and are constantly recruited by national freight and waste carriers.
           </p>
           <p className="text-sm md:text-base text-[#4a5f4e] leading-relaxed mb-4">
-            A non-CDL roll-off trailer setup (rated under 26,001 lbs GCWR) allows you to hire competent non-commercial drivers at $20–$24/hr, or run the rig yourself without maintaining a commercial driver logbook.
+            Under federal FMCSA regulations (49 CFR 383.5), any truck-and-trailer combination with a Gross Combination Weight Rating (GCWR) of 26,001 or more pounds—where the towed trailer has a GVWR over 10,000 pounds—federally requires a Class A CDL in all 50 states. For example, a Ford F-350 (approx. 11,500–14,000 lbs GVWR) towing a tandem-axle roll-off trailer rated at 14,000–16,000 lbs GVWR yields a combined GCWR over 26,001 lbs, necessitating a Class A commercial license. Single commercial roll-off trucks with a GVWR over 26,000 lbs require a Class B CDL.
+          </p>
+          <p className="text-sm md:text-base text-[#4a5f4e] leading-relaxed mb-4">
+            Crucially, avoiding a CDL does not automatically exempt an operator from driver logging rules. Instead, local roll-off operations typically operate under the FMCSA 150 air-mile short-haul exemption (49 CFR 395.1(e)). Drivers operating within a 150 air-mile radius of their normal work reporting location who complete their shifts within 14 consecutive hours are exempt from maintaining paper logbooks or electronic logging devices (ELDs).
           </p>
         </section>
 
@@ -195,7 +198,7 @@ export default function RollOffTruckVsDumpTrailerPage() {
             3. Maneuverability &amp; Driveway Damage Prevention
           </h2>
           <p className="text-base text-[#4a5f4e] leading-relaxed mb-4">
-            A 35-ton tandem-axle roll-off truck can easily crack a residential concrete driveway or tear up sprinkler lines. That’s why many homeowners explicitly seek out driveway-safe mini dumpster companies.
+            Under the federal bridge formula (23 CFR 658), the federal interstate gross vehicle weight limit for a tandem-axle roll-off truck is 54,000 lbs (27 tons)—reaching 70,000 lbs (35 tons) requires tri-axle or quad-axle setups with special state permits. Even at 27 tons (54,000 lbs gross), a loaded commercial tandem-axle truck exerts tremendous concentrated ground pressure that can easily crack residential concrete driveways, collapse culverts, or crush underground sprinkler lines. That’s why many homeowners explicitly seek out driveway-safe mini dumpster companies.
           </p>
           <p className="text-sm md:text-base text-[#4a5f4e] leading-relaxed mb-4">
             Pickup-and-trailer setups exert significantly lower ground pressure, allowing you to back into tight suburban driveways, alleys, and historic downtown streets that large commercial trucks cannot legally enter. Regardless of equipment, always require customers to sign a{' '}

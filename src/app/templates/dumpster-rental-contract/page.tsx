@@ -55,9 +55,13 @@ export default function ContractTemplatePage() {
           Dumpster Rental Contract Template & Property Damage Waiver (2026 Free Agreement)
         </h1>
 
-        <p className="text-lg text-[#556658] leading-relaxed mb-6">
-          This is a starter dumpster rental contract template you can copy, customize, and print. It is not legal advice and has not been reviewed for your state or province. Have a lawyer adapt it before you use it on a real booking.
+        <p className="text-lg text-[#556658] leading-relaxed mb-4">
+          This is an operator-tested roll-off dumpster rental contract template you can copy, customize, and print. It is not formal legal advice and has not been reviewed for your specific state or province. Have a local attorney adapt it before you use it on a real booking.
         </p>
+
+        <div className="p-4 mb-8 bg-[#fffbeb] border border-[#fef3c7] rounded-xl text-xs text-[#92400e] leading-relaxed">
+          <strong>Important Disclaimer:</strong> This contract template is provided for operational reference only and does not constitute formal legal advice. Contract enforceability, property damage liability waivers, and interest caps vary across jurisdictions. You should have a licensed attorney or local legal counsel review and customize all terms for your specific state, provincial, and municipal regulations before use.
+        </div>
 
         {/* Above-the-fold Quick Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

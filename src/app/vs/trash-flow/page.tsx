@@ -7,9 +7,9 @@ import { VsVisualComparison } from '@/components/vs-visual-comparison';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Trash Flow Software: 2026 Pricing, Server Limits & Cloud Alternatives',
+  title: 'Trash Flow Software: 2026 Pricing, Desktop vs Cloud & Alternatives',
   description:
-    'Compare Trash Flow software ($900-$4,150+ desktop license + per-seat fees) vs RollOS ($0/mo 100% Cloud SaaS) for roll-off dumpster rental haulers.',
+    'Compare Trash Flow software (by Ivy Computer, offering licenses from $900-$3,050 and cloud options) vs RollOS ($0/mo Free Plan) for roll-off dumpster rental haulers.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/vs/trash-flow',
   },
@@ -25,7 +25,7 @@ export default function TrashFlowComparisonPage() {
         url: 'https://rolloffdumpstersoftware.com/vs/trash-flow',
         name: 'Trash Flow Software: Pricing, Features & Modern Cloud Alternatives',
         description:
-          'Compare Trash Flow software ($900-$4,150+ desktop license + per-seat fees) vs RollOS ($0/mo 100% Cloud SaaS) for roll-off dumpster rental haulers.',
+          'Compare Trash Flow software (by Ivy Computer, offering licenses from $900-$3,050 and cloud options) vs RollOS ($0/mo Free Plan) for roll-off dumpster rental haulers.',
       },
       {
         '@type': 'FAQPage',
@@ -36,15 +36,15 @@ export default function TrashFlowComparisonPage() {
             name: 'How much does Trash Flow software cost?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Trash Flow Lite starts around $900, while Standard Base with Advanced Billing and Roll-Off inventory tracking ranges from $2,350 to $4,150+ for the first workstation, plus 50% per additional user seat and 12% annual support.',
+              text: 'Trash Flow published license tiers include Trash Flow Lite from $900 (up to 600 accounts), Trash Flow at $2,350, and Trash Flow Plus at $3,050. The TeleRoute driver app is $35/truck/month, cloud-hosted licenses are $10–$40/license/month, and optional support is 12%/year after 90 days.',
             },
           },
           {
             '@type': 'Question',
-            name: 'Is Trash Flow a true cloud-based SaaS platform?',
+            name: 'Does Trash Flow offer a cloud-hosted version?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'No. Trash Flow is an on-premise Windows desktop program developed by Ivy Computer. In contrast, RollOS is 100% cloud-native and runs in any browser in under 3 minutes for $0/month.',
+              text: 'Yes. Built by Ivy Computer in Waterbury Center, VT (founded in 1985), Trash Flow offers both traditional on-premise Windows desktop licenses and modern cloud-hosted options ($10–$40/license/month). Customers can also view accounts and pay online via their Web Portal.',
             },
           },
         ],
@@ -78,19 +78,19 @@ export default function TrashFlowComparisonPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          Evaluating <strong>Trash Flow software</strong> and <strong>Trash Flow pricing</strong> reveals a legacy on-premise Windows desktop system built by Ivy Computer that charges $900 to $4,150+ in upfront modular licenses, 50% per-seat workstation fees, and 12% annual support contracts. While Trash Flow has served municipal garbage haulers and scale houses since the 1990s, modern 1 to 25+ truck <strong>dumpster rental businesses</strong> are switching to 100% cloud-native alternatives like{' '}
+          Built by Ivy Computer in Waterbury Center, VT (founded in 1985), <strong>Trash Flow software</strong> offers waste and hauling billing solutions through both traditional on-premise Windows licenses and cloud-hosted deployments. Published license tiers include Trash Flow Lite (from $900 for up to 600 accounts), Trash Flow ($2,350), and Trash Flow Plus ($3,050), with the TeleRoute driver app available at $35/truck/month and cloud-hosted options at $10–$40/license/month. In contrast, modern 1 to 25+ truck roll-off haulers choose{' '}
           <Link
             href="/"
             className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
           >
             RollOS dumpster rental software
           </Link>{' '}
-          for 24/7 online ordering, visual browser dispatch, and 1-tap SMS driver routing for $0/month with zero Windows servers to maintain.
+          for a 100% self-serve web platform with 24/7 online ordering, 1-tap SMS driver routing, and a permanent $0/month Free Plan.
         </p>
 
         {/* Executive Overview: RollOS Cloud SaaS vs. Trash Flow Desktop */}
         <h2 className="text-2xl font-bold text-[#1f2d26] mb-4">
-          Executive Overview: RollOS Cloud SaaS vs. Trash Flow Desktop
+          Executive Overview: RollOS Cloud SaaS vs. Trash Flow
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="p-6 bg-white border-2 border-[#ea580c] rounded-2xl shadow-sm relative">
@@ -119,24 +119,24 @@ export default function TrashFlowComparisonPage() {
 
           <div className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
             <div className="inline-block px-3 py-1 rounded-full bg-[#f1f5f9] text-[#475569] text-xs font-bold mb-3">
-              LEGACY WINDOWS SERVER SYSTEM
+              TRADITIONAL & CLOUD-HOSTED
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">Trash Flow by Ivy Computer</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              A traditional desktop and local server program built in Vermont for municipal trash billing and scale houses. Relies on Windows desktop installs, upfront modular licensing ($900–$4,150+), 50% per-seat user fees, Remote Desktop (RDP) or VPN setups, and paid TeleRoute mobile add-ons.
+              Developed by Ivy Computer in Waterbury Center, VT (founded in 1985). Offers both traditional Windows desktop software and cloud-hosted options. Pricing features upfront license tiers ($900 Lite, $2,350 Trash Flow, $3,050 Plus), TeleRoute mobile driver routing ($35/truck/mo), and cloud licensing ($10–$40/mo).
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> $900 – $4,150+ upfront modular software license
+                <Check size={16} className="text-[#2e7d32] flex-shrink-0" /> Desktop licenses ($900–$3,050) &amp; cloud options ($10–$40/mo)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> 50% per-seat fees for Users 2–8
+                <Check size={16} className="text-[#2e7d32] flex-shrink-0" /> Web Portal allows customers to view accounts and pay online
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Windows PC / Server hardware & VPNs required
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> TeleRoute mobile driver app is $35/truck/month
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> 12%/year support contracts after 90 days
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Optional annual support is 12%/yr after 90 days
               </li>
             </ul>
           </div>
@@ -145,14 +145,14 @@ export default function TrashFlowComparisonPage() {
         {/* Visual Interface & Workflow Comparison */}
         <VsVisualComparison
           competitorName="Trash Flow"
-          competitorTagline="Trash Flow originated in the 1990s as on-premise Windows software, requiring dedicated office PC hardware, manual database backups, per-workstation license fees ($900–$4,150+), and complex VPNs."
+          competitorTagline="Built by Ivy Computer (founded in 1985 in Waterbury Center, VT), Trash Flow offers desktop licenses from $900 to $3,050 plus cloud-hosted options, a Web Portal for customer bill pay, and a $35/truck/mo TeleRoute driver app."
           competitorScreenshot="/images/competitors/trash-flow-preview.png"
-          competitorScreenshotAlt="Trash Flow waste management software website homepage and modular system preview"
+          competitorScreenshotAlt="Trash Flow waste management software website homepage and system preview"
           competitorBulletPoints={[
-            "Legacy on-premise Windows PC and server architecture",
-            "$900 to $4,150+ upfront workstation licenses + add-ons",
-            "Manual database backups and vulnerability to office hardware failure",
-            "Requires remote desktop or VPNs to access outside the office",
+            "Published licenses: Lite $900, Trash Flow $2,350, Plus $3,050",
+            "Cloud-hosted options available from $10 to $40 per license per month",
+            "TeleRoute driver mobile app priced at $35/truck/month",
+            "Customer account management and online bill pay via Web Portal",
           ]}
           rollosTagline="100% modern cloud-native roll-off dumpster software. Accessible on any smartphone, iPad, Mac, or PC with zero hardware installations, automated cloud backups, and a permanent $0/mo Free Plan."
           rollosScreenshot="/images/screenshots/rollos-homepage-live.png"
@@ -164,12 +164,12 @@ export default function TrashFlowComparisonPage() {
             "Instant 1-tap SMS driver links — zero App Store installs",
           ]}
           infographicSrc="/images/infographics/rollos-vs-trash-flow-cloud-vs-legacy.jpg"
-          infographicAlt="Trash Flow legacy on-premise Windows server vs RollOS 100% cloud dumpster rental software"
-          infographicBadge="CLOUD VS ON-PREMISE ARCHITECTURE BREAKDOWN"
-          infographicTitle="100% Cloud-Native Software vs. Outdated 1990s On-Premise Windows Servers"
-          infographicDescription="Say goodbye to dusty office servers, lost database backups, and sluggish Remote Desktop logins. RollOS gives your dispatchers and drivers instantaneous cloud access anywhere."
-          infographicCaption="Figure 1: Architecture comparison of Trash Flow vs RollOS. Trash Flow confines your dumpster dispatching to physical office Windows PCs with manual backups, while RollOS runs securely in the cloud across phones, tablets, and desktops with automated sync."
-          infographicCtaHeadline="Upgrade from 1990s desktop software to modern cloud dispatch."
+          infographicAlt="Trash Flow modular licensing vs RollOS instant cloud dumpster rental software"
+          infographicBadge="SOFTWARE ARCHITECTURE & LICENSING BREAKDOWN"
+          infographicTitle="Modern Self-Serve Cloud SaaS vs. Traditional Modular Software Architecture"
+          infographicDescription="Evaluate whether your roll-off hauling business benefits from traditional modular desktop licenses with per-truck driver fees or instant cloud dispatch with zero upfront software costs."
+          infographicCaption="Figure 1: Comparison of Trash Flow vs RollOS architecture. Trash Flow provides time-tested modular waste billing with desktop and cloud hosting options, while RollOS delivers an instant-setup web platform with customer self-checkout and SMS driver dispatch."
+          infographicCtaHeadline="Upgrade to modern self-serve cloud dispatch designed for roll-off."
         />
 
         {/* Interactive Savings Calculator */}
@@ -180,34 +180,34 @@ export default function TrashFlowComparisonPage() {
         {/* Section 1: Pricing Breakdown */}
         <div className="my-12">
           <h2 className="text-2xl font-bold text-[#1f2d26] mb-4">
-            Trash Flow Software Pricing, Modules, and Seat Licensing
+            Trash Flow Software Pricing, Modules, and Licensing
           </h2>
           <p className="text-sm text-[#475569] leading-relaxed mb-6">
-            Reviewing <strong>Trash Flow pricing</strong> and total <strong>dumpster rental software cost</strong> shows a 1990s modular desktop fee structure where haulers purchase components separately:
+            Reviewing <strong>Trash Flow pricing</strong> published by Ivy Computer reveals a tiered modular licensing model with both on-premise and cloud options:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Base & Billing Modules ($900 to $3,050)</h3>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Published License Tiers ($900 to $3,050)</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Trash Flow Lite (≤600 accounts) starts around $900, while Standard Base with Advanced Billing costs $2,350 to $3,050 for Workstation #1.
+                Trash Flow Lite (up to 600 accounts) starts at $900. Standard Trash Flow is $2,350, and Trash Flow Plus is $3,050 for one-time licensing, with additional modules and extra seats by quote.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Container Tracking & TeleRoute Add-Ons ($4,150+ Total)</h3>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">TeleRoute Driver Mobile Routing ($35/truck/mo)</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Adding roll-off container tracking (box tracker), dispatch mapping, and TeleRoute routing modules pushes upfront setup totals past $4,150+.
+                Mobile routing and electronic dispatch for drivers is available through the TeleRoute mobile app at $35 per truck per month.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Recurring Support & Offsite Backup (OSBU)</h3>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Cloud-Hosted Deployment Options ($10–$40/mo)</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                After a 90-day warranty, support costs 12% annually (1%/month), and Offsite Cloud Backup (OSBU) adds $120/year.
+                In addition to traditional on-premise Windows software, Ivy Computer offers cloud-hosted licenses priced at $10, $20, or $40 per license per month.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">50% Multi-User Seat Licensing</h3>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">Customer Web Portal &amp; Support</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Users 2 through 8 cost 50% of the base fee each; User 9+ costs 25% each. RollOS includes unlimited office users and drivers for $0 extra.
+                Customers can view accounts and pay bills online via Web Portal. Software support is included for the first 90 days, after which optional support is 12%/year (or 1%/month), which includes offsite cloud backups.
               </p>
             </div>
           </div>
@@ -219,7 +219,7 @@ export default function TrashFlowComparisonPage() {
             Trash Flow vs. RollOS: Architecture & Feature Comparison
           </h2>
           <p className="text-sm text-[#475569] leading-relaxed mb-6">
-            Compare legacy Windows server installations against RollOS cloud infrastructure:
+            Compare traditional modular software and cloud options against RollOS cloud infrastructure:
           </p>
           <div className="overflow-x-auto rounded-xl border border-[#dde4d4]">
             <table className="compare-table">
@@ -238,52 +238,52 @@ export default function TrashFlowComparisonPage() {
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     100% Cloud SaaS (Mac, PC, iPad, Phone)
                   </td>
-                  <td className="text-[#b54848] font-semibold">Windows Desktop / Local Server (RDP/VPN)</td>
+                  <td className="text-[#b54848] font-semibold">Windows Desktop &amp; Cloud-Hosted ($10–$40/mo)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Upfront License & Setup Fee</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">$0 (Self-serve in 3 min)</td>
-                  <td className="text-[#b54848]">$900 – $4,150+ upfront license</td>
+                  <td className="text-[#b54848]">Lite $900 · Trash Flow $2,350 · Plus $3,050</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
-                  <td>12%/yr support + $120/yr OSBU backup</td>
+                  <td>TeleRoute $35/truck/mo; optional 12%/yr support; cloud $10–$40/mo</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Multi-User / Seat Fees</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">Unlimited users, dispatchers & drivers</td>
-                  <td className="text-[#b54848]">Users 2–8: +50% of base fee per seat</td>
+                  <td className="text-[#b54848]">Extra seats by quote / Cloud license tiers</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Dispatch Method</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     1-Tap SMS Magic Links (0 App Store install)
                   </td>
-                  <td>Printed work orders / TeleRoute driver app</td>
+                  <td>TeleRoute driver app ($35/truck/mo)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">24/7 Online Ordering & Customer Portal</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     Included (60s checkout + contractor account portal)
                   </td>
-                  <td>Not available / Telephone order entry</td>
+                  <td>Web Portal (customers view accounts & pay online)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Landfill Tipping Fee & Scale Overages</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     1-Tap photo upload & automated billing
                   </td>
-                  <td>Manual scale entry & paper invoicing</td>
+                  <td>Scale software module & billing reconciliation</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Accounting Integration</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">
                     QuickBooks & QuickBooks Online export
                   </td>
-                  <td>Proprietary desktop ledger</td>
+                  <td>Built-in billing system & ledgers</td>
                 </tr>
               </tbody>
             </table>
@@ -295,24 +295,24 @@ export default function TrashFlowComparisonPage() {
           <div className="flex items-center gap-3 mb-4">
             <DollarSign className="text-[#ea580c]" size={24} />
             <h2 className="text-xl font-bold text-[#1f2d26]">
-              Legacy Windows Server Architecture vs. Cloud SaaS
+              Modern Self-Serve Cloud SaaS vs. Traditional Waste Billing Systems
             </h2>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
-            For <strong>dumpster rental owners</strong> comparing Trash Flow against cloud platforms like RollOS, <Link href="/vs/curbwaste" className="text-[#ea580c] font-semibold hover:underline">CurbWaste</Link>, <Link href="/vs/docket" className="text-[#ea580c] font-semibold hover:underline">Docket</Link>, <Link href="/vs/icans" className="text-[#ea580c] font-semibold hover:underline">iCans</Link>, or <Link href="/vs/bin-boss" className="text-[#ea580c] font-semibold hover:underline">Bin Boss</Link>, infrastructure reliability is the deciding factor:
+            For <strong>dumpster rental owners</strong> comparing Trash Flow against modern platforms like RollOS, <Link href="/vs/curbwaste" className="text-[#ea580c] font-semibold hover:underline">CurbWaste</Link>, <Link href="/vs/docket" className="text-[#ea580c] font-semibold hover:underline">Docket</Link>, <Link href="/vs/icans" className="text-[#ea580c] font-semibold hover:underline">iCans</Link>, or <Link href="/vs/bin-boss" className="text-[#ea580c] font-semibold hover:underline">Bin Boss</Link>, deployment speed and total cost of ownership are key:
           </p>
           <ul className="space-y-3 text-sm text-[#475569] mb-4">
             <li className="flex items-start gap-2">
-              <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>Server Vulnerability & VPN Headaches:</strong> On-premise Windows servers risk hard drive crashes, power outages, and ransomware. Checking your schedule page from home or from a truck requires clunky Remote Desktop (RDP) tunnels.</span>
+              <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
+              <span><strong>Universal Device Access:</strong> While Trash Flow supports desktop and cloud-hosted setups, RollOS runs natively in any browser on Mac, iPad, iPhone, and PC with instant 3-minute self-serve onboarding.</span>
             </li>
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
-              <span><strong>24/7 Online Booking & Card Processing:</strong> Homeowners and contractors want to select a 10 to 40-yard dumpster size, e-sign rental terms, and complete Stripe card processing online at 9:00 PM—something telephone-era desktop software cannot do.</span>
+              <span><strong>24/7 Online Booking & Checkout:</strong> Homeowners and contractors want to select a 10 to 40-yard dumpster, e-sign rental terms, and complete Stripe card checkout online at any hour of the day.</span>
             </li>
             <li className="flex items-start gap-2">
               <Check size={18} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
-              <span><strong>1-Tap SMS Driver Links & Automated Dump Fees:</strong> Instead of handing drivers paper clipboards, RollOS texts a 1-tap SMS browser link with Google/Apple Maps route optimization, service address gate codes, dumpster placement photo capture, and landfill weight slip uploads that bill overweight tipping fee charges to the card on file automatically.</span>
+              <span><strong>Zero-App Driver Dispatch & Automated Dump Fees:</strong> RollOS texts drivers a 1-tap SMS browser link with GPS navigation, gate codes, drop photo capture, and scale weight photo uploads that automatically bill overweight tonnage fees directly to the card on file.</span>
             </li>
           </ul>
         </div>
@@ -324,9 +324,9 @@ export default function TrashFlowComparisonPage() {
             <div>
               <strong className="text-white text-base block mb-2">Choose Trash Flow if:</strong>
               <ul className="space-y-2 list-disc pl-4">
-                <li>You are a municipal garbage hauler managing residential trash routes with paper bills.</li>
-                <li>You maintain in-house Windows Server IT hardware.</li>
-                <li>You prefer paying $2,350 to $4,150+ upfront for perpetual desktop licenses.</li>
+                <li>You are a municipal or multi-route hauler managing residential trash routes and commercial accounts.</li>
+                <li>You prefer purchasing traditional perpetual software licenses ($900–$3,050) from an established industry vendor (Ivy Computer, founded in 1985).</li>
+                <li>You want on-premise Windows deployment or specialized scale-house ticketing integrations.</li>
               </ul>
             </div>
             <div>
@@ -334,7 +334,7 @@ export default function TrashFlowComparisonPage() {
               <ul className="space-y-2 list-disc pl-4 text-white">
                 <li>You run a 1 to 25+ truck roll-off dumpster company.</li>
                 <li>You want 100% cloud access on any device with unlimited users starting at $0/month.</li>
-                <li>You want 1-tap SMS driver routing without App Store downloads.</li>
+                <li>You want 1-tap SMS driver routing without recurring per-truck driver app fees ($35/truck/mo).</li>
                 <li>You need 24/7 online ordering with automated billing for overweight dumpsters.</li>
               </ul>
             </div>
@@ -352,15 +352,15 @@ export default function TrashFlowComparisonPage() {
                 How much does Trash Flow software cost?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                Trash Flow Lite starts around $900, while Standard Base with Advanced Billing and Roll-Off inventory tracking ranges from $2,350 to $4,150+ for the first workstation, plus 50% per additional user seat and 12% annual support.
+                Trash Flow published license tiers include Trash Flow Lite from $900 (up to 600 accounts), Trash Flow at $2,350, and Trash Flow Plus at $3,050. The TeleRoute driver app is $35/truck/month, cloud-hosted licenses are $10–$40/license/month, and optional support is 12%/year after 90 days.
               </p>
             </div>
             <div>
               <h3 className="text-base font-bold text-[#1f2d26] mb-2">
-                Is Trash Flow a true cloud-based SaaS platform?
+                Does Trash Flow offer a cloud-hosted version?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                No. Trash Flow is an on-premise Windows desktop program developed by Ivy Computer. In contrast, RollOS is 100% cloud-native and runs in any browser in under 3 minutes for $0/month.
+                Yes. Built by Ivy Computer in Waterbury Center, VT (founded in 1985), Trash Flow offers both traditional on-premise Windows desktop licenses and modern cloud-hosted options ($10–$40/license/month). Customers can also view accounts and pay online via their Web Portal.
               </p>
             </div>
           </div>

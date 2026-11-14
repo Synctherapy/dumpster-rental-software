@@ -86,32 +86,32 @@ export default function PricingPage() {
               <tbody>
                 <tr>
                   <td className="font-bold text-[#dc2626]">
-                    <Link href="/vs/docket" className="hover:underline text-[#dc2626]">Docket</Link> / <Link href="/vs/servicecore" className="hover:underline text-[#dc2626]">ServiceCore</Link>
+                    <Link href="/vs/docket" className="hover:underline text-[#dc2626]">Docket</Link> / <Link href="/vs/servicecore" className="hover:underline text-[#dc2626]">ServiceCore</Link> / <Link href="/vs/curbwaste" className="hover:underline text-[#dc2626]">CurbWaste</Link>
                   </td>
-                  <td className="text-[#dc2626] font-mono">$350+ / mo</td>
-                  <td className="text-[#dc2626] font-mono">$1,200 – $1,500</td>
-                  <td className="text-[#dc2626] font-bold font-mono">$5,400 – $5,700 / yr</td>
+                  <td className="text-[#dc2626] font-mono">Quote-only (priced per truck)</td>
+                  <td className="text-[#dc2626] font-mono">Quote-only initiation/setup</td>
+                  <td className="text-[#dc2626] font-bold font-mono">Quote-only (~$5,000+ first-year est.)</td>
                   <td>Hauler absorbs 100% out of profit</td>
                 </tr>
                 <tr className="bg-[#f0fdf4]">
                   <td className="font-bold text-[#166534] highlight-col">RollOS Free Plan</td>
                   <td className="text-[#166534] font-bold font-mono highlight-col">$0 / mo</td>
                   <td className="text-[#166534] font-bold highlight-col">$0 (Instant self-serve)</td>
-                  <td className="text-[#166534] font-black font-mono highlight-col">$0 / yr ($5,400+ saved)</td>
+                  <td className="text-[#166534] font-black font-mono highlight-col">$0 / yr ($5,000+ first-year saved)</td>
                   <td className="highlight-col font-semibold">$0 software cost to hauler</td>
                 </tr>
                 <tr>
                   <td className="font-bold text-[#1f2d26]">RollOS Starter (14-Day Free Trial)</td>
                   <td className="font-mono font-bold">$29 / mo</td>
                   <td className="font-bold">$0 (Instant self-serve)</td>
-                  <td className="font-bold font-mono text-[#166534]">$348 / yr ($5,000+ saved)</td>
+                  <td className="font-bold font-mono text-[#166534]">$348 / yr ($4,600+ first-year saved)</td>
                   <td>Contractor accounts add-on & $0 fees on offline orders</td>
                 </tr>
                 <tr className="bg-[#f8faf6]">
                   <td className="font-bold text-[#065f46]">RollOS Growth Fleet ($99 / mo)</td>
                   <td className="font-mono font-bold text-[#065f46]">$99 / mo</td>
                   <td className="font-bold text-[#065f46]">$0 (Instant self-serve)</td>
-                  <td className="font-bold font-mono text-[#065f46]">$1,188 / yr ($4,200+ saved)</td>
+                  <td className="font-bold font-mono text-[#065f46]">$1,188 / yr ($3,800+ first-year saved)</td>
                   <td>Missed-call SMS textback, VIP Contractor Net-30 portal & multi-truck routing</td>
                 </tr>
               </tbody>
@@ -127,7 +127,7 @@ export default function PricingPage() {
               Growth Fleet Plan ($99/mo) · High-ROI Automation
             </div>
             <div className="text-xs text-[#a3b899] font-medium">
-              Saves 2–3 lost rentals/mo ($900–$1,500 extra revenue)
+              Saves 2–3 lost rentals/mo ($900–$1,350 extra revenue)
             </div>
           </div>
 
@@ -157,7 +157,7 @@ export default function PricingPage() {
                 </div>
 
                 <p className="text-xs md:text-sm text-[#cbd5e1] leading-relaxed mb-4">
-                  When a homeowner calls your Google Voice or cell while you&apos;re driving or dropping a can, <strong>75% hang up and call the next dumpster company on Google</strong>.
+                  When a homeowner calls your Google Voice or cell while you&apos;re driving or dropping a can, <strong>many callers who hit voicemail call the next dumpster company on Google</strong>.
                 </p>
 
                 <div className="bg-[#15201a] p-3.5 rounded-lg border border-[#273a2e] mb-4 text-xs font-mono text-[#e2e8f0] space-y-2">
@@ -170,7 +170,7 @@ export default function PricingPage() {
                 </div>
 
                 <div className="text-xs text-[#a7f3d0] bg-[#064e3b]/50 p-3 rounded-lg border border-[#059669]/40 mb-4">
-                  <strong>🔥 The ROI Math:</strong> Recovering just <strong>2–3 missed calls a month</strong> preserves <strong>$900–$1,500</strong> in rental profit that would have gone to your competitor.
+                  <strong>🔥 The ROI Math:</strong> Saving just <strong>2 rentals a month at $450 is $900 in extra bookings</strong> (or 3 rentals is $1,350) that would have gone to your competitor.
                 </div>
               </div>
 
@@ -275,7 +275,7 @@ export default function PricingPage() {
                 Stripe Direct Payouts: $0 Monthly Fees
               </h4>
               <p className="text-xs text-[#475569] leading-relaxed mb-3">
-                Connect your business checking account in under 3 minutes with <strong>zero credit checks</strong>. Standard card processing (2.9% + 30¢) is deducted automatically at payment time, with free automatic 2-day bank deposits and optional 30-min instant payouts. RollOS never holds your cash.
+                Connect your business checking account in under 3 minutes. Standard card processing (2.9% + 30¢) is deducted automatically at payment time. Payouts deposit automatically to your business checking account on a 2-day rolling schedule, with optional instant payouts available. RollOS never holds your cash.
               </p>
             </div>
             <div className="text-[11px] font-semibold text-[#166534]">

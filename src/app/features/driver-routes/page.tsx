@@ -205,6 +205,11 @@ export default function DriverRoutesFeaturePage() {
             </div>
           ))}
         </div>
+
+        {/* Carrier SMS Compliance Notice */}
+        <div className="mt-6 p-4 bg-[#f8faf7] border border-[#d8e2cf] rounded-xl text-xs text-[#556658] leading-relaxed">
+          <strong>Carrier SMS Compliance Notice:</strong> US commercial SMS messaging requires standard carrier 10DLC A2P brand and campaign registration for reliable message delivery.
+        </div>
       </section>
 
       {/* Proof of Delivery / Gate Code Features Split */}
@@ -245,7 +250,7 @@ export default function DriverRoutesFeaturePage() {
             <div className="space-y-2 text-xs text-[#415346] pt-2">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-[#22c55e]" />
-                <span>Automatic customer SMS notification when driver is en-route</span>
+                <span>Automatic customer SMS notification when driver is en-route (Growth Fleet tier)</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-[#22c55e]" />

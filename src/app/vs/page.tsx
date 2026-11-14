@@ -91,23 +91,23 @@ export default function CompareHubPage() {
       slug: '/vs/docket',
       badge: 'Enterprise Alternative',
       summary:
-        'Docket charges ~$299+/mo with mandatory sales demos, ~3.0% processing rates, and requires drivers to download native App Store apps. RollOS starts free at $0/mo with instant SMS web links.',
-      savings: 'Save $3,500 – $5,000 / year',
-      price: '$299+/month',
-      setupFee: '$500 – $1,500 mandatory',
+        'Docket uses quote-only, per-truck pricing with 1-year commitments, mandatory sales demos, and requires drivers to download native App Store apps. RollOS starts free at $0/mo with instant SMS web links.',
+      savings: 'Save thousands vs quote-based enterprise fees',
+      price: 'Quote-only (per truck)',
+      setupFee: 'Implementation fee (by quote)',
       driverApp: 'App Store / Play Store download',
-      fleetCap: 'Tiered pricing by fleet size',
+      fleetCap: 'Priced per truck',
     },
     {
       name: 'iCans Dumpster Software',
       slug: '/vs/icans',
       badge: 'High Search Competition',
       summary:
-        'iCans charges $99 to $159/mo and locks SMS text messaging behind their $159/mo tier alongside Tiger Payment Solutions lock-in. RollOS offers $0/mo Free and $29/mo Starter with SMS links included.',
-      savings: 'Save $1,200 – $1,900 / year',
+        'iCans offers $99/mo Base (email-only notifications) and $159/mo Plus (customer SMS notifications up to 1,000/mo). RollOS offers $0/mo Free and $29/mo Starter with zero-app driver SMS links included.',
+      savings: 'Save $1,188 – $1,900 / year',
       price: '$99 – $159/month',
       setupFee: '$0',
-      driverApp: 'App Store download required',
+      driverApp: 'App Store / Play Store download',
       fleetCap: 'Flat monthly tiers',
     },
     {
@@ -115,35 +115,35 @@ export default function CompareHubPage() {
       slug: '/vs/bin-boss',
       badge: 'High Advertiser Bid ($47/click)',
       summary:
-        'Bin Boss charges $99/mo flat plus $40/mo for a website, requiring drivers to download native mobile apps. RollOS provides free booking widgets, driver SMS links, and automated scale overage billing.',
-      savings: 'Save $1,200 – $1,600 / year',
-      price: '$99/month (+ $40/mo website)',
+        'Bin Boss charges $99/mo flat (including booking widget) plus optional $40/mo for a website, requiring drivers to download native mobile apps. RollOS provides free booking widgets, driver SMS links, and automated scale overage billing.',
+      savings: 'Save $1,188 – $1,668 / year',
+      price: '$99/month (optional $40/mo website)',
       setupFee: '$0',
       driverApp: 'App Store / Play Store download',
-      fleetCap: 'Unlimited users',
+      fleetCap: 'Unlimited drivers',
     },
     {
       name: 'CurbWaste',
       slug: '/vs/curbwaste',
       badge: 'Enterprise Waste ERP',
       summary:
-        'CurbWaste charges custom quote-based pricing (~$300–$600+/mo) with $1,000–$3,000+ onboarding and driver minimums. RollOS offers transparent $0–$99/mo plans and 3-minute self-serve start.',
-      savings: 'Save $4,000 – $7,000 / year',
-      price: 'Custom Quote (~$300+/mo)',
-      setupFee: '$1,000 – $3,000+ mandatory',
-      driverApp: 'App Store download required',
-      fleetCap: 'Enforces driver/truck minimums',
+        'CurbWaste is a venture-backed platform with demo-only sales and quote-based pricing (Waste Dive reported an initiation fee plus ~$250–$300/driver/mo). RollOS offers transparent self-serve plans from $0–$99/mo with 3-minute setup.',
+      savings: 'Save thousands in custom enterprise overhead',
+      price: 'Quote-only (demo required)',
+      setupFee: 'Initiation fee (by quote)',
+      driverApp: 'Native mobile app download',
+      fleetCap: 'Fleet minimums apply',
     },
     {
       name: 'Trash Flow (Ivy Computer)',
       slug: '/vs/trash-flow',
       badge: 'Legacy Desktop Server Software',
       summary:
-        'Trash Flow requires $900–$4,150+ in upfront modular software licenses, per-seat user fees, and on-premise Windows servers. RollOS is 100% cloud SaaS starting at $0/month with zero server hardware.',
-      savings: 'Save $4,000+ in setup & licensing',
-      price: '$900 – $4,150+ license (+12%/yr)',
+        'Ivy Computer has built hauling software in Vermont since 1985, offering on-premise Windows licenses ($900 Lite, $2,350 Trash Flow, $3,050 Plus) and cloud hosting add-ons. RollOS is 100% cloud web software starting at $0/month.',
+      savings: 'Save on upfront software licenses & hardware',
+      price: 'From $900 license (Lite) or cloud add-ons',
       setupFee: 'Hardware & setup costs',
-      driverApp: 'Printed sheets / add-ons',
+      driverApp: 'TeleRoute driver app ($35/truck/mo)',
       fleetCap: 'Per-seat user licensing',
     },
     {
@@ -151,24 +151,24 @@ export default function CompareHubPage() {
       slug: '/vs/dumpster-rental-systems',
       badge: 'Popular for Small Fleets',
       summary:
-        'DRS charges $195.95 to $279.95/month and caps your fleet size (only 20 cans on Standard). RollOS provides unlimited containers with zero fleet caps on our $0/mo Free and $29/mo Starter plans.',
-      savings: 'Save $2,300 – $3,300 / year',
-      price: '$195.95 – $279.95/month',
-      setupFee: '$0 – $500',
-      driverApp: 'Web app with logins',
-      fleetCap: 'Strict 20 container limit on Standard',
+        'DRS tiers pricing by containers ($79.99 Launch, $199.95 Core, $279.95 Premium) with optional $299 website builds. RollOS provides unlimited containers with zero fleet caps on our $0/mo Free and $29/mo Starter plans.',
+      savings: 'Save $950 – $3,300 / year',
+      price: '$79.99 – $279.95/month',
+      setupFee: '$0 ($299 website build on Core/Premium)',
+      driverApp: 'App Store & Google Play app',
+      fleetCap: 'Priced by container inventory',
     },
     {
       name: 'ServiceCore',
       slug: '/vs/servicecore',
       badge: 'Liquid Waste & Septic ERP',
       summary:
-        'ServiceCore charges on a per-truck basis ($350–$700+/mo) and is built primarily for portable toilets and septic pumpers. RollOS is 100% focused on roll-off haulers with flat, transparent pricing.',
-      savings: 'Save $4,000 – $8,000 / year',
-      price: '$350 – $700+/month',
-      setupFee: '$1,000+ onboarding',
+        'ServiceCore uses quote-only, per-truck pricing with annual contracts, built primarily for liquid waste and septic operations (and owns Docket). RollOS is 100% focused on roll-off haulers with flat, transparent pricing.',
+      savings: 'Save thousands in per-truck annual commitments',
+      price: 'Quote-only (per truck)',
+      setupFee: 'One-time onboarding fee (by quote)',
       driverApp: 'Native mobile app',
-      fleetCap: 'Billed per-truck / per-user',
+      fleetCap: 'Billed per-truck (office staff free)',
     },
   ];
 
@@ -294,51 +294,51 @@ export default function CompareHubPage() {
               <tr>
                 <td className="p-4 font-semibold">Base Subscription</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">$0 / Free (or $29/mo)</td>
-                <td className="p-4">$299+/mo</td>
-                <td className="p-4">$195.95 – $279.95/mo</td>
-                <td className="p-4">$350 – $700+/mo</td>
+                <td className="p-4">Quote-only (annual contract)</td>
+                <td className="p-4">$79.99 – $279.95/mo</td>
+                <td className="p-4">Quote-only (annual contract)</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">Onboarding / Setup Fees</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">$0 Self-Serve</td>
-                <td className="p-4">$500 – $1,500</td>
-                <td className="p-4">$0 – $500</td>
-                <td className="p-4">$1,000+</td>
+                <td className="p-4">By quote</td>
+                <td className="p-4">$0 ($299 website on Core/Premium)</td>
+                <td className="p-4">By quote (6–12 wk onboarding)</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">Driver Mobile Experience</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">1-Tap SMS Link (0 app installs)</td>
                 <td className="p-4">App Store download</td>
-                <td className="p-4">Mobile web login</td>
+                <td className="p-4">App Store &amp; Google Play app</td>
                 <td className="p-4">App Store download</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">24/7 Website Booking Widget</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">Included (Embed in 60s)</td>
-                <td className="p-4">Add-on module</td>
+                <td className="p-4">Included in entry plans</td>
                 <td className="p-4">Included</td>
-                <td className="p-4">Limited / Enterprise</td>
+                <td className="p-4">Included on Pro tier</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">Scale Ticket Overage Invoicing</td>
-                <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">Automatic Photo & 1-Click Card Charge</td>
-                <td className="p-4">Manual entry</td>
-                <td className="p-4">Manual entry</td>
-                <td className="p-4">Manual entry</td>
+                <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">Automatic Photo &amp; Saved-Card Charge</td>
+                <td className="p-4">Calculates overage (manual card run)</td>
+                <td className="p-4">Calculates overage (manual card run)</td>
+                <td className="p-4">Calculates overage (manual card run)</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">Container Fleet Limit</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">Unlimited on all plans</td>
-                <td className="p-4">Tiered</td>
-                <td className="p-4">Capped at 20 on Standard</td>
-                <td className="p-4">Per-truck pricing</td>
+                <td className="p-4">Priced per truck</td>
+                <td className="p-4">Priced by container tiers</td>
+                <td className="p-4">Per-truck pricing (office staff free)</td>
               </tr>
               <tr>
                 <td className="p-4 font-semibold">Contract Lock-in</td>
                 <td className="p-4 font-bold text-[#166534] bg-[#fff7ed]">Month-to-month, cancel anytime</td>
-                <td className="p-4">Often 12 months</td>
+                <td className="p-4">12-month agreement</td>
                 <td className="p-4">Month-to-month</td>
-                <td className="p-4">12 months standard</td>
+                <td className="p-4">12-month agreement</td>
               </tr>
             </tbody>
           </table>

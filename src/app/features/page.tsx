@@ -68,7 +68,7 @@ export default function FeaturesHubPage() {
       image: '/images/screenshots/dumpster-rental-online-booking-system.png',
       headline: 'Book dumpsters and collect upfront card payments while you sleep',
       description:
-        'Over 40% of homeowners and contractors search for dumpsters in the evening when your phone is turned off. RollOS embeds seamlessly on your existing website or social page, validates delivery ZIP codes, checks container inventory, collects upfront deposits, and binds your rental agreement automatically.',
+        'Many homeowners and contractors shop for dumpsters in the evening when your office is closed. RollOS embeds seamlessly on your existing website or social page, validates delivery ZIP codes, checks container inventory, collects upfront deposits, and binds your rental agreement automatically.',
       highlights: [
         'Embed on WordPress, Squarespace, Wix, or share as standalone link',
         'Real-time delivery ZIP code service radius validation',
@@ -91,7 +91,7 @@ export default function FeaturesHubPage() {
         'Color-coded container status tags (Delivered, Scheduled, In Yard, Swapped)',
         'Fast drag-and-drop job rescheduling across days and drivers',
         'Visual calendar view showing upcoming drop-offs, swaps, and final pickups',
-        'Container serial number and GPS drop-location tracking',
+        'Container serial number tracking and GPS-stamped drop photos',
       ],
       linkText: 'Explore Roll-Off Dispatch Software',
     },

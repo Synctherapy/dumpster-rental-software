@@ -40,10 +40,12 @@ export default function ContactPage() {
       name: 'RollOS',
       url: 'https://rolloffdumpstersoftware.com',
       email: 'support@rolloffdumpstersoftware.com',
+      telephone: '+1-250-812-8698',
       contactPoint: [
         {
           '@type': 'ContactPoint',
           contactType: 'customer support',
+          telephone: '+1-250-812-8698',
           email: 'support@rolloffdumpstersoftware.com',
           availableLanguage: ['English'],
         },
@@ -89,7 +91,7 @@ export default function ContactPage() {
               </p>
               <div className="flex items-center gap-2 text-xs font-semibold text-[#3d5a42] mb-6">
                 <Clock size={15} className="text-[#628f34]" />
-                <span>Direct founder response — same day (usually 1–3 hrs)</span>
+                <span>+1 (250) 812-8698 · Direct founder response</span>
               </div>
             </div>
 
@@ -108,13 +110,19 @@ export default function ContactPage() {
               <div className="w-12 h-12 rounded-xl bg-[#fff2eb] text-[#ea580c] flex items-center justify-center mb-5 border border-[#fddfcb]">
                 <Mail size={24} />
               </div>
-              <h2 className="text-xl font-bold text-[#1f2d26] mb-2">Email Support</h2>
+              <h2 className="text-xl font-bold text-[#1f2d26] mb-2">Email &amp; Phone Support</h2>
               <p className="text-sm text-[#556658] leading-relaxed mb-4">
-                Send your container pricing sheet, dispatch questions, or embed requests. I answer every email personally.
+                Send your container pricing sheet, dispatch questions, or embed requests. I answer every inquiry personally.
               </p>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#3d5a42] mb-6">
-                <Clock size={15} className="text-[#628f34]" />
-                <span>support@rolloffdumpstersoftware.com</span>
+              <div className="space-y-1.5 text-xs font-semibold text-[#3d5a42] mb-6">
+                <div className="flex items-center gap-2">
+                  <Mail size={15} className="text-[#ea580c]" />
+                  <span>support@rolloffdumpstersoftware.com</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock size={15} className="text-[#628f34]" />
+                  <span>+1 (250) 812-8698</span>
+                </div>
               </div>
             </div>
 
@@ -154,7 +162,7 @@ export default function ContactPage() {
             <div>
               <div className="font-bold text-[#1f2d26] mb-1">Direct Support Hours</div>
               <p className="text-[#556658] text-xs leading-relaxed">
-                Monday – Saturday: 7:00 AM – 7:00 PM EST<br />
+                Monday – Saturday: 8:00 AM – 6:00 PM PT<br />
                 Sunday: Emergency dispatch monitoring only
               </p>
             </div>
@@ -170,11 +178,12 @@ export default function ContactPage() {
               <div className="font-bold text-[#1f2d26] mb-1">Platform Inquiries</div>
               <p className="text-[#556658] text-xs leading-relaxed">
                 RollOS Dumpster Rental Software<br />
-                Operated by Daryl Stubbs ·{' '}
+                Operated by Daryl Stubbs · British Columbia<br />
+                Phone: +1 (250) 812-8698<br />
+                Email: support@rolloffdumpstersoftware.com<br />
                 <Link href="/about" className="font-semibold text-[#1f2d26] underline hover:text-[#ea580c]">
                   About Our Mission
-                </Link><br />
-                Domain: rolloffdumpstersoftware.com
+                </Link>
               </p>
             </div>
 

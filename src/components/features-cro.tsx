@@ -71,7 +71,7 @@ export const STANDOUT_12_FEATURES = [
   {
     icon: Calendar,
     title: 'Google & Apple Calendar Sync',
-    desc: 'Deliveries and pickups push automatically to your phone calendar via real-time iCal feed.',
+    desc: 'Deliveries and pickups appear in your phone calendar via an iCal subscription feed.',
     badge: 'Starter Plan',
     href: '/pricing',
     linkText: 'View Starter Plan calendar sync',
@@ -87,7 +87,7 @@ export const STANDOUT_12_FEATURES = [
   {
     icon: Star,
     title: 'Automated 2-Way Google Reviews',
-    desc: 'Automatically text happy customers review links right after pickup to dominate local Google Maps search.',
+    desc: 'Automatically text customers review links right after pickup to build verified local Google reviews (compliant with Google review policies).',
     badge: 'Growth Engine',
     href: '/pricing',
     linkText: 'Explore Growth tier review automation',

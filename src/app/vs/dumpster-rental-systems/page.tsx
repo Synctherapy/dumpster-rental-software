@@ -8,7 +8,7 @@ import { Footer } from '@/components/footer';
 export const metadata = {
   title: 'Dumpster Rental Systems (DRS) Reviews & Pricing: Best Alternative',
   description:
-    'Compare RollOS vs Dumpster Rental Systems (DRS). Why pay $195–$280/mo with 20-can limits? RollOS gives you unlimited cans, $0/mo free plan, and SMS driver links.',
+    'Compare RollOS vs Dumpster Rental Systems (DRS). Why pay $199.95–$279.95/mo with container caps? RollOS gives you unlimited containers, $0/mo free plan, and SMS driver links.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/vs/dumpster-rental-systems',
   },
@@ -57,7 +57,7 @@ export default function DRSComparisonPage() {
           >
             dumpster rental software
           </Link>{' '}
-          platform in the waste industry. However, DRS charges <strong>$195.95 to $279.95 every month</strong> and artificially caps your fleet size (the $195 plan only allows up to 20 containers).
+          platform in the waste industry. However, DRS prices by container fleet tiers: <strong>Launch at $79.99/mo</strong>, <strong>Core at $199.95/mo</strong> (capped at 20 containers), and <strong>Premium at $279.95/mo</strong>, plus an optional $299 website build on Core/Premium.
           RollOS provides a modern{' '}
           <Link href="/features/online-booking" className="text-[#ea580c] font-semibold hover:underline">
             dumpster rental online booking system
@@ -94,24 +94,24 @@ export default function DRSComparisonPage() {
 
           <div className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
             <div className="inline-block px-3 py-1 rounded-full bg-[#f1f5f9] text-[#475569] text-xs font-bold mb-3">
-              TIER-CAPPED LEGACY
+              TIER-CAPPED PLANS
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">Dumpster Rental Systems (DRS)</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              A dedicated dumpster tool that charges based on container volume tiers. To get basic routing features, you must pay $195.95/mo, which is strictly capped at 20 dumpsters. Once you buy your 21st dumpster, your price jumps to $279.95/mo.
+              A dedicated dumpster tool that charges based on container volume tiers: Launch ($79.99/mo), Core ($199.95/mo, up to 20 dumpsters), and Premium ($279.95/mo). Exceeding 20 containers forces an upgrade to the $279.95/mo tier. Drivers use a native mobile app on Apple App Store &amp; Google Play.
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> $195.95 to $279.95 monthly base fee
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Launch $79.99 / Core $199.95 / Premium $279.95 per month
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> 20-can limit on Standard Plan ($195.95/mo)
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> 20-container limit on Core Plan ($199.95/mo)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Launch Plan ($79.95/mo) has no routing
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Drivers must install mobile app from App Store / Google Play
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Expensive web design add-on packages
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Optional $299 website build on Core and Premium
               </li>
             </ul>
           </div>
@@ -142,23 +142,28 @@ export default function DRSComparisonPage() {
                 <tr>
                   <td className="font-semibold">Monthly Software Cost</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
-                    $0 Free · $29 Starter
+                    $0 Free · $29 Starter · $99 Growth
                   </td>
-                  <td className="text-[#b54848] font-semibold">$195.95 – $279.95 / month</td>
+                  <td className="text-[#b54848] font-semibold">Launch $79.99 · Core $199.95 · Premium $279.95 / mo</td>
+                </tr>
+                <tr>
+                  <td className="font-semibold">Setup &amp; Website Build</td>
+                  <td className="highlight-col text-[#2e7d32] font-bold">$0 (Self-serve)</td>
+                  <td>Optional $299 website build on Core/Premium</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Container Fleet Limits</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     Unlimited (No container caps)
                   </td>
-                  <td className="text-[#b54848]">Capped at 20 cans on Standard ($195/mo)</td>
+                  <td className="text-[#b54848]">Core capped at 20 dumpsters; Premium unlimited</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Access</td>
                   <td className="highlight-col font-semibold">
                     SMS magic link (0 app install required)
                   </td>
-                  <td>Driver mobile app</td>
+                  <td>Native driver app (Apple App Store &amp; Google Play)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Customer Online Booking Engine</td>
@@ -199,8 +204,8 @@ export default function DRSComparisonPage() {
             Under DRS&apos;s pricing model:
           </p>
           <div className="p-4 bg-[#f8faf6] rounded-xl text-xs space-y-2 mb-4 text-[#334155]">
-            <p>• If you own 18 dumpsters, you pay <strong>$195.95/month ($2,351/year)</strong>.</p>
-            <p>• The moment you buy 3 more containers to take on a new roofing contractor, you cross 20 cans and your software bill jumps to <strong>$279.95/month ($3,359/year)</strong>.</p>
+            <p>• If you own 18 dumpsters, you pay <strong>$199.95/month ($2,399/year)</strong> on their Core plan.</p>
+            <p>• The moment you buy 3 more containers to take on a new roofing contractor, you cross 20 cans and your software bill jumps to <strong>$279.95/month ($3,359/year)</strong> on Premium.</p>
             <p>• With RollOS, you have <strong>zero container caps</strong>. You can run 5, 25, or 50 cans on our Free ($0/mo) or Starter ($29/mo) plans without ever paying a container penalty. Review our transparent <Link href="/pricing" className="text-[#ea580c] font-bold hover:underline">dumpster rental software pricing</Link> for complete details.</p>
           </div>
         </div>

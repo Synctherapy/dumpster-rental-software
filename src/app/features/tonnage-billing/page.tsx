@@ -57,7 +57,7 @@ export default function TonnageBillingFeaturePage() {
     {
       num: '04',
       title: '1-Click Stripe Card Charge',
-      desc: 'Charge the customer card authorized at booking with 1 click. Zero awkward phone calls, zero unpaid check chasing.',
+      desc: 'Charge the customer card saved on file at checkout (pre-authorizations expire after 7 days; card on file is charged upon ticket entry). Zero awkward phone calls, zero unpaid check chasing.',
     },
   ];
 
@@ -241,7 +241,7 @@ export default function TonnageBillingFeaturePage() {
             </span>
             <h3 className="text-lg font-bold text-[#1f2d26]">Chargeback Protection</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              When a customer sees an extra $150 overage charge, they often call their credit card company claiming fraud. With RollOS, the digital signature and certified scale slip photo are attached, giving you ironclad evidence that wins 100% of disputes.
+              When a customer sees an extra $150 overage charge, they often call their credit card company claiming fraud. With RollOS, the digital signature and certified scale slip photo are attached, which provides timestamped scale ticket and signature evidence to successfully contest cardholder chargebacks.
             </p>
           </div>
 

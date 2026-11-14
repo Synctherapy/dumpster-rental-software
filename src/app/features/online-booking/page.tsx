@@ -69,7 +69,7 @@ export default function OnlineBookingFeaturePage() {
           Dumpster rental online booking system that sells bins while you drive.
         </h1>
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          More than 40% of residential and commercial dumpster rentals are researched after 7 PM. If your website only has a phone number or a generic contact form, homeowners click away to the next hauler on Google. RollOS turns your website into a 24/7 automated order desk.
+          Many residential and commercial dumpster rentals are researched in the evening when your office is closed. If your website only has a phone number or a generic contact form, homeowners click away to the next hauler on Google. RollOS turns your website into a 24/7 automated order desk.
         </p>
 
         {/* Primary CTA Buttons */}
@@ -143,7 +143,7 @@ export default function OnlineBookingFeaturePage() {
             </span>
             <h3 className="text-lg font-bold text-[#1f2d26]">Direct Stripe Connect Payouts</h3>
             <p className="text-xs text-[#556658] leading-relaxed">
-              Connect your bank account in 60 seconds with Stripe. Customers pay upfront with Apple Pay, Google Pay, or credit card. 100% of the rental fee flows directly to your account.
+              Connect Stripe in a few minutes. Customers pay upfront with Apple Pay, Google Pay, or credit card. 0% software commission + $12 customer booking fee + standard Stripe card processing (2.9% + 30¢); rental revenue deposits directly into your bank account.
             </p>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function OnlineBookingFeaturePage() {
               Digital Damage Waivers & Terms of Service Signed at Checkout
             </h3>
             <p className="text-xs md:text-sm text-[#556658] max-w-xl">
-              Every customer must review and accept your driveway liability waiver, prohibited hazardous waste terms, and overweight disposal authorization before completing payment.
+              Every customer must review and accept your driveway liability waiver, prohibited hazardous waste terms, and overweight disposal authorization before completing payment (have a local lawyer review your specific waiver terms).
             </p>
           </div>
           <Link

@@ -29,7 +29,7 @@ const articles = [
     title: 'How to Start a Dumpster Rental Business: Costs, Equipment & Startup Guide',
     slug: '/blog/how-to-start-a-dumpster-rental-business',
     excerpt:
-      'The complete step-by-step startup blueprint for launching an independent roll-off company: startup costs ($60k–$150k), DOT licensing, container sizes, and online booking setup.',
+      'The complete step-by-step startup blueprint for launching an independent roll-off company: startup costs ($60k–$150k lean, $141k–$235k commercial), CDL licensing rules, container sizes, and online booking setup.',
     readTime: '12 min read',
     date: 'Oct 2026',
     category: 'Startup Guide',
@@ -39,7 +39,7 @@ const articles = [
     title: 'How to Price Dumpster Rentals: The Complete Formula for Roll-Off Haulers',
     slug: '/blog/how-to-price-dumpster-rentals',
     excerpt:
-      'Master the base rental + included tonnage + overage fee formula. Prevent landfill fee profit leaks and establish profitable contractor volume pricing.',
+      'Master the base rental + included tonnage + overage fee formula. Prevent landfill fee profit leaks and establish profitable regional pricing with automated scale overages.',
     readTime: '10 min read',
     date: 'Oct 2026',
     category: 'Pricing & Margins',
@@ -49,7 +49,7 @@ const articles = [
     title: 'Roll-Off Truck vs. Dump Trailer: Which Equipment Should You Buy First?',
     slug: '/blog/roll-off-truck-vs-dump-trailer',
     excerpt:
-      'Compare initial capital ($25k vs $95k), CDL requirements, driveway safety, and daily container turns to decide between a dump trailer and a dedicated truck.',
+      'Compare equipment costs ($18k–$28k trailer vs $65k–$120k used / $195k–$275k+ new truck), CDL requirements under FMCSA rules, driveway safety, and daily cycle times.',
     readTime: '9 min read',
     date: 'Oct 2026',
     category: 'Equipment & Fleet',
@@ -59,7 +59,7 @@ const articles = [
     title: 'Dumpster Rental Profit Margins: Real Financial Benchmarks for Haulers',
     slug: '/blog/dumpster-rental-profit-margins',
     excerpt:
-      'Real financial benchmarks for small and mid-size operators (1–25+ trucks): 45–60% gross margins, 15–25% net profit, monthly container turnover, and a realistic P&L model.',
+      'Real financial benchmarks for small and mid-size operators (1–25+ trucks): 45–60% gross margins, 15–25% net profit, realistic monthly container turnover (2.5–3.5 turns), and a 1-truck P&L model.',
     readTime: '11 min read',
     date: 'Oct 2026',
     category: 'Financial Benchmarks',
@@ -141,7 +141,7 @@ export default function BlogHubPage() {
             Put the Formulas to Work with Our Free Hauler Calculators
           </h2>
           <p className="text-xs md:text-sm text-[#556658] leading-relaxed mb-5 max-w-2xl">
-            Test your landfill overage rates, calculate monthly software savings vs Docket and ServiceCore, or copy our free lawyer-reviewed customer contract template.
+            Test your landfill overage rates, calculate monthly software savings, or copy our free customizable customer contract template.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/tools/tonnage-calculator" className="btn btn-orange text-xs">

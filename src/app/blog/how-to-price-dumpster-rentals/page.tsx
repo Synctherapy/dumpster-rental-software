@@ -29,12 +29,12 @@ const faqs = [
   {
     question: 'How much should you charge per ton for dumpster overages?',
     answer:
-      'Most independent haulers charge between $75 and $110 per ton for weight over the included limit. A safe rule of thumb is to take your local landfill tipping fee (e.g., $55/ton) and add a 35%–50% markup to cover truck wear, axle strain, and driver waiting time at the scale.',
+      'Across independent operators, typical tonnage overage rates range between $40 and $100 per ton ($60–$90 average) for weight over the included limit. A safe rule of thumb is to take your local landfill tipping fee (national average $55–$65/ton) and add a markup to cover truck wear, axle strain, and driver waiting time at the scale.',
   },
   {
     question: 'How many days should be included in a dumpster rental base price?',
     answer:
-      'For residential homeowners, a 7-day rental period is the industry standard. For commercial contractors and roofers who turn dumpsters quickly, 3-day to 5-day rentals are common. Extra days typically range from $15 to $25 per day.',
+      'For residential homeowners, a 7-day rental period is common. For commercial contractors and roofers who turn dumpsters quickly, 3-day to 5-day rentals are typical. Extra rental days typically range from $5 to $20 per day ($10–$15/day average).',
   },
   {
     question: 'Should I charge customers up front or after pickup?',
@@ -136,7 +136,7 @@ export default function HowToPriceDumpsterRentalsPage() {
               <div className="w-8 h-8 rounded-lg bg-[#eaf8ed] text-[#2e7d32] flex items-center justify-center font-bold mb-3">1</div>
               <h3 className="text-base font-bold text-[#1f2d26] mb-1.5">Fuel &amp; Drive Time</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Every drop involves 2 round trips (drop-off and pickup). If your service radius is 25 miles, that’s up to 100 miles of driving per rental. Budget $45–$75 for diesel and driver drive time.
+                Every drop involves 2 round trips (drop-off and pickup). If your service radius is 25 miles, that’s up to 100 miles of driving per rental. Fuel alone is $45–$70 per 100-mile round trip (at 6–9 MPG and $3.50–$4.20/gal diesel), plus driver labor ($35–$60), totaling $80–$130 for an extended haul.
               </p>
             </div>
 
@@ -144,7 +144,7 @@ export default function HowToPriceDumpsterRentalsPage() {
               <div className="w-8 h-8 rounded-lg bg-[#eaf8ed] text-[#2e7d32] flex items-center justify-center font-bold mb-3">2</div>
               <h3 className="text-base font-bold text-[#1f2d26] mb-1.5">Local Landfill Tipping Fees</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                Tipping fees vary drastically by region—from $35/ton in rural areas to $110+/ton in the Northeast. Your base price must include an allowance (e.g., 2 tons = $110 disposal cost).
+                Tipping fees vary drastically by region—from $35/ton in rural areas to $100+/ton in the Northeast (national average $55–$65/ton). Your base price must include an allowance (e.g., 2 tons = $110–$130 disposal cost).
               </p>
             </div>
 
@@ -175,17 +175,17 @@ export default function HowToPriceDumpsterRentalsPage() {
           alt="The 3-tier dumpster rental pricing architecture showing base rental package included tonnage cap and automatic overage protection"
           caption="Figure 1: The universal roll-off dumpster pricing formula. Every successful quote bundles a base 7-day rental period with a defined tonnage allowance (e.g. 2 tons), backed by automated card charging for weight overages upon landfill scale ticket weigh-in."
           ctaTitle="Lock in Your Tonnage Rates and Get Paid Online"
-          ctaSubtitle="RollOS provides instant 60-second online customer booking with transparent pricing and automatic scale overage invoicing."
+          ctaSubtitle="RollOS provides instant online customer booking with transparent pricing and automatic scale overage invoicing."
           ctaButtonText="Start Free on RollOS ($0/mo)"
         />
 
-        {/* Section 2: National Price Averages by Size */}
+        {/* Section 2: Regional Price Ranges by Size */}
         <section className="mb-12">
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#1f2d26] mb-4">
-            2. Dumpster Rental Price Averages by Size (10, 15, 20, 30 &amp; 40 Yard)
+            2. Dumpster Rental Price Ranges by Size (10, 15, 20, 30 &amp; 40 Yard)
           </h2>
           <p className="text-base text-[#4a5f4e] leading-relaxed mb-6">
-            Below are standard national pricing benchmarks for independent roll-off operators:
+            Below are typical pricing ranges observed across regional independent operators:
           </p>
 
           <div className="overflow-x-auto my-6">
@@ -195,7 +195,7 @@ export default function HowToPriceDumpsterRentalsPage() {
                   <th className="p-3.5">Size</th>
                   <th className="p-3.5">Base Price (7 Days)</th>
                   <th className="p-3.5">Included Tons</th>
-                  <th className="p-3.5">Overage Rate</th>
+                  <th className="p-3.5">Overage Rate (Typical Range)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#edf1ea] text-[#334639]">
@@ -203,31 +203,31 @@ export default function HowToPriceDumpsterRentalsPage() {
                   <td className="p-3.5 font-bold">10-Yard Bin</td>
                   <td className="p-3.5">$325 – $425</td>
                   <td className="p-3.5">1.0 – 1.5 Tons</td>
-                  <td className="p-3.5">$75 – $95 / ton</td>
+                  <td className="p-3.5">$40 – $75 / ton ($60 avg)</td>
                 </tr>
                 <tr>
                   <td className="p-3.5 font-bold">15-Yard Bin</td>
                   <td className="p-3.5">$375 – $475</td>
                   <td className="p-3.5">1.5 – 2.0 Tons</td>
-                  <td className="p-3.5">$75 – $95 / ton</td>
+                  <td className="p-3.5">$50 – $85 / ton ($70 avg)</td>
                 </tr>
                 <tr>
                   <td className="p-3.5 font-bold">20-Yard Bin</td>
                   <td className="p-3.5">$425 – $550</td>
                   <td className="p-3.5">2.0 – 3.0 Tons</td>
-                  <td className="p-3.5">$80 – $100 / ton</td>
+                  <td className="p-3.5">$60 – $90 / ton ($75 avg)</td>
                 </tr>
                 <tr>
                   <td className="p-3.5 font-bold">30-Yard Bin</td>
                   <td className="p-3.5">$525 – $675</td>
                   <td className="p-3.5">3.0 – 4.0 Tons</td>
-                  <td className="p-3.5">$85 – $105 / ton</td>
+                  <td className="p-3.5">$65 – $95 / ton ($80 avg)</td>
                 </tr>
                 <tr>
                   <td className="p-3.5 font-bold">40-Yard Bin</td>
                   <td className="p-3.5">$650 – $850+</td>
                   <td className="p-3.5">4.0 – 5.0 Tons</td>
-                  <td className="p-3.5">$90 – $110 / ton</td>
+                  <td className="p-3.5">$70 – $100 / ton ($85 avg)</td>
                 </tr>
               </tbody>
             </table>

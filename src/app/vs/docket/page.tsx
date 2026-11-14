@@ -59,7 +59,7 @@ export default function DocketComparisonPage() {
           >
             dumpster rental software
           </Link>
-          , Docket and RollOS take two fundamentally different approaches. Docket is an enterprise platform (part of ServiceCore) that requires scheduling sales demos, paying high recurring monthly subscriptions (~$299+/mo), and forcing drivers to download mobile apps from the App Store.
+          , Docket and RollOS take two fundamentally different approaches. Docket is a full-featured waste management platform (acquired by ServiceCore in May 2023) that serves haulers with quote-only pricing per truck under annual contracts, requiring sales demos and having drivers download mobile apps from the App Store.
           RollOS is a high-speed, booking-first tool where setup takes 3 minutes, drivers use instant SMS links, and you keep 100% of your rental money.
         </p>
 
@@ -99,11 +99,11 @@ export default function DocketComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">Docket</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              An established waste management platform (now owned by ServiceCore). Geared toward larger fleets managing municipal trash routes and multi-division operations. Does not publish public pricing, requiring mandatory sales demos and long onboarding.
+              An established waste management platform (acquired by ServiceCore in May 2023) serving haulers of all sizes. Does not publish public pricing, requiring mandatory sales demos, quote-only per-truck pricing under annual contracts, and App Store driver downloads.
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Estimated $250 – $350+ monthly base fee
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Quote-only pricing per truck with annual contracts
               </li>
               <li className="flex items-center gap-2">
                 <X size={16} className="text-[#dc2626] flex-shrink-0" /> Hauler absorbs 100% of software overhead
@@ -112,7 +112,7 @@ export default function DocketComparisonPage() {
                 <X size={16} className="text-[#dc2626] flex-shrink-0" /> Mandatory App Store / Play Store driver downloads
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Higher payment processing rates (~3.0% + 30¢)
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Card processing: 2.8%–3.0% + 30¢ (Pro plan is 2.8%)
               </li>
             </ul>
           </div>
@@ -121,14 +121,14 @@ export default function DocketComparisonPage() {
         {/* Visual Interface & Workflow Comparison */}
         <VsVisualComparison
           competitorName="Docket"
-          competitorTagline="Docket (now owned by ServiceCore) targets larger municipal haulers and multi-division fleets with quote-based pricing (~$299+/mo), mandatory sales demos, setup fees, and App Store driver downloads."
+          competitorTagline="Docket (acquired by ServiceCore in May 2023) serves haulers with quote-only pricing per truck under annual contracts, mandatory sales demos, setup fees, and App Store driver downloads."
           competitorScreenshot="/images/competitors/docket-preview.png"
           competitorScreenshotAlt="Docket dumpster rental software website homepage and dispatch software preview"
           competitorBulletPoints={[
-            "Estimated $250 to $350+ monthly base fee with quote gating",
+            "Quote-only pricing per truck with annual contracts",
             "Hauler absorbs 100% of software overhead with no free tier",
             "Mandatory App Store & Google Play driver app downloads",
-            "Higher payment processing rates (~3.0% + 30¢)",
+            "Card processing: 2.8%–3.0% + 30¢ depending on plan (Pro is 2.8%)",
           ]}
           rollosTagline="Built specifically for 1 to 25+ truck roll-off haulers. $0/month Free Plan ($12 checkout fee paid by customer), 1-tap SMS driver links, direct Stripe card rates, and automated landfill scale ticket billing."
           rollosScreenshot="/images/screenshots/dumpster-rental-tonnage-invoice-scale-ticket.png"
@@ -175,12 +175,12 @@ export default function DocketComparisonPage() {
                   <td className="highlight-col text-[#2e7d32] font-bold">
                     $0 (Free) · $29 (Starter) · $99 (Growth)
                   </td>
-                  <td className="text-[#b54848] font-semibold">~$299+ / mo (Quote-based)</td>
+                  <td className="text-[#b54848] font-semibold">Quote-only (Priced per truck, annual contract)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Setup & Onboarding Fees</td>
                   <td className="highlight-col text-[#2e7d32] font-bold">$0 (Self-serve)</td>
-                  <td className="text-[#b54848]">$500 – $1,500 typical</td>
+                  <td className="text-[#b54848]">Quote-based implementation fee</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Hauler Rental Commission</td>
@@ -194,7 +194,7 @@ export default function DocketComparisonPage() {
                   <td className="highlight-col font-semibold">
                     Included (60s embeddable widget)
                   </td>
-                  <td>DocketShop (Requires custom quote)</td>
+                  <td>Included in entry plan (DocketShop cart)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Access</td>
@@ -215,7 +215,7 @@ export default function DocketComparisonPage() {
                   <td className="highlight-col font-semibold">
                     1-click photo upload & overage invoice
                   </td>
-                  <td>Disposal module</td>
+                  <td>Disposal module (calculates overage automatically)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Setup Time</td>
@@ -241,7 +241,7 @@ export default function DocketComparisonPage() {
           <div className="flex items-center gap-3 mb-4">
             <DollarSign className="text-[#ea580c]" size={24} />
             <h3 className="text-xl font-bold text-[#1f2d26]">
-              The Real Cost Math: How RollOS Saves Haulers $3,500+ Every Year
+              Cost Breakdown: Transparent Self-Serve vs. Quote-Only Per-Truck Contracts
             </h3>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
@@ -251,10 +251,11 @@ export default function DocketComparisonPage() {
             <div className="p-4 bg-white border border-[#e2ebd8] rounded-lg">
               <strong className="text-[#b54848] text-sm block mb-1">With Docket:</strong>
               <p className="text-[#64748b] leading-relaxed">
-                Monthly subscription: ~$299/mo<br />
-                Setup fee: $1,500<br />
-                Annual software bill: <strong>$4,500 to $5,000/yr</strong><br />
-                Money taken directly out of your operating margin.
+                Monthly subscription: Quote-only (billed per truck)<br />
+                Setup fee: Implementation quote<br />
+                Contract commitment: 1-year agreement typical<br />
+                Card processing: 2.8%–3.0% + 30¢ depending on plan<br />
+                Total software overhead varies by quote and fleet size.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#cbe1b8] rounded-lg">
@@ -263,7 +264,8 @@ export default function DocketComparisonPage() {
                 Monthly subscription: $0/mo (Free) or $29/mo (Starter)<br />
                 Homeowner pays: $12 reservation fee at checkout<br />
                 Hauler keeps: <strong>100% of the $450 rental ($13,500/mo)</strong><br />
-                Annual software savings: <strong>$3,500 to $4,500+ back in your pocket</strong>.
+                Card processing: Direct Stripe Connect (2.9% + 30¢)<br />
+                Zero setup fees, no per-truck scaling fees, no annual lock-in.
               </p>
             </div>
           </div>
@@ -314,8 +316,8 @@ export default function DocketComparisonPage() {
               <strong className="text-white text-base block mb-2">Choose Docket if:</strong>
               <ul className="space-y-2 list-disc pl-4">
                 <li>You manage large municipal commercial trash contracts alongside roll-off cans.</li>
-                <li>You need AI route optimization (IronRouteAI) across 20+ municipal collection trucks.</li>
-                <li>You don’t mind paying $300+/month and undergoing scheduled onboarding calls.</li>
+                <li>You need AI route optimization (IronRouteAI) across 20+ collection trucks.</li>
+                <li>You prefer quote-only annual contracts priced per truck with guided onboarding.</li>
               </ul>
             </div>
             <div>

@@ -36,7 +36,7 @@ export default function ICansComparisonPage() {
             name: 'How much does iCans cost compared to RollOS?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'iCans charges $99/month for Base (email-only alerts) and $159/month for Plus (SMS alerts). RollOS offers a permanent $0/month Free Plan with unlimited orders, SMS routing, and zero setup fee.',
+              text: 'iCans charges $99/month for Base (email customer notifications) and $159/month for Plus (customer SMS alerts up to 1,000/month; driver app included on both plans). RollOS offers a permanent $0/month Free Plan with unlimited orders, SMS routing, and zero setup fee.',
             },
           },
           {
@@ -52,7 +52,7 @@ export default function ICansComparisonPage() {
             name: 'What payment processor does iCans require?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'iCans integrates with Tiger Payment Solutions for card processing, whereas RollOS uses direct Stripe Connect and Apple Pay alongside $0-fee offline cash/check logging.',
+              text: 'iCans integrates with Tiger and Deluxe payment gateways for card processing, whereas RollOS uses direct Stripe Connect and Apple Pay alongside $0-fee offline cash/check logging.',
             },
           },
         ],
@@ -86,14 +86,14 @@ export default function ICansComparisonPage() {
         </h1>
 
         <p className="text-lg text-[#556658] leading-relaxed mb-8 max-w-3xl">
-          <strong>iCans dumpster software</strong> offers flat-rate roll-off dispatching built by the founders of American AF Dumpsters, but tier-gated SMS alerts and Tiger Payment Solutions gateway lock-in push operators toward modern{' '}
+          <strong>iCans dumpster software</strong> offers flat-rate roll-off dispatching founded by Ricardo Rivera (owner of Junk It Plus Dumpsters in Florida), but gating customer SMS notifications behind their $159/month Plus plan leads operators to compare modern{' '}
           <Link
             href="/"
             className="text-[#1f2d26] font-semibold underline decoration-[#ea580c] underline-offset-2 hover:text-[#ea580c]"
           >
             dumpster rental software
           </Link>{' '}
-          alternatives like RollOS. While iCans provides single-screen dispatching and AI-assisted route optimization, a growing <strong>dumpster rental business</strong> or <strong>dumpster company</strong> managing 1 to 25+ trucks faces upgrade friction when scaling driver communication, card processing, and online ordering.
+          alternatives like RollOS. While iCans provides single-screen dispatching, an AI operational assistant (&quot;The New Guy&quot;), and separate AI routing, growing roll-off haulers managing 1 to 25+ trucks often prefer RollOS for instant driver SMS magic links and automated landfill scale ticket billing.
         </p>
 
         {/* Executive Overview: RollOS vs. iCans */}
@@ -131,20 +131,20 @@ export default function ICansComparisonPage() {
             </div>
             <h3 className="text-xl font-bold text-[#1f2d26] mb-2">iCans</h3>
             <p className="text-sm text-[#556658] mb-4 leading-relaxed">
-              Developed from the operational playbook of American AF Dumpsters (featured in Waste Dive) to replace expensive custom software. Features single-screen dispatch and AI routing (&quot;The New Guy&quot;), but gates automated SMS messaging behind their $159/month Plus plan and routes credit card processing through Tiger Payment Solutions.
+              Founded by Ricardo Rivera based on his experience running Junk It Plus Dumpsters in Florida. Features single-screen dispatch, an AI operational assistant (&quot;The New Guy&quot;), and separate AI routing. Base plan ($99/mo) uses email notifications; customer SMS notifications (up to 1,000/mo) require upgrading to the $159/mo Plus plan. Drivers use an iOS/Android app on both plans.
             </p>
             <ul className="space-y-2.5 text-sm text-[#64748b]">
               <li className="flex items-center gap-2">
                 <X size={16} className="text-[#dc2626] flex-shrink-0" /> $99/mo (Base) to $159/mo (Plus)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Automated SMS alerts gated to $159/mo tier
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Customer SMS notifications gated to $159/mo tier (up to 1,000/mo)
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Native driver app App Store download required
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Drivers must download mobile app from Apple App Store / Google Play
               </li>
               <li className="flex items-center gap-2">
-                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Tiger Payment Solutions processing lock-in
+                <X size={16} className="text-[#dc2626] flex-shrink-0" /> Payment processing via Tiger or Deluxe gateways
               </li>
             </ul>
           </div>
@@ -153,14 +153,14 @@ export default function ICansComparisonPage() {
         {/* Visual Interface & Workflow Comparison */}
         <VsVisualComparison
           competitorName="iCans"
-          competitorTagline="Founded by American AF Dumpsters to provide single-screen dispatching and route optimization, but gates automated SMS texting behind their $159/mo Plus tier and routes payments through Tiger Payment Solutions."
+          competitorTagline="Founded by Ricardo Rivera (Junk It Plus Dumpsters) to provide single-screen dispatching and an AI operational assistant, but customer SMS notifications require their $159/mo Plus tier and drivers must use native mobile apps."
           competitorScreenshot="/images/competitors/icans-preview.png"
           competitorScreenshotAlt="iCans dumpster software website homepage and dispatch software preview"
           competitorBulletPoints={[
             "$99/mo (Base) to $159/mo (Plus) tiered software cost",
-            "Automated customer & driver SMS gated to $159/mo tier",
-            "Requires driver app download from Apple / Google Play",
-            "Tiger Payment Solutions gateway lock-in",
+            "Customer SMS notifications gated to $159/mo tier (Base is email-only)",
+            "Drivers must download native app on Apple App Store & Google Play",
+            "Card processing via Tiger and Deluxe payment gateways",
           ]}
           rollosTagline="Modern web-based dumpster dispatch and 24/7 online booking engine built specifically for independent haulers operating 1 to 25+ trucks. Free forever tier with zero setup fee."
           rollosScreenshot="/images/screenshots/roll-off-dumpster-dispatch-board-software.png"
@@ -172,12 +172,12 @@ export default function ICansComparisonPage() {
             "Automated landfill scale ticket overage billing",
           ]}
           infographicSrc="/images/infographics/rollos-vs-icans-sms-dispatch-workflow.jpg"
-          infographicAlt="Roll-off dumpster software dispatch workflow comparison: legacy paywalled SMS vs RollOS 1-tap SMS magic link"
+          infographicAlt="Roll-off dumpster software dispatch workflow comparison: app store downloads vs RollOS 1-tap SMS magic link"
           infographicBadge="SMS DISPATCH & FIELD WORKFLOW BREAKDOWN"
-          infographicTitle="Zero-Friction 1-Tap Driver SMS Dispatch vs. Paywalled Notifications"
-          infographicDescription="See why modern roll-off dumpster haulers eliminate native driver app downloads and avoid $159/mo SMS paywalls by dispatching drivers via instant mobile web links."
-          infographicCaption="Figure 1: Comparison of roll-off dumpster dispatch workflows. Legacy platforms gate automated SMS notifications behind $159/mo tiers and force drivers through app store logins, while RollOS includes instant 1-tap SMS magic links on all tiers including the $0/mo Free Plan."
-          infographicCtaHeadline="Ready to stop paying $159/mo just to text your drivers?"
+          infographicTitle="Zero-Friction 1-Tap Driver SMS Dispatch vs. Native Driver App Downloads"
+          infographicDescription="See why modern roll-off dumpster haulers eliminate native driver app downloads and avoid $159/mo customer messaging paywalls by dispatching drivers via instant mobile web links."
+          infographicCaption="Figure 1: Comparison of roll-off dumpster dispatch workflows. iCans requires driver app downloads on both plans and gates customer SMS alerts behind its $159/mo Plus plan, while RollOS includes instant 1-tap SMS driver magic links on all tiers including the $0/mo Free Plan."
+          infographicCtaHeadline="Ready to eliminate driver app friction and save on customer SMS dispatch?"
         />
 
         {/* Interactive Savings Calculator */}
@@ -201,9 +201,9 @@ export default function ICansComparisonPage() {
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
-              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">AI Route Optimization Assistant</h3>
+              <h3 className="font-bold text-[#1f2d26] text-sm mb-1">AI Operational Assistant (&quot;The New Guy&quot;) &amp; Routing</h3>
               <p className="text-xs text-[#556658] leading-relaxed">
-                iCans features &quot;The New Guy,&quot; an algorithmic routing helper designed to organize daily stops and landfill turns.
+                iCans features &quot;The New Guy,&quot; a proprietary AI operational assistant to help run software tasks, alongside separate AI route optimization for daily stops.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
@@ -259,19 +259,19 @@ export default function ICansComparisonPage() {
                   <td>Unlimited</td>
                 </tr>
                 <tr>
-                  <td className="font-semibold">Automated SMS Text Alerts</td>
-                  <td className="highlight-col font-semibold text-[#2e7d32]">Included on all plans ($0/mo+)</td>
-                  <td className="text-[#b54848] font-semibold">Gated to $159/mo Plus plan</td>
+                  <td className="font-semibold">Customer SMS Text Alerts</td>
+                  <td className="highlight-col font-semibold text-[#2e7d32]">Driver SMS on all plans; customer notifications</td>
+                  <td className="text-[#b54848] font-semibold">Gated to $159/mo Plus plan (up to 1,000/mo)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Driver Mobile Experience</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">1-Tap SMS Magic Links (0 App Store install)</td>
-                  <td>iOS / Android driver app download required</td>
+                  <td>iOS / Android driver app (included on both plans)</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Card Processing Gateway</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">Direct Stripe Connect & Apple Pay</td>
-                  <td>Tiger Payment Solutions</td>
+                  <td>Tiger and Deluxe payment gateways</td>
                 </tr>
                 <tr>
                   <td className="font-semibold">Landfill Tipping Fee & Scale Capture</td>
@@ -281,7 +281,7 @@ export default function ICansComparisonPage() {
                 <tr>
                   <td className="font-semibold">Online Ordering & Customer Portal</td>
                   <td className="highlight-col font-semibold text-[#2e7d32]">Included (60s live checkout widget)</td>
-                  <td>Embeddable widget / Paid website add-on</td>
+                  <td>Website integration included</td>
                 </tr>
               </tbody>
             </table>
@@ -293,24 +293,24 @@ export default function ICansComparisonPage() {
           <div className="flex items-center gap-3 mb-4">
             <DollarSign className="text-[#ea580c]" size={24} />
             <h2 className="text-xl font-bold text-[#1f2d26]">
-              Common iCans Limitations and Hauler Complaints
+              Common iCans Considerations for Roll-Off Haulers
             </h2>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-4">
-            While iCans is an upgrade over pen and paper or general contractor tools like Jobber and Housecall Pro, small haulers running 1 to 25+ trucks cite three bottlenecks:
+            While iCans is an upgrade over pen and paper or general contractor tools like Jobber and Housecall Pro, small haulers running 1 to 25+ trucks note a few trade-offs:
           </p>
           <ul className="space-y-3 text-sm text-[#475569] mb-4">
             <li className="flex items-start gap-2">
               <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>The $159/Mo SMS Feature Gate:</strong> Customer text notifications are vital for ETA updates and gate codes across your service area. Paying $159/month instead of $99/month just to send text messages inflates software overhead to $1,908/year.</span>
+              <span><strong>The $159/Mo Customer SMS Gate:</strong> Customer text notifications are vital for ETA updates and delivery gate codes. With iCans, the $99/mo Base plan only sends customer email notifications; unlocking customer SMS alerts requires upgrading to the $159/mo Plus plan (capped at 1,000 texts/mo).</span>
             </li>
             <li className="flex items-start gap-2">
               <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>Payment Gateway Dependency:</strong> Many haulers prefer standard Stripe accounts. iCans steers users toward Tiger Payment Solutions, creating friction for operators wanting portable card processing.</span>
+              <span><strong>Payment Gateway Compatibility:</strong> iCans connects to Tiger and Deluxe payment gateways for merchant card processing, whereas RollOS connects directly with Stripe Connect with Apple Pay and instant payouts.</span>
             </li>
             <li className="flex items-start gap-2">
               <X size={18} className="text-[#dc2626] flex-shrink-0 mt-0.5" />
-              <span><strong>Native Driver App Headaches:</strong> Forcing drivers to download a driver app from the App Store creates support tickets when drivers get new phones or forget passwords.</span>
+              <span><strong>Native Driver App Downloads:</strong> iCans requires drivers on both plans to download its app from the App Store or Google Play, whereas RollOS uses instant SMS browser links with zero downloads or logins.</span>
             </li>
           </ul>
         </div>
@@ -330,7 +330,7 @@ export default function ICansComparisonPage() {
             <div className="p-4 bg-white border border-[#e2ebd8] rounded-lg">
               <strong className="text-[#1f2d26] text-sm block mb-1">With iCans, Bin Boss, or Docket:</strong>
               <p className="text-[#64748b] leading-relaxed">
-                Pay $99 to $299+/mo regardless of seasonal haul volume, deal with native App Store driver setups, and manually invoice landfill scale ticket overages.
+                Pay recurring monthly subscriptions ($99 to $159/mo on iCans), deal with native App Store driver setups, and manually invoice landfill scale ticket overages.
               </p>
             </div>
             <div className="p-4 bg-white border border-[#cbe1b8] rounded-lg">
@@ -349,9 +349,9 @@ export default function ICansComparisonPage() {
             <div>
               <strong className="text-white text-base block mb-2">Choose iCans if:</strong>
               <ul className="space-y-2 list-disc pl-4">
-                <li>You prefer their &quot;The New Guy&quot; AI routing assistant.</li>
-                <li>You already use Tiger Payment Solutions for merchant processing.</li>
-                <li>You do not mind paying $159/month to unlock automated SMS text communications.</li>
+                <li>You prefer their &quot;The New Guy&quot; AI operational assistant alongside separate AI routing.</li>
+                <li>You use or prefer Tiger or Deluxe payment gateways for credit card processing.</li>
+                <li>You don&apos;t mind paying $159/month for the Plus plan to send automated customer SMS notifications.</li>
               </ul>
             </div>
             <div>
@@ -377,7 +377,7 @@ export default function ICansComparisonPage() {
                 How much does iCans cost compared to RollOS?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                iCans charges $99/month for Base (email-only alerts) and $159/month for Plus (SMS alerts). RollOS offers a permanent $0/month Free Plan with unlimited orders, SMS routing, and zero setup fee.
+                iCans charges $99/month for Base (email customer notifications) and $159/month for Plus (customer SMS alerts up to 1,000/mo; driver mobile app is included on both plans). RollOS offers a permanent $0/month Free Plan with unlimited orders, SMS routing, and zero setup fee.
               </p>
             </div>
             <div>
@@ -393,7 +393,7 @@ export default function ICansComparisonPage() {
                 What payment processor does iCans require?
               </h3>
               <p className="text-sm text-[#556658] leading-relaxed">
-                iCans integrates with Tiger Payment Solutions for card processing, whereas RollOS uses direct Stripe Connect and Apple Pay alongside $0-fee offline cash/check logging.
+                iCans integrates with Tiger and Deluxe payment gateways for card processing, whereas RollOS uses direct Stripe Connect and Apple Pay alongside $0-fee offline cash/check logging.
               </p>
             </div>
           </div>

@@ -40,7 +40,7 @@ Customer acknowledges that roll-off containers, delivery trucks, and loading equ
 
 TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, CUSTOMER EXPRESSLY WAIVES ALL CLAIMS AND RELEASES HAULER, ITS OFFICERS, DRIVERS, EMPLOYEES, AND AGENTS FROM ANY AND ALL LIABILITY FOR DAMAGE TO DRIVEWAYS, ASPHALT, CONCRETE, BRICK PAVERS, CURBS, SIDEWALKS, LAWNS, TREES, SHRUBS, IRRIGATION/SPRINKLER SYSTEMS, UNDERGROUND SEPTIC SYSTEMS, SEWER PIPES, DRAIN LINES, OR UTILITY MAINS RESULTING FROM PLACEMENT, LOADING, OR REMOVAL OF THE CONTAINER.
 
-Customer understands that placement on soft ground, lawn, unpaved surfaces, or aged concrete carries inherent risk of cracking, ruts, or depressions. While Hauler utilizes reasonable care and offers optional protective driveway boards/pads upon request, Customer assumes sole responsibility for ensuring the designated drop-off surface can safely bear the combined weight of the truck and loaded container (up to 30,000+ lbs).
+Customer understands that placement on soft ground, lawn, unpaved surfaces, or aged concrete carries inherent risk of cracking, ruts, or depressions. While Hauler utilizes reasonable care and offers optional protective driveway boards/pads upon request, Customer assumes sole responsibility for ensuring the designated drop-off surface can safely bear the combined weight of the truck and loaded container (up to 54,000–60,000 lbs).
 
 2. PROHIBITED & HAZARDOUS MATERIALS
 Customer agrees that ONLY non-hazardous municipal solid waste, construction & demolition (C&D) debris, or household junk as agreed upon shall be placed into the container. Under NO circumstances shall Customer deposit, place, or permit the placement of the following Prohibited Items:
@@ -63,14 +63,14 @@ Each container size includes a designated base tonnage weight limit specified ab
 Customer authorizes Hauler to automatically charge the credit/debit card on file for any weight in excess of the included tonnage allowance at the agreed overage rate of $[____] per ton (pro-rated). Customer understands that rainwater, snow, saturated soil, concrete, brick, dirt, plaster, and sod absorb water and significantly increase weight. Customer is solely responsible for weight accumulated due to weather conditions.
 
 4. FILL LEVEL & TRANSPORTATION SAFETY ("WATER LEVEL RULE")
-State and federal Department of Transportation (DOT) safety regulations mandate that containers must be safely covered with an automated or manual tarp during highway transit. Customer agrees that waste materials MUST NOT exceed the top rim/lip of the container walls ("water level"). 
+State load regulations and federal FMCSA (49 CFR 393.100) cargo securement standards require all transported cargo to be safely secured, and many state and municipal laws strictly mandate that containers must be tarped during highway transit. Customer agrees that waste materials MUST NOT exceed the top rim/lip of the container walls ("water level"). 
 
 No materials may protrude above the container sides, hang over the edges, or prevent the tarp from securing flat. Hauler drivers are legally prohibited from transporting overloaded or unsecured containers. If a container is overloaded above the rim:
 (a) The driver may refuse pickup until Customer levels the load; OR
 (b) Hauler may charge an excessive fill labor fee of $[____] to safely adjust the debris.
 
 5. SITE ACCESS & DRY RUN / TRIP FEES
-Customer agrees to provide clear, unobstructed access to the container on scheduled drop-off and pick-up dates between 6:00 AM and 8:00 PM. Access requires a minimum clearance of 10 feet in width and 14 feet in vertical height, clear of tree limbs and utility cables.
+Customer agrees to provide clear, unobstructed access to the container on scheduled drop-off and pick-up dates between 6:00 AM and 8:00 PM. Access requires a minimum clearance of 10 feet in width and 25 to 30 feet in vertical height (for hoist tilt operation), clear of tree limbs and utility cables.
 
 DRY RUN FEE: If Hauler arrives for scheduled delivery or pickup and access is blocked by parked vehicles, locked gates, low-hanging wires, snowbanks, or overfilled debris, a Dry Run Trip Fee of $[125.00] will be automatically charged to Customer's card on file, and the service will be rescheduled.
 
@@ -83,7 +83,7 @@ Customer agrees to defend, indemnify, and hold harmless Hauler from and against 
 8. PAYMENT AUTHORIZATION & DELINQUENCY
 Customer guarantees payment for all rental charges, extra days, dry run fees, tonnage overages, and hazardous disposal penalties. Customer provides express authorization for Hauler to charge the credit card, debit card, or electronic payment method submitted at the time of booking for any post-service overages and fees verified by scale receipts and timestamped photos.
 
-Customer agrees to pay all collection costs, court costs, and reasonable attorney fees incurred by Hauler in collecting any delinquent balances, plus statutory interest of 1.5% per month (18% per annum) or the maximum allowable rate under state law.
+Customer agrees to pay all collection costs, court costs, and reasonable attorney fees incurred by Hauler in collecting any delinquent balances, plus interest of 1.5% per month (18% per annum) or the maximum allowable rate under applicable law, whichever is lower.
 
 9. GOVERNING LAW
 This Agreement shall be interpreted and governed in accordance with the laws of the State of [YOUR STATE], without regard to conflict of law principles. Any legal proceedings shall be instituted solely in the county where Hauler's primary office is situated.
@@ -160,6 +160,14 @@ export function ContractTemplateView() {
           >
             <Printer size={14} /> Print / Save as PDF
           </button>
+        </div>
+      </div>
+
+      {/* Legal Disclaimer Callout */}
+      <div className="mb-4 p-4 rounded-xl bg-[#fffbeb] border border-[#fef3c7] text-[#92400e] text-xs leading-relaxed flex items-start gap-2.5">
+        <ShieldAlert size={18} className="shrink-0 text-[#f59e0b] mt-0.5" />
+        <div>
+          <strong>Operational Template Disclaimer:</strong> This contract template is provided for operational and educational reference only and does not constitute legal advice. Commercial hauling regulations, damage waiver enforceability, and interest caps differ across states and municipalities. Have a qualified local attorney review your terms before using them with clients.
         </div>
       </div>
 

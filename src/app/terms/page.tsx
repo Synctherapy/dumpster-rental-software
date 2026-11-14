@@ -39,8 +39,9 @@ export default function Terms() {
         (typically a paved driveway, compacted gravel pad, or private parking space).
       </p>
       <p>
-        The placement site must maintain a minimum overhead vertical clearance of 14 feet free of low-hanging tree branches,
-        overhead utility lines, carports, and roof eaves, and a minimum horizontal clearance of 10 feet. If placement is
+        The placement site must maintain a minimum overhead vertical clearance of 25–30 feet free of low-hanging tree branches,
+        overhead utility lines, carports, and roof eaves to safely accommodate roll-off hoist tilt clearance during container loading and unloading
+        (a 14-foot overhead clearance is required for transit and driving access only), and a minimum horizontal clearance of 10 feet. If placement is
         requested on a public street, alleyway, sidewalk, or municipal right-of-way, Customer is solely responsible for
         securing all necessary city permits, street obstruction licenses, and safety cones prior to delivery.
       </p>

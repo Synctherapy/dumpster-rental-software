@@ -293,7 +293,7 @@ export function InvoiceTemplateView() {
                 >
                   dumpster rental contract template
                 </Link>
-                ). In the event of a dispute, submitting the invoice alongside the signed digital waiver wins merchant representation over 94% of the time.
+                ). In the event of a customer billing dispute, submitting the invoice alongside the signed agreement and certified scale ticket provides strong, documented evidence to support your merchant representation.
               </p>
             </div>
           </div>

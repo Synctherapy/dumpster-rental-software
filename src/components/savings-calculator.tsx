@@ -24,7 +24,7 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
     monthlyBase: 99,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: '$99/mo base plan (email-only notifications; $159/mo Plus required for SMS). Requires drivers to download native app from App Store.',
+    notes: '$99/mo Base plan (email notifications); $159/mo Plus (customer text notifications up to 1,000/mo). Driver app download on both plans.',
     type: 'sub100_saas',
   },
   binboss: {
@@ -32,7 +32,7 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
     monthlyBase: 99,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: 'Flat $99/mo with no setup fees. Requires drivers to install and maintain native mobile app.',
+    notes: 'Flat $99/mo (includes online booking widget). Optional hosted website $40/mo. Driver app download.',
     type: 'sub100_saas',
   },
   reservety: {
@@ -44,35 +44,35 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
     type: 'sub100_saas',
   },
   docket: {
-    name: 'Docket Software',
-    monthlyBase: 299,
+    name: 'Docket Software (Quote-Based)',
+    monthlyBase: 300,
     perTruckMonthly: 50,
     setupFee: 1500,
-    notes: 'Hidden pricing, mandatory sales demos, $1,500 onboarding fee, ~$3.0% processing rates, native app downloads.',
+    notes: 'Quote-only per-truck pricing, annual contract, mandatory sales demos. Owned by ServiceCore since May 2023. Card processing: 2.8%–3.0% + 30¢.',
     type: 'legacy_saas',
   },
   servicecore: {
-    name: 'ServiceCore',
-    monthlyBase: 349,
+    name: 'ServiceCore (Quote-Based)',
+    monthlyBase: 350,
     perTruckMonthly: 75,
     setupFee: 1200,
-    notes: 'Per-truck pricing model built for septic/restrooms, $1,200 setup fee, enterprise quotes, locked-in contracts.',
+    notes: 'Quote-only per-truck pricing, annual contract. Customer portal included with Pro; office staff free. Onboarding quotes 6–12 weeks. Also owns Docket.',
     type: 'legacy_saas',
   },
   drs: {
     name: 'Dumpster Rental Systems (DRS)',
-    monthlyBase: 195,
+    monthlyBase: 200,
     perTruckMonthly: 0,
-    setupFee: 500,
-    notes: 'Caps Standard tier at 20 cans ($195.95/mo); jumps to $279.95/mo over 20 cans, plus $500 setup fee.',
+    setupFee: 299,
+    notes: 'Priced by container count: Launch $79.99/mo, Core $199.95/mo, Premium $279.95/mo; $299 website build on Core/Premium. Driver app on App Store/Google Play.',
     type: 'legacy_saas',
   },
   jobber: {
     name: 'Jobber (Grow Tier)',
-    monthlyBase: 249,
+    monthlyBase: 199,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: 'Generic contractor software lacking dumpster driveway waivers, container yard tracking, or scale ticket billing.',
+    notes: 'Grow tier is $199/mo month-to-month for 1 user ($149/mo billed annually). Generic contractor tool lacking dumpster inventory tracking.',
     type: 'general_contractor',
   },
   phone_tag: {
@@ -80,7 +80,7 @@ const COMPETITORS: Record<string, CompetitorProfile> = {
     monthlyBase: 0,
     perTruckMonthly: 0,
     setupFee: 0,
-    notes: '$0 monthly software bills, but you lose 2–4 high-intent bookings every month when you are driving or after 7 PM.',
+    notes: '$0 monthly software bills, but you lose high-intent bookings when driving or answering calls after hours.',
     type: 'manual',
   },
 };
@@ -159,10 +159,10 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
                 <option value="phone_tag">No Software (Pen & Paper / Phone Tag)</option>
               </optgroup>
               <optgroup label="Multi-Truck & Enterprise Software">
-                <option value="docket">Docket Software (~$299/mo + $50/truck + $1,500 setup)</option>
-                <option value="servicecore">ServiceCore (~$349/mo per truck + $1,200 setup)</option>
-                <option value="drs">Dumpster Rental Systems - DRS ($195–$280/mo + $500 setup)</option>
-                <option value="jobber">Jobber Grow Tier ($249/mo)</option>
+                <option value="docket">Docket Software (Quote-Only · ~$300/mo + setup estimate)</option>
+                <option value="servicecore">ServiceCore (Quote-Only · ~$350/truck + setup estimate)</option>
+                <option value="drs">Dumpster Rental Systems - DRS ($80–$280/mo · $199.95 Core)</option>
+                <option value="jobber">Jobber Grow Tier ($199/mo month-to-month)</option>
               </optgroup>
             </select>
             <p className="text-xs text-[#687864] mt-2 italic">{selectedCompetitor.notes}</p>
@@ -335,7 +335,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
                     : 'bg-white text-[#556658] border-[#cbd5c4] hover:bg-[#f1f5ee]'
                 }`}
               >
-                Fleet ($99/mo)
+                Growth Fleet ($99/mo)
                 <span className="block text-[10px] font-normal opacity-80 mt-0.5">
                   Multi-driver Fleet
                 </span>
@@ -348,7 +348,7 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
               {rollosPlan === 'starter' &&
                 'Starter Plan ($29/mo): Adds offline cash/check logging & calendar sync. Customer pays $12 fee.'}
               {rollosPlan === 'growth' &&
-                'Fleet Plan ($99/mo): Adds unlimited driver logins & multi-truck dispatch. Customer pays $12 fee.'}
+                'Growth Fleet ($99/mo): Missed-call textback, VIP roofer portal & multi-truck dispatch. Customer pays $12 fee (or hauler absorbs).'}
             </p>
           </div>
         </div>
@@ -473,11 +473,11 @@ export function SavingsCalculator({ showTitle = true }: { showTitle?: boolean })
             </div>
             {!isManual ? (
               <p className="text-xs text-[#14532d] leading-relaxed">
-                Unlike legacy software that charges you <strong>${competitorMonthlyFee}/month</strong> through the dead of winter when trucks are parked, RollOS gives you 24/7 web checkout with zero software debt. Converting just <strong>1 extra after-hours booking per month</strong> adds <strong>+${(12 * averageRentalPrice).toLocaleString()} in gross volume</strong> (~${Math.round(12 * averageRentalPrice * 0.45).toLocaleString()} net profit).
+                Unlike legacy software that charges you <strong>${competitorMonthlyFee}/month</strong> through the dead of winter when trucks are parked, RollOS gives you 24/7 web checkout with zero software debt. Converting just <strong>1 extra booking per month</strong> adds <strong>+${(12 * averageRentalPrice).toLocaleString()} a year in gross volume</strong> (~${Math.round(12 * averageRentalPrice * 0.45).toLocaleString()} net profit assuming ~45% margin after fuel and disposal).
               </p>
             ) : (
               <p className="text-xs text-[#14532d] leading-relaxed">
-                Over 40% of residential dumpster searches happen between 7 PM and 7 AM. An embeddable 60-second booking widget captures payment while you sleep—stopping customers from calling the next hauler on Google.
+                Many residential dumpster customers search for rentals in the evening and after business hours. An embeddable booking widget captures reservations and payment while you sleep—stopping customers from calling the next hauler on Google.
               </p>
             )}
           </div>

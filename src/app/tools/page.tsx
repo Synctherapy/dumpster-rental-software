@@ -54,7 +54,7 @@ export default function ToolsHubPage() {
       description:
         'Enter included tonnage, landfill scale ticket net weight, and your per-ton overage rate. Get exact dollar amounts to add to customer invoices before you leave the transfer station.',
       features: [
-        'Calculates fractional tons accurately (e.g. 3.42 tons vs 2.0 ton allowance)',
+        'Calculates fractional tons accurately (e.g. 3.20 tons vs 2.0 ton allowance = 1.20 tons overage at $85/ton = $102.00 overage fee)',
         'Applies your specific per-ton disposal markup',
         'Generates itemized overage charges for transparent billing',
       ],
@@ -195,7 +195,7 @@ export default function ToolsHubPage() {
                 In the roll-off dumpster industry, revenue leakage almost never comes from major catastrophic mistakes. It comes from small, daily math oversights: forgetting to bill a 0.8-ton overweight fee, failing to track an extra rental day on a job site, or letting a customer dispute a charge because you lacked scale ticket photo documentation.
               </p>
               <p>
-                When an operator dumps 6 to 10 cans a day, transfer station tickets pile up on the truck dashboard. If the driver does not immediately reconcile the scale gross weight against the customer’s contract allowance, that overage is often absorbed by the hauler. At $85/ton overage rate, missing just two overages a week costs your business over <strong>$8,800 per year</strong> in lost net profit.
+                When an operator dumps 6 to 10 cans a day, transfer station tickets pile up on the truck dashboard. If the driver does not immediately reconcile the scale gross weight against the customer’s contract allowance, that overage is often absorbed by the hauler. At an $85/ton overage rate, missing just two 1-ton overages a week costs your business over <strong>$8,800 per year</strong> in lost net profit.
               </p>
               <p>
                 These free tools give you quick benchmarks on your phone browser. When you are ready to automate the entire process, RollOS connects your online bookings, dispatch board, scale ticket photos, and Stripe invoicing into a single, seamless pipeline.
@@ -230,7 +230,7 @@ export default function ToolsHubPage() {
             <div className="p-6 bg-white border border-[#dde4d4] rounded-2xl shadow-sm">
               <h3 className="text-base font-bold text-[#1f2d26] mb-3">Free Legal Templates</h3>
               <p className="text-xs text-[#556658] mb-4">
-                Need lawyer-reviewed rental agreements or professional commercial invoices?
+                Operator-tested contract & invoice templates (have a local attorney review for state compliance).
               </p>
               <ul className="space-y-2.5 text-xs font-semibold">
                 <li>

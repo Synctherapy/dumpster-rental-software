@@ -16,9 +16,12 @@ export default function PrivacyPage() {
         <Brand />
       </div>
       <h1>Privacy Policy</h1>
+      <p style={{ fontSize: '13px', color: '#687864', marginBottom: '16px' }}>
+        <strong>Effective Date:</strong> November 14, 2026 · Operated by Daryl Stubbs, British Columbia, Canada
+      </p>
       <p>
         This Privacy Policy explains how <strong>RollOS</strong> (&ldquo;Company&rdquo;, &ldquo;we&rdquo;,
-        &ldquo;us&rdquo;, or &ldquo;our&rdquo;, &ldquo;rolloffdumpstersoftware.com&rdquo;)
+        &ldquo;us&rdquo;, or &ldquo;our&rdquo;, operated by Daryl Stubbs, British Columbia, Canada)
         collects, uses, and safeguards information when you visit or use <strong>rolloffdumpstersoftware.com</strong>
         (and <strong>dumpster-rental-software.vercel.app</strong>), our dumpster rental management platform, booking widgets,
         and customer communication services.
@@ -69,24 +72,37 @@ export default function PrivacyPage() {
         Message and data rates may apply depending on your mobile carrier and service plan. Supported carriers are not liable for delayed or undelivered messages.
       </p>
 
-      <h2>4. Third-Party Service Providers</h2>
+      <h2>4. Third-Party Sub-Processors</h2>
       <p>
-        We do not sell, rent, or trade your personal information. Data is shared strictly with trusted sub-processors necessary
-        to provide the cloud infrastructure:
+        We do not sell, rent, or trade your personal information. Data is shared strictly with trusted third-party sub-processors necessary
+        to provide our cloud infrastructure and core platform functionality:
       </p>
       <ul style={{ margin: '10px 0 16px 24px', lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746' }}>
-        <li><strong>Stripe:</strong> Payment processing and merchant identity verification.</li>
-        <li><strong>Twilio:</strong> Telecom infrastructure for operational SMS notifications and voice dispatch.</li>
-        <li><strong>Supabase:</strong> Encrypted relational database and authentication services.</li>
-        <li><strong>Resend:</strong> Transactional order confirmation emails and receipts.</li>
+        <li><strong>Stripe:</strong> Payment processing, merchant identity verification, tokenized credit card authorization, and automated hauler payouts via Stripe Connect.</li>
+        <li><strong>Twilio:</strong> Telecommunications carrier infrastructure for transactional SMS dispatch, driver route updates, delivery receipts, and missed-call support textbacks.</li>
+        <li><strong>Supabase:</strong> Cloud-hosted encrypted relational database (AES-256 at rest) and secure user authentication services.</li>
+        <li><strong>Resend:</strong> Transactional email delivery service for booking confirmations, rental agreements, e-signature receipts, and invoices.</li>
       </ul>
 
-      <h2>5. Business Contact & Inquiries</h2>
+      <h2>5. Consent Management & Data Rights</h2>
+      <p>
+        RollOS respects customer privacy choices and enforces strict consent management protocols:
+      </p>
+      <ul style={{ margin: '10px 0 16px 24px', lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746' }}>
+        <li><strong>Collection of Consent:</strong> Consent for operational communications and agreement terms is recorded at checkout with timestamp, IP address, and electronic signature data.</li>
+        <li><strong>Separation of Purpose:</strong> Mobile phone numbers provided for delivery coordination and dispatch are never co-mingled with or used for third-party marketing lists.</li>
+        <li><strong>Revocation of Consent:</strong> Users may withdraw messaging consent at any time by replying STOP to any SMS, or by contacting our privacy team to request deletion or export of personal records.</li>
+        <li><strong>Data Retention:</strong> Order and scale ticket documentation is retained only as long as necessary for tax compliance, accounting audits, and chargeback dispute resolution.</li>
+      </ul>
+
+      <h2>6. Business Contact & Inquiries</h2>
       <p>
         For questions or requests regarding this Privacy Policy or your personal data, please contact:
       </p>
       <div style={{ lineHeight: 1.8, fontSize: '13.5px', color: '#4d5746', margin: '12px 0 24px' }}>
         <strong>RollOS Privacy & Compliance</strong><br />
+        Operated by Daryl Stubbs<br />
+        British Columbia, Canada<br />
         Email: <a href="mailto:support@rolloffdumpstersoftware.com" style={{ color: '#22c55e', textDecoration: 'underline' }}>support@rolloffdumpstersoftware.com</a>
       </div>
 

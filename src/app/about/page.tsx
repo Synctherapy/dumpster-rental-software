@@ -126,7 +126,7 @@ export default function AboutPage() {
               <li className="flex items-start gap-2.5">
                 <span className="text-[#ea580c] font-black shrink-0">•</span>
                 <span>
-                  <strong>Lost revenue from missed calls:</strong> Independent haulers driving trucks all day lose an estimated $1,350 to $2,250 every week because homeowners hire someone else when calls go to voicemail.
+                  <strong>Lost revenue from missed calls:</strong> Every missed call can be a $450 rental lost to a competitor because homeowners hire someone else when calls go to voicemail.
                 </span>
               </li>
             </ul>

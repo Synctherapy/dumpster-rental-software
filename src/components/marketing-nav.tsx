@@ -108,12 +108,12 @@ export const NAV_SECTIONS: NavSection[] = [
       {
         name: 'vs. Docket',
         href: '/vs/docket',
-        desc: 'Why haulers switch from Docket’s $300/mo fee',
+        desc: 'Why haulers switch from annual contracts & sales demos',
       },
       {
         name: 'vs. iCans',
         href: '/vs/icans',
-        desc: 'Zero-friction SMS routing vs $159/mo paywall',
+        desc: 'Zero-app driver links vs $159/mo customer SMS plan',
       },
       {
         name: 'vs. Bin Boss',
@@ -123,12 +123,12 @@ export const NAV_SECTIONS: NavSection[] = [
       {
         name: 'vs. CurbWaste',
         href: '/vs/curbwaste',
-        desc: '$0/mo Free Plan vs enterprise lock-in & setup fees',
+        desc: 'RollOS $0 free plan vs enterprise contracts & demo sales',
       },
       {
         name: 'vs. Trash Flow',
         href: '/vs/trash-flow',
-        desc: '100% cloud platform vs 1990s desktop Windows PC',
+        desc: 'Modern web dispatch vs legacy Windows software & add-ons',
       },
       {
         name: 'vs. ServiceCore',

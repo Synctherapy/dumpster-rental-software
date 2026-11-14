@@ -7,7 +7,7 @@ import { Footer } from '@/components/footer';
 export const metadata = {
   title: 'Dumpster Rental Invoice Template — Free Overage & Disposal Bill',
   description:
-    'Free commercial roll-off dumpster rental invoice template for haulers. Itemize base rental, extra days, certified scale slip weights, tare/gross math, and dispute-proof overages.',
+    'Free commercial roll-off dumpster rental invoice template for haulers. Itemize base rental, extra days, certified scale slip weights, tare/gross math, and evidence-backed overages.',
   alternates: {
     canonical: 'https://rolloffdumpstersoftware.com/templates/dumpster-invoice',
   },
@@ -65,9 +65,13 @@ export default function InvoiceTemplatePage() {
             Commercial Dumpster Rental Invoice Template for Disposal & Overage Billing
           </h1>
 
-          <p className="text-lg text-[#556658] leading-relaxed mb-6">
-            Clear, dispute-proof invoicing is the single most important defense against credit card chargebacks and delayed contractor payments. Use this free, copy-pasteable <strong>commercial roll-off dumpster invoice template</strong> designed specifically for independent waste haulers. Itemize base rentals, extra calendar days, and certified landfill scale slip tickets with complete mathematical transparency.
+          <p className="text-lg text-[#556658] leading-relaxed mb-4">
+            Clear, documented invoicing is the single most important defense against credit card chargebacks and delayed contractor payments. While merchants across industries win only about 20% of disputes on average without documentation, signed rental terms, timestamped photos, and certified landfill scale tickets give haulers strong, verifiable evidence to contest disputes. Use this free, copy-pasteable <strong>commercial roll-off dumpster invoice template</strong> designed specifically for independent waste haulers to itemize base rentals, extra calendar days, and certified scale tickets with complete mathematical transparency.
           </p>
+
+          <div className="p-4 mb-6 bg-[#fffbeb] border border-[#fef3c7] rounded-xl text-xs text-[#92400e] leading-relaxed">
+            <strong>Dispute Documentation Best Practice:</strong> Card issuers decide disputes based on objective evidence. Always attach certified transfer station scale slips, timestamped delivery/pickup photos, and electronically signed customer agreements to maximize your win rate on contested overages.
+          </div>
 
           {/* Above-the-fold Trust & Verification Badges */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -84,9 +88,9 @@ export default function InvoiceTemplatePage() {
             <div className="p-4 bg-white border border-[#dde4d4] rounded-xl flex items-start gap-3 shadow-sm">
               <ShieldCheck size={20} className="text-[#ea580c] flex-shrink-0 mt-0.5" />
               <div>
-                <div className="text-xs font-bold text-[#1f2d26]">Dispute-Proof Representation</div>
+                <div className="text-xs font-bold text-[#1f2d26]">Documented Dispute Defense</div>
                 <p className="text-[11px] text-[#687864] mt-0.5">
-                  Embeds audit clause, photos, and signed waiver cross-references to win card chargebacks.
+                  Embeds audit clauses, placement photos, and signed waiver cross-references to provide solid evidence for card dispute responses.
                 </p>
               </div>
             </div>

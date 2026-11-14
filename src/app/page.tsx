@@ -48,12 +48,12 @@ export default function Home() {
           {
             question: 'What about phone or manual orders? Do I pay $12 for manual dispatch?',
             answer:
-              'No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When contractors or homeowners call or text you, upgrading to our Starter Plan ($29/mo with a 14-day free trial) unlocks unlimited manual phone dispatch with $0 platform fees forever, custom VIP contractor price tiers, and 2-way Google Calendar sync. Just one contractor haul per month pays for the entire software.',
+              'No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When contractors or homeowners call or text you, upgrading to our Starter Plan ($29/mo with a 14-day free trial) unlocks unlimited manual phone dispatch with $0 platform fees forever, custom VIP contractor price tiers, and 1-way calendar sync via an .ics subscription feed to Google Calendar or Apple Calendar. Just one contractor haul per month pays for the entire software.',
           },
           {
             question: 'What if I don’t have a Stripe account or have never accepted cards online?',
             answer:
-              'Setting up Stripe Connect takes under 3 minutes directly inside your RollOS dashboard. It has $0 monthly fees, no setup charges, and zero credit checks. When a customer pays online with a card, standard card processing (2.9% + 30¢) is deducted automatically by Stripe at the time of transaction—meaning no surprise bills at the end of the month. Your payouts deposit automatically into your bank on a free 2-day rolling schedule, with optional 30-minute instant payouts for fuel or landfill fees. RollOS never holds your funds.',
+              'Setting up Stripe Connect takes under 3 minutes directly inside your RollOS dashboard. It has $0 monthly account fees and no setup charges. When a customer pays online with a card, standard card processing (2.9% + 30¢) is deducted automatically by Stripe at the time of transaction—meaning no surprise bills at the end of the month. Payouts deposit automatically to your business bank account on a rolling 2-day schedule, with optional instant payouts available. RollOS never holds your funds.',
           },
           {
             question: 'How do I collect for overweight dumpsters and scale tickets?',
@@ -88,7 +88,7 @@ export default function Home() {
           {
             question: 'What do the Starter ($29/mo) and Growth ($99/mo) plans include?',
             answer:
-              'The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 2-way Google Calendar sync. The Growth Fleet Plan ($99/mo) adds high-value front-office automation: Missed-Call SMS Auto-Textback (instantly texts callers a 60-second booking link when you miss calls while driving, saving 2–3 lost rentals or $900–$1,500/mo) and the VIP Contractor Net-30 Portal (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.',
+              'The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 1-way calendar sync via an .ics subscription feed to Google Calendar or Apple Calendar. The Growth Fleet Plan ($99/mo) adds high-value front-office automation: Missed-Call SMS Auto-Textback (instantly texts callers a booking link when you miss calls while driving; saving just 2 rentals a month at $450 is $900 in extra bookings, or 3 rentals is $1,350) and the VIP Contractor Net-30 Portal (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.',
           },
           {
             question: 'How do I get paid for dumpster rentals?',
@@ -110,7 +110,7 @@ export default function Home() {
             Dumpster rental software that books jobs and collects payments <em>while you sleep.</em>
           </h1>
           <p style={{ fontSize: 16.5, lineHeight: 1.65, color: '#4a5d4e' }}>
-            Stop losing $450 jobs to voicemail. Over 40% of dumpster searches happen after 7 PM—if you don’t have online booking, homeowners hire the next hauler on Google. RollOS gives independent haulers free <strong>dumpster rental software</strong> with 24/7 online customer booking, visual drag-and-drop dispatching, and 1-tap SMS driver routes with zero app downloads.
+            Stop losing $450 jobs when your office is closed. Many customers shop for dumpsters after hours—if you don’t have online booking, homeowners call the next hauler on Google. RollOS gives independent haulers free <strong>dumpster rental software</strong> with 24/7 online customer booking, visual drag-and-drop dispatching, and 1-tap SMS driver routes with zero app downloads.
           </p>
           <div className="hero-actions">
             <Link href="/signup" className="btn btn-orange">
@@ -141,7 +141,7 @@ export default function Home() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={16} color="#628f34" />
-              <span>Stripe Connect Verified Partner</span>
+              <span>Payments powered by Stripe Connect</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <CheckCircle2 size={16} color="#628f34" />
@@ -397,7 +397,7 @@ export default function Home() {
               Stop losing $450 jobs while driving &amp; lock in repeat roofers.
             </h3>
             <p className="text-xs md:text-sm text-[#cbd5e1] leading-relaxed">
-              When a homeowner calls your cell while you&apos;re hauling or at the landfill, 75% hang up and call the next hauler on Google. Growth Fleet equips you with <strong>Twilio Missed-Call SMS Auto-Textback</strong> (recovering 2–3 lost rentals or $900–$1,500/mo) and a <strong>VIP Contractor Net-30 Portal</strong> with 1-click swap requests for roofers.
+              When a homeowner calls your cell while you&apos;re hauling or at the landfill, many callers who hit voicemail call the next hauler on Google. Growth Fleet equips you with <strong>Twilio Missed-Call SMS Auto-Textback</strong> (saving just 2 rentals a month at $450 is $900 in extra bookings, or 3 rentals is $1,350) and a <strong>VIP Contractor Net-30 Portal</strong> with 1-click swap requests for roofers.
             </p>
           </div>
           <div className="shrink-0 flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto">
@@ -694,7 +694,7 @@ export default function Home() {
             <strong>$0 Platform Fee on Offline &amp; Phone Orders:</strong> The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When regular contractors, roofers, or commercial accounts call or text you, enter them onto your visual dispatch board with <strong>$0 platform fees forever</strong>.
           </p>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
-            <strong>Why upgrading to Starter ($29/mo) is an absolute no-brainer:</strong> At just $29/mo (less than $1/day), a single contractor dumpster pull pays for the software for the entire month. While legacy tools like Docket or ServiceCore charge $350–$600+ every month ($4,200+/year) plus forced onboarding fees, RollOS Starter gives you unlimited manual phone dispatches, custom VIP contractor price tiers (cash, check, or net-30 terms), and 2-way Google Calendar sync—saving you <strong>$3,600+ every year</strong>.
+            <strong>Why upgrading to Starter ($29/mo) is an absolute no-brainer:</strong> At just $29/mo (less than $1/day), a single contractor dumpster pull pays for the software for the entire month. While legacy tools like Docket or ServiceCore charge $350–$600+ every month ($4,200+/year) plus forced onboarding fees, RollOS Starter gives you unlimited manual phone dispatches, custom VIP contractor price tiers (cash, check, or net-30 terms), and 1-way calendar sync via an .ics subscription feed to Google Calendar or Apple Calendar—saving you <strong>$3,600+ every year</strong>.
           </p>
           <div className="text-xs font-semibold text-[#166534] bg-[#f0fdf4] p-3 rounded-lg border border-[#bbf7d0]">
             💡 <strong>Start 100% Free:</strong> Capture after-hours online bookings on our $0/mo Free Plan first. When you&apos;re ready to organize your manual phone contractor dispatches, take a 14-day free trial of Starter with 1 click.
@@ -713,7 +713,7 @@ export default function Home() {
             </span>
           </div>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
-            <strong>Missed-Call SMS Auto-Textback (Powered by Twilio):</strong> When a homeowner calls while you&apos;re driving, <strong>75% hang up and call the next dumpster company on Google</strong>. Growth Fleet instantly fires a customized text in under 5 seconds (<em>&ldquo;Hey, driving right now! Check prices and reserve a bin here in 60s: [your booking link]&rdquo;</em>). Saving just 2–3 lost rentals a month puts <strong>$900–$1,500 back in your pocket</strong>.
+            <strong>Missed-Call SMS Auto-Textback (Powered by Twilio):</strong> When a homeowner calls while you&apos;re driving, <strong>many callers who hit voicemail call the next dumpster company on Google</strong>. Growth Fleet instantly fires a customized text in under 5 seconds (<em>&ldquo;Hey, driving right now! Check prices and reserve a bin here in 60s: [your booking link]&rdquo;</em>). Saving just 2 rentals a month at $450 is $900 in extra bookings (or 3 rentals is $1,350).
           </p>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
             <strong>VIP Contractor Net-30 Portal:</strong> Roofers and remodelers order 5–15 dumpsters a month. Give them their own self-service portal for <strong>1-click container swap requests</strong> (no 6:00 AM phone calls) and <strong>automated Net-30 monthly invoicing</strong> with attached landfill scale weight slips. Once a contractor has a Net-30 portal with you, they will never switch haulers.
@@ -733,12 +733,12 @@ export default function Home() {
             Don&apos;t have a Stripe account or never processed cards online?
           </h4>
           <p className="text-sm text-[#475569] leading-relaxed mb-3">
-            <strong>$0 monthly fees and 3-minute setup:</strong> RollOS connects directly with <strong>Stripe Connect</strong>—the payment backbone trusted by Amazon, Shopify, and millions of businesses. Setting up your account is 100% free with <strong>$0 monthly account fees</strong>, zero statement charges, and <strong>zero credit checks</strong> (no score impact).
+            <strong>$0 monthly fees and 3-minute setup:</strong> RollOS connects directly with <strong>Stripe Connect</strong>—the payment backbone trusted by Amazon, Shopify, and millions of businesses. Setting up your account is 100% free with <strong>$0 monthly account fees</strong> and zero statement charges.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#334155] mb-3">
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
-              <span><strong>Free Automatic 2-Day Payouts:</strong> Direct to your checking account.</span>
+              <span><strong>Rolling Bank Payouts:</strong> ~2 business days in US (3 in Canada); first payout takes 7–14 days.</span>
             </div>
             <div className="flex items-center gap-1.5 bg-[#f8faf7] p-2.5 rounded-lg border border-[#e2e8db]">
               <span className="text-[#166534] font-bold">✓</span>
@@ -754,7 +754,7 @@ export default function Home() {
             </div>
           </div>
           <p className="text-xs text-[#64748b] leading-relaxed">
-            <strong>How card fees work:</strong> When a customer pays online, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment—meaning you never receive a surprise bill at the end of the month. Standard bank payouts on a 2-day rolling schedule are 100% free. Optional 30-minute instant debit card cashouts carry Stripe&apos;s standard 1.5% fee.
+            <strong>How card fees work:</strong> When a customer pays online, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment—meaning you never receive a surprise bill at the end of the month. Payouts deposit directly into your business bank account on a rolling 2-day schedule.
           </p>
         </div>
 
@@ -913,7 +913,7 @@ export default function Home() {
               What about phone or manual orders? Do I pay $12 for manual dispatch?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When regular contractors call or text you, our <strong>Starter Plan ($29/mo)</strong> unlocks unlimited manual phone dispatch with <strong>$0 platform fees forever</strong>, VIP contractor custom rates (cash, check, or net-30 terms), and 2-way Google Calendar sync. One single contractor haul per month pays for the entire software while saving you $3,600+/yr vs legacy tools.
+              No. The $12 reservation fee strictly applies to self-service checkouts on your 24/7 online widget. When regular contractors call or text you, our <strong>Starter Plan ($29/mo)</strong> unlocks unlimited manual phone dispatch with <strong>$0 platform fees forever</strong>, VIP contractor custom rates (cash, check, or net-30 terms), and 1-way calendar sync via an .ics subscription feed to Google Calendar or Apple Calendar. One single contractor haul per month pays for the entire software while saving you $3,600+/yr vs legacy tools.
             </p>
           </div>
 
@@ -923,7 +923,7 @@ export default function Home() {
               What if I don&apos;t have a Stripe account or never processed cards online?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              Setting up Stripe Connect takes under 3 minutes directly from your RollOS dashboard. There are <strong>$0 monthly fees</strong>, no setup charges, and <strong>zero credit checks</strong> (no score impact). When a customer pays online with a card, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment, meaning you never get a surprise bill at the end of the month. Your payouts deposit automatically into your bank account on a 2-day rolling schedule (100% free), with optional 30-minute instant cashouts if you need emergency cash for fuel or landfill tipping fees. RollOS never holds your funds.
+              Setting up Stripe Connect takes under 3 minutes directly from your RollOS dashboard. There are <strong>$0 monthly fees</strong> and no setup charges. When a customer pays online with a card, Stripe automatically deducts standard card processing (2.9% + 30¢) at the moment of payment, meaning you never get a surprise bill at the end of the month. Payouts deposit automatically to your business checking account on a 2-day rolling schedule, with optional instant payouts available. RollOS never holds your funds.
             </p>
           </div>
 
@@ -993,7 +993,7 @@ export default function Home() {
               What do the Starter ($29/mo) and Growth ($99/mo) plans include?
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.6, color: '#334155' }}>
-              The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 2-way Google Calendar sync. The Growth Fleet Plan ($99/mo) adds high-value front-office automation: <strong>Missed-Call SMS Auto-Textback</strong> (instantly texts callers a 60-second booking link when you miss calls while driving, saving 2–3 lost rentals or $900–$1,500/mo) and the <strong>VIP Contractor Net-30 Portal</strong> (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.
+              The Starter Plan ($29/mo with a 14-day free trial) unlocks offline cash/check logging and 1-way calendar sync via an .ics subscription feed to Google Calendar or Apple Calendar. The Growth Fleet Plan ($99/mo) adds high-value front-office automation: <strong>Missed-Call SMS Auto-Textback</strong> (instantly texts callers a booking link when you miss calls while driving; saving just 2 rentals a month at $450 is $900 in extra bookings, or 3 rentals is $1,350) and the <strong>VIP Contractor Net-30 Portal</strong> (1-click swap requests and automated Net-30 monthly invoicing for roofers ordering 5–15 bins/month), plus multi-truck fleet dispatch.
             </p>
           </div>
 
