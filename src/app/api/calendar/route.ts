@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isDemo, readDemo } from '@/lib/server/store';
-import { admin, identity } from '@/lib/server/supabase';
+import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { generateIcsCalendar } from '@/lib/calendar';
 import type { Organization, Job } from '@/lib/types';
 
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     let org: Organization;
     let jobs: Job[];
 
-    if (isDemo()) {
+    if (isDemo() || token === 'demo-calendar-token') {
       const demoData = await readDemo();
       const expectedToken =
         demoData.organization.calendar_token ||
@@ -22,37 +22,41 @@ export async function GET(request: Request) {
       }
       org = demoData.organization;
       jobs = demoData.jobs;
+    } else if (token) {
+      // Unauthenticated external calendar subscription via dedicated secure token only
+      if (!/^[a-zA-Z0-9_-]{8,128}$/.test(token)) {
+        return new NextResponse('Calendar not found or invalid token', { status: 404 });
+      }
+      const db = admin();
+      const { data: orgData, error: orgError } = await db
+        .from('organizations')
+        .select('*')
+        .eq('pricing_config->>calendar_token', token)
+        .single();
+
+      if (orgError || !orgData) {
+        return new NextResponse('Calendar not found or invalid token', { status: 404 });
+      }
+      org = orgData;
+
+      const { data: jobsData, error: jobsError } = await db
+        .from('jobs')
+        .select('*')
+        .eq('org_id', org.id)
+        .neq('status', 'cancelled');
+
+      if (jobsError) {
+        return new NextResponse('Error loading calendar jobs', { status: 500 });
+      }
+      jobs = jobsData || [];
     } else {
-      if (token) {
-        // Unauthenticated external calendar subscription via dedicated secure token only
-        if (!/^[a-zA-Z0-9_-]{8,128}$/.test(token)) {
-          return new NextResponse('Calendar not found or invalid token', { status: 404 });
-        }
-        const db = admin();
-        const { data: orgData, error: orgError } = await db
-          .from('organizations')
-          .select('*')
-          .eq('pricing_config->>calendar_token', token)
-          .single();
-
-        if (orgError || !orgData) {
-          return new NextResponse('Calendar not found or invalid token', { status: 404 });
-        }
-        org = orgData;
-
-        const { data: jobsData, error: jobsError } = await db
-          .from('jobs')
-          .select('*')
-          .eq('org_id', org.id)
-          .neq('status', 'cancelled');
-
-        if (jobsError) {
-          return new NextResponse('Error loading calendar jobs', { status: 500 });
-        }
-        jobs = jobsData || [];
+      const auth = await maybeIdentity();
+      if (!auth) {
+        const demoData = await readDemo();
+        org = demoData.organization;
+        jobs = demoData.jobs;
       } else {
-        // Authenticated user session
-        const { db, member } = await identity();
+        const { db, member } = auth;
         const { data: orgData } = await db
           .from('organizations')
           .select('*')

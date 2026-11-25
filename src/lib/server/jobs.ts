@@ -1,8 +1,8 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { isDemo, mutateDemo, readDemo } from './store';
-import { admin, identity } from './supabase';
+import { getDemoSessionId, isDemo, isDemoOrg, mutateDemo, readDemo } from './store';
+import { admin, identity, maybeIdentity } from './supabase';
 import { quote, invoice, platformFee } from '../pricing';
 import {
   today,
@@ -26,7 +26,7 @@ import { isOptedOut } from './opt-outs';
 
 export async function recordBookingOccurred(orgId: string) {
   const now = new Date().toISOString();
-  if (isDemo()) {
+  if (isDemoOrg(orgId)) {
     await mutateDemo((d) => {
       if (d.organization.id === orgId) {
         d.organization.last_booking_at = now;
@@ -319,38 +319,6 @@ export async function changeJob(
   driverIdentity?: { org: string; driver: string; sid?: string },
 ) {
   const patch = changeSchema.parse(input);
-  const demo = isDemo();
-  const rawPaymentType = (patch.payment_type || patch.payment_method)
-    ?.replace('-', '_')
-    .toLowerCase();
-  const isOfflinePayment =
-    rawPaymentType && (OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawPaymentType);
-
-  if (isOfflinePayment) {
-    if (demo) {
-      const demoData = await readDemo();
-      if (demoData.organization.subscription_status !== 'active') {
-        throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
-        );
-      }
-    } else {
-      const { member, db } = await identity();
-      if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
-      const { data: orgData } = await db
-        .from('organizations')
-        .select('subscription_status')
-        .eq('id', member.org_id)
-        .single();
-      if (orgData?.subscription_status !== 'active') {
-        throw new Error(
-          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
-        );
-      }
-    }
-  }
-
-  let job: Job;
   if (
     driverIdentity &&
     (Object.keys(patch).some(
@@ -367,11 +335,43 @@ export async function changeJob(
       (patch.status && !['delivered', 'picked_up'].includes(patch.status)))
   )
     throw new Error('FORBIDDEN');
+
+  const auth = isDemo() || driverIdentity ? null : await maybeIdentity();
+  const demo = driverIdentity ? isDemoOrg(driverIdentity.org) : !auth;
+  const rawPaymentType = (patch.payment_type || patch.payment_method)
+    ?.replace('-', '_')
+    .toLowerCase();
+  const isOfflinePayment =
+    rawPaymentType && (OFFLINE_PAYMENT_TYPES as readonly string[]).includes(rawPaymentType);
+
+  if (isOfflinePayment) {
+    if (demo) {
+      const demoData = await readDemo(driverIdentity?.sid);
+      if (demoData.organization.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
+        );
+      }
+    } else {
+      const { member, db } = auth ?? (await identity());
+      if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
+      const { data: orgData } = await db
+        .from('organizations')
+        .select('subscription_status')
+        .eq('id', member.org_id)
+        .single();
+      if (orgData?.subscription_status !== 'active') {
+        throw new Error(
+          'Offline payments (cash/check/net-30) require an active Starter ($29/mo) or Growth ($99/mo) plan.',
+        );
+      }
+    }
+  }
+
+  let job: Job;
   if (!demo && patch.status === 'completed')
     throw new Error('Use the invoice payment action to close this job.');
-  const demoSandbox = demo
-    ? (driverIdentity?.sid ?? (await import('./store').then((m) => m.getDemoSessionId())))
-    : null;
+  const demoSandbox = demo ? (driverIdentity?.sid ?? (await getDemoSessionId())) : null;
   if (demo) {
     job = await mutateDemo(async (d) => {
       const j = d.jobs.find((j) => j.id === id);
@@ -494,7 +494,7 @@ export async function changeJob(
     if (driverIdentity) {
       org = driverIdentity.org;
     } else {
-      const { member } = await identity();
+      const { member } = auth ?? (await identity());
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
       org = member.org_id;
     }
@@ -549,9 +549,7 @@ export async function changeJob(
     }
   }
   if (patch.status === 'dispatched') {
-    const d = demo
-      ? await import('./store').then((m) => m.readDemo(demoSandbox ?? undefined))
-      : null;
+    const d = demo ? await readDemo(demoSandbox ?? undefined) : null;
     const driver = demo
       ? d!.users.find((u) => u.id === job.driver_id)
       : (await admin().from('users').select('*').eq('id', job.driver_id!).single()).data;
@@ -579,7 +577,7 @@ export async function changeJob(
     );
     if (patch.status === 'picked_up') {
       const org = demo
-        ? (await import('./store').then((m) => m.readDemo())).organization
+        ? (await readDemo(demoSandbox ?? undefined)).organization
         : (await admin().from('organizations').select('*').eq('id', job.org_id).single()).data;
       const reviewUrl = org?.google_review_url || org?.pricing_config?.google_review_url;
       if (reviewUrl) {
@@ -594,7 +592,8 @@ export async function changeJob(
   return job;
 }
 export async function chargeInvoice(id: string) {
-  const demo = isDemo();
+  const auth = isDemo() ? null : await maybeIdentity();
+  const demo = !auth;
   if (demo) {
     const { payment, job, orgName, isNewCharge } = await mutateDemo((d) => {
       const job = d.jobs.find((j) => j.id === id);
@@ -638,7 +637,7 @@ export async function chargeInvoice(id: string) {
     }
     return payment;
   }
-  const { db, member } = await identity();
+  const { db, member } = auth;
   if (member.role !== 'owner') throw new Error('FORBIDDEN');
   const client = stripe();
   const preview = await admin()
@@ -748,7 +747,8 @@ export async function recordOfflinePayment(
     throw new Error('Invalid offline payment type.');
   }
 
-  if (isDemo()) {
+  const auth = isDemo() ? null : await maybeIdentity();
+  if (!auth) {
     const demoData = await readDemo();
     if (demoData.organization.subscription_status !== 'active') {
       throw new Error(
@@ -783,7 +783,7 @@ export async function recordOfflinePayment(
     });
   }
 
-  const { member, db } = await identity();
+  const { member, db } = auth;
   const { data: orgData } = await db
     .from('organizations')
     .select('subscription_status')
@@ -845,7 +845,8 @@ export type SwapInput = z.infer<typeof swapSchema>;
 export async function swapContainer(id: string, input: unknown, origin?: string) {
   void origin;
   const body = swapSchema.parse(input ?? {});
-  const demo = isDemo();
+  const auth = isDemo() ? null : await maybeIdentity();
+  const demo = isDemo() || (!auth && (await readDemo()).jobs.some((j) => j.id === id));
 
   if (demo) {
     const demoData = await readDemo();
@@ -957,7 +958,7 @@ export async function swapContainer(id: string, input: unknown, origin?: string)
     return result;
   }
 
-  const { member, db } = await identity();
+  const { member, db } = auth ?? (await identity());
   if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
 
   const { data: orgData, error: orgErr } = await db

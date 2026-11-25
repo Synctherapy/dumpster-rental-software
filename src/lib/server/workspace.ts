@@ -1,6 +1,6 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import { isDemo, readDemo } from './store';
+import { getDemoSessionId, isDemo, isReservedDemoSlug, readDemo } from './store';
 import { admin, maybeIdentity } from './supabase';
 import { checkAndTriggerPhoneProvisioning } from './phone';
 import type { Workspace } from '../types';
@@ -141,11 +141,23 @@ export async function publicOrganization(slug: string) {
     .select('id,name,slug,phone,timezone,pricing_config,stripe_connect_account_id')
     .eq('slug', slug)
     .single();
-  // An unknown slug is not found. It must not resolve to the demo business
-  // renamed to match, which turned any mistyped booking link into a bookable
-  // storefront for a company that does not exist. In demo mode the branch
-  // above answers first, so the no-signup demo is unaffected.
-  if (error || !organization) throw new Error('Organization not found');
+  if (error || !organization) {
+    const sessionId = await getDemoSessionId();
+    if (isReservedDemoSlug(slug) || sessionId) {
+      const d = await readDemo(sessionId ?? undefined);
+      if (isReservedDemoSlug(slug) || d.organization.slug === slug) {
+        return {
+          organization: cleanPublicOrganization({ ...d.organization, slug }),
+          pricing_rules: d.pricing_rules,
+          demo: true,
+        };
+      }
+    }
+    // An unknown slug is not found. It must not resolve to the demo business
+    // renamed to match, which turned any mistyped booking link into a bookable
+    // storefront for a company that does not exist.
+    throw new Error('Organization not found');
+  }
   const { data: pricing_rules, error: ruleError } = await db
     .from('pricing_rules')
     .select('*')

@@ -1,5 +1,5 @@
 import 'server-only';
-import { isDemo, mutateDemo, readDemo } from './store';
+import { isDemoOrg, mutateDemo, readDemo } from './store';
 import { admin } from './supabase';
 
 /** Carrier-recognised opt-out words. HELP is deliberately not one of these. */
@@ -28,7 +28,7 @@ export function messageKeyword(body: string) {
 export async function recordOptOut(org_id: string, phone: string, source = 'sms_keyword') {
   if (!phone) return;
   const entry = { phone, opted_out_at: new Date().toISOString(), source };
-  if (isDemo()) {
+  if (isDemoOrg(org_id)) {
     await mutateDemo((d) => {
       d.sms_opt_outs = (d.sms_opt_outs ?? []).filter((o) => o.phone !== phone);
       d.sms_opt_outs.push(entry);
@@ -43,7 +43,7 @@ export async function recordOptOut(org_id: string, phone: string, source = 'sms_
 
 export async function clearOptOut(org_id: string, phone: string) {
   if (!phone) return;
-  if (isDemo()) {
+  if (isDemoOrg(org_id)) {
     await mutateDemo((d) => {
       d.sms_opt_outs = (d.sms_opt_outs ?? []).filter((o) => o.phone !== phone);
     });
@@ -64,7 +64,7 @@ export async function clearOptOut(org_id: string, phone: string) {
  */
 export async function isOptedOut(org_id: string, phone: string): Promise<boolean> {
   if (!phone) return true;
-  if (isDemo()) {
+  if (isDemoOrg(org_id)) {
     const d = await readDemo();
     return (d.sms_opt_outs ?? []).some((o) => o.phone === phone);
   }

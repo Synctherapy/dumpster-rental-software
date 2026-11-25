@@ -11,7 +11,7 @@ import {
   GBP_3PACK_SETUP_CENTS,
   STARTER_TRIAL_DAYS,
 } from '@/lib/pricing';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { isDemo, isDemoOrg, mutateDemo } from '@/lib/server/store';
 
 function sanitizeRedirectUrl(
   candidate: string | undefined,
@@ -113,7 +113,8 @@ export async function POST(request: Request) {
     const successUrl = sanitizeRedirectUrl(body?.success_url, defaultSuccessPath, origin);
     const cancelUrl = sanitizeRedirectUrl(body?.cancel_url, defaultCancelPath, origin);
 
-    if (isDemo()) {
+    const ident = isDemo() ? null : await maybeIdentity();
+    if (isDemo() || (!ident && (!body?.org_id || isDemoOrg(body.org_id)) && !body?.email)) {
       await mutateDemo((d) => {
         if (body?.status === 'inactive' || plan === 'free') {
           d.organization.subscription_status = 'inactive';
@@ -150,7 +151,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: successUrl });
     }
 
-    const ident = await maybeIdentity();
     let orgId = ident?.member.org_id || body?.org_id;
     let customerEmail = ident?.user?.email || body?.email;
     let customerPhone = body?.phone;

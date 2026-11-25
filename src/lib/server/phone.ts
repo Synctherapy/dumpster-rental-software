@@ -1,11 +1,11 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import twilio from 'twilio';
-import { isDemo, mutateDemo, readDemo } from './store';
+import { isDemoOrg, mutateDemo, readDemo } from './store';
 import { admin } from './supabase';
 
 export async function ensureOrganizationPhone(orgId: string): Promise<string | null> {
-  if (isDemo()) {
+  if (isDemoOrg(orgId)) {
     const d = await readDemo();
     if (d.organization.twilio_phone_number) {
       return d.organization.twilio_phone_number;
@@ -80,13 +80,8 @@ export async function ensureOrganizationPhone(orgId: string): Promise<string | n
   }
 
   if (!phoneNumber) {
-    if (isDemo()) {
-      phoneNumber = '+1512555' + Math.floor(1000 + Math.random() * 9000).toString();
-      phoneSid = 'mock_sid_' + randomUUID();
-    } else {
-      console.warn(`[Twilio Provisioning] Unable to provision dedicated phone number for organization ${orgId}. No number was acquired.`);
-      return null;
-    }
+    console.warn(`[Twilio Provisioning] Unable to provision dedicated phone number for organization ${orgId}. No number was acquired.`);
+    return null;
   }
 
   await db
@@ -102,7 +97,7 @@ export async function ensureOrganizationPhone(orgId: string): Promise<string | n
 }
 
 export async function releaseOrganizationPhone(orgId: string): Promise<boolean> {
-  if (isDemo()) {
+  if (isDemoOrg(orgId)) {
     await mutateDemo((d) => {
       if (d.organization.id === orgId) {
         d.organization.twilio_phone_number = null;
@@ -148,7 +143,7 @@ export async function releaseOrganizationPhone(orgId: string): Promise<boolean> 
 }
 
 export async function checkAndTriggerPhoneProvisioning(orgId: string): Promise<string | null> {
-  if (isDemo()) {
+  if (isDemoOrg(orgId)) {
     const d = await readDemo();
     if (d.organization.id !== orgId) return null;
     if (d.organization.twilio_phone_number) return d.organization.twilio_phone_number;

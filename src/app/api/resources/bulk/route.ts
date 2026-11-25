@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo } from '@/lib/server/store';
-import { identity } from '@/lib/server/supabase';
+import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
+import { maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 import type { Container } from '@/lib/types';
@@ -32,7 +32,8 @@ export async function POST(request: Request) {
       throw new Error(`Duplicate container labels in list: ${duplicates.slice(0, 3).join(', ')}`);
     }
 
-    if (isDemo()) {
+    const auth = isDemo() ? null : await maybeIdentity();
+    if (!auth) {
       await mutateDemo((d) => {
         const existingLabels = new Set(d.containers.map((c) => c.label.toLowerCase()));
         for (const item of items) {
@@ -52,10 +53,10 @@ export async function POST(request: Request) {
 
         d.containers.push(...newContainers);
       });
-      const d = await import('@/lib/server/store').then((m) => m.readDemo());
+      const d = await readDemo();
       await checkAndTriggerPhoneProvisioning(d.organization.id).catch(() => {});
     } else {
-      const { db, member } = await identity();
+      const { db, member } = auth;
       if (member.role !== 'owner') throw new Error('FORBIDDEN');
 
       const rows = items.map((item) => ({

@@ -1,22 +1,13 @@
 import 'server-only';
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { isDemo } from './store';
+import { isDemoOrg, readDemoPhoto } from './store';
 import { admin } from './supabase';
 export async function validateProof(url: string, job: string, org: string) {
-  if (isDemo()) {
+  if (isDemoOrg(org)) {
     if (!/^\/api\/photos\/[0-9a-f-]+\.(png|jpg)$/.test(url))
       throw new Error('Upload a delivery photo for this job first.');
     const file = url.split('/').pop()!;
-    const directory = path.join(
-      process.env.ROLLOS_DATA_DIR || path.join(process.cwd(), '.rollos'),
-      'photos',
-    );
-    try {
-      const metadata = JSON.parse(await readFile(path.join(directory, file + '.json'), 'utf8'));
-      if (metadata.job_id !== job || metadata.org_id !== org) throw new Error('Wrong job');
-      await readFile(path.join(directory, file));
-    } catch {
+    const record = await readDemoPhoto(file);
+    if (!record || record.metadata.job_id !== job || record.metadata.org_id !== org) {
       throw new Error('Delivery proof must be uploaded for this job.');
     }
   } else {

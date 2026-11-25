@@ -1,6 +1,6 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { isDemo, readDemo } from './store';
+import { isDemo, isDemoOrg, readDemo } from './store';
 import { admin } from './supabase';
 function secret() {
   const s = process.env.DRIVER_TOKEN_SECRET;
@@ -141,7 +141,7 @@ export async function assertDriverLinkActive(claim: {
   sid?: string;
 }) {
   let revokedAt: string | null | undefined;
-  if (isDemo()) {
+  if (isDemoOrg(claim.org)) {
     const d = await readDemo(claim.sid);
     revokedAt = d.users.find((u) => u.id === claim.driver)?.links_revoked_at ?? null;
   } else {

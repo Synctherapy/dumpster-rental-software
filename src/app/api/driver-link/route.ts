@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { workspace } from '@/lib/server/workspace';
 import { driverToken, driverLinkTtlForPickup, latestActivePickup } from '@/lib/server/tokens';
 import { assertSameOrigin, failure } from '@/lib/server/http';
-import { getDemoSessionId, isDemo, mutateDemo } from '@/lib/server/store';
+import { getDemoSessionId, mutateDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 export async function POST(request: Request) {
   try {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     // driver stops working, and the next one they are sent works again.
     if (revoke === true) {
       const revokedAt = new Date().toISOString();
-      if (isDemo()) {
+      if (data.demo) {
         await mutateDemo((d) => {
           const driver = d.users.find((u) => u.id === driver_id);
           if (driver) driver.links_revoked_at = revokedAt;
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
     // Issued outside any one job, so cover the driver's latest scheduled pickup.
     const ttl = driverLinkTtlForPickup(latestActivePickup(data.jobs, driver_id));
-    const sandbox = isDemo() ? await getDemoSessionId() : null;
+    const sandbox = data.demo ? await getDemoSessionId() : null;
     return NextResponse.json({
       url: `/driver/${driverToken(data.organization.id, driver_id, ttl, sandbox)}`,
     });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { clientIp, enforceRateLimit } from '@/lib/server/rate-limit';
@@ -27,7 +27,7 @@ export async function POST(
 
     const timestamp = new Date().toISOString();
 
-    if (isDemo()) {
+    const signDemoSandboxJob = async (sessionId?: string) => {
       const updated = await mutateDemo((d) => {
         const job = d.jobs.find((j) => j.id === id);
         if (!job) throw new Error('Job not found');
@@ -39,13 +39,16 @@ export async function POST(
         };
         job.signed_by_customer = true;
         return { job, org: d.organization };
-      });
+      }, sessionId);
 
-      // Send SMS confirmation that waiver was successfully signed
       const smsText = `${updated.org?.name || 'Your dumpster rental'}: Your rental agreement & property waiver has been signed and recorded. Reference #${id.slice(0, 8).toUpperCase()}.`;
       await sendSms(updated.org.id, id, updated.job.customer_phone, 'waiver_signed', smsText);
 
       return NextResponse.json({ ok: true, job: updated.job });
+    };
+
+    if (isDemo()) {
+      return await signDemoSandboxJob();
     }
 
     const db = admin();
@@ -55,9 +58,16 @@ export async function POST(
       .eq('id', id)
       .single();
 
-    // A job that is not in this database is not found. It must never fall back
-    // to writing a signature into the demo workspace.
-    if (jobErr || !job) throw new Error('Job not found');
+    if (jobErr || !job) {
+      // Only allow signing a demo waiver if the visitor holds a private demo
+      // sandbox cookie that actually contains this job; arbitrary unknown IDs
+      // still fail with 404 and never write to a shared workspace.
+      const demoSession = await getDemoSessionId();
+      if (demoSession && (await readDemo(demoSession)).jobs.some((j) => j.id === id)) {
+        return await signDemoSandboxJob(demoSession);
+      }
+      throw new Error('Job not found');
+    }
     if (job.signed_by_customer) throw new Error(ALREADY_SIGNED);
 
     const updatedSignature = {

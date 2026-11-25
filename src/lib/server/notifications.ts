@@ -1,7 +1,7 @@
 import 'server-only';
 import twilio from 'twilio';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo } from './store';
+import { isDemo, isDemoOrg, mutateDemo } from './store';
 import { admin } from './supabase';
 import type { Notification } from '../types';
 export async function claimNotification(
@@ -41,7 +41,7 @@ export async function claimNotification(
             : ''
     }`,
   };
-  if (isDemo())
+  if (isDemoOrg(org_id))
     return mutateDemo((d) => {
       if (d.notifications_log.some((n) => n.dedupe_key === log.dedupe_key)) return null;
       d.notifications_log.unshift(log);
@@ -54,8 +54,8 @@ export async function claimNotification(
   if (error) throw new Error(error.message);
   return data?.[0] as Notification | null;
 }
-export async function finishNotification(id: string, status: string) {
-  if (isDemo())
+export async function finishNotification(id: string, status: string, org_id?: string | null) {
+  if (isDemoOrg(org_id))
     await mutateDemo((d) => {
       const log = d.notifications_log.find((n) => n.id === id);
       if (log) log.status = status;
@@ -75,7 +75,7 @@ export async function sendSms(
 ) {
   const log = await claimNotification(org_id, job_id, to, template, 'sms', uniqueness);
   if (!log) return 'already_logged';
-  const demo = isDemo();
+  const demo = isDemoOrg(org_id);
   let status = demo ? 'demo' : 'not_configured';
   let fromNumber = process.env.TWILIO_FROM_NUMBER;
   if (!demo && org_id) {
@@ -114,7 +114,7 @@ export async function sendSms(
       status = 'failed';
     }
   }
-  await finishNotification(log.id, status);
+  await finishNotification(log.id, status, org_id);
   return status;
 }
 

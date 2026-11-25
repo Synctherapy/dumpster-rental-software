@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { verifyActiveDriverToken } from '@/lib/server/tokens';
-import { isDemo, readDemo } from '@/lib/server/store';
+import { isDemoOrg, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { changeJob } from '@/lib/server/jobs';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 export async function GET(_: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const t = await verifyActiveDriverToken((await params).token);
-    if (isDemo()) {
+    if (isDemoOrg(t.org)) {
       const d = await readDemo(t.sid);
       return NextResponse.json({
         driver: d.users.find((u) => u.id === t.driver),

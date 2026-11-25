@@ -341,7 +341,7 @@ export async function POST(
         ? `[VIP CONTRACTOR: ${accountName}] ${body.notes}`
         : `[VIP CONTRACTOR: ${accountName}] 1-Tap Portal Swap`;
 
-      if (isDemo()) {
+      if (access.demo) {
         // Ensure demo org allows contractor VIP swap seamlessly even if subscription_status is inactive
         let previousStatus: string | undefined;
         await mutateDemo((d) => {

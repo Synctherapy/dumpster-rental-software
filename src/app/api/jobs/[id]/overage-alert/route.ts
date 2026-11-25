@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isDemo, readDemo } from '@/lib/server/store';
-import { identity } from '@/lib/server/supabase';
+import { maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { sendSms } from '@/lib/server/notifications';
 import { sendEmail } from '@/lib/server/email';
@@ -17,7 +17,8 @@ export async function POST(
     const origin = process.env.APP_URL || new URL(request.url).origin;
     const agreementUrl = `${origin}/agreement/${id}`;
 
-    if (isDemo()) {
+    const auth = isDemo() ? null : await maybeIdentity();
+    if (!auth) {
       const demoData = await readDemo();
       const job = demoData.jobs.find((j) => j.id === id);
       if (!job) throw new Error('Job not found');
@@ -57,7 +58,7 @@ export async function POST(
       return NextResponse.json({ ok: true, sent_to: job.customer_phone });
     }
 
-    const { member, db } = await identity();
+    const { member, db } = auth;
     if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
 
     const { data: jobRow, error: jobErr } = await db

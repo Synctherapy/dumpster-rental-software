@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
@@ -25,7 +25,7 @@ export async function POST(
       ? `[EARLY PICKUP REQUESTED: ${body.customer_note}]`
       : '[EARLY PICKUP REQUESTED]';
 
-    if (isDemo()) {
+    const requestDemoEarlyPickup = async (sessionId?: string) => {
       const updated = await mutateDemo((d) => {
         const job = d.jobs.find((j) => j.id === id);
         if (!job) throw new Error('Job not found');
@@ -34,7 +34,7 @@ export async function POST(
           job.notes = job.notes ? `${tag} ${job.notes}` : tag;
         }
         return { job, org: d.organization };
-      });
+      }, sessionId);
 
       if (updated.org.phone) {
         await sendSms(
@@ -47,6 +47,10 @@ export async function POST(
       }
 
       return NextResponse.json({ ok: true, job: updated.job });
+    };
+
+    if (isDemo()) {
+      return await requestDemoEarlyPickup();
     }
 
     const db = admin();
@@ -56,7 +60,13 @@ export async function POST(
       .eq('id', id)
       .single();
 
-    if (jobErr || !job) throw new Error('Job not found');
+    if (jobErr || !job) {
+      const demoSession = await getDemoSessionId();
+      if (demoSession && (await readDemo(demoSession)).jobs.some((j) => j.id === id)) {
+        return await requestDemoEarlyPickup(demoSession);
+      }
+      throw new Error('Job not found');
+    }
 
     const currentNotes: string = job.notes || '';
     const updatedNotes = currentNotes.includes('[EARLY PICKUP')

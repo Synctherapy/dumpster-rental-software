@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isDemo, readDemo } from '@/lib/server/store';
-import { admin, identity } from '@/lib/server/supabase';
+import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { sendSms } from '@/lib/server/notifications';
 import { isOptedOut } from '@/lib/server/opt-outs';
@@ -19,7 +19,8 @@ export async function POST(
     let orgName: string;
     let reviewUrl: string;
 
-    if (isDemo()) {
+    const auth = isDemo() ? null : await maybeIdentity();
+    if (!auth) {
       const demo = await readDemo();
       const job = demo.jobs.find((j) => j.id === id);
       if (!job) throw new Error('Job not found');
@@ -33,7 +34,7 @@ export async function POST(
       orgId = org.id;
       orgName = org.name;
     } else {
-      const { member } = await identity();
+      const { member } = auth;
       if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
 
       const db = admin();

@@ -2,21 +2,52 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
-import { seed } from '../seed';
+import { demoOrg, seed } from '../seed';
 import type { Workspace } from '../types';
 
-const directory = process.env.ROLLOS_DATA_DIR || path.join(process.cwd(), '.rollos');
+export function demoDataDirectory() {
+  if (process.env.ROLLOS_DATA_DIR) return process.env.ROLLOS_DATA_DIR;
+  if (process.env.VERCEL) return path.join('/tmp', '.rollos');
+  return path.join(process.cwd(), '.rollos');
+}
+
+const directory = demoDataDirectory();
 const defaultFilename = path.join(directory, 'demo.json');
+
+export interface DemoPhotoRecord {
+  bytes: Buffer;
+  metadata: { job_id: string; org_id: string };
+}
 
 const globalStore = globalThis as typeof globalThis & {
   rollosDemoQueue?: { queue: Promise<unknown> };
   rollosDemoMemory?: Workspace;
   rollosDemoSessions?: Map<string, Workspace>;
+  rollosDemoPhotos?: Map<string, DemoPhotoRecord>;
   rollosFsDisabled?: boolean;
 };
 
 const state = (globalStore.rollosDemoQueue ??= { queue: Promise.resolve() });
 const sessions = (globalStore.rollosDemoSessions ??= new Map<string, Workspace>());
+const photos = (globalStore.rollosDemoPhotos ??= new Map<string, DemoPhotoRecord>());
+
+export const DEMO_ORG_ID = demoOrg;
+export const DEMO_SLUGS = new Set(['greenline', 'demo']);
+
+/**
+ * True when operating on the interactive demo sandbox — either because the
+ * entire server is running in demo mode OR because the target organization is
+ * the seeded demo workspace visited by an unsigned prospect on the live site.
+ */
+export function isDemoOrg(orgId?: string | null): boolean {
+  return isDemo() || orgId === demoOrg;
+}
+
+/** True for the marketing site's reserved public demo booking/portal slugs. */
+export function isReservedDemoSlug(slug?: string | null): boolean {
+  if (!slug) return false;
+  return DEMO_SLUGS.has(slug.trim().toLowerCase());
+}
 
 export function isDemo() {
   if (process.env.ROLLOS_DEMO === 'true') {
@@ -217,4 +248,41 @@ export async function mutateDemo<T>(
   });
   state.queue = run.catch(() => {});
   return run;
+}
+
+export async function saveDemoPhoto(
+  filename: string,
+  bytes: Buffer,
+  metadata: { job_id: string; org_id: string },
+): Promise<void> {
+  photos.set(filename, { bytes, metadata });
+  if (photos.size > 200) {
+    const oldest = photos.keys().next().value;
+    if (oldest) photos.delete(oldest);
+  }
+  const photoDir = path.join(demoDataDirectory(), 'photos');
+  try {
+    await mkdir(photoDir, { recursive: true });
+    await writeFile(path.join(photoDir, filename), bytes);
+    await writeFile(path.join(photoDir, filename + '.json'), JSON.stringify(metadata));
+  } catch {
+    // Read-only serverless filesystems fall back cleanly to the in-memory photo cache.
+  }
+}
+
+export async function readDemoPhoto(filename: string): Promise<DemoPhotoRecord | null> {
+  const cached = photos.get(filename);
+  if (cached) return cached;
+  const photoDir = path.join(demoDataDirectory(), 'photos');
+  try {
+    const [bytes, rawMeta] = await Promise.all([
+      readFile(path.join(photoDir, filename)),
+      readFile(path.join(photoDir, filename + '.json'), 'utf8'),
+    ]);
+    const record: DemoPhotoRecord = { bytes, metadata: JSON.parse(rawMeta) };
+    photos.set(filename, record);
+    return record;
+  } catch {
+    return null;
+  }
 }

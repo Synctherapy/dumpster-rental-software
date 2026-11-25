@@ -1,6 +1,6 @@
 import 'server-only';
 import { claimNotification, finishNotification } from './notifications';
-import { isDemo } from './store';
+import { isDemoOrg } from './store';
 export async function sendEmail(
   org_id: string,
   job_id: string | null,
@@ -12,8 +12,9 @@ export async function sendEmail(
 ) {
   const log = await claimNotification(org_id, job_id, to, template, 'email', uniqueness);
   if (!log) return 'already_logged';
-  let status = isDemo() ? 'demo' : 'not_configured';
-  if (!isDemo() && process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
+  const demo = isDemoOrg(org_id);
+  let status = demo ? 'demo' : 'not_configured';
+  if (!demo && process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
     try {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -29,6 +30,6 @@ export async function sendEmail(
       status = 'failed';
     }
   }
-  await finishNotification(log.id, status);
+  await finishNotification(log.id, status, org_id);
   return status;
 }

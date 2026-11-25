@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import { isDemo, readDemo } from '@/lib/server/store';
-import { admin, identity } from '@/lib/server/supabase';
+import { isDemo, isDemoOrg, readDemo, saveDemoPhoto } from '@/lib/server/store';
+import { admin, maybeIdentity } from '@/lib/server/supabase';
 import { verifyActiveDriverToken } from '@/lib/server/tokens';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
@@ -23,22 +21,30 @@ export async function POST(request: Request) {
     const token = form.get('token');
     let org: string;
     let driver: string | null = null;
+    let demo = isDemo();
+    let demoSid: string | undefined;
     if (token) {
       const t = await verifyActiveDriverToken(String(token));
       org = t.org;
       driver = t.driver;
-    } else if (isDemo()) org = (await readDemo()).organization.id;
-    else {
-      const { member } = await identity();
-      if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
-      org = member.org_id;
+      demo = isDemoOrg(t.org);
+      demoSid = t.sid;
+    } else {
+      const auth = demo ? null : await maybeIdentity();
+      if (!auth) {
+        demo = true;
+        org = (await readDemo()).organization.id;
+      } else {
+        const { member } = auth;
+        if (!['owner', 'dispatcher'].includes(member.role)) throw new Error('FORBIDDEN');
+        org = member.org_id;
+      }
     }
     // Now that the uploader is known, budget them individually: a driver on a
     // shared mobile network must never spend another driver's allowance.
     await enforceRateLimit(request, 'upload', `${org}:${driver ?? 'staff'}`);
-    const demo = isDemo();
     const job = demo
-      ? (await readDemo()).jobs.find((j) => j.id === job_id)
+      ? (await readDemo(demoSid)).jobs.find((j) => j.id === job_id)
       : (
           await admin()
             .from('jobs')
@@ -51,16 +57,7 @@ export async function POST(request: Request) {
       throw new Error('FORBIDDEN');
     const filename = `${randomUUID()}.${png ? 'png' : 'jpg'}`;
     if (demo) {
-      const directory = path.join(
-        process.env.ROLLOS_DATA_DIR || path.join(process.cwd(), '.rollos'),
-        'photos',
-      );
-      await mkdir(directory, { recursive: true });
-      await writeFile(path.join(directory, filename), buffer);
-      await writeFile(
-        path.join(directory, filename + '.json'),
-        JSON.stringify({ job_id, org_id: org }),
-      );
+      await saveDemoPhoto(filename, buffer, { job_id, org_id: org });
       return NextResponse.json({ url: `/api/photos/${filename}` });
     }
     const key = `${org}/${job_id}/${filename}`;
