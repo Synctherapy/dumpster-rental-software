@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo, readDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo, readDemo } from '@/lib/server/store';
 import { maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { clientIp, enforceRateLimit } from '@/lib/server/rate-limit';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 import type { Container } from '@/lib/types';
 
@@ -34,6 +35,11 @@ export async function POST(request: Request) {
 
     const auth = isDemo() ? null : await maybeIdentity();
     if (!auth) {
+      await enforceRateLimit(
+        request,
+        'demoMutation',
+        (await getDemoSessionId()) ?? clientIp(request),
+      );
       await mutateDemo((d) => {
         const existingLabels = new Set(d.containers.map((c) => c.label.toLowerCase()));
         for (const item of items) {

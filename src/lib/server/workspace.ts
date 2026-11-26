@@ -1,6 +1,12 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import { getDemoSessionId, isDemo, isReservedDemoSlug, readDemo } from './store';
+import {
+  getDemoSessionId,
+  isDemo,
+  isDemoViewRequested,
+  isReservedDemoSlug,
+  readDemo,
+} from './store';
 import { admin, maybeIdentity } from './supabase';
 import { checkAndTriggerPhoneProvisioning } from './phone';
 import type { Workspace } from '../types';
@@ -19,6 +25,14 @@ export async function workspace(): Promise<Workspace> {
     return d;
   }
   try {
+    const demoRequested = await isDemoViewRequested();
+    if (demoRequested) {
+      const [demoData, realAuth] = await Promise.all([
+        readDemo(),
+        maybeIdentity({ ignoreDemoMode: true }),
+      ]);
+      return { ...demoData, has_real_session: Boolean(realAuth) };
+    }
     const auth = await maybeIdentity();
     if (!auth) return readDemo();
     const { db, member } = auth;

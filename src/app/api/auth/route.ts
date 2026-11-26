@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { isDemo, mutateDemo, setDemoViewCookie } from '@/lib/server/store';
 import { sessionClient } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { enforceRateLimit } from '@/lib/server/rate-limit';
@@ -67,12 +67,14 @@ export async function POST(request: Request) {
 
     const db = await sessionClient();
     if (input.action === 'logout') {
+      await setDemoViewCookie(false);
       await db.auth.signOut();
       return NextResponse.json({ ok: true });
     }
     if (!input.email || !input.password) throw new Error('Email and password are required.');
     if (input.action === 'signup') {
       if (!input.company || !input.name) throw new Error('Your name and company are required.');
+      await setDemoViewCookie(false);
       const appOrigin =
         process.env.APP_URL ||
         request.headers.get('origin') ||
@@ -108,6 +110,7 @@ export async function POST(request: Request) {
       password: input.password,
     });
     if (error) throw error;
+    await setDemoViewCookie(false);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return failure(e);

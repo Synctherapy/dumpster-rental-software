@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
+import { DemoSwitcherBar } from './demo-switcher-bar';
 import { api } from '@/lib/client';
 import {
   dateLabel,
@@ -384,8 +385,10 @@ export function DriverRoute({ token }: { token: string }) {
     }
   };
   return (
-    <main className="driver-page">
-      <header className="driver-header">
+    <>
+      {data?.demo && <DemoSwitcherBar active="driver" />}
+      <main className="driver-page">
+        <header className="driver-header">
         <Brand />
         <span className="pill">
           <Truck size={13} />
@@ -1578,6 +1581,7 @@ export function DriverRoute({ token }: { token: string }) {
           )}
         </>
       )}
-    </main>
+      </main>
+    </>
   );
 }

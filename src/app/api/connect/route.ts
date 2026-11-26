@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import { identity, admin } from '@/lib/server/supabase';
-import { isDemo } from '@/lib/server/store';
+import { isDemo, isDemoViewRequested } from '@/lib/server/store';
 import { stripe } from '@/lib/server/stripe';
 import { assertSameOrigin, failure } from '@/lib/server/http';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    if (isDemo())
+    if (isDemo() || (await isDemoViewRequested()))
       throw new Error(
-        'Connect Supabase and a Stripe test key in environment settings to start onboarding.',
+        'You are in the interactive demo sandbox. Create a free account or exit demo mode to connect Stripe.',
       );
     const { member } = await identity();
     if (member.role !== 'owner') throw new Error('FORBIDDEN');

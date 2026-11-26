@@ -20,12 +20,16 @@ export function MobileStickyCTA() {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/bookings') ||
     pathname.startsWith('/calendar') ||
+    pathname.startsWith('/customers') ||
     pathname.startsWith('/inventory') ||
     pathname.startsWith('/drivers') ||
     pathname.startsWith('/payments') ||
     pathname.startsWith('/reports') ||
+    pathname.startsWith('/growth') ||
     pathname.startsWith('/settings') ||
     pathname.startsWith('/driver') ||
+    pathname.startsWith('/contractor') ||
+    pathname.startsWith('/demo') ||
     pathname.startsWith('/book') ||
     pathname.startsWith('/embed') ||
     pathname.startsWith('/agreement') ||
@@ -163,7 +167,7 @@ export function MobileStickyCTA() {
           >
             {/* Secondary: Test Demo (Zero-Friction Discovery) */}
             <Link
-              href="/book/greenline"
+              href="/demo"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -298,7 +302,7 @@ export function MobileStickyCTA() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Link
-                href="/book/greenline"
+                href="/demo"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

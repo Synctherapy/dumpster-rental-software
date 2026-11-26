@@ -48,6 +48,7 @@ import { GrowthHub } from './growth-hub';
 import { CustomersView } from './customers-view';
 import { OnboardingWizard } from './onboarding-wizard';
 import { OnboardingChecklist } from './onboarding-checklist';
+import { DemoSwitcherBar } from './demo-switcher-bar';
 import { api, initials } from '@/lib/client';
 import { money, dateLabel, today, type Workspace, type JobStatus } from '@/lib/types';
 const navigation = [
@@ -95,7 +96,6 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
     notes?: string;
   } | null>(null);
   const [help, setHelp] = useState(false);
-  const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false);
   const [onboardingWizardStep, setOnboardingWizardStep] = useState<1 | 2 | 3>(1);
   const notify: Notify = useCallback((message, error = false) => setToast({ message, error }), []);
@@ -113,16 +113,21 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
     setData(d);
   }, []);
   useEffect(() => {
-    api<Workspace>('/api/workspace')
+    const params =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const demoParam = params?.get('demo') ?? null;
+    const initialUrl =
+      demoParam !== null ? `/api/workspace?demo=${encodeURIComponent(demoParam)}` : '/api/workspace';
+    api<Workspace>(initialUrl)
       .then((d) => {
         setData(d);
         try {
-          const params =
-            typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
           const isExplicitOnboarding =
             params?.get('onboarding') === 'true' || params?.get('setup') === 'true';
           const isCompleted = localStorage.getItem(`onboarding_completed_${d.organization.id}`);
-          if (isExplicitOnboarding || !isCompleted) {
+          // Let demo visitors explore the populated 18-container fleet right away;
+          // only auto-open the setup wizard for real new haulers or explicit ?onboarding=true.
+          if (isExplicitOnboarding || (!d.demo && !isCompleted)) {
             setOnboardingWizardStep(1);
             setOnboardingWizardOpen(true);
           }
@@ -301,141 +306,62 @@ export function WorkspaceApp({ page = 'dashboard' }: { page?: string }) {
               >
                 {owner?.name ?? 'Your account'}
               </strong>
-              <p>Business owner</p>
+              <p>{data.demo ? 'Interactive Sandbox' : 'Business owner'}</p>
             </div>
-            <button
-              aria-label="Log out"
-              title="Log out"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#e2e8f0',
-                padding: '6px 8px',
-                borderRadius: '6px',
-                fontSize: '11.5px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-              }}
-              onClick={handleLogout}
-            >
-              <LogOut size={13} />
-              <span>Log out</span>
-            </button>
+            {data.demo ? (
+              <Link
+                href="/signup"
+                style={{
+                  background: 'rgba(249, 115, 22, 0.2)',
+                  border: '1px solid rgba(249, 115, 22, 0.45)',
+                  color: '#ffedd5',
+                  padding: '6px 9px',
+                  borderRadius: '6px',
+                  fontSize: '11.5px',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span>Start Free</span>
+                <ArrowRight size={12} />
+              </Link>
+            ) : (
+              <button
+                aria-label="Log out"
+                title="Log out"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: '#e2e8f0',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11.5px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer',
+                }}
+                onClick={handleLogout}
+              >
+                <LogOut size={13} />
+                <span>Log out</span>
+              </button>
+            )}
           </div>
         </div>
       </aside>
       <div className="main">
-        {data.demo && !dismissDemoBar && (
-          <aside
-            role="banner"
-            aria-label="Interactive dispatch demo"
-            style={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 50,
-              background: 'rgba(26, 41, 32, 0.96)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              borderBottom: '1px solid rgba(220, 228, 214, 0.25)',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-              padding: '7px 12px',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '8px',
-              fontSize: '12.5px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-              <span
-                style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  background: '#628f34',
-                  boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.35)',
-                  display: 'inline-block',
-                  flexShrink: 0,
-                }}
-              />
-              {/* Desktop single line */}
-              <span
-                className="hidden sm:inline"
-                style={{
-                  fontWeight: 700,
-                  color: '#f3f6f0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                Live Dispatch Demo ·{' '}
-                <span style={{ fontWeight: 500, color: '#c4d4c5' }}>
-                  Drag cards to dispatch drivers. Want this for your dumpster fleet?
-                </span>
-              </span>
-
-              {/* Mobile stacked 2 lines, zero cutoff */}
-              <div className="flex flex-col sm:hidden leading-tight">
-                <span
-                  style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}
-                >
-                  Live Dispatch Demo
-                </span>
-                <span
-                  style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}
-                >
-                  Want this for your dumpster fleet?
-                </span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              <Link
-                href="/signup"
-                style={{
-                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '13.5px',
-                  padding: '7px 15px',
-                  borderRadius: '9px',
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  boxShadow: '0 3px 10px rgba(234, 88, 12, 0.4)',
-                  minHeight: '38px',
-                }}
-              >
-                <span className="hidden sm:inline">Start Free ($0/mo)</span>
-                <span className="sm:hidden font-extrabold">Start Free</span>
-                <ArrowRight size={15} />
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setDismissDemoBar(true)}
-                aria-label="Dismiss banner"
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#8fa093',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderRadius: '4px',
-                }}
-              >
-                <X size={15} />
-              </button>
-            </div>
-          </aside>
+        {data.demo && (
+          <DemoSwitcherBar
+            active="dashboard"
+            slug={data.organization.slug}
+            hasRealSession={Boolean(data.has_real_session)}
+            onReset={reload}
+          />
         )}
         <header className="topbar">
           <div className="breadcrumbs">

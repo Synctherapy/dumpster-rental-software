@@ -1,5 +1,6 @@
 import 'server-only';
-import { isDemo, readDemo } from './store';
+import { getRequestDemoSession, isDemo, readDemo } from './store';
+import { seed } from '../seed';
 import { admin } from './supabase';
 import type { Job, Organization, PricingRule } from '../types';
 
@@ -9,6 +10,7 @@ export interface AgreementData {
   pricingRule: PricingRule;
   rentalDays: number;
   currency: string;
+  demo?: boolean;
 }
 
 function toPublicAgreementOrg(rawOrg: Partial<Organization>): Organization {
@@ -67,6 +69,7 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
       pricingRule,
       rentalDays: diffDays,
       currency,
+      demo: true,
     };
   }
 
@@ -79,7 +82,9 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
 
   if (jobError || !job) {
     try {
-      const demoData = await readDemo();
+      const { inRequestScope, sessionId } = await getRequestDemoSession();
+      const demoData =
+        inRequestScope && !sessionId ? seed() : await readDemo(sessionId ?? undefined);
       const demoJob = demoData.jobs.find((j) => j.id === jobId);
       if (!demoJob) return null;
       const organization = toPublicAgreementOrg(demoData.organization);
@@ -110,6 +115,7 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
         pricingRule,
         rentalDays: diffDays,
         currency,
+        demo: true,
       };
     } catch {
       return null;
@@ -154,5 +160,6 @@ export async function getJobAgreement(jobId: string): Promise<AgreementData | nu
     pricingRule,
     rentalDays: diffDays,
     currency,
+    demo: false,
   };
 }

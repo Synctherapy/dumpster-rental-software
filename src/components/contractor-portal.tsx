@@ -33,6 +33,7 @@ import type {
   ContractorStatement,
   ContractorStatementLineItem,
 } from '@/app/api/contractor/[slug]/route';
+import { DemoSwitcherBar } from './demo-switcher-bar';
 
 interface ContractorPortalResponse {
   organization: Organization;
@@ -387,6 +388,9 @@ export function ContractorPortal({ slug }: { slug: string }) {
         paddingBottom: '64px',
       }}
     >
+      {data?.demo && (
+        <DemoSwitcherBar active="contractor" slug={data.organization.slug || slug} />
+      )}
       {/* Top VIP Header */}
       <header
         style={{

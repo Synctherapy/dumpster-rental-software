@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo } from '@/lib/server/store';
 import { maybeIdentity } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { clientIp, enforceRateLimit } from '@/lib/server/rate-limit';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 const schema = z.discriminatedUnion('kind', [
   z.object({
@@ -46,6 +47,11 @@ export async function POST(request: Request) {
     };
     const auth = isDemo() ? null : await maybeIdentity();
     if (!auth) {
+      await enforceRateLimit(
+        request,
+        'demoMutation',
+        (await getDemoSessionId()) ?? clientIp(request),
+      );
       await mutateDemo((d) => {
         if (input.kind === 'container') {
           if (d.containers.some((c) => c.label === input.label))
@@ -106,6 +112,13 @@ export async function PATCH(request: Request) {
     const input = patchSchema.parse(withKind);
 
     const auth = isDemo() ? null : await maybeIdentity();
+    if (!auth) {
+      await enforceRateLimit(
+        request,
+        'demoMutation',
+        (await getDemoSessionId()) ?? clientIp(request),
+      );
+    }
 
     if (input.kind === 'container') {
       if (!auth)

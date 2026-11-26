@@ -2,6 +2,7 @@ import 'server-only';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { isDemoViewRequested } from './store';
 export function admin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,7 +42,10 @@ export async function identity() {
   return { db, user, member: data };
 }
 
-export async function maybeIdentity() {
+export async function maybeIdentity(options?: { ignoreDemoMode?: boolean }) {
+  if (!options?.ignoreDemoMode && (await isDemoViewRequested())) {
+    return null;
+  }
   try {
     return await identity();
   } catch {

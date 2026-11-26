@@ -21,6 +21,7 @@ import {
 import { dateLabel, hasEarlyPickupRequest, money } from '@/lib/types';
 import { api } from '@/lib/client';
 import type { AgreementData } from '@/lib/server/agreement';
+import { DemoSwitcherBar } from './demo-switcher-bar';
 
 export function AgreementView({ data }: { data: AgreementData }) {
   const [copied, setCopied] = useState(false);
@@ -192,9 +193,15 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
   };
 
   return (
-    <div className="agreement-wrapper min-h-screen bg-[#f7f9f6] text-[#223026] py-8 px-4 sm:px-6 lg:px-8">
-      {/* Top Action Bar (Hidden during Print) */}
-      <div className="print-hide max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
+    <div className="min-h-screen bg-[#f7f9f6] text-[#223026]">
+      {data.demo && (
+        <div className="print-hide">
+          <DemoSwitcherBar active="agreement" slug={organization.slug} />
+        </div>
+      )}
+      <div className="agreement-wrapper py-8 px-4 sm:px-6 lg:px-8">
+        {/* Top Action Bar (Hidden during Print) */}
+        <div className="print-hide max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 p-4 bg-white border border-[#dde4d4] rounded-xl shadow-sm">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -791,6 +798,7 @@ Verified Digital Acceptance: ${isSigned ? 'Legally Binding E-Sign' : 'Pending Cu
           }
         }
       `}</style>
+      </div>
     </div>
   );
 }

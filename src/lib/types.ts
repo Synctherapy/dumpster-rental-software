@@ -171,6 +171,8 @@ export interface Workspace {
    * the newest page, so counts in the UI come from here when present.
    */
   notifications_total?: number;
+  /** True when a signed-in user is explicitly browsing the isolated demo sandbox. */
+  has_real_session?: boolean;
   demo: boolean;
 }
 export const statuses: JobStatus[] = [

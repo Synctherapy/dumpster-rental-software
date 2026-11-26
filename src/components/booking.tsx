@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Dumpster } from './brand';
 import { Button } from './ui/button';
+import { DemoSwitcherBar } from './demo-switcher-bar';
 import { api } from '@/lib/client';
 import {
   addDays,
@@ -82,7 +83,6 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
   const [pickup, setPickup] = useState(addDays(today(), 8));
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState<Job | null>(null);
-  const [dismissDemoBar, setDismissDemoBar] = useState(false);
   const [key] = useState(() => globalThis.crypto?.randomUUID?.() ?? '');
   const [contractorParam] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
@@ -353,118 +353,11 @@ export function Booking({ slug, embed = false }: { slug: string; embed?: boolean
       setBusy(false);
     }
   };
-  const showDemoBar = !!(data.demo && !embed && !dismissDemoBar);
+  const showDemoBar = !!(data.demo && !embed);
 
   return (
     <div style={{ minHeight: '100vh', background: '#f6f8f3' }}>
-      {showDemoBar && (
-        <aside
-          role="banner"
-          aria-label="Interactive hauler demo"
-          style={{
-            position: 'sticky',
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 100,
-            background: 'rgba(26, 41, 32, 0.96)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(220, 228, 214, 0.25)',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-            padding: '7px 12px',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '8px',
-            fontSize: '12.5px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                background: '#628f34',
-                boxShadow: '0 0 0 2px rgba(98, 143, 52, 0.35)',
-                display: 'inline-block',
-                flexShrink: 0,
-              }}
-            />
-            {/* Desktop single line */}
-            <span
-              className="hidden sm:inline"
-              style={{
-                fontWeight: 700,
-                color: '#f3f6f0',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Live Hauler Demo ·{' '}
-              <span style={{ fontWeight: 500, color: '#c4d4c5' }}>
-                Want this 24/7 booking widget for your dumpster company?
-              </span>
-            </span>
-
-            {/* Mobile stacked 2 lines, zero cutoff */}
-            <div className="flex flex-col sm:hidden leading-tight">
-              <span style={{ fontWeight: 700, fontSize: '11.5px', color: '#f3f6f0', lineHeight: 1.2 }}>
-                Live Hauler Demo
-              </span>
-              <span style={{ fontWeight: 500, fontSize: '10.5px', color: '#c4d4c5', lineHeight: 1.2 }}>
-                Want this on your website?
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <Link
-              href="/signup"
-              style={{
-                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '13.5px',
-                padding: '7px 15px',
-                borderRadius: '9px',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 3px 10px rgba(234, 88, 12, 0.4)',
-                minHeight: '38px',
-              }}
-            >
-              <span className="hidden sm:inline">Start Free ($0/mo)</span>
-              <span className="sm:hidden font-extrabold">Start Free</span>
-              <ArrowRight size={15} />
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setDismissDemoBar(true)}
-              aria-label="Dismiss banner"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#8fa093',
-                cursor: 'pointer',
-                padding: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '4px',
-              }}
-            >
-              <X size={15} />
-            </button>
-          </div>
-        </aside>
-      )}
+      {showDemoBar && <DemoSwitcherBar active="booking" slug={data.organization.slug || slug} />}
       <main
         className="booking-page"
         style={embed ? { padding: '18px', minHeight: 'auto' } : undefined}

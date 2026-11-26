@@ -100,6 +100,8 @@ export const LIMITS = {
   contractor: { limit: 60, windowSeconds: 3600 },
   // Per address. Minting a brand-new sandbox, never reading an existing one.
   demoSandbox: { limit: 20, windowSeconds: 3600 },
+  // Per sandbox or address. Generous for interactive exploration, stops scripted floods.
+  demoMutation: { limit: 120, windowSeconds: 3600 },
 } as const;
 
 export async function enforceRateLimit(

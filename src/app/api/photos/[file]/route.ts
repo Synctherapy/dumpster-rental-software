@@ -8,6 +8,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ file: stri
     headers: {
       'Content-Type': file.endsWith('.png') ? 'image/png' : 'image/jpeg',
       'X-Content-Type-Options': 'nosniff',
+      'Content-Security-Policy': "default-src 'none'; sandbox",
+      'Cache-Control': 'private, no-store',
     },
   });
 }

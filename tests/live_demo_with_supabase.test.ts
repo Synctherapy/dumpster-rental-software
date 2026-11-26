@@ -268,6 +268,8 @@ test('live production mode completes demo booking, dispatch, driver route, and p
       params: Promise.resolve({ file }),
     });
     assert.equal(servedPhoto.status, 200);
+    assert.equal(servedPhoto.headers.get('Content-Security-Policy'), "default-src 'none'; sandbox");
+    assert.equal(servedPhoto.headers.get('Cache-Control'), 'private, no-store');
 
     const delivered = await changeJob(
       booked.job!.id,
@@ -280,3 +282,82 @@ test('live production mode completes demo booking, dispatch, driver route, and p
     assert.equal(dbWrites.length, 0, 'demo actions must never write to production Supabase tables');
   });
 });
+
+test('demo safety guardrails enforce collection bounds, 2MB photo caps, /demo/driver redirect, and /api/demo reset + CSRF', async () => {
+  const { MAX_DEMO_JOBS, saveDemoPhoto } = req('../src/lib/server/store') as typeof StoreModule;
+  const { POST: demoPost } = req('../src/app/api/demo/route') as {
+    POST: (req: Request) => Promise<Response>;
+  };
+  const { GET: demoDriverGet } = req('../src/app/demo/driver/route') as {
+    GET: (req: Request) => Promise<Response>;
+  };
+
+  await withProductionEnv(async () => {
+    // 1. Per-sandbox collection cap prevents unbounded memory growth
+    const sandbox = 'sandbox-cap-test-123456';
+    await mutateDemo((d) => {
+      const sample = d.jobs[0];
+      for (let i = 0; i < MAX_DEMO_JOBS + 25; i += 1) {
+        d.jobs.push({ ...sample, id: `extra-job-${i}` });
+      }
+    }, sandbox);
+    const capped = await readDemo(sandbox);
+    assert.equal(capped.jobs.length, MAX_DEMO_JOBS, 'demo jobs must be capped at MAX_DEMO_JOBS');
+
+    // 2. Demo photo size cap rejects >2 MB buffers
+    await assert.rejects(
+      () =>
+        saveDemoPhoto('oversize.png', Buffer.alloc(2 * 1024 * 1024 + 64), {
+          job_id: 'job-1',
+          org_id: capped.organization.id,
+        }),
+      /under 2 MB/i,
+    );
+
+    // 3. /demo/driver mints an active driver route redirect without touching Supabase
+    const redirectRes = await demoDriverGet(
+      new Request('https://rolloffdumpstersoftware.com/demo/driver'),
+    );
+    assert.ok(redirectRes.status >= 300 && redirectRes.status < 400);
+    const location = redirectRes.headers.get('location') || '';
+    assert.match(location, /\/driver\/.+\..+/);
+
+    const token = location.split('/driver/')[1]!;
+    const driverViewRes = await driverRouteGet(
+      new Request(`https://rolloffdumpstersoftware.com/api/driver/${token}`),
+      { params: Promise.resolve({ token }) },
+    );
+    assert.equal(driverViewRes.status, 200);
+
+    // 4. /api/demo rejects cross-site CSRF and resets custom mutations cleanly
+    const crossSite = await demoPost(
+      new Request('https://rolloffdumpstersoftware.com/api/demo', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          origin: 'https://evil.example',
+          'sec-fetch-site': 'cross-site',
+        },
+        body: JSON.stringify({ action: 'reset' }),
+      }),
+    );
+    assert.equal(crossSite.status, 403);
+
+    await mutateDemo((d) => {
+      d.organization.name = 'Temporary Custom Name';
+    });
+    const resetRes = await demoPost(
+      new Request('https://rolloffdumpstersoftware.com/api/demo', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          origin: 'https://rolloffdumpstersoftware.com',
+        },
+        body: JSON.stringify({ action: 'reset' }),
+      }),
+    );
+    assert.equal(resetRes.status, 200);
+    assert.equal((await readDemo()).organization.name, 'Greenline Hauling');
+  });
+});
+

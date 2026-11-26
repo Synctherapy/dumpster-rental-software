@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyActiveDriverToken } from '@/lib/server/tokens';
-import { isDemoOrg, readDemo } from '@/lib/server/store';
+import { getRequestDemoSession, isDemo, isDemoOrg, readDemo } from '@/lib/server/store';
+import { seed } from '@/lib/seed';
 import { admin } from '@/lib/server/supabase';
 import { changeJob } from '@/lib/server/jobs';
 import { assertSameOrigin, failure } from '@/lib/server/http';
@@ -8,7 +9,14 @@ export async function GET(_: Request, { params }: { params: Promise<{ token: str
   try {
     const t = await verifyActiveDriverToken((await params).token);
     if (isDemoOrg(t.org)) {
-      const d = await readDemo(t.sid);
+      const { inRequestScope, sessionId } = await getRequestDemoSession();
+      // Anti-defacement: in live HTTP requests, only render custom sandbox text
+      // to the visitor holding that sandbox's HttpOnly cookie; anyone else
+      // opening a shared demo link sees pristine Greenline Hauling seed data.
+      const d =
+        !isDemo() && inRequestScope && t.sid !== sessionId
+          ? seed()
+          : await readDemo(t.sid);
       return NextResponse.json({
         driver: d.users.find((u) => u.id === t.driver),
         jobs: d.jobs.filter(

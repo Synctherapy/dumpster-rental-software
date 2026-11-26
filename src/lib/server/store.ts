@@ -81,8 +81,55 @@ export function isDemo() {
 }
 
 export const DEMO_SESSION_COOKIE = 'rollos_demo_session';
+export const DEMO_MODE_COOKIE = 'rollos_demo_mode';
 const DEMO_SESSION_PATTERN = /^[a-zA-Z0-9_-]{8,64}$/;
 const DEMO_SESSION_MAX_AGE = 30 * 86400;
+const DEMO_MODE_MAX_AGE = 7 * 86400;
+
+export const MAX_DEMO_JOBS = 80;
+export const MAX_DEMO_CONTAINERS = 120;
+export const MAX_DEMO_USERS = 30;
+export const MAX_DEMO_PAYMENTS = 160;
+export const MAX_DEMO_NOTIFICATIONS = 120;
+export const MAX_DEMO_PHOTO_BYTES = 2 * 1024 * 1024;
+
+function enforceSandboxCaps(data: Workspace) {
+  if (Array.isArray(data.jobs) && data.jobs.length > MAX_DEMO_JOBS) {
+    data.jobs.length = MAX_DEMO_JOBS;
+  }
+  if (Array.isArray(data.containers) && data.containers.length > MAX_DEMO_CONTAINERS) {
+    data.containers.length = MAX_DEMO_CONTAINERS;
+  }
+  if (Array.isArray(data.users) && data.users.length > MAX_DEMO_USERS) {
+    data.users.length = MAX_DEMO_USERS;
+  }
+  if (Array.isArray(data.payments) && data.payments.length > MAX_DEMO_PAYMENTS) {
+    data.payments.length = MAX_DEMO_PAYMENTS;
+  }
+  if (
+    Array.isArray(data.notifications_log) &&
+    data.notifications_log.length > MAX_DEMO_NOTIFICATIONS
+  ) {
+    data.notifications_log.length = MAX_DEMO_NOTIFICATIONS;
+  }
+}
+
+export async function getRequestDemoSession(): Promise<{
+  inRequestScope: boolean;
+  sessionId: string | null;
+}> {
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const cookieSession = cookieStore.get(DEMO_SESSION_COOKIE)?.value;
+    return {
+      inRequestScope: true,
+      sessionId: cookieSession && DEMO_SESSION_PATTERN.test(cookieSession) ? cookieSession : null,
+    };
+  } catch {
+    return { inRequestScope: false, sessionId: null };
+  }
+}
 
 /**
  * Reads the visitor's private demo sandbox id.
@@ -93,17 +140,37 @@ const DEMO_SESSION_MAX_AGE = 30 * 86400;
  * now a server-issued HttpOnly cookie only: callers cannot choose it.
  */
 export async function getDemoSessionId(): Promise<string | null> {
+  const { sessionId } = await getRequestDemoSession();
+  return sessionId;
+}
+
+/** True when a visitor (even one signed into a real account) opted into viewing the demo tour. */
+export async function isDemoViewRequested(): Promise<boolean> {
   try {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    const cookieSession = cookieStore.get(DEMO_SESSION_COOKIE)?.value;
-    if (cookieSession && DEMO_SESSION_PATTERN.test(cookieSession)) {
-      return cookieSession;
-    }
-    return null;
+    return cookieStore.get(DEMO_MODE_COOKIE)?.value === '1';
   } catch {
-    return null;
+    return false;
   }
+}
+
+export async function setDemoViewCookie(enabled: boolean): Promise<void> {
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    if (enabled) {
+      cookieStore.set(DEMO_MODE_COOKIE, '1', {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: DEMO_MODE_MAX_AGE,
+        secure: process.env.NODE_ENV === 'production',
+      });
+    } else {
+      cookieStore.delete(DEMO_MODE_COOKIE);
+    }
+  } catch {}
 }
 
 /**
@@ -186,7 +253,9 @@ export async function mutateDemo<T>(
   fn: (data: Workspace) => T | Promise<T>,
   explicitSessionId?: string,
 ): Promise<T> {
-  const sessionId = explicitSessionId || (await getDemoSessionId());
+  // Never let an HTTP request without a cookie mutate shared global sample data:
+  // auto-issue a private cookie session whenever cookies() is writable.
+  const sessionId = explicitSessionId || (await getDemoSessionId()) || (await ensureDemoSessionId());
 
   const run = state.queue.then(async () => {
     let data: Workspace;
@@ -194,6 +263,7 @@ export async function mutateDemo<T>(
     if (sessionId) {
       data = await loadSessionData(sessionId);
       const result = await fn(data);
+      enforceSandboxCaps(data);
       sessions.set(sessionId, data);
 
       // Keep in-memory cache bounded (max 500 active demo sessions)
@@ -215,7 +285,7 @@ export async function mutateDemo<T>(
       return result;
     }
 
-    // Default global fallback (for tests without request context)
+    // Default global fallback (only reached in Node unit tests outside HTTP request scope)
     if (globalStore.rollosFsDisabled) {
       data = getMemoryData();
     } else {
@@ -231,6 +301,7 @@ export async function mutateDemo<T>(
     }
 
     const result = await fn(data);
+    enforceSandboxCaps(data);
     globalStore.rollosDemoMemory = data;
 
     if (!globalStore.rollosFsDisabled) {
@@ -250,11 +321,25 @@ export async function mutateDemo<T>(
   return run;
 }
 
+export async function resetDemoSession(explicitSessionId?: string): Promise<Workspace> {
+  return mutateDemo((d) => {
+    const fresh = seed();
+    for (const key of Object.keys(d) as (keyof Workspace)[]) {
+      delete d[key];
+    }
+    Object.assign(d, fresh);
+    return d;
+  }, explicitSessionId);
+}
+
 export async function saveDemoPhoto(
   filename: string,
   bytes: Buffer,
   metadata: { job_id: string; org_id: string },
 ): Promise<void> {
+  if (bytes.byteLength > MAX_DEMO_PHOTO_BYTES) {
+    throw new Error('Demo sample photos must be under 2 MB.');
+  }
   photos.set(filename, { bytes, metadata });
   if (photos.size > 200) {
     const oldest = photos.keys().next().value;

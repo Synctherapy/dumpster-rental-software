@@ -116,7 +116,7 @@ export default function Home() {
             <Link href="/signup" className="btn btn-orange">
               Start Free in 3 Minutes — No Credit Card <ArrowRight size={15} />
             </Link>
-            <Link href="/dashboard" className="btn btn-dark">
+            <Link href="/dashboard?demo=1" className="btn btn-dark">
               Open Live Dispatch Board
             </Link>
           </div>
@@ -1055,11 +1055,11 @@ export default function Home() {
               Start Free in 3 Minutes — No Credit Card <ArrowRight size={15} />
             </Link>
             <Link
-              href="/book/greenline"
+              href="/demo"
               className="btn btn-dark"
               style={{ background: '#2c3e34', border: '1px solid #3c5447', color: '#ffffff' }}
             >
-              Test Live Customer Checkout
+              Explore Full Interactive Demo
             </Link>
           </div>
           <div className="text-xs md:text-sm text-[#8ca58b] flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-medium">

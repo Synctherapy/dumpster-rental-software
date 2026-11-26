@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { isDemo, mutateDemo } from '@/lib/server/store';
+import { getDemoSessionId, isDemo, mutateDemo } from '@/lib/server/store';
 import { maybeIdentity, admin } from '@/lib/server/supabase';
 import { assertSameOrigin, failure } from '@/lib/server/http';
+import { clientIp, enforceRateLimit } from '@/lib/server/rate-limit';
 import { isValidPostalCode, normalizePostalCode } from '@/lib/types';
 import { checkAndTriggerPhoneProvisioning } from '@/lib/server/phone';
 const rule = z.object({
@@ -87,6 +88,11 @@ export async function POST(request: Request) {
     const auth = isDemo() ? null : await maybeIdentity();
 
     if (!auth) {
+      await enforceRateLimit(
+        request,
+        'demoMutation',
+        (await getDemoSessionId()) ?? clientIp(request),
+      );
       await mutateDemo((d) => {
         const isPaidPlan = d.organization.subscription_status === 'active';
         if (input.customer_fee_enabled === false && !isPaidPlan) {

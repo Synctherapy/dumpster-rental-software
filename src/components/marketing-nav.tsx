@@ -359,15 +359,24 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
                   </div>
                 </div>
 
-                {/* Direct Pricing Link placed right next to Features */}
+                {/* Direct Pricing + Live Demo Links placed right next to Features */}
                 {section.id === 'features' && (
-                  <Link
-                    href="/pricing"
-                    className={`nav-link-direct ${activePath === '/pricing' ? 'active' : ''}`}
-                    role="menuitem"
-                  >
-                    Pricing
-                  </Link>
+                  <>
+                    <Link
+                      href="/pricing"
+                      className={`nav-link-direct ${activePath === '/pricing' ? 'active' : ''}`}
+                      role="menuitem"
+                    >
+                      Pricing
+                    </Link>
+                    <Link
+                      href="/demo"
+                      className={`nav-link-direct ${activePath === '/demo' ? 'active' : ''}`}
+                      role="menuitem"
+                    >
+                      Live Demo
+                    </Link>
+                  </>
                 )}
               </Fragment>
             );
@@ -463,18 +472,30 @@ export function MarketingNav({ currentPath }: MarketingNavProps = {}) {
                   )}
                 </div>
 
-                {/* Direct Pricing Link placed right under Features */}
+                {/* Direct Pricing + Live Demo Links placed right under Features */}
                 {section.id === 'features' && (
-                  <div className="marketing-mobile-section">
-                    <Link
-                      href="/pricing"
-                      className={`marketing-mobile-direct-link ${activePath === '/pricing' ? 'active' : ''}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <span className="font-bold text-[#20332a] text-sm">Pricing</span>
-                      <ArrowRight size={15} className="text-[#ea580c]" />
-                    </Link>
-                  </div>
+                  <>
+                    <div className="marketing-mobile-section">
+                      <Link
+                        href="/pricing"
+                        className={`marketing-mobile-direct-link ${activePath === '/pricing' ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className="font-bold text-[#20332a] text-sm">Pricing</span>
+                        <ArrowRight size={15} className="text-[#ea580c]" />
+                      </Link>
+                    </div>
+                    <div className="marketing-mobile-section">
+                      <Link
+                        href="/demo"
+                        className={`marketing-mobile-direct-link ${activePath === '/demo' ? 'active' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className="font-bold text-[#20332a] text-sm">Live Interactive Demo</span>
+                        <ArrowRight size={15} className="text-[#ea580c]" />
+                      </Link>
+                    </div>
+                  </>
                 )}
               </Fragment>
             );
